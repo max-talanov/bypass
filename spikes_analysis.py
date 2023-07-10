@@ -1,11 +1,17 @@
-import numpy as np
 from brian2 import *
 import pickle
 import os
-from scipy.signal import savgol_filter
-from matplotlib.pyplot import figure
-from matplotlib.pyplot import cm
-import seaborn as sns
+from scipy.ndimage.filters import gaussian_filter1d
+
+
+def merge_files(*paths):
+    neuron_ids = []
+    firing_times = []
+    for path in paths:
+        file_neuron_ids, file_firing_times = read_file(path)
+        neuron_ids.extend(file_neuron_ids)
+        firing_times.extend(file_firing_times)
+    return neuron_ids, firing_times
 
 
 def read_file(file_name):
@@ -70,8 +76,8 @@ def spikes_on_diagonal(ids, times, eps=0.1):
     return diagonal_spikes, diagonal_spikes_share
 
 def test_correlation():
-    in_ids, in_times = divide_in_steps(*read_file('pickle_/l_e_cut_spikes.pickle'))
-    out_ids, out_times = divide_in_steps(*read_file('pickle_/l_e_rg_neurons_spikes.pickle'))
+    in_ids, in_times = divide_in_steps(*merge_files('pickle_/121/l_e_cut_spikes0.pickle', 'pickle_/121/l_e_cut_spikes1.pickle'))
+    out_ids, out_times = divide_in_steps(*merge_files('pickle_/121/l_e_rg_neurons_spikes0.pickle', 'pickle_/121/l_e_rg_neurons_spikes1.pickle'))
 
     absolute = []
     shared = []
@@ -81,8 +87,17 @@ def test_correlation():
         cut_spikes, _ = spikes_on_diagonal(*get_normalized_step(out_ids, in_times, i))
         absolute.append(rg_neurons_diagonal_spikes / cut_spikes)
         shared.append(rg_neurons_diagonal_spikes_share / cut_spikes)
-    # plot(range(len(absolute)), absolute)
-    plot(range(len(shared)), shared)
+
+    absolute = gaussian_filter1d(absolute, sigma=10)
+    shared = gaussian_filter1d(shared, sigma=10)
+
+    figure, axis = subplots(1, 2)
+
+    axis[0].plot(range(len(absolute)), absolute)
+    axis[0].set_title("rg_neurons_diagonal_spikes / cut_spikes")
+    axis[1].plot(range(len(shared)), shared)
+    axis[1].set_title("rg_neurons_diagonal_spikes / rg_neurons_spikes / cut_spikes")
+
     show()
 
 test_correlation()
