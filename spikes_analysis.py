@@ -46,10 +46,20 @@ def divide_in_steps(neuron_ids, firing_times):
 def generate_plots(neuron_ids_steps, firing_times_steps, file_name, plots_n):
     steps_to_plot = np.linspace(0, len(neuron_ids_steps) - 1, plots_n).astype(int)
     for step in steps_to_plot:
-        plot(firing_times_steps[step], neuron_ids_steps[step], 'b,')
+        plot(firing_times_steps[step], neuron_ids_steps[step], 'g,')
         savefig(f'plots/{file_name}_{step}.png')
         close()
 
+def generate_on_top(rg_spikes, muscle_spikes, file_name, plots_n):
+    rg_ids_steps, rg_times_steps = rg_spikes
+    muscle_ids_steps, muscle_times_steps = muscle_spikes
+
+    steps_to_plot = np.linspace(0, len(rg_ids_steps) - 1, plots_n).astype(int)
+    for step in steps_to_plot:
+        plot(muscle_times_steps[step], muscle_ids_steps[step], 'b,')
+        plot(rg_times_steps[step], rg_ids_steps[step], 'g,')
+        savefig(f'plots/{file_name}_{step}.png')
+        close()
 
 def get_normalized_step(ids, times, i):
     step_out_ids, step_out_times = np.asarray(ids[i]), np.asarray(times[i])
@@ -61,7 +71,7 @@ def get_normalized_step(ids, times, i):
     return step_out_times, step_out_ids
 
 
-def spikes_on_diagonal(ids, times, eps=0.1):
+def spikes_on_diagonal(ids, times, eps=0.01):
     diagonal_spikes = 0
     for id, time in zip(ids, times):
         if id < 0.25 + eps and time < 0.3 + eps:
@@ -79,62 +89,76 @@ def spikes_on_diagonal(ids, times, eps=0.1):
     diagonal_spikes_share = diagonal_spikes / len(ids)
     return diagonal_spikes, diagonal_spikes_share
 
-def test_correlation(inputs, outputs):
-    in_ids, in_times = inputs
-    out_ids, out_times = outputs
+def test_correlation(cut_inputs, muscle_inputs, outputs):
+    muscle_in_ids, muscle_in_times = muscle_inputs
+    cut_in_ids, cut_in_times = cut_inputs
+    rg_out_ids, rg_out_times = outputs
 
     absolute = []
     shared = []
     rg_spikes = []
-    for i in range(len(in_ids)):
-        norm_in = get_normalized_step(in_ids, in_times, i)
-        norm_out = get_normalized_step(out_ids, out_times, i)
+    cut = []
+    muscle = []
+    for i in range(len(cut_in_ids)):
+        norm_cut_in = get_normalized_step(cut_in_ids, cut_in_times, i)
+        norm_muscle_in = get_normalized_step(muscle_in_ids, muscle_in_times, i)
+        norm_rg_out = get_normalized_step(rg_out_ids, rg_out_times, i)
+        rg_neurons_diagonal_spikes, rg_neurons_diagonal_spikes_share = spikes_on_diagonal(*norm_rg_out)
+        absolute.append(rg_neurons_diagonal_spikes)
+        shared.append(rg_neurons_diagonal_spikes_share)
+        rg_spikes.append(len(norm_rg_out[0]))
+        cut.append(len(norm_cut_in[0]))
+        muscle.append(len(norm_muscle_in[0]))
 
-        cut_spikes, _ = spikes_on_diagonal(*norm_in)
-        rg_neurons_diagonal_spikes, rg_neurons_diagonal_spikes_share = spikes_on_diagonal(*norm_out)
-
-        absolute.append(rg_neurons_diagonal_spikes / cut_spikes)
-        shared.append(rg_neurons_diagonal_spikes_share / cut_spikes)
-        rg_spikes.append(len(norm_out[0]) / cut_spikes)
 
     absolute = gaussian_filter1d(absolute, sigma=10)
     shared = gaussian_filter1d(shared, sigma=10)
     rg_spikes = gaussian_filter1d(rg_spikes, sigma=10)
 
-    return absolute, shared, rg_spikes
-
+    return absolute, shared, rg_spikes, cut, muscle
 
 def main():
-    inputs = divide_in_steps(
-        *merge_spikes('pickle_/121/l_e_cut_spikes0.pickle', 'pickle_/121/l_e_cut_spikes1.pickle'))
-    outputs = divide_in_steps(
-        *merge_spikes('pickle_/121/l_e_rg_neurons_spikes0.pickle', 'pickle_/121/l_e_rg_neurons_spikes1.pickle'))
+    folder = 'F3'
+    muscle_spikes = divide_in_steps(
+        *merge_spikes(f'pickle_/{folder}/l_f_muscle_spikes.pickle'))
+    rg_spikes = divide_in_steps(
+        *merge_spikes(f'pickle_/{folder}/l_f_rg_neurons_spikes.pickle'))
+    # muscle_spikes = divide_in_steps(
+    #     *merge_spikes('pickle_/F0/long_runl_f_muscle_spikes.pickle'))
+    # muscle_spikes = divide_in_steps(
+    #     *merge_spikes('pickle_/F0/long_runl_f_muscle_spikes.pickle'))
+    # cut_inputs = divide_in_steps(
+    #     *merge_spikes('pickle_/cut10dapre01/l_e_cut_spikes (8).pickle'))
+    # rg_outputs = divide_in_steps(
+    #     *merge_spikes('pickle_/cut10dapre01/l_e_rg_neurons_spikes (7).pickle'))
 
-    inputs60 = divide_in_steps(
-        *merge_spikes('pickle_/l_e_cut_spikes.pickle'))
-    outputs60 = divide_in_steps(
-        *merge_spikes('pickle_/l_e_rg_neurons_spikes.pickle'))
+    # absolute, shared, rg_spikes, cut, muscle = test_correlation(cut_inputs, muscle_inputs, rg_outputs)
 
-    absolute, shared, rg_spikes = test_correlation(inputs, outputs)
-
-    weights, times = read_weights('pickle_/121/l_e_cut2rg_weigts1.pickle')
+    weights, times = read_weights(f'pickle_/{folder}/l_f_muscle2rg_weigts.pickle')
     weights = np.mean(weights, axis=1)
     weights = gaussian_filter1d(weights, sigma=200)
-
-    figure, axis = subplots(2, 2)
-
-    axis[0, 0].plot(range(len(absolute)), absolute)
-    axis[0, 0].set_title("rg_neurons_diagonal_spikes / cut_spikes")
-    axis[1, 0].plot(range(len(shared)), shared)
-    axis[1, 0].set_title("rg_neurons_diagonal_spikes / rg_neurons_spikes / cut_spikes")
-    axis[0, 1].plot(range(len(rg_spikes)), rg_spikes)
-    axis[0, 1].set_title("rg_neurons_spikes / cut_spikes")
-    axis[1, 1].plot(times, weights)
-    axis[1, 1].set_title("weights")
-
+    plot(times, weights)
     show()
 
-    generate_plots(*inputs, plots_n=3, file_name='outputs')
+    # figure, axis = subplots(2, 2)
+    #
+    # axis[0, 0].plot(range(len(muscle_spikes)), muscle_spikes)
+    # axis[0, 0].set_title("muscle_spikes")
+    #
+    # axis[1, 0].plot(range(len(muscle_spikes)), muscle_spikes)
+    # axis[1, 0].set_title("muscle_spikes")
+    #
+    # axis[0, 1].plot(range(len(rg_spikes)), rg_spikes)
+    # axis[0, 1].set_title("rg_spikes")
+    #
+    # axis[1, 1].plot(range(len(rg_spikes), rg_spikes))
+    # axis[1, 1].set_title("rg_spikes")
+    #
+    # show()
+
+    generate_on_top(rg_spikes, muscle_spikes, plots_n=6, file_name='rg_spikes')
+    # generate_plots(*rg_spikes, plots_n=6, file_name='rg_spikes')
+    # generate_plots(*muscle_spikes, plots_n=6, file_name='muscle_spikes')
 
 if __name__ == '__main__':
     main()
