@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><project name="IVI CPG + STDP" company="IVI" webLink="http://" view-date="2023-07-21" view-index="0" gantt-divider-location="416" resource-divider-location="300" version="3.2.3247" locale="en_GB">
+    <description/>
+    <view zooming-state="default:2" id="gantt-chart">
+        <field id="tpd3" name="Name" width="215" order="0"/>
+        <field id="tpd4" name="Begin date" width="75" order="1"/>
+        <field id="tpd5" name="End date" width="76" order="2"/>
+        <field id="tpd6" name="Duration" width="50" order="3"/>
+        <option id="filter.completedTasks" value="false"/>
+    </view>
+    <view id="resource-table">
+        <field id="0" name="Name" width="211" order="0"/>
+        <field id="1" name="Default role" width="87" order="1"/>
+    </view>
+    <!-- -->
+    <calendars base-id="sr">
+        <day-types>
+            <day-type id="0"/>
+            <day-type id="1"/>
+            <default-week id="1" name="default" sun="1" mon="0" tue="0" wed="0" thu="0" fri="0" sat="1"/>
+            <only-show-weekends value="false"/>
+            <overriden-day-types/>
+            <days/>
+        </day-types>
+        <date year="" month="1" date="1" type="HOLIDAY" color="#ff9999">
+            <![CDATA[Нова година]]>
+        </date>
+        <date year="" month="1" date="2" type="HOLIDAY" color="#ff9999">
+            <![CDATA[Нова година]]>
+        </date>
+        <date year="" month="1" date="7" type="HOLIDAY" color="#ff9999">
+            <![CDATA[Божић]]>
+        </date>
+        <date year="" month="1" date="27" type="NEUTRAL" color="#808080">
+            <![CDATA[св. Сава]]>
+        </date>
+        <date year="" month="2" date="15" type="HOLIDAY" color="#ff9999">
+            <![CDATA[Сретење - дан државности]]>
+        </date>
+        <date year="" month="2" date="16" type="HOLIDAY" color="#ff9999">
+            <![CDATA[Сретење - дан државности]]>
+        </date>
+        <date year="" month="5" date="1" type="HOLIDAY" color="#ff9999">
+            <![CDATA[Празник рада]]>
+        </date>
+        <date year="" month="5" date="2" type="HOLIDAY" color="#ff9999">
+            <![CDATA[Празник рада]]>
+        </date>
+        <date year="" month="5" date="9" type="NEUTRAL">
+            <![CDATA[Дан победе]]>
+        </date>
+        <date year="" month="6" date="28" type="NEUTRAL">
+            <![CDATA[Видовдан]]>
+        </date>
+        <date year="" month="10" date="21" type="NEUTRAL">
+            <![CDATA[Дан сећања на српске жртве у 2. светском рату]]>
+        </date>
+        <date year="" month="11" date="11" type="HOLIDAY" color="#ff9999">
+            <![CDATA[Дан примирја у 1. светском рату]]>
+        </date>
+        <date year="2015" month="4" date="10" type="HOLIDAY" color="#ff9999">
+            <![CDATA[Велики Петак]]>
+        </date>
+        <date year="2015" month="4" date="12" type="HOLIDAY" color="#ff9999">
+            <![CDATA[Васкрс]]>
+        </date>
+        <date year="2015" month="4" date="13" type="HOLIDAY" color="#ff9999">
+            <![CDATA[Васкршњи Понедељак]]>
+        </date>
+    </calendars>
+    <tasks empty-milestones="true">
+        <taskproperties>
+            <taskproperty id="tpd0" name="type" type="default" valuetype="icon"/>
+            <taskproperty id="tpd1" name="priority" type="default" valuetype="icon"/>
+            <taskproperty id="tpd2" name="info" type="default" valuetype="icon"/>
+            <taskproperty id="tpd3" name="name" type="default" valuetype="text"/>
+            <taskproperty id="tpd4" name="begindate" type="default" valuetype="date"/>
+            <taskproperty id="tpd5" name="enddate" type="default" valuetype="date"/>
+            <taskproperty id="tpd6" name="duration" type="default" valuetype="int"/>
+            <taskproperty id="tpd7" name="completion" type="default" valuetype="int"/>
+            <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
+            <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
+        </taskproperties>
+        <task id="0" name="brian2-&gt;Neuron migration" meeting="false" start="2023-07-21" duration="1" complete="0" expand="true"/>
+        <task id="1" name="Izhi -&gt; HH migration" meeting="false" start="2023-07-21" duration="1" complete="0" expand="true"/>
+        <task id="2" name="Neuron GPU" meeting="false" start="2023-07-21" duration="1" complete="0" expand="true"/>
+    </tasks>
+    <resources/>
+    <allocations/>
+    <vacations/>
+    <previous/>
+    <roles roleset-name="Default"/>
+    <roles roleset-name="SoftwareDevelopment"/>
+</project>
