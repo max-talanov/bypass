@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="IVI CPG + STDP" company="IVI" webLink="http://" view-date="2023-07-21" view-index="0" gantt-divider-location="416" resource-divider-location="300" version="3.2.3247" locale="en_GB">
+<?xml version="1.0" encoding="UTF-8"?><project name="IVI CPG + STDP" company="IVI" webLink="http://" view-date="2023-07-01" view-index="0" gantt-divider-location="511" resource-divider-location="300" version="3.2.3247" locale="en_GB">
     <description/>
-    <view zooming-state="default:2" id="gantt-chart">
-        <field id="tpd3" name="Name" width="215" order="0"/>
-        <field id="tpd4" name="Begin date" width="75" order="1"/>
-        <field id="tpd5" name="End date" width="76" order="2"/>
-        <field id="tpd6" name="Duration" width="50" order="3"/>
+    <view zooming-state="default:8" id="gantt-chart">
+        <field id="tpd3" name="Name" width="260" order="0"/>
+        <field id="tpd4" name="Begin date" width="92" order="1"/>
+        <field id="tpd5" name="End date" width="86" order="2"/>
+        <field id="tpd6" name="Duration" width="58" order="3"/>
         <option id="filter.completedTasks" value="false"/>
     </view>
     <view id="resource-table">
@@ -80,9 +80,71 @@
             <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
             <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
         </taskproperties>
-        <task id="0" name="brian2-&gt;Neuron migration" meeting="false" start="2023-07-21" duration="1" complete="0" expand="true"/>
-        <task id="1" name="Izhi -&gt; HH migration" meeting="false" start="2023-07-21" duration="1" complete="0" expand="true"/>
-        <task id="2" name="Neuron GPU" meeting="false" start="2023-07-21" duration="1" complete="0" expand="true"/>
+        <task id="16" name="Computational infrastructure setup" color="#000000" meeting="false" start="2023-07-21" duration="3" complete="0" thirdDate="2023-07-21" thirdDate-constraint="0" expand="true">
+            <task id="2" name="Neuron GPU" color="#8cb6ce" meeting="false" start="2023-07-21" duration="3" complete="0" thirdDate="2023-07-21" thirdDate-constraint="0" expand="true">
+                <depend id="0" type="2" difference="0" hardness="Strong"/>
+                <depend id="1" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="3" name="NEST GPU" color="#8cb6ce" meeting="false" start="2023-07-21" duration="3" complete="0" thirdDate="2023-07-13" thirdDate-constraint="0" expand="true">
+                <depend id="7" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="7" name="select NEST / NEURON" color="#8cb6ce" meeting="true" start="2023-07-26" duration="0" complete="0" thirdDate="2023-07-11" thirdDate-constraint="0" expand="true"/>
+        </task>
+        <task id="17" name="CPG + STDP modeling" meeting="false" start="2023-07-26" duration="50" complete="0" expand="true">
+            <depend id="21" type="2" difference="0" hardness="Strong"/>
+            <task id="0" name="brian2-&gt;N migration" color="#8cb6ce" meeting="false" start="2023-07-26" duration="10" complete="0" thirdDate="2023-07-26" thirdDate-constraint="0" expand="true"/>
+            <task id="1" name="Izhi -&gt; HH migration" meeting="false" start="2023-07-26" duration="10" complete="0" expand="true">
+                <depend id="6" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="6" name="F-E + STDP" meeting="false" start="2023-08-09" duration="10" complete="0" expand="true">
+                <depend id="4" type="2" difference="0" hardness="Strong"/>
+                <depend id="5" type="2" difference="0" hardness="Strong"/>
+                <depend id="8" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="8" name="Testing F-E" meeting="false" start="2023-08-23" duration="5" complete="0" expand="true">
+                <depend id="4" type="2" difference="0" hardness="Strong"/>
+                <depend id="10" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="4" name="BS + STDP projections" meeting="false" start="2023-08-30" duration="10" complete="0" expand="true">
+                <depend id="10" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="10" name="Testing BS projections" meeting="false" start="2023-09-13" duration="5" complete="0" expand="true">
+                <depend id="5" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="5" name="L-R + STDP" meeting="false" start="2023-09-20" duration="5" complete="0" expand="true">
+                <depend id="9" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="9" name="Testing L-R" meeting="false" start="2023-09-27" duration="5" complete="0" expand="true">
+                <depend id="11" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="11" name="Tested CPG + STDP" color="#8cb6ce" meeting="true" start="2023-10-04" duration="0" complete="0" thirdDate="2023-08-30" thirdDate-constraint="0" expand="true"/>
+        </task>
+        <task id="21" name="How many neurons can we have?" color="#8cb6ce" meeting="true" start="2023-10-04" duration="0" complete="0" thirdDate="2023-08-30" thirdDate-constraint="0" expand="true"/>
+        <task id="23" name="Hardware infrastructure setup" meeting="false" start="2023-08-15" duration="20" complete="0" expand="true">
+            <task id="24" name="order soler station" color="#8cb6ce" meeting="false" start="2023-08-15" duration="20" complete="0" thirdDate="2023-07-03" thirdDate-constraint="0" expand="true"/>
+            <task id="25" name="order oscilloscope" meeting="false" start="2023-08-15" duration="10" complete="0" expand="true">
+                <depend id="27" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="27" name="harware infrastructure ready" color="#8cb6ce" meeting="true" start="2023-08-29" duration="0" complete="0" thirdDate="2023-08-29" thirdDate-constraint="0" expand="true"/>
+        </task>
+        <task id="15" name="Hardware" meeting="false" start="2023-10-02" duration="70" complete="0" expand="true">
+            <task id="18" name="Design" meeting="false" start="2023-10-02" duration="40" complete="0" expand="true">
+                <depend id="19" type="2" difference="0" hardness="Strong"/>
+                <task id="12" name="PCBs design of on leakage" color="#8cb6ce" meeting="false" start="2023-10-02" duration="15" complete="0" thirdDate="2023-07-17" thirdDate-constraint="0" expand="true">
+                    <depend id="13" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="13" name="PCBs desgin learning feedback" color="#8cb6ce" meeting="false" start="2023-10-23" duration="20" complete="0" thirdDate="2023-07-17" thirdDate-constraint="0" expand="true">
+                    <depend id="14" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="14" name="PCB design of refractory period" meeting="false" start="2023-11-20" duration="5" complete="0" expand="true"/>
+            </task>
+            <task id="19" name="Implementation" meeting="false" start="2023-11-27" duration="30" complete="0" expand="true">
+                <task id="20" name="Order PCBs" meeting="false" start="2023-11-27" duration="15" complete="0" expand="true">
+                    <depend id="22" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="22" name="Assemble PCBs" meeting="false" start="2023-12-18" duration="15" complete="0" expand="true"/>
+            </task>
+        </task>
     </tasks>
     <resources/>
     <allocations/>
@@ -90,4 +152,9 @@
     <previous/>
     <roles roleset-name="Default"/>
     <roles roleset-name="SoftwareDevelopment"/>
+    <roles>
+        <role id="1" name="Nikola"/>
+        <role id="2" name="Velibor"/>
+        <role id="3" name="Max"/>
+    </roles>
 </project>
