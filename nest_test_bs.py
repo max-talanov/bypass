@@ -1,4 +1,4 @@
-import nest
+# import nest
 import nest.voltage_trace
 import matplotlib.pyplot as plt
 
@@ -39,6 +39,9 @@ nest.Simulate(1000.0)
 ###############################################################################
 # Finally, we plot the neurons' membrane potential as a function of
 # time.
+
+neuron_1.I_e = 460.0
+nest.Simulate(1000.0)
 
 nest.voltage_trace.from_device(voltmeter)
 plt.show()
