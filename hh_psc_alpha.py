@@ -34,10 +34,15 @@ does not yet check correctness of synaptic response.
 import nest
 import numpy as np
 import matplotlib.pyplot as plt
+import logging
+
+FORMAT = '%(asctime)s %(message)s'
+logging.basicConfig(format=FORMAT)
 
 nest.set_verbosity("M_WARNING")
 nest.ResetKernel()
 
+NN = 200
 simtime = 1000
 
 # Amplitude range, in pA
@@ -47,7 +52,7 @@ dcto = 2000
 
 h = 0.1  # simulation step size in mS
 
-neuron = nest.Create("hh_psc_alpha")
+neuron = nest.Create("hh_psc_alpha", NN)
 sr = nest.Create("spike_recorder")
 
 sr.record_to = "memory"
@@ -58,6 +63,10 @@ nest.Connect(neuron, sr, syn_spec={"weight": 1.0, "delay": h})
 n_data = int(dcto / float(dcstep))
 amplitudes = np.zeros(n_data)
 event_freqs = np.zeros(n_data)
+log = logging.getLogger("Cur")
+
+log.warning("Sim started ...")
+
 for i, amp in enumerate(range(dcfrom, dcto, dcstep)):
     neuron.I_e = float(amp)
     print(f"Simulating with current I={amp} pA")
@@ -69,5 +78,6 @@ for i, amp in enumerate(range(dcfrom, dcto, dcstep)):
     amplitudes[i] = amp
     event_freqs[i] = n_events / (simtime / 1000.0)
 
+log.warning("Simulation is over ...")
 plt.plot(amplitudes, event_freqs)
 plt.show()
