@@ -1,24 +1,3 @@
-# -*- coding: utf-8 -*-
-#
-# balancedneuron.py
-#
-# This file is part of NEST.
-#
-# Copyright (C) 2004 The NEST Initiative
-#
-# NEST is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 2 of the License, or
-# (at your option) any later version.
-#
-# NEST is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 Balanced neuron example
 -----------------------
@@ -56,15 +35,15 @@ import matplotlib.pyplot as plt
 # Additionally, we set the verbosity using ``set_verbosity`` to
 # suppress info messages.
 
-
-nest.set_verbosity("M_WARNING")
+# nest.set_verbosity("M_WARNING")
 nest.ResetKernel()
 
 ###############################################################################
 # Second, the simulation parameters are assigned to variables.
 
 
-t_sim = 25000.0  # how long we simulate
+# t_sim = 25000.0  # how long we simulate
+t_sim = 1000.0
 n_ex = 16000  # size of the excitatory population
 n_in = 4000  # size of the inhibitory population
 r_ex = 5.0  # mean rate of the excitatory population
@@ -80,7 +59,8 @@ prec = 0.01  # how close need the excitatory rates be
 # Third, the nodes are created using ``Create``. We store the returned
 # handles in variables for later reference.
 
-neuron = nest.Create("iaf_psc_alpha")
+# neuron = nest.Create("iaf_psc_alpha")
+neuron = nest.Create("hh_psc_alpha")
 noise = nest.Create("poisson_generator", 2)
 voltmeter = nest.Create("voltmeter")
 spikerecorder = nest.Create("spike_recorder")
@@ -110,6 +90,7 @@ noise.rate = [n_ex * r_ex, n_in * r_in]
 nest.Connect(neuron, spikerecorder)
 nest.Connect(voltmeter, neuron)
 nest.Connect(noise, neuron, syn_spec={"weight": [[epsc, ipsc]], "delay": 1.0})
+
 
 ###############################################################################
 # To determine the optimal rate of the neurons in the inhibitory population,
