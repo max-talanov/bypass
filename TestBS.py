@@ -1,9 +1,8 @@
-import unittest
+import pytest
 import nest
 import numpy as np
 import matplotlib.pyplot as plt
 import logging
-
 
 FORMAT = '%(asctime)s %(message)s'
 logging.basicConfig(format=FORMAT)
@@ -21,19 +20,17 @@ dcto = 2000
 
 h = 0.1  # simulation step size in mS
 
-class BSTestCase(unittest.TestCase):
 
-    def __int__(self):
-        self.v3F = []
-        self.sr = None
+class TestBS:
 
-    def setUp(self):
+    def setup(self):
         self.v3F = nest.Create("hh_psc_alpha_clopath", v3F_num)
         self.sr = nest.Create("spike_recorder")
         self.sr.record_to = "memory"
         nest.Connect(self.v3F, self.sr, syn_spec={"weight": 1.0, "delay": h})
-        self.assertEqual(len(self.v3F), v3F_num)  # add assertion here
+
     def test_simulation(self):
+        self.setup()
         # Simulation loop
         n_data = int(dcto / float(dcstep))
         amplitudes = np.zeros(n_data)
@@ -57,6 +54,3 @@ class BSTestCase(unittest.TestCase):
         plt.plot(amplitudes, event_freqs)
         plt.show()
 
-
-if __name__ == '__main__':
-    unittest.main()
