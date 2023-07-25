@@ -52,7 +52,8 @@ dcto = 2000
 
 h = 0.1  # simulation step size in mS
 
-neuron = nest.Create("hh_psc_alpha", NN)
+# neuron = nest.Create("hh_psc_alpha", NN)
+neuron = nest.Create("hh_psc_alpha_clopath", NN)
 sr = nest.Create("spike_recorder")
 
 sr.record_to = "memory"
