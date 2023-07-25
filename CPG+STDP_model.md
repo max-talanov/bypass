@@ -25,3 +25,7 @@
 |     "C_m": 200.0, | C_m        | Membrane  capacitance                                                                                           |
 |     "V_m": -58.0, | V_m        | Initial membrane potential #! must be equal to E_L                                                              |
 |       "w": 5.0,   | NA         | Initial weight #! must be equal to 5 Initial weight                                                             |
+
+## eBrains NEST resources
+
+[](https://www.ebrains.eu/tools/nest)
