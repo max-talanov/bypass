@@ -39,7 +39,6 @@ relative to the ``origin``.
 
 """
 
-
 ###############################################################################
 # First, the modules needed for simulation and analysis are imported.
 
@@ -47,7 +46,21 @@ relative to the ``origin``.
 import nest
 import nest.raster_plot
 import matplotlib.pyplot as plt
+import logging
 
+
+def get_V3_rate(phase, lo, mid, hi) -> float:
+    if 5 < phase < 9:
+        return hi
+    elif 4 < phase < 10:
+        return mid
+    else:
+        return lo
+
+
+FORMAT = '%(asctime)s %(message)s'
+logging.basicConfig(format=FORMAT)
+log = logging.getLogger("Cur")
 ###############################################################################
 # Second, we set the parameters so the ``poisson_generator`` generates 1000
 # spikes per second and is active from 100 to 500 ms
@@ -57,14 +70,18 @@ rate = 200.0  # generator rate in spikes/s
 start = 0.0  # start of simulation relative to trial start, in ms
 stop = 1000.0  # end of simulation relative to trial start, in ms
 
-
 ###############################################################################
 # The simulation is supposed to take 1s (1000 ms) and is repeated 5 times
 
 
 trial_duration = 1000.0  # trial duration, in ms
+phase_duration = 100.0
+num_phases = 10
 num_trials = 5  # number of trials to perform
 v3F_num = 200
+v3F_hi = 200.0  # Hz spiking rate
+v3F_mid = 100.0
+v3F_lo = 50.0  # Hz spiking rate
 bs_num = 100
 
 ###############################################################################
@@ -77,17 +94,17 @@ bs_num = 100
 
 nest.ResetKernel()
 # pg_params = {"rate": rate, "start": start, "stop": stop}
-g_params = {"start": start, "stop": stop, "rate_times": [1, 600, 800], "rate_values": [50, 200, 50]}
+# g_params = {"start": start, "stop": stop, "rate_times": [1, 600, 800], "rate_values": [50, 200, 50]}
+g_params = {"rate":  v3F_lo}
 ## inhomogeneous_poisson_generator
 # pg = nest.Create("poisson_generator", bs_num, params=pg_params)
-pg = nest.Create("inhomogeneous_poisson_generator", bs_num, params=g_params)
+pg = nest.Create("poisson_generator", bs_num, params=g_params)
 v3F = nest.Create("hh_psc_alpha_clopath", v3F_num)
 
 ###############################################################################
 # The ``spike_recorder`` is created and the handle stored in `sr`.
 
 sr = nest.Create("spike_recorder")
-
 
 ###############################################################################
 # The ``Connect`` function connects the nodes so spikes from pg are collected by
@@ -105,9 +122,12 @@ nest.Connect(v3F, sr)
 
 
 for n in range(num_trials):
-    pg.origin = nest.biological_time
-    nest.Simulate(trial_duration)
-
+    for ph in range(num_phases):
+        pg.origin = nest.biological_time
+        rate = get_V3_rate(ph, v3F_lo, v3F_mid, v3F_hi)
+        log.warning(rate)
+        pg.rate = rate
+        nest.Simulate(phase_duration)
 
 ###############################################################################
 # Now we plot the result, including a histogram using the ``nest.raster_plot``
