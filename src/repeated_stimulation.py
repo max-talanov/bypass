@@ -64,7 +64,7 @@ stop = 800.0  # end of simulation relative to trial start, in ms
 
 trial_duration = 1000.0  # trial duration, in ms
 num_trials = 5  # number of trials to perform
-
+v3F_num = 200
 
 ###############################################################################
 # Third, the network is set up.  We reset the kernel and create a
@@ -77,11 +77,10 @@ num_trials = 5  # number of trials to perform
 nest.ResetKernel()
 pg_params = {"rate": rate, "start": start, "stop": stop}
 pg = nest.Create("poisson_generator", params=pg_params)
-
+v3F = nest.Create("hh_psc_alpha_clopath", v3F_num)
 
 ###############################################################################
 # The ``spike_recorder`` is created and the handle stored in `sr`.
-
 
 sr = nest.Create("spike_recorder")
 
@@ -90,9 +89,9 @@ sr = nest.Create("spike_recorder")
 # The ``Connect`` function connects the nodes so spikes from pg are collected by
 # the ``spike_recorder`` `sr`
 
-
-nest.Connect(pg, sr)
-
+# nest.Connect(pg, sr)
+nest.Connect(pg, v3F)
+nest.Connect(v3F, sr)
 
 ###############################################################################
 # Before each trial, we set the ``origin`` of the ``poisson_generator`` to the
