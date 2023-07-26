@@ -54,8 +54,8 @@ import matplotlib.pyplot as plt
 
 
 rate = 200.0  # generator rate in spikes/s
-start = 600.0  # start of simulation relative to trial start, in ms
-stop = 800.0  # end of simulation relative to trial start, in ms
+start = 0.0  # start of simulation relative to trial start, in ms
+stop = 1000.0  # end of simulation relative to trial start, in ms
 
 
 ###############################################################################
@@ -76,11 +76,11 @@ bs_num = 100
 
 
 nest.ResetKernel()
-pg_params = {"rate": rate, "start": start, "stop": stop}
-
+# pg_params = {"rate": rate, "start": start, "stop": stop}
+g_params = {"start": start, "stop": stop, "rate_times": [1, 600, 800], "rate_values": [50, 200, 50]}
 ## inhomogeneous_poisson_generator
-
-pg = nest.Create("poisson_generator", bs_num, params=pg_params)
+# pg = nest.Create("poisson_generator", bs_num, params=pg_params)
+pg = nest.Create("inhomogeneous_poisson_generator", bs_num, params=g_params)
 v3F = nest.Create("hh_psc_alpha_clopath", v3F_num)
 
 ###############################################################################
