@@ -107,7 +107,7 @@ bs_num = 100
 cut_num = 100
 
 cut_lo = 5.0  # Hz spiking rate
-cut_hi = 50.0  # Hz spiking rate
+cut_hi = 50.0 # 200.0 # 50.0  # Hz spiking rate
 
 cut_chunk = int(cut_num/simulation_hill_toe_phases)
 
