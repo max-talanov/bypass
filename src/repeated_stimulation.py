@@ -77,6 +77,9 @@ bs_num = 100
 
 nest.ResetKernel()
 pg_params = {"rate": rate, "start": start, "stop": stop}
+
+## inhomogeneous_poisson_generator
+
 pg = nest.Create("poisson_generator", bs_num, params=pg_params)
 v3F = nest.Create("hh_psc_alpha_clopath", v3F_num)
 
