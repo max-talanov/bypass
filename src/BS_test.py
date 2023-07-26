@@ -28,17 +28,26 @@ class BSTestCase(unittest.TestCase):
         self.sr = None
 
     def setUp(self):
+        self.log = logging.getLogger("Cur")
         self.v3F = nest.Create("hh_psc_alpha_clopath", v3F_num)
         self.sr = nest.Create("spike_recorder")
         self.sr.record_to = "memory"
         nest.Connect(self.v3F, self.sr, syn_spec={"weight": 1.0, "delay": h})
         self.assertEqual(len(self.v3F), v3F_num)  # add assertion here
+        voltmeter = nest.Create("multimeter",
+            params={"interval": 0.1,
+                    "record_from": ["V_m", "g_ex", "g_in"], "record_to": "ascii",
+                    "label": "my_multimeter"},
+        )
+        s_ex = nest.Create("spike_generator", params={"spike_times": np.array([10.0, 20.0, 50.0])})
+        s_in = nest.Create("spike_generator", params={"spike_times": np.array([15.0, 25.0, 55.0])})
+
     def test_simulation(self):
         # Simulation loop
         n_data = int(dcto / float(dcstep))
         amplitudes = np.zeros(n_data)
         event_freqs = np.zeros(n_data)
-        log = logging.getLogger("Cur")
+
 
         log.warning("Sim started ...")
 

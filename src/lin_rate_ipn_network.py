@@ -66,15 +66,19 @@ connection_rule = "fixed_outdegree"  # connection rule
 ###############################################################################
 # Definition of the neuron model and its neuron parameters
 
-neuron_model = "lin_rate_ipn"  # neuron model
+# neuron_model = "lin_rate_ipn"  # neuron model
+neuron_model = "hh_psc_alpha_clopath"
 neuron_params = {
-    "linear_summation": True,
+    # "linear_summation": True,
     # type of non-linearity (not affecting linear rate models)
-    "tau": 10.0,
+    # "tau": 10.0,
+    "tau_ex": 10.0,
+    "tau_in": 10.0,
     # time constant of neuronal dynamics in ms
-    "mu": 2.0,
+    #"mu": 2.0,
+    "I_e": 2.0,
     # mean input
-    "sigma": 5.0
+    # "sigma": 5.0
     # noise parameter
 }
 
@@ -96,15 +100,18 @@ print("Building network")
 ###############################################################################
 # Creation of the nodes using ``Create``.
 
-n_e = nest.Create(neuron_model, NE, neuron_params)
-n_i = nest.Create(neuron_model, NI, neuron_params)
-
+# n_e = nest.Create(neuron_model, NE, neuron_params)
+# n_i = nest.Create(neuron_model, NI, neuron_params)
+n_e = nest.Create(neuron_model, NE)
+n_e.I_e = 2.0
+n_i = nest.Create(neuron_model, NI)
+n_e.I_e = 2.0
 
 ################################################################################
 # To record from the rate neurons a ``multimeter`` is created and the parameter
 # ``record_from`` is set to `rate` as well as the recording interval to `dt`
 
-mm = nest.Create("multimeter", params={"record_from": ["rate"], "interval": dt})
+mm = nest.Create("multimeter")
 
 ###############################################################################
 # Specify synapse and connection dictionaries:
@@ -113,16 +120,16 @@ mm = nest.Create("multimeter", params={"record_from": ["rate"], "interval": dt})
 # Connections originating from inhibitory neurons are not associated
 # with a delay (``rate_connection_instantaneous``).
 
-syn_e = {"weight": w, "delay": d_e, "synapse_model": "rate_connection_delayed"}
-syn_i = {"weight": -g * w, "synapse_model": "rate_connection_instantaneous"}
+syn_e = {"weight": w}
+syn_i = {"weight": -g * w}
 conn_e = {"rule": connection_rule, "outdegree": KE}
 conn_i = {"rule": connection_rule, "outdegree": KI}
 
 ###############################################################################
 # Connect rate units
 
-nest.Connect(n_e, n_e, conn_e, syn_e)
-nest.Connect(n_i, n_i, conn_i, syn_i)
+#nest.Connect(n_e, n_e, conn_e, syn_e)
+#nest.Connect(n_i, n_i, conn_i, syn_i)
 nest.Connect(n_e, n_i, conn_i, syn_e)
 nest.Connect(n_i, n_e, conn_e, syn_i)
 
@@ -141,7 +148,7 @@ nest.Simulate(T)
 
 data = mm.events
 senders = data["senders"]
-rate = data["rate"]
+#rate = data["rate"]
 times = data["times"]
 
 ne_0_id = n_e[0].global_id
@@ -149,13 +156,13 @@ ni_0_id = n_i[0].global_id
 where_sender_is_ne_0 = numpy.where(senders == ne_0_id)
 where_sender_is_ni_0 = numpy.where(senders == ni_0_id)
 
-rate_ex = rate[where_sender_is_ne_0]
-rate_in = rate[where_sender_is_ni_0]
+#rate_ex = rate[where_sender_is_ne_0]
+#rate_in = rate[where_sender_is_ni_0]
 times = times[where_sender_is_ne_0]
 
 plt.figure()
-plt.plot(times, rate_ex, label="excitatory")
-plt.plot(times, rate_in, label="inhibitory")
+#plt.plot(times, rate_ex, label="excitatory")
+#plt.plot(times, rate_in, label="inhibitory")
 plt.xlabel("time (ms)")
 plt.ylabel("rate (a.u.)")
 plt.show()
