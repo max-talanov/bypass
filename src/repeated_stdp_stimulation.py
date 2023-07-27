@@ -111,7 +111,7 @@ cut_chunk = int(cut_num / simulation_hill_toe_phases)
 
 ## synapses
 d = 1.0
-Je = 120.0 # 20.0
+Je = 100.0 # 20.0
 Ke = 20
 
 ## stdp parameters
@@ -119,6 +119,8 @@ alpha_min = 0.1
 alpha_max = 2.
 w_min = 0.5
 w_max = 5.
+w_mean = 50.0
+w_std = 5.0
 
 ###############################################################################
 # Third, the network is set up.  We reset the kernel and create a
@@ -162,7 +164,7 @@ nest.Connect(bs_generator, bs_neurons, gen2neurons_dict, syn_dict_ex)
 
 syn_dict = {"synapse_model": "stdp_synapse",
             "alpha": nest.random.uniform(min=alpha_min, max=alpha_max),
-            "weight": nest.random.uniform(min=w_min, max=w_max),
+            "weight": nest.random.lognormal(mean=w_mean, std=w_std),
             "delay": 1.0}
 nest.Connect(bs_neurons, v3F_neurons, "all_to_all", syn_dict)
 
