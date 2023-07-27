@@ -130,6 +130,7 @@ w_std = 5.0
 # parameters in the form of a dictionary.
 
 nest.ResetKernel()
+nest.total_num_virtual_procs = 15
 # pg_params = {"rate": rate, "start": start, "stop": stop}
 # g_params = {"start": start, "stop": stop, "rate_times": [1, 600, 800], "rate_values": [50, 200, 50]}
 v3F_g_params = {"rate": v3F_lo}
