@@ -96,19 +96,23 @@ trial_duration = 1000.0  # trial duration, in ms
 phase_duration = 100.0
 simulation_hill_toe_phases = 4
 num_phases = 10
-num_trials = 5  # number of trials to perform
+num_trials = 2  # 5  # number of trials to perform
 
 v3F_num = 200
 v3F_hi = 200.0  # Hz spiking rate
 v3F_mid = 100.0
 v3F_lo = 50.0  # Hz spiking rate
-
 bs_num = 100
-cut_num = 100
 
+cut_num = 100
 cut_lo = 5.0  # Hz spiking rate
-cut_hi = 50.0 # 200.0 # 50.0  # Hz spiking rate
-cut_chunk = int(cut_num/simulation_hill_toe_phases)
+cut_hi = 50.0  # 200.0 # 50.0  # Hz spiking rate
+cut_chunk = int(cut_num / simulation_hill_toe_phases)
+
+## synapses
+d = 1.0
+Je = 120.0 # 20.0
+Ke = 20
 
 ## stdp parameters
 alpha_min = 0.1
@@ -122,7 +126,6 @@ w_max = 5.
 #
 # The parameters for rate and start and stop of activity are given as optional
 # parameters in the form of a dictionary.
-
 
 nest.ResetKernel()
 # pg_params = {"rate": rate, "start": start, "stop": stop}
@@ -149,7 +152,13 @@ v3F_neurons_sr = nest.Create("spike_recorder")
 nest.Connect(bs_generator, bs_sr)
 nest.Connect(bs_neurons, bs_neurons_sr)
 nest.Connect(v3F_neurons, v3F_neurons_sr)
-nest.Connect(bs_generator, bs_neurons)
+# generator w neurons
+conn_dict_ex = {"rule": "fixed_indegree", "indegree": Ke}
+gen2neurons_dict = {"rule": "all_to_all"}
+syn_dict_ex = {"delay": d, "weight": Je}
+nest.Connect(bs_generator, bs_neurons, gen2neurons_dict, syn_dict_ex)
+
+## TODO update uniform  -> normal
 
 syn_dict = {"synapse_model": "stdp_synapse",
             "alpha": nest.random.uniform(min=alpha_min, max=alpha_max),
@@ -184,10 +193,10 @@ for n in range(num_trials):
 # 100 ms into each trial. This is due to sub-optimal automatic placement of
 # histogram bin borders.
 
-nest.raster_plot.from_device(bs_sr, hist=True, hist_binwidth=100.0, title="brain stem generator spikes")
+nest.raster_plot.from_device(bs_sr, hist=True, hist_binwidth=100.0, title="brainstem generator spikes")
 plt.show()
 
-nest.raster_plot.from_device(bs_neurons_sr, hist=True, hist_binwidth=100.0, title="brain stem spikes")
+nest.raster_plot.from_device(bs_neurons_sr, hist=True, hist_binwidth=100.0, title="brainstem spikes")
 plt.show()
 
 nest.raster_plot.from_device(v3F_neurons_sr, hist=True, hist_binwidth=100.0, title="v3F spikes")
