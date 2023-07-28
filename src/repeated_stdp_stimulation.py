@@ -70,13 +70,13 @@ d = 1.0
 Je = 100.0 # 20.0
 Ke = 20
 
-## stdp parameters
+## STDP parameters
 alpha_min = 0.1
 alpha_max = 2.
 w_min = 0.5
-w_max = 5.
-w_mean = 10.0
-w_std = 5.0
+w_max = 100.0
+w_mean = 4.0
+w_std = 0.3
 delay_def = 1.0
 
 ###############################################################################
@@ -122,10 +122,11 @@ nest.Connect(bs_generator, bs_neurons, gen2neuron_dict, syn_dict_ex)
 neuron2neuron_stdp_dict = {"rule": "all_to_all"}
 nest.CopyModel("stdp_synapse", "stdp_synapse_rec", {"weight_recorder": v3F_neurons_wr[0]})
 syn_stdp_dict = {"synapse_model": "stdp_synapse_rec",
-            "alpha": nest.random.uniform(min=alpha_min, max=alpha_max),
-            "weight": nest.random.lognormal(mean=w_mean, std=w_std),
-            "delay": delay_def
-            }
+                 "alpha": nest.random.uniform(min=alpha_min, max=alpha_max),
+                 "weight": nest.random.lognormal(mean=w_mean, std=w_std),
+                 "Wmax": w_max,
+                 "delay": delay_def
+                 }
 nest.Connect(bs_neurons, v3F_neurons, neuron2neuron_stdp_dict, syn_stdp_dict)
 
 ###############################################################################
@@ -174,11 +175,25 @@ senders = v3F_neurons_wr.events["senders"]
 targets = v3F_neurons_wr.events["targets"]
 weights = v3F_neurons_wr.events["weights"]
 times = v3F_neurons_wr.events["times"]
+# # synaptic weights
+# plt.figure(figsize=(20, 15))
+# plt.subplot(111)
+# plt.plot(times, weights, 'tab:purple')
+# plt.tight_layout()
+# plt.show()
+
 # synaptic weights
-plt.figure(figsize=(20, 15))
-plt.subplot(111)
-plt.plot(times[100:], weights[100:], 'tab:purple')
-plt.tight_layout()
+fig2, axA = plt.subplots(1, 1)
+for i in np.arange(2, 200, 10):
+    index = np.intersect1d(np.where(senders == senders[i]), np.where(targets == targets[1]))
+    if not len(index) == 0:
+        axA.step(times[index], weights[index], label="pg_{}".format(i - 2), lw=lw)
+
+axA.set_title("Synaptic weights of synapses")
+axA.set_xlabel("time [ms]", fontsize=fs)
+axA.set_ylabel("weight", fontsize=fs)
+axA.legend(fontsize=fs - 4)
 plt.show()
+
 
 log.info('Completed draw')
