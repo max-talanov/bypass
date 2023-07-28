@@ -47,6 +47,7 @@ import nest
 import nest.raster_plot
 import matplotlib.pyplot as plt
 import logging
+import numpy as np
 
 
 # Functions
@@ -80,7 +81,7 @@ def identity_cut_chunk(step, hi, lo):
 
 
 FORMAT = '%(asctime)s %(message)s'
-logging.basicConfig(format=FORMAT)
+logging.basicConfig(format=FORMAT, level=logging.INFO)
 log = logging.getLogger("Cur")
 ###############################################################################
 # Second, we set the parameters so the ``poisson_generator`` generates 1000
@@ -96,7 +97,7 @@ trial_duration = 1000.0  # trial duration, in ms
 phase_duration = 100.0
 simulation_hill_toe_phases = 4
 num_phases = 10
-num_steps = 100  # 5  # number of trials to perform
+num_steps = 5  # 5  # number of trials to perform
 
 v3F_num = 200
 v3F_hi = 200.0  # Hz spiking rate
@@ -149,6 +150,7 @@ bs_neurons = nest.Create("hh_psc_alpha_clopath", bs_num)
 bs_sr = nest.Create("spike_recorder")
 bs_neurons_sr = nest.Create("spike_recorder")
 v3F_neurons_sr = nest.Create("spike_recorder")
+v3F_neurons_wr = nest.Create("weight_recorder")
 
 ###############################################################################
 # The ``Connect`` function connects the nodes so spikes from pg are collected by
@@ -158,17 +160,18 @@ nest.Connect(bs_neurons, bs_neurons_sr)
 nest.Connect(v3F_neurons, v3F_neurons_sr)
 # generator w neurons
 conn_dict_ex = {"rule": "fixed_indegree", "indegree": Ke}
-gen2neurons_dict = {"rule": "all_to_all"}
+gen2neuron_dict = {"rule": "all_to_all"}
 syn_dict_ex = {"delay": d, "weight": Je}
-nest.Connect(bs_generator, bs_neurons, gen2neurons_dict, syn_dict_ex)
+nest.Connect(bs_generator, bs_neurons, gen2neuron_dict, syn_dict_ex)
 
-## TODO update uniform  -> normal
-
-syn_dict = {"synapse_model": "stdp_synapse",
+neuron2neuron_stdp_dict = {"rule": "all_to_all"}
+nest.CopyModel("stdp_synapse", "stdp_synapse_rec", {"weight_recorder": v3F_neurons_wr})
+syn_stdp_dict = {"synapse_model": "stdp_synapse_rec",
             "alpha": nest.random.uniform(min=alpha_min, max=alpha_max),
             "weight": nest.random.lognormal(mean=w_mean, std=w_std),
-            "delay": delay_def}
-nest.Connect(bs_neurons, v3F_neurons, "all_to_all", syn_dict)
+            "delay": delay_def
+            }
+nest.Connect(bs_neurons, v3F_neurons, neuron2neuron_stdp_dict, syn_stdp_dict)
 
 ###############################################################################
 # Before each trial, we set the ``origin`` of the ``poisson_generator`` to the
@@ -176,21 +179,22 @@ nest.Connect(bs_neurons, v3F_neurons, "all_to_all", syn_dict)
 # the ``poisson_generator`` to the specified times with respect to the origin.
 # The simulation is then carried out for the specified time in trial_duration.
 
+log.info('Simulation started ...')
 for n in range(num_steps):
+    log.info("Step = " + str(n))
     for ph in range(num_phases):
         bs_generator.origin = nest.biological_time
         rate = get_V3_rate(ph, v3F_lo, v3F_mid, v3F_hi)
-        log.warning(rate)
+        log.debug("Rate = " + str(rate))
         bs_generator.rate = rate
-
         cut_fiber_generator[:].rate = cut_lo
         cut_chunk_number, cut_freq = identity_cut_chunk(ph, cut_hi, cut_lo)
         for chn in cut_chunk_number:
             ## log.info(str(chn*cut_chank) + ": " + str((chn+1)*cut_chank-1))
             cut_fiber_generator[chn * cut_chunk:(chn + 1) * cut_chunk - 1].rate = cut_freq
-
         nest.Simulate(phase_duration)
 
+log.info('Simulation completed ...')
 ###############################################################################
 # Now we plot the result, including a histogram using the ``nest.raster_plot``
 # function. Note: The histogram will show spikes seemingly located before
@@ -203,5 +207,28 @@ plt.show()
 nest.raster_plot.from_device(bs_neurons_sr, hist=True, hist_binwidth=100.0, title="brainstem spikes")
 plt.show()
 
+#V3 spikes
 nest.raster_plot.from_device(v3F_neurons_sr, hist=True, hist_binwidth=100.0, title="v3F spikes")
+plt.show()
+
+# plot results
+fs = 22
+lw = 2.5
+#V3 weights
+senders = v3F_neurons_wr.events["senders"]
+targets = v3F_neurons_wr.events["targets"]
+weights = v3F_neurons_wr.events["weights"]
+times = v3F_neurons_wr.events["times"]
+# synaptic weights
+fig2, axA = plt.subplots(1, 1)
+for i in np.arange(1, 200, 10):
+    index = np.intersect1d(np.where(senders == i), np.where(targets == 1))
+    if not len(index) == 0:
+        axA.step(times[index], weights[index], label="pg_{}".format(i - 2), lw=lw)
+
+axA.set_title("Synaptic weights")
+axA.set_xlabel("time [ms]", fontsize=fs)
+axA.set_ylabel("weight", fontsize=fs)
+axA.legend(fontsize=fs - 4)
+
 plt.show()
