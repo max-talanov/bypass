@@ -1,48 +1,3 @@
-# -*- coding: utf-8 -*-
-#
-# repeated_stimulation.py
-#
-# This file is part of NEST.
-#
-# Copyright (C) 2004 The NEST Initiative
-#
-# NEST is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 2 of the License, or
-# (at your option) any later version.
-#
-# NEST is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-"""
-Repeated Stimulation
---------------------
-
-Simple example for how to repeat a stimulation protocol
-using the ``origin`` property of devices.
-
-In this example, a ``poisson_generator`` generates a spike train that is
-recorded directly by a ``spike_recorder``, using the following paradigm:
-
-1. A single trial last for 1000 ms.
-2. Within each trial, the ``poisson_generator`` is active from 100 ms to 500 ms.
-
-We achieve this by defining the `start` and `stop` properties of the
-generator to 100 ms and 500 ms, respectively, and setting the ``origin`` to the
-simulation time at the beginning of each trial. Start and stop are interpreted
-relative to the ``origin``.
-
-"""
-
-###############################################################################
-# First, the modules needed for simulation and analysis are imported.
-
-
 import nest
 import nest.raster_plot
 import matplotlib.pyplot as plt
@@ -165,7 +120,7 @@ syn_dict_ex = {"delay": d, "weight": Je}
 nest.Connect(bs_generator, bs_neurons, gen2neuron_dict, syn_dict_ex)
 
 neuron2neuron_stdp_dict = {"rule": "all_to_all"}
-nest.CopyModel("stdp_synapse", "stdp_synapse_rec", {"weight_recorder": v3F_neurons_wr})
+nest.CopyModel("stdp_synapse", "stdp_synapse_rec", {"weight_recorder": v3F_neurons_wr[0]})
 syn_stdp_dict = {"synapse_model": "stdp_synapse_rec",
             "alpha": nest.random.uniform(min=alpha_min, max=alpha_max),
             "weight": nest.random.lognormal(mean=w_mean, std=w_std),
@@ -201,11 +156,11 @@ log.info('Simulation completed ...')
 # 100 ms into each trial. This is due to sub-optimal automatic placement of
 # histogram bin borders.
 
-nest.raster_plot.from_device(bs_sr, hist=True, hist_binwidth=100.0, title="brainstem generator spikes")
-plt.show()
+#nest.raster_plot.from_device(bs_sr, hist=True, hist_binwidth=100.0, title="brainstem generator spikes")
+#plt.show()
 
-nest.raster_plot.from_device(bs_neurons_sr, hist=True, hist_binwidth=100.0, title="brainstem spikes")
-plt.show()
+# nest.raster_plot.from_device(bs_neurons_sr, hist=True, hist_binwidth=100.0, title="brainstem spikes")
+# plt.show()
 
 #V3 spikes
 nest.raster_plot.from_device(v3F_neurons_sr, hist=True, hist_binwidth=100.0, title="v3F spikes")
@@ -220,15 +175,10 @@ targets = v3F_neurons_wr.events["targets"]
 weights = v3F_neurons_wr.events["weights"]
 times = v3F_neurons_wr.events["times"]
 # synaptic weights
-fig2, axA = plt.subplots(1, 1)
-for i in np.arange(1, 200, 10):
-    index = np.intersect1d(np.where(senders == i), np.where(targets == 1))
-    if not len(index) == 0:
-        axA.step(times[index], weights[index], label="pg_{}".format(i - 2), lw=lw)
-
-axA.set_title("Synaptic weights")
-axA.set_xlabel("time [ms]", fontsize=fs)
-axA.set_ylabel("weight", fontsize=fs)
-axA.legend(fontsize=fs - 4)
-
+plt.figure(figsize=(20, 15))
+plt.subplot(111)
+plt.plot(times[100:], weights[100:], 'tab:purple')
+plt.tight_layout()
 plt.show()
+
+log.info('Completed draw')
