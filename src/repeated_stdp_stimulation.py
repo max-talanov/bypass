@@ -96,7 +96,7 @@ trial_duration = 1000.0  # trial duration, in ms
 phase_duration = 100.0
 simulation_hill_toe_phases = 4
 num_phases = 10
-num_trials = 2  # 5  # number of trials to perform
+num_steps = 100  # 5  # number of trials to perform
 
 v3F_num = 200
 v3F_hi = 200.0  # Hz spiking rate
@@ -176,7 +176,7 @@ nest.Connect(bs_neurons, v3F_neurons, "all_to_all", syn_dict)
 # the ``poisson_generator`` to the specified times with respect to the origin.
 # The simulation is then carried out for the specified time in trial_duration.
 
-for n in range(num_trials):
+for n in range(num_steps):
     for ph in range(num_phases):
         bs_generator.origin = nest.biological_time
         rate = get_V3_rate(ph, v3F_lo, v3F_mid, v3F_hi)
