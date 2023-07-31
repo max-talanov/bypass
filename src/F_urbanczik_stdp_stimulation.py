@@ -51,6 +51,9 @@ stop = 1000.0  # end of simulation relative to trial start, in ms
 ###############################################################################
 # The simulation is supposed to take 1s (1000 ms) and is repeated 5 times
 
+resolution = 0.1
+nest.resolution = resolution
+
 trial_duration = 1000.0  # trial duration, in ms
 phase_duration = 100.0
 simulation_hill_toe_phases = 4
@@ -78,11 +81,42 @@ alpha_min = 0.1
 alpha_max = 2.
 w_min = 0.5
 w_max = 100.0
-w_mean = 3.0
+w_mean = 4.0
 w_std = 0.3
-lambda_mean  = 0.08
-lambda_std = 0.01
+lambda_mean  = 5.0
+lambda_std = 0.3
 delay_def = 1.0
+
+# neuron parameters
+nrn_model = "pp_cond_exp_mc_urbanczik"
+nrn_params = {
+    "t_ref": 3.0,  # refractory period
+    "g_sp": 600.0,  # soma-to-dendritic coupling conductance
+    "soma": {
+        "V_m": -70.0,  # initial value of V_m
+        "C_m": 300.0,  # capacitance of membrane
+        "E_L": -70.0,  # resting potential
+        "g_L": 30.0,  # somatic leak conductance
+        "E_ex": 0.0,  # resting potential for exc input
+        "E_in": -75.0,  # resting potential for inh input
+        "tau_syn_ex": 3.0,  # time constant of exc conductance
+        "tau_syn_in": 3.0,  # time constant of inh conductance
+    },
+    "dendritic": {
+        "V_m": -70.0,  # initial value of V_m
+        "C_m": 300.0,  # capacitance of membrane
+        "E_L": -70.0,  # resting potential
+        "g_L": 30.0,  # dendritic leak conductance
+        "tau_syn_ex": 3.0,  # time constant of exc input current
+        "tau_syn_in": 3.0,  # time constant of inh input current
+    },
+    # parameters of rate function
+    "phi_max": 0.15,  # max rate
+    "rate_slope": 0.5,  # called 'k' in the paper
+    "beta": 1.0 / 3.0,
+    "theta": -55.0,
+}
+
 
 ###############################################################################
 # Third, the network is set up.  We reset the kernel and create a
@@ -102,9 +136,12 @@ bs_generator = nest.Create("poisson_generator", bs_num, params=v3F_g_params)
 cut_fiber_generator = nest.Create("poisson_generator", cut_num, params=cut_g_params)
 
 ## Nuclei
-v3F_neurons = nest.Create("hh_psc_alpha_clopath", v3F_num)
+# v3F_neurons = nest.Create("hh_psc_alpha_clopath", v3F_num)
 bs_neurons = nest.Create("hh_psc_alpha_clopath", bs_num)
-
+"""
+neuron and devices
+"""
+v3F_neurons = nest.Create(nrn_model, v3F_num, params=nrn_params)
 ###############################################################################
 # The ``spike_recorder`` is created and the handle stored in `sr`.
 bs_sr = nest.Create("spike_recorder")
@@ -125,22 +162,33 @@ syn_dict_ex = {"delay": d, "weight": Je}
 nest.Connect(bs_generator, bs_neurons, gen2neuron_dict, syn_dict_ex)
 
 neuron2neuron_stdp_dict = {"rule": "all_to_all"}
-
 ## nest.CopyModel("stdp_synapse", "stdp_synapse_rec", {"weight_recorder": v3F_neurons_wr[0]})
-# "alpha": nest.random.uniform(min=alpha_min, max=alpha_max),
-# "lambda": nest.random.lognormal(mean=lambda_mean, std=lambda_std),
+# nest.CopyModel("jonke_synapse", "stdp_synapse_rec", {"weight_recorder": v3F_neurons_wr[0],
+#                                                      "Wmax": w_max,
+#                                                      "lambda": lambda_mean })
+# syn_stdp_dict = {"synapse_model": "stdp_synapse_rec",
+#                  # "alpha": nest.random.uniform(min=alpha_min, max=alpha_max),
+#                  "weight": nest.random.lognormal(mean=w_mean, std=w_std),
+#                  #"lambda": nest.random.lognormal(mean=lambda_mean, std=lambda_std),
+#                  "delay": delay_def
+#                  }
 
-nest.CopyModel("stdp_nn_symm_synapse", "stdp_synapse_rec", {"weight_recorder": v3F_neurons_wr[0],
-                                                       #"Wmax": w_max,
-                                                       #"lambda": lambda_mean
-                                                       })
-syn_stdp_dict = {"synapse_model": "stdp_synapse_rec",
-                 "alpha": nest.random.uniform(min=alpha_min, max=alpha_max),
-                 "weight": nest.random.lognormal(mean=w_mean, std=w_std),
-                 "lambda": nest.random.lognormal(mean=lambda_mean, std=lambda_std),
-                 "Wmax": w_max,
-                 "delay": delay_def
-                 }
+nest.CopyModel("urbanczik_synapse", "urbanczik_synapse_wr", {"weight_recorder": v3F_neurons_wr[0]})
+
+# synapse params
+syns = nest.GetDefaults(nrn_model)["receptor_types"]
+init_w = 0.3 * nrn_params["dendritic"]["C_m"]
+syn_stdp_dict = {
+    "synapse_model": "urbanczik_synapse_wr",
+    "receptor_type": syns["dendritic_exc"],
+    "tau_Delta": 100.0,  # time constant of low pass filtering of the weight change
+    "eta": 0.17,  # learning rate
+    "weight": init_w,
+    "Wmax": 4.5 * nrn_params["dendritic"]["C_m"],
+    "delay": resolution,
+}
+
+
 nest.Connect(bs_neurons, v3F_neurons, neuron2neuron_stdp_dict, syn_stdp_dict)
 
 ###############################################################################

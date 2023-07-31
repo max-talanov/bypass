@@ -75,7 +75,7 @@ Ke = 20
 
 ## STDP parameters
 alpha_min = 0.1
-alpha_max = 2.
+alpha_max = 1.
 w_min = 0.5
 w_max = 100.0
 w_mean = 3.0
@@ -130,14 +130,14 @@ neuron2neuron_stdp_dict = {"rule": "all_to_all"}
 # "alpha": nest.random.uniform(min=alpha_min, max=alpha_max),
 # "lambda": nest.random.lognormal(mean=lambda_mean, std=lambda_std),
 
-nest.CopyModel("stdp_nn_symm_synapse", "stdp_synapse_rec", {"weight_recorder": v3F_neurons_wr[0],
+nest.CopyModel("vogels_sprekeler_synapse", "stdp_synapse_rec", {"weight_recorder": v3F_neurons_wr[0],
                                                        #"Wmax": w_max,
                                                        #"lambda": lambda_mean
                                                        })
 syn_stdp_dict = {"synapse_model": "stdp_synapse_rec",
                  "alpha": nest.random.uniform(min=alpha_min, max=alpha_max),
                  "weight": nest.random.lognormal(mean=w_mean, std=w_std),
-                 "lambda": nest.random.lognormal(mean=lambda_mean, std=lambda_std),
+                 "eta": lambda_mean,
                  "Wmax": w_max,
                  "delay": delay_def
                  }
