@@ -78,9 +78,9 @@ alpha_min = 0.1
 alpha_max = 2.
 w_min = 0.5
 w_max = 100.0
-w_mean = 20.0
+w_mean = 5.0
 w_std = 0.3
-lambda_mean  = 8.0
+lambda_mean  = 5.0
 lambda_std = 0.3
 delay_def = 1.0
 
@@ -130,9 +130,9 @@ neuron2neuron_stdp_dict = {"rule": "all_to_all"}
 # "alpha": nest.random.uniform(min=alpha_min, max=alpha_max),
 # "lambda": nest.random.lognormal(mean=lambda_mean, std=lambda_std),
 
-nest.CopyModel("stdp_nn_symm_synapse", "stdp_synapse_rec", {"weight_recorder": v3F_neurons_wr[0],
-                                                       "Wmax": w_max,
-                                                       "lambda": lambda_mean
+nest.CopyModel("stdp_nn_pre_centered_synapse", "stdp_synapse_rec", {"weight_recorder": v3F_neurons_wr[0],
+                                                       #"Wmax": w_max,
+                                                       #"lambda": lambda_mean
                                                        })
 syn_stdp_dict = {"synapse_model": "stdp_synapse_rec",
                  "alpha": nest.random.uniform(min=alpha_min, max=alpha_max),

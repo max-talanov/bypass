@@ -125,9 +125,7 @@ syn_dict_ex = {"delay": d, "weight": Je}
 nest.Connect(bs_generator, bs_neurons, gen2neuron_dict, syn_dict_ex)
 
 neuron2neuron_stdp_dict = {"rule": "all_to_all"}
-# TODO update the model to jonke_synapse
 ## nest.CopyModel("stdp_synapse", "stdp_synapse_rec", {"weight_recorder": v3F_neurons_wr[0]})
-
 nest.CopyModel("jonke_synapse", "stdp_synapse_rec", {"weight_recorder": v3F_neurons_wr[0],
                                                      "Wmax": w_max,
                                                      "lambda": lambda_mean })
