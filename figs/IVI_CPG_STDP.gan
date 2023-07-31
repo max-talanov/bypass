@@ -1,11 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="IVI CPG + STDP" company="IVI" webLink="http://" view-date="2023-07-01" view-index="0" gantt-divider-location="511" resource-divider-location="300" version="3.2.3247" locale="en_GB">
+<?xml version="1.0" encoding="UTF-8"?><project name="IVI CPG + STDP" company="IVI" webLink="http://" view-date="2023-07-17" view-index="0" gantt-divider-location="586" resource-divider-location="300" version="3.2.3247" locale="en_GB">
     <description/>
-    <view zooming-state="default:8" id="gantt-chart">
-        <field id="tpd3" name="Name" width="260" order="0"/>
-        <field id="tpd4" name="Begin date" width="92" order="1"/>
-        <field id="tpd5" name="End date" width="86" order="2"/>
-        <field id="tpd6" name="Duration" width="58" order="3"/>
+    <view zooming-state="default:5" id="gantt-chart">
+        <field id="tpd3" name="Name" width="338" order="0"/>
+        <field id="tpd4" name="Begin date" width="90" order="1"/>
+        <field id="tpd5" name="End date" width="93" order="2"/>
+        <field id="tpd6" name="Duration" width="50" order="3"/>
         <option id="filter.completedTasks" value="false"/>
+        <timeline>
+            <![CDATA[1]]>
+        </timeline>
+        <option id="color.recent">
+            <![CDATA[#869d7a #bbe1c3 #a7cdc3 #3b4252 #1e222c]]>
+        </option>
     </view>
     <view id="resource-table">
         <field id="0" name="Name" width="211" order="0"/>
@@ -81,51 +87,66 @@
             <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
         </taskproperties>
         <task id="16" name="Computational infrastructure setup" color="#000000" meeting="false" start="2023-07-21" duration="3" complete="0" thirdDate="2023-07-21" thirdDate-constraint="0" expand="true">
-            <task id="2" name="Neuron GPU" color="#8cb6ce" meeting="false" start="2023-07-21" duration="3" complete="0" thirdDate="2023-07-21" thirdDate-constraint="0" expand="true">
+            <task id="2" name="Neuron GPU" color="#869d7a" meeting="false" start="2023-07-21" duration="3" complete="0" thirdDate="2023-07-21" thirdDate-constraint="0" expand="true">
                 <depend id="0" type="2" difference="0" hardness="Strong"/>
                 <depend id="1" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="3" name="NEST GPU" color="#8cb6ce" meeting="false" start="2023-07-21" duration="3" complete="0" thirdDate="2023-07-13" thirdDate-constraint="0" expand="true">
+            <task id="3" name="NEST GPU" color="#869d7a" meeting="false" start="2023-07-21" duration="3" complete="0" thirdDate="2023-07-13" thirdDate-constraint="0" expand="true">
                 <depend id="7" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="7" name="select NEST / NEURON" color="#8cb6ce" meeting="true" start="2023-07-26" duration="0" complete="0" thirdDate="2023-07-11" thirdDate-constraint="0" expand="true"/>
+            <task id="7" name="select NEST / NEURON" color="#869d7a" meeting="true" start="2023-07-26" duration="0" complete="0" thirdDate="2023-07-11" thirdDate-constraint="0" expand="true"/>
         </task>
-        <task id="17" name="CPG + STDP modeling" meeting="false" start="2023-07-26" duration="50" complete="0" expand="true">
-            <depend id="21" type="2" difference="0" hardness="Strong"/>
-            <task id="0" name="brian2-&gt;N migration" color="#8cb6ce" meeting="false" start="2023-07-26" duration="10" complete="0" thirdDate="2023-07-26" thirdDate-constraint="0" expand="true"/>
-            <task id="1" name="Izhi -&gt; HH migration" meeting="false" start="2023-07-26" duration="10" complete="0" expand="true">
+        <task id="17" name="CPG + STDP modeling" meeting="false" start="2023-07-26" duration="24" complete="0" expand="true">
+            <task id="0" name="brian2-&gt;N migration" color="#869d7a" meeting="false" start="2023-07-26" duration="2" complete="0" thirdDate="2023-07-26" thirdDate-constraint="0" expand="true"/>
+            <task id="1" name="Izhi -&gt; HH migration" color="#869d7a" meeting="false" start="2023-07-26" duration="3" complete="0" thirdDate="2023-07-26" thirdDate-constraint="0" expand="true">
                 <depend id="6" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="6" name="F-E + STDP" meeting="false" start="2023-08-09" duration="10" complete="0" expand="true">
-                <depend id="4" type="2" difference="0" hardness="Strong"/>
+            <task id="6" name="F-E + STDP" color="#a7cdc3" meeting="false" start="2023-07-31" duration="11" complete="0" thirdDate="2023-08-09" thirdDate-constraint="0" expand="true">
                 <depend id="5" type="2" difference="0" hardness="Strong"/>
-                <depend id="8" type="2" difference="0" hardness="Strong"/>
+                <task id="35" name="F" color="#a7cdc3" meeting="false" start="2023-07-31" duration="7" complete="0" thirdDate="2023-07-31" thirdDate-constraint="0" expand="true">
+                    <depend id="36" type="2" difference="0" hardness="Strong"/>
+                    <task id="28" name="+ F + birsting" color="#a7cdc3" meeting="false" start="2023-07-31" duration="3" complete="0" thirdDate="2023-07-31" thirdDate-constraint="0" expand="true">
+                        <depend id="29" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="29" name="M-F" color="#bbe1c3" meeting="false" start="2023-08-03" duration="1" complete="0" thirdDate="2023-08-03" thirdDate-constraint="0" expand="true">
+                        <depend id="30" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="30" name="F muscle" color="#bbe1c3" meeting="false" start="2023-08-04" duration="2" complete="0" thirdDate="2023-07-31" thirdDate-constraint="0" expand="true">
+                        <depend id="31" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="31" name="Ia -&gt; M-F, Ia, F" color="#bbe1c3" meeting="false" start="2023-08-08" duration="1" complete="0" thirdDate="2023-07-31" thirdDate-constraint="0" expand="true"/>
+                </task>
+                <task id="36" name="E" color="#bbe1c3" meeting="false" start="2023-08-09" duration="4" complete="0" thirdDate="2023-07-31" thirdDate-constraint="0" expand="true">
+                    <task id="32" name="E, M-E, E muscle, Ia" color="#bbe1c3" meeting="false" start="2023-08-09" duration="2" complete="0" thirdDate="2023-07-31" thirdDate-constraint="0" expand="true">
+                        <depend id="34" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="34" name="InF, InE" color="#bbe1c3" meeting="false" start="2023-08-11" duration="1" complete="0" thirdDate="2023-07-31" thirdDate-constraint="0" expand="true">
+                        <depend id="33" type="2" difference="0" hardness="Strong"/>
+                    </task>
+                    <task id="33" name="Ia-F, Ia-E" color="#bbe1c3" meeting="false" start="2023-08-14" duration="1" complete="0" thirdDate="2023-07-31" thirdDate-constraint="0" expand="true"/>
+                </task>
             </task>
-            <task id="8" name="Testing F-E" meeting="false" start="2023-08-23" duration="5" complete="0" expand="true">
-                <depend id="4" type="2" difference="0" hardness="Strong"/>
-                <depend id="10" type="2" difference="0" hardness="Strong"/>
+            <task id="8" name="Testing F-E" color="#a7cdc3" meeting="false" start="2023-08-01" duration="12" complete="0" thirdDate="2023-08-23" thirdDate-constraint="0" expand="true">
+                <depend id="37" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="4" name="BS + STDP projections" meeting="false" start="2023-08-30" duration="10" complete="0" expand="true">
-                <depend id="10" type="2" difference="0" hardness="Strong"/>
+            <task id="37" name="Left leg" color="#bbe1c3" meeting="true" start="2023-08-17" duration="0" complete="0" thirdDate="2023-08-17" thirdDate-constraint="0" expand="true"/>
+            <task id="4" name="BS + STDP projections" color="#a7cdc3" meeting="false" start="2023-07-28" duration="15" complete="0" thirdDate="2023-08-30" thirdDate-constraint="0" expand="true"/>
+            <task id="38" name="Right leg" meeting="false" start="2023-08-15" duration="10" complete="0" expand="true">
+                <task id="5" name="L-R + STDP" color="#bbe1c3" meeting="false" start="2023-08-15" duration="5" complete="0" thirdDate="2023-08-18" thirdDate-constraint="0" expand="true">
+                    <depend id="9" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="9" name="Testing L-R" color="#bbe1c3" meeting="false" start="2023-08-22" duration="5" complete="0" thirdDate="2023-08-25" thirdDate-constraint="0" expand="true">
+                    <depend id="11" type="2" difference="0" hardness="Strong"/>
+                </task>
             </task>
-            <task id="10" name="Testing BS projections" meeting="false" start="2023-09-13" duration="5" complete="0" expand="true">
-                <depend id="5" type="2" difference="0" hardness="Strong"/>
-            </task>
-            <task id="5" name="L-R + STDP" meeting="false" start="2023-09-20" duration="5" complete="0" expand="true">
-                <depend id="9" type="2" difference="0" hardness="Strong"/>
-            </task>
-            <task id="9" name="Testing L-R" meeting="false" start="2023-09-27" duration="5" complete="0" expand="true">
-                <depend id="11" type="2" difference="0" hardness="Strong"/>
-            </task>
-            <task id="11" name="Tested CPG + STDP" color="#8cb6ce" meeting="true" start="2023-10-04" duration="0" complete="0" thirdDate="2023-08-30" thirdDate-constraint="0" expand="true"/>
+            <task id="11" name="Tested CPG + STDP" color="#bbe1c3" meeting="true" start="2023-08-29" duration="0" complete="0" thirdDate="2023-08-30" thirdDate-constraint="0" expand="true"/>
         </task>
-        <task id="21" name="How many neurons can we have?" color="#8cb6ce" meeting="true" start="2023-10-04" duration="0" complete="0" thirdDate="2023-08-30" thirdDate-constraint="0" expand="true"/>
         <task id="23" name="Hardware infrastructure setup" meeting="false" start="2023-08-15" duration="20" complete="0" expand="true">
-            <task id="24" name="order soler station" color="#8cb6ce" meeting="false" start="2023-08-15" duration="20" complete="0" thirdDate="2023-07-03" thirdDate-constraint="0" expand="true"/>
-            <task id="25" name="order oscilloscope" meeting="false" start="2023-08-15" duration="10" complete="0" expand="true">
+            <task id="24" name="order soler station" color="#869d7a" meeting="false" start="2023-08-15" duration="20" complete="0" thirdDate="2023-07-03" thirdDate-constraint="0" expand="true"/>
+            <task id="25" name="order oscilloscope" color="#869d7a" meeting="false" start="2023-08-15" duration="10" complete="0" thirdDate="2023-08-15" thirdDate-constraint="0" expand="true">
                 <depend id="27" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="27" name="harware infrastructure ready" color="#8cb6ce" meeting="true" start="2023-08-29" duration="0" complete="0" thirdDate="2023-08-29" thirdDate-constraint="0" expand="true"/>
+            <task id="27" name="harware infrastructure ready" color="#869d7a" meeting="true" start="2023-08-29" duration="0" complete="0" thirdDate="2023-08-29" thirdDate-constraint="0" expand="true"/>
         </task>
         <task id="15" name="Hardware" meeting="false" start="2023-10-02" duration="70" complete="0" expand="true">
             <task id="18" name="Design" meeting="false" start="2023-10-02" duration="40" complete="0" expand="true">
