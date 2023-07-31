@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import logging
 import numpy as np
 
+########################
+# Flexor implementation
+########################
 
 # Functions
 def get_V3_rate(phase, lo, mid, hi) -> float:
@@ -52,7 +55,7 @@ trial_duration = 1000.0  # trial duration, in ms
 phase_duration = 100.0
 simulation_hill_toe_phases = 4
 num_phases = 10
-num_steps = 5  # 5  # number of trials to perform
+num_steps = 10  # 5  # number of trials to perform
 
 v3F_num = 200
 v3F_hi = 200.0  # Hz spiking rate
@@ -75,8 +78,10 @@ alpha_min = 0.1
 alpha_max = 2.
 w_min = 0.5
 w_max = 100.0
-w_mean = 4.0
+w_mean = 20.0
 w_std = 0.3
+lambda_mean  = 8.0
+lambda_std = 0.3
 delay_def = 1.0
 
 ###############################################################################
@@ -120,11 +125,19 @@ syn_dict_ex = {"delay": d, "weight": Je}
 nest.Connect(bs_generator, bs_neurons, gen2neuron_dict, syn_dict_ex)
 
 neuron2neuron_stdp_dict = {"rule": "all_to_all"}
-nest.CopyModel("stdp_synapse", "stdp_synapse_rec", {"weight_recorder": v3F_neurons_wr[0]})
+
+## nest.CopyModel("stdp_synapse", "stdp_synapse_rec", {"weight_recorder": v3F_neurons_wr[0]})
+# "alpha": nest.random.uniform(min=alpha_min, max=alpha_max),
+# "lambda": nest.random.lognormal(mean=lambda_mean, std=lambda_std),
+
+nest.CopyModel("stdp_nn_symm_synapse", "stdp_synapse_rec", {"weight_recorder": v3F_neurons_wr[0],
+                                                       "Wmax": w_max,
+                                                       "lambda": lambda_mean
+                                                       })
 syn_stdp_dict = {"synapse_model": "stdp_synapse_rec",
                  "alpha": nest.random.uniform(min=alpha_min, max=alpha_max),
                  "weight": nest.random.lognormal(mean=w_mean, std=w_std),
-                 "Wmax": w_max,
+                 "lambda": nest.random.lognormal(mean=lambda_mean, std=lambda_std),
                  "delay": delay_def
                  }
 nest.Connect(bs_neurons, v3F_neurons, neuron2neuron_stdp_dict, syn_stdp_dict)
