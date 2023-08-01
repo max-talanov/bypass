@@ -78,11 +78,12 @@ Ia_I_e = 500
 Ia_g_L = 10.0
 Ia_tau_plus = 120.0 # tau_w
 Ia_E_L = -58.0
-Ia_lambda = 100.0 # b
+Ia_lambda = 5.0 # 100.0 # b
 Ia_C_m = 200.0
 Ia_V_m = -58.0
-Ia_w_mean = 5.0 # Initial weight #! must be equal to 5 Initial weight
-Ia_alpha = 2.0
+Ia_w_mean = 4.0 # 5.0 # Initial weight #! must be equal to 5 Initial weight
+Ia_alpha = 1.5 # 2.0
+Ia_delay = 120
 
 ## Cutaneous projectons
 cut_num = 100
@@ -134,7 +135,9 @@ Ia_fibers_params = {"I_e": Ia_I_e,
 bs_neurons = nest.Create("hh_psc_alpha_clopath", bs_num)
 l_f_v3F_neurons = nest.Create("hh_psc_alpha_clopath", v3F_num)
 l_f_rg_neurons = nest.Create("hh_psc_alpha_gap", l_f_rg_num)
-l_f_Ia_fibers = nest.Create("hh_psc_alpha_gap", Ia_fibers_num, params=Ia_fibers_params)
+l_f_Ia_fibers = nest.Create("hh_psc_alpha_gap", Ia_fibers_num,
+                            #params=Ia_fibers_params
+                            )
 
 ###############################################################################
 # The ``spike_recorder`` is created and the handle stored in `sr`.
@@ -143,6 +146,7 @@ bs_neurons_sr = nest.Create("spike_recorder")
 l_f_v3F_neurons_sr = nest.Create("spike_recorder")
 l_f_v3F_neurons_wr = nest.Create("weight_recorder")
 l_f_rg_neurons_sr = nest.Create("spike_recorder")
+l_f_Ia_fiber_generator_sr = nest.Create("spike_recorder")
 l_f_Ia2rg_neurons_wr = nest.Create("weight_recorder")
 
 ###############################################################################
@@ -151,6 +155,7 @@ l_f_Ia2rg_neurons_wr = nest.Create("weight_recorder")
 nest.Connect(bs_generator, bs_sr)
 nest.Connect(bs_neurons, bs_neurons_sr)
 nest.Connect(l_f_v3F_neurons, l_f_v3F_neurons_sr)
+nest.Connect(l_f_Ia_fiber_generator, l_f_Ia_fiber_generator_sr)
 nest.Connect(l_f_rg_neurons, l_f_rg_neurons_sr)
 
 # Generator w neurons
@@ -179,7 +184,7 @@ nest.CopyModel("jonke_synapse", "Ia_stdp_synapse_rec",
                 "Wmax": w_max,
                 "lambda": Ia_lambda,
                 "alpha": Ia_alpha,
-                "tau_plus" : Ia_tau_plus,
+                #"tau_plus" : Ia_tau_plus,
                 })
 Ia_syn_stdp_dict = {"synapse_model": "Ia_stdp_synapse_rec",
                     "weight": nest.random.lognormal(mean=Ia_w_mean, std=w_std),
@@ -229,6 +234,11 @@ log.info('Simulation completed ...')
 
 #V3 spikes
 nest.raster_plot.from_device(l_f_v3F_neurons_sr, hist=True, hist_binwidth=100.0, title="v3F spikes")
+plt.show()
+
+
+#Ia spikes
+nest.raster_plot.from_device(l_f_Ia_fiber_generator_sr, hist=True, hist_binwidth=100.0, title="L F gen RG spikes")
 plt.show()
 
 #Ia spikes
