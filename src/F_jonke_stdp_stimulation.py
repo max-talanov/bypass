@@ -74,6 +74,15 @@ Ia_fibers_num = 100 # 8 #100
 # [20,50,20,50,20]*Hz
 Ia_fibers_freq_hi = 50#Hz
 Ia_fibers_freq_lo = 10#Hz #20*Hz
+Ia_I_e = 500
+Ia_g_L = 10.0
+Ia_tau_plus = 120.0 # tau_w
+Ia_E_L = -58.0
+Ia_lambda = 100.0 # b
+Ia_C_m = 200.0
+Ia_V_m = -58.0
+Ia_w_mean = 5.0 # Initial weight #! must be equal to 5 Initial weight
+Ia_alpha = 2.0
 
 ## Cutaneous projectons
 cut_num = 100
@@ -106,7 +115,6 @@ v3F_g_params = {"rate": v3F_lo}
 cut_g_params = {"rate": cut_lo}
 Ia_g_params = {"rate": Ia_fibers_freq_lo}
 
-
 ## Generators
 bs_generator = nest.Create("poisson_generator", bs_num, params=v3F_g_params)
 
@@ -117,10 +125,16 @@ l_e_cut_fiber_generator = nest.Create("poisson_generator", cut_num, params=cut_g
 l_f_Ia_fiber_generator = nest.Create("poisson_generator", Ia_fibers_num, params=Ia_g_params)
 
 ## Nuclei
+Ia_fibers_params = {"I_e": Ia_I_e,
+                    "g_L" : Ia_g_L,
+                    "E_L" : Ia_E_L,
+                    "C_m" :  Ia_C_m,
+                    "V_m" : Ia_V_m}
+
 bs_neurons = nest.Create("hh_psc_alpha_clopath", bs_num)
 l_f_v3F_neurons = nest.Create("hh_psc_alpha_clopath", v3F_num)
 l_f_rg_neurons = nest.Create("hh_psc_alpha_gap", l_f_rg_num)
-l_f_Ia_fibers = nest.Create("hh_psc_alpha_gap", Ia_fibers_num)
+l_f_Ia_fibers = nest.Create("hh_psc_alpha_gap", Ia_fibers_num, params=Ia_fibers_params)
 
 ###############################################################################
 # The ``spike_recorder`` is created and the handle stored in `sr`.
@@ -163,11 +177,12 @@ nest.Connect(bs_neurons, l_f_v3F_neurons, neuron2neuron_stdp_dict, V3_syn_stdp_d
 nest.CopyModel("jonke_synapse", "Ia_stdp_synapse_rec",
                {"weight_recorder": l_f_Ia2rg_neurons_wr[0],
                 "Wmax": w_max,
-                "lambda": lambda_mean,
-                "alpha": alpha_max
+                "lambda": Ia_lambda,
+                "alpha": Ia_alpha,
+                "tau_plus" : Ia_tau_plus,
                 })
 Ia_syn_stdp_dict = {"synapse_model": "Ia_stdp_synapse_rec",
-                    "weight": nest.random.lognormal(mean=w_mean, std=w_std),
+                    "weight": nest.random.lognormal(mean=Ia_w_mean, std=w_std),
                     "delay": delay_def
                     }
 nest.Connect(l_f_Ia_fibers, l_f_rg_neurons, neuron2neuron_stdp_dict, Ia_syn_stdp_dict)
