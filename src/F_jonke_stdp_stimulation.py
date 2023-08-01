@@ -129,7 +129,7 @@ bs_neurons_sr = nest.Create("spike_recorder")
 l_f_v3F_neurons_sr = nest.Create("spike_recorder")
 l_f_v3F_neurons_wr = nest.Create("weight_recorder")
 l_f_rg_neurons_sr = nest.Create("spike_recorder")
-l_f_rg_neurons_wr = nest.Create("weight_recorder")
+l_f_Ia2rg_neurons_wr = nest.Create("weight_recorder")
 
 ###############################################################################
 # The Connect function connects the nodes so spikes from pg are collected by
@@ -147,20 +147,30 @@ nest.Connect(bs_generator, bs_neurons, gen2neuron_dict, syn_dict_ex)
 nest.Connect(l_f_Ia_fiber_generator, l_f_Ia_fibers, gen2neuron_dict, syn_dict_ex)
 
 ## STDP synapses setup
+### V3
 neuron2neuron_stdp_dict = {"rule": "all_to_all"}
-nest.CopyModel("jonke_synapse", "stdp_synapse_rec", {"weight_recorder": l_f_v3F_neurons_wr[0],
-                                                     "Wmax": w_max,
-                                                     "lambda": lambda_mean })
-syn_stdp_dict = {"synapse_model": "stdp_synapse_rec",
-                 # "alpha": nest.random.uniform(min=alpha_min, max=alpha_max),
-                 "weight": nest.random.lognormal(mean=w_mean, std=w_std),
-                 #"lambda": nest.random.lognormal(mean=lambda_mean, std=lambda_std),
-                 "delay": delay_def
-                 }
+nest.CopyModel("jonke_synapse", "V3_stdp_synapse_rec",
+               {"weight_recorder": l_f_v3F_neurons_wr[0],
+                "Wmax": w_max,
+                "lambda": lambda_mean })
+V3_syn_stdp_dict = {"synapse_model": "V3_stdp_synapse_rec",
+                    "weight": nest.random.lognormal(mean=w_mean, std=w_std),
+                    "delay": delay_def
+                    }
+nest.Connect(bs_neurons, l_f_v3F_neurons, neuron2neuron_stdp_dict, V3_syn_stdp_dict)
 
-## STDP synapses connections
-nest.Connect(bs_neurons, l_f_v3F_neurons, neuron2neuron_stdp_dict, syn_stdp_dict)
-nest.Connect(l_f_Ia_fibers, l_f_rg_neurons, neuron2neuron_stdp_dict, syn_stdp_dict)
+### Ia
+nest.CopyModel("jonke_synapse", "Ia_stdp_synapse_rec",
+               {"weight_recorder": l_f_Ia2rg_neurons_wr[0],
+                "Wmax": w_max,
+                "lambda": lambda_mean,
+                "alpha": alpha_max
+                })
+Ia_syn_stdp_dict = {"synapse_model": "Ia_stdp_synapse_rec",
+                    "weight": nest.random.lognormal(mean=w_mean, std=w_std),
+                    "delay": delay_def
+                    }
+nest.Connect(l_f_Ia_fibers, l_f_rg_neurons, neuron2neuron_stdp_dict, Ia_syn_stdp_dict)
 
 ###############################################################################
 # Before each trial, we set the ``origin`` of the ``poisson_generator`` to the
@@ -206,20 +216,22 @@ log.info('Simulation completed ...')
 nest.raster_plot.from_device(l_f_v3F_neurons_sr, hist=True, hist_binwidth=100.0, title="v3F spikes")
 plt.show()
 
+#Ia spikes
+nest.raster_plot.from_device(l_f_rg_neurons_sr, hist=True, hist_binwidth=100.0, title="L F RG spikes")
+plt.show()
+
 # plot results
 fs = 22
 lw = 2.5
 #V3 weights
-senders = l_f_v3F_neurons_wr.events["senders"]
-targets = l_f_v3F_neurons_wr.events["targets"]
-weights = l_f_v3F_neurons_wr.events["weights"]
-times = l_f_v3F_neurons_wr.events["times"]
-# # synaptic weights
-# plt.figure(figsize=(20, 15))
-# plt.subplot(111)
-# plt.plot(times, weights, 'tab:purple')
-# plt.tight_layout()
-# plt.show()
+# senders = l_f_v3F_neurons_wr.events["senders"]
+# targets = l_f_v3F_neurons_wr.events["targets"]
+# weights = l_f_v3F_neurons_wr.events["weights"]
+# times = l_f_v3F_neurons_wr.events["times"]
+senders = l_f_Ia2rg_neurons_wr.events["senders"]
+targets = l_f_Ia2rg_neurons_wr.events["targets"]
+weights = l_f_Ia2rg_neurons_wr.events["weights"]
+times = l_f_Ia2rg_neurons_wr.events["times"]
 
 # synaptic weights
 fig2, axA = plt.subplots(1, 1)
