@@ -81,7 +81,7 @@ Ia_E_L = -58.0
 Ia_lambda = 5.0 # 100.0 # b
 Ia_C_m = 200.0
 Ia_V_m = -58.0
-Ia_w_mean = 4.0 # 5.0 # Initial weight #! must be equal to 5 Initial weight
+Ia_w_mean = 5.0 # Initial weight #! must be equal to 5 Initial weight
 Ia_alpha = 1.5 # 2.0
 Ia_delay = 120
 
@@ -134,9 +134,9 @@ Ia_fibers_params = {"I_e": Ia_I_e,
 
 bs_neurons = nest.Create("hh_psc_alpha_clopath", bs_num)
 l_f_v3F_neurons = nest.Create("hh_psc_alpha_clopath", v3F_num)
-l_f_rg_neurons = nest.Create("hh_psc_alpha_gap", l_f_rg_num)
-l_f_Ia_fibers = nest.Create("hh_psc_alpha_gap", Ia_fibers_num,
-                            #params=Ia_fibers_params
+l_f_rg_neurons = nest.Create("hh_psc_alpha_clopath", l_f_rg_num)
+l_f_Ia_fibers = nest.Create("hh_psc_alpha_clopath", Ia_fibers_num,
+                            params=Ia_fibers_params
                             )
 
 ###############################################################################
@@ -168,6 +168,7 @@ nest.Connect(l_f_Ia_fiber_generator, l_f_Ia_fibers, gen2neuron_dict, syn_dict_ex
 ## STDP synapses setup
 ### V3
 neuron2neuron_stdp_dict = {"rule": "all_to_all"}
+
 nest.CopyModel("jonke_synapse", "V3_stdp_synapse_rec",
                {"weight_recorder": l_f_v3F_neurons_wr[0],
                 "Wmax": w_max,
@@ -183,7 +184,7 @@ nest.CopyModel("jonke_synapse", "Ia_stdp_synapse_rec",
                {"weight_recorder": l_f_Ia2rg_neurons_wr[0],
                 "Wmax": w_max,
                 "lambda": Ia_lambda,
-                "alpha": Ia_alpha,
+                #"alpha": Ia_alpha,
                 #"tau_plus" : Ia_tau_plus,
                 })
 Ia_syn_stdp_dict = {"synapse_model": "Ia_stdp_synapse_rec",
