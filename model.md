@@ -9,3 +9,6 @@
 1. [H-H psc alpha gap](https://nest-simulator.readthedocs.io/en/stable/models/hh_psc_alpha_gap.html)
 1. [H-H Traub](https://nest-simulator.readthedocs.io/en/stable/models/hh_cond_exp_traub.html)
 1. [H-H gap](https://nest-simulator.readthedocs.io/en/stable/models/hh_psc_alpha_gap.html)
+
+## Bursting
+[Bursting of AIF](https://nest-simulator.readthedocs.io/en/stable/model_details/aeif_models_implementation.html#Params-(chose-a-dictionary))
