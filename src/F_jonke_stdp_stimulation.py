@@ -78,11 +78,11 @@ Ia_I_e = 500
 Ia_g_L = 10.0
 Ia_tau_plus = 120.0 # tau_w
 Ia_E_L = -58.0
-Ia_lambda = 5.0 # 100.0 # b
+Ia_lambda = 1.0 # b= 100.0
 Ia_C_m = 200.0
 Ia_V_m = -58.0
 Ia_w_mean = 5.0 # Initial weight #! must be equal to 5 Initial weight
-Ia_alpha = 1.5 # 2.0
+Ia_alpha = 2.0
 Ia_delay = 120
 
 ## Cutaneous projectons
