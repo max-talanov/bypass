@@ -211,7 +211,7 @@ for n in range(num_steps):
         ### Ia rate
         Ia_rate = get_Ia_rate(ph, Ia_fibers_freq_lo, Ia_fibers_freq_hi)
         log.debug("Rate = " + str(Ia_rate))
-        l_f_Ia_fiber_generator.rate = rate
+        l_f_Ia_fiber_generator.rate = Ia_rate
         ### Cut fibers
         l_e_cut_fiber_generator[:].rate = cut_lo
         cut_chunk_number, cut_freq = identity_cut_chunk(ph, cut_hi, cut_lo)
