@@ -11,4 +11,4 @@
 1. [H-H gap](https://nest-simulator.readthedocs.io/en/stable/models/hh_psc_alpha_gap.html)
 
 ## Bursting
-[Bursting of AIF](https://nest-simulator.readthedocs.io/en/stable/model_details/aeif_models_implementation.html#Params-(chose-a-dictionary))
+[Bursting mapping AIF -> HH + Jonke synapse](https://github.com/max-talanov/bypass/blob/main/bursting_mapping.md)
