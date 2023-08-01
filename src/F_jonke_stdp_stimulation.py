@@ -37,6 +37,9 @@ def identity_cut_chunk(step, hi, lo):
         chunk_number = [3]
     return chunk_number, hi
 
+def get_Ia_rate(step, freq_hi, freq_lo):
+  if step in [2,3,6,7]: return freq_hi
+  else: return freq_lo
 
 FORMAT = '%(asctime)s %(message)s'
 logging.basicConfig(format=FORMAT, level=logging.INFO)
@@ -49,7 +52,6 @@ start = 0.0  # start of simulation relative to trial start, in ms
 stop = 1000.0  # end of simulation relative to trial start, in ms
 
 ###############################################################################
-# The simulation is supposed to take 1s (1000 ms) and is repeated 5 times
 
 trial_duration = 1000.0  # trial duration, in ms
 phase_duration = 100.0
@@ -57,12 +59,23 @@ simulation_hill_toe_phases = 4
 num_phases = 10
 num_steps = 10  # 5  # number of trials to perform
 
+## Commisural projections
 v3F_num = 200
 v3F_hi = 200.0  # Hz spiking rate
 v3F_mid = 100.0
 v3F_lo = 50.0  # Hz spiking rate
+
 bs_num = 100
 
+l_f_rg_num = 200 # number of rhythm generator neurons
+
+## Ia projections
+Ia_fibers_num = 100 # 8 #100
+# [20,50,20,50,20]*Hz
+Ia_fibers_freq_hi = 50#Hz
+Ia_fibers_freq_lo = 10#Hz #20*Hz
+
+## Cutaneous projectons
 cut_num = 100
 cut_lo = 5.0  # Hz spiking rate
 cut_hi = 50.0  # 200.0 # 50.0  # Hz spiking rate
@@ -85,48 +98,57 @@ lambda_std = 0.3
 delay_def = 1.0
 
 ###############################################################################
-# Third, the network is set up.  We reset the kernel and create a
-# ``poisson_generator``, in which the handle is stored in `pg`.
-#
-# The parameters for rate and start and stop of activity are given as optional
-# parameters in the form of a dictionary.
-
+# The network is set up.
 nest.ResetKernel()
 nest.total_num_virtual_procs = 15
-# pg_params = {"rate": rate, "start": start, "stop": stop}
-# g_params = {"start": start, "stop": stop, "rate_times": [1, 600, 800], "rate_values": [50, 200, 50]}
+
 v3F_g_params = {"rate": v3F_lo}
 cut_g_params = {"rate": cut_lo}
+Ia_g_params = {"rate": Ia_fibers_freq_lo}
+
+
 ## Generators
 bs_generator = nest.Create("poisson_generator", bs_num, params=v3F_g_params)
-cut_fiber_generator = nest.Create("poisson_generator", cut_num, params=cut_g_params)
+
+### Extensor
+l_e_cut_fiber_generator = nest.Create("poisson_generator", cut_num, params=cut_g_params)
+
+### Flexor
+l_f_Ia_fiber_generator = nest.Create("poisson_generator", Ia_fibers_num, params=Ia_g_params)
 
 ## Nuclei
-v3F_neurons = nest.Create("hh_psc_alpha_clopath", v3F_num)
 bs_neurons = nest.Create("hh_psc_alpha_clopath", bs_num)
+l_f_v3F_neurons = nest.Create("hh_psc_alpha_clopath", v3F_num)
+l_f_rg_neurons = nest.Create("hh_psc_alpha_gap", l_f_rg_num)
+l_f_Ia_fibers = nest.Create("hh_psc_alpha_gap", Ia_fibers_num)
 
 ###############################################################################
 # The ``spike_recorder`` is created and the handle stored in `sr`.
 bs_sr = nest.Create("spike_recorder")
 bs_neurons_sr = nest.Create("spike_recorder")
-v3F_neurons_sr = nest.Create("spike_recorder")
-v3F_neurons_wr = nest.Create("weight_recorder")
+l_f_v3F_neurons_sr = nest.Create("spike_recorder")
+l_f_v3F_neurons_wr = nest.Create("weight_recorder")
+l_f_rg_neurons_sr = nest.Create("spike_recorder")
+l_f_rg_neurons_wr = nest.Create("weight_recorder")
 
 ###############################################################################
-# The ``Connect`` function connects the nodes so spikes from pg are collected by
-# the ``spike_recorder`` `sr`
+# The Connect function connects the nodes so spikes from pg are collected by
+# the spike_recorder
 nest.Connect(bs_generator, bs_sr)
 nest.Connect(bs_neurons, bs_neurons_sr)
-nest.Connect(v3F_neurons, v3F_neurons_sr)
-# generator w neurons
+nest.Connect(l_f_v3F_neurons, l_f_v3F_neurons_sr)
+nest.Connect(l_f_rg_neurons, l_f_rg_neurons_sr)
+
+# Generator w neurons
 conn_dict_ex = {"rule": "fixed_indegree", "indegree": Ke}
 gen2neuron_dict = {"rule": "all_to_all"}
 syn_dict_ex = {"delay": d, "weight": Je}
 nest.Connect(bs_generator, bs_neurons, gen2neuron_dict, syn_dict_ex)
+nest.Connect(l_f_Ia_fiber_generator, l_f_Ia_fibers, gen2neuron_dict, syn_dict_ex)
 
+## STDP synapses setup
 neuron2neuron_stdp_dict = {"rule": "all_to_all"}
-## nest.CopyModel("stdp_synapse", "stdp_synapse_rec", {"weight_recorder": v3F_neurons_wr[0]})
-nest.CopyModel("jonke_synapse", "stdp_synapse_rec", {"weight_recorder": v3F_neurons_wr[0],
+nest.CopyModel("jonke_synapse", "stdp_synapse_rec", {"weight_recorder": l_f_v3F_neurons_wr[0],
                                                      "Wmax": w_max,
                                                      "lambda": lambda_mean })
 syn_stdp_dict = {"synapse_model": "stdp_synapse_rec",
@@ -135,7 +157,10 @@ syn_stdp_dict = {"synapse_model": "stdp_synapse_rec",
                  #"lambda": nest.random.lognormal(mean=lambda_mean, std=lambda_std),
                  "delay": delay_def
                  }
-nest.Connect(bs_neurons, v3F_neurons, neuron2neuron_stdp_dict, syn_stdp_dict)
+
+## STDP synapses connections
+nest.Connect(bs_neurons, l_f_v3F_neurons, neuron2neuron_stdp_dict, syn_stdp_dict)
+nest.Connect(l_f_Ia_fibers, l_f_rg_neurons, neuron2neuron_stdp_dict, syn_stdp_dict)
 
 ###############################################################################
 # Before each trial, we set the ``origin`` of the ``poisson_generator`` to the
@@ -148,14 +173,20 @@ for n in range(num_steps):
     log.info("Step = " + str(n))
     for ph in range(num_phases):
         bs_generator.origin = nest.biological_time
+        ### V3 rate
         rate = get_V3_rate(ph, v3F_lo, v3F_mid, v3F_hi)
         log.debug("Rate = " + str(rate))
         bs_generator.rate = rate
-        cut_fiber_generator[:].rate = cut_lo
+        ### Ia rate
+        Ia_rate = get_Ia_rate(ph, Ia_fibers_freq_lo, Ia_fibers_freq_hi)
+        log.debug("Rate = " + str(Ia_rate))
+        l_f_Ia_fiber_generator.rate = rate
+        ### Cut fibers
+        l_e_cut_fiber_generator[:].rate = cut_lo
         cut_chunk_number, cut_freq = identity_cut_chunk(ph, cut_hi, cut_lo)
         for chn in cut_chunk_number:
             ## log.info(str(chn*cut_chank) + ": " + str((chn+1)*cut_chank-1))
-            cut_fiber_generator[chn * cut_chunk:(chn + 1) * cut_chunk - 1].rate = cut_freq
+            l_e_cut_fiber_generator[chn * cut_chunk:(chn + 1) * cut_chunk - 1].rate = cut_freq
         nest.Simulate(phase_duration)
 
 log.info('Simulation completed ...')
@@ -172,17 +203,17 @@ log.info('Simulation completed ...')
 # plt.show()
 
 #V3 spikes
-nest.raster_plot.from_device(v3F_neurons_sr, hist=True, hist_binwidth=100.0, title="v3F spikes")
+nest.raster_plot.from_device(l_f_v3F_neurons_sr, hist=True, hist_binwidth=100.0, title="v3F spikes")
 plt.show()
 
 # plot results
 fs = 22
 lw = 2.5
 #V3 weights
-senders = v3F_neurons_wr.events["senders"]
-targets = v3F_neurons_wr.events["targets"]
-weights = v3F_neurons_wr.events["weights"]
-times = v3F_neurons_wr.events["times"]
+senders = l_f_v3F_neurons_wr.events["senders"]
+targets = l_f_v3F_neurons_wr.events["targets"]
+weights = l_f_v3F_neurons_wr.events["weights"]
+times = l_f_v3F_neurons_wr.events["times"]
 # # synaptic weights
 # plt.figure(figsize=(20, 15))
 # plt.subplot(111)
