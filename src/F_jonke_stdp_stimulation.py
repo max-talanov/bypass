@@ -132,6 +132,8 @@ Ia_fibers_params = {"I_e": Ia_I_e,
                     "C_m" :  Ia_C_m,
                     "V_m" : Ia_V_m}
 
+## hh_psc_alpha_clopath
+
 bs_neurons = nest.Create("hh_psc_alpha_clopath", bs_num)
 l_f_v3F_neurons = nest.Create("hh_psc_alpha_clopath", v3F_num)
 l_f_rg_neurons = nest.Create("hh_psc_alpha_clopath", l_f_rg_num)
