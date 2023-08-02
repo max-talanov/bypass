@@ -154,7 +154,7 @@ trial_duration = 1000.0  # trial duration, in ms
 phase_duration = 100.0
 simulation_hill_toe_phases = 4
 num_phases = 10
-num_steps = 10  # 5  # number of trials to perform
+num_steps = 100 #10  # 5  # number of trials to perform
 
 ## Commisural projections
 v3F_num = 200
@@ -365,19 +365,19 @@ log.info('Simulation completed ...')
 # plt.show()
 
 #Ia generator spikes
-make_raster_plot(l_f_Ia_fiber_generator_sr, hist=True, hist_binwidth=5.0, title="L F Ia gen spikes", color=",m")
+make_raster_plot(l_f_Ia_fiber_generator_sr, hist=False, hist_binwidth=5.0, title="L F Ia gen spikes", color=",m")
 plt.show()
 
 #Ia generator spikes
-make_raster_plot(l_f_Ia_fiber_generator_sr, hist=True, hist_binwidth=5.0, title="L F Ia fiber spikes", color=",g")
+make_raster_plot(l_f_Ia_fiber_generator_sr, hist=False, hist_binwidth=5.0, title="L F Ia fiber spikes", color=",g")
 plt.show()
 
 #RG spikes
-make_raster_plot(l_f_rg_neurons_sr, hist=True, hist_binwidth=5.0, title="L F RG spikes", color=",b")
+make_raster_plot(l_f_rg_neurons_sr, hist=False, hist_binwidth=5.0, title="L F RG spikes", color=",b")
 plt.show()
 
 #motor spikes
-make_raster_plot(l_f_motor_neurons_sr, hist=True, hist_binwidth=5.0, title="L F Motor spikes", color=",r")
+make_raster_plot(l_f_motor_neurons_sr, hist=False, hist_binwidth=5.0, title="L F Motor spikes", color=",r")
 plt.show()
 
 # Weights
