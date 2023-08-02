@@ -78,10 +78,11 @@ Ia_I_e = 500
 Ia_g_L = 10.0
 Ia_tau_plus = 120.0 # tau_w
 Ia_E_L = -58.0
-Ia_lambda = 1.0 # b= 100.0
+Ia_lambda = 5.0 # b= 100.0
 Ia_C_m = 200.0
 Ia_V_m = -58.0
-Ia_w_mean = 5.0 # Initial weight #! must be equal to 5 Initial weight
+Ia_w_mean = 4.0 # 5.0 # Initial weight #! must be equal to 5
+Ia_w_std = 0.3
 Ia_alpha = 2.0
 Ia_delay = 120
 
@@ -132,14 +133,21 @@ Ia_fibers_params = {"I_e": Ia_I_e,
                     "C_m" :  Ia_C_m,
                     "V_m" : Ia_V_m}
 
-## hh_psc_alpha_clopath
+## + hh_psc_alpha_clopath
+## - hh_psc_alpha_gap
+## +/-- hh_cond_exp_traub
+## +/- pp_cond_exp_mc_urbanczik
+## +/-- hh_cond_beta_gap_traub
+## + hh_psc_alpha
+
 
 bs_neurons = nest.Create("hh_psc_alpha_clopath", bs_num)
 l_f_v3F_neurons = nest.Create("hh_psc_alpha_clopath", v3F_num)
-l_f_rg_neurons = nest.Create("hh_psc_alpha_clopath", l_f_rg_num)
+
 l_f_Ia_fibers = nest.Create("hh_psc_alpha_clopath", Ia_fibers_num,
                             params=Ia_fibers_params
                             )
+l_f_rg_neurons = nest.Create("hh_psc_alpha_clopath", l_f_rg_num)
 
 ###############################################################################
 # The ``spike_recorder`` is created and the handle stored in `sr`.
@@ -174,7 +182,8 @@ neuron2neuron_stdp_dict = {"rule": "all_to_all"}
 nest.CopyModel("jonke_synapse", "V3_stdp_synapse_rec",
                {"weight_recorder": l_f_v3F_neurons_wr[0],
                 "Wmax": w_max,
-                "lambda": lambda_mean })
+                "lambda": lambda_mean
+                })
 V3_syn_stdp_dict = {"synapse_model": "V3_stdp_synapse_rec",
                     "weight": nest.random.lognormal(mean=w_mean, std=w_std),
                     "delay": delay_def
@@ -187,11 +196,13 @@ nest.CopyModel("jonke_synapse", "Ia_stdp_synapse_rec",
                 "Wmax": w_max,
                 "lambda": Ia_lambda,
                 #"alpha": Ia_alpha,
-                #"tau_plus" : Ia_tau_plus,
                 })
+nrn_model = "pp_cond_exp_mc_urbanczik"
+syns = nest.GetDefaults(nrn_model)["receptor_types"]
 Ia_syn_stdp_dict = {"synapse_model": "Ia_stdp_synapse_rec",
                     "weight": nest.random.lognormal(mean=Ia_w_mean, std=w_std),
-                    "delay": delay_def
+                    "delay": delay_def,
+                    # "receptor_type": syns["dendritic_exc"] ## for pp_cond_exp_mc_urbanczik
                     }
 nest.Connect(l_f_Ia_fibers, l_f_rg_neurons, neuron2neuron_stdp_dict, Ia_syn_stdp_dict)
 
@@ -252,10 +263,25 @@ plt.show()
 fs = 22
 lw = 2.5
 #V3 weights
-# senders = l_f_v3F_neurons_wr.events["senders"]
-# targets = l_f_v3F_neurons_wr.events["targets"]
-# weights = l_f_v3F_neurons_wr.events["weights"]
-# times = l_f_v3F_neurons_wr.events["times"]
+senders = l_f_v3F_neurons_wr.events["senders"]
+targets = l_f_v3F_neurons_wr.events["targets"]
+weights = l_f_v3F_neurons_wr.events["weights"]
+times = l_f_v3F_neurons_wr.events["times"]
+
+# synaptic weights
+fig2, axA = plt.subplots(1, 1)
+for i in np.arange(2, 200, 10):
+    index = np.intersect1d(np.where(senders == senders[i]), np.where(targets == targets[1]))
+    if not len(index) == 0:
+        axA.step(times[index], weights[index], label="v3{}".format(i - 2), lw=lw)
+
+axA.set_title("bs -> V3 weights ")
+axA.set_xlabel("time [ms]", fontsize=fs)
+axA.set_ylabel("weight", fontsize=fs)
+axA.legend(fontsize=fs - 4)
+plt.show()
+
+# Ia to rg weights
 senders = l_f_Ia2rg_neurons_wr.events["senders"]
 targets = l_f_Ia2rg_neurons_wr.events["targets"]
 weights = l_f_Ia2rg_neurons_wr.events["weights"]
@@ -266,9 +292,9 @@ fig2, axA = plt.subplots(1, 1)
 for i in np.arange(2, 200, 10):
     index = np.intersect1d(np.where(senders == senders[i]), np.where(targets == targets[1]))
     if not len(index) == 0:
-        axA.step(times[index], weights[index], label="pg_{}".format(i - 2), lw=lw)
+        axA.step(times[index], weights[index], label="rg{}".format(i - 2), lw=lw)
 
-axA.set_title("Synaptic weights of synapses")
+axA.set_title("Ia -> f_rg weights of synapses")
 axA.set_xlabel("time [ms]", fontsize=fs)
 axA.set_ylabel("weight", fontsize=fs)
 axA.legend(fontsize=fs - 4)
