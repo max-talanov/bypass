@@ -138,7 +138,6 @@ def make_raster_plot(detec, **kwargs):
     return _make_plot(ts, ts, node_ids, node_ids, xlabel=xlabel, **kwargs)
 
 
-
 FORMAT = '%(asctime)s %(message)s'
 logging.basicConfig(format=FORMAT, level=logging.INFO)
 log = logging.getLogger("Cur")
@@ -214,7 +213,7 @@ delay_def = 1.0
 ###############################################################################
 # The network is set up.
 nest.ResetKernel()
-nest.total_num_virtual_procs = 15
+nest.total_num_virtual_procs = 16
 
 v3F_g_params = {"rate": v3F_lo}
 cut_g_params = {"rate": cut_lo}
@@ -412,7 +411,7 @@ times = l_f_Ia2rg_neurons_wr.events["times"]
 
 # synaptic weights
 fig2, axA = plt.subplots(1, 1)
-for i in np.arange(2, 200, 10):
+for i in np.arange(2, 500, 10):
     index = np.intersect1d(np.where(senders == senders[i]), np.where(targets == targets[1]))
     if not len(index) == 0:
         axA.step(times[index], weights[index], label="rg{}".format(i - 2), lw=lw)
