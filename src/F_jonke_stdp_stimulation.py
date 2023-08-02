@@ -41,6 +41,104 @@ def get_Ia_rate(step, freq_hi, freq_lo):
   if step in [2,3,6,7]: return freq_hi
   else: return freq_lo
 
+
+def _make_plot(ts, ts1, node_ids, neurons, hist=True, hist_binwidth=5.0, grayscale=False, title=None, xlabel=None,
+               color=',b'):
+
+    """Generic plotting routine.
+
+    Constructs a raster plot along with an optional histogram (common part in
+    all routines above).
+
+    Parameters
+    ----------
+    ts : list
+        All timestamps
+    ts1 : list
+        Timestamps corresponding to node_ids
+    node_ids : list
+        Global ids corresponding to ts1
+    neurons : list
+        Node IDs of neurons to plot
+    hist : bool, optional
+        Display histogram
+    hist_binwidth : float, optional
+        Width of histogram bins
+    grayscale : bool, optional
+        Plot in grayscale
+    title : str, optional
+        Plot title
+    xlabel : str, optional
+        Label for x-axis
+    """
+    import matplotlib.pyplot as plt
+
+    plt.figure()
+
+    color_marker: str = color
+    if grayscale:
+        color_marker = ".k"
+        color_bar = "gray"
+    else:
+        color_bar = "blue"
+
+    color_edge = "black"
+
+    if xlabel is None:
+        xlabel = "Time (ms)"
+
+    ylabel = "Neuron ID"
+
+    if hist:
+        ax1 = plt.axes([0.1, 0.3, 0.85, 0.6])
+        plotid = plt.plot(ts1, node_ids, color_marker)
+        plt.ylabel(ylabel)
+        plt.xticks([])
+        xlim = plt.xlim()
+
+        plt.axes([0.1, 0.1, 0.85, 0.17])
+        t_bins = np.arange(np.amin(ts), np.amax(ts), float(hist_binwidth))
+        n, _ = nest.raster_plot._histogram(ts, bins=t_bins)
+        num_neurons = len(np.unique(neurons))
+        heights = 1000 * n / (hist_binwidth * num_neurons)
+
+        plt.bar(t_bins, heights, width=hist_binwidth, color=color_bar, edgecolor=color_edge)
+        plt.yticks([int(x) for x in np.linspace(0.0, int(max(heights) * 1.1) + 5, 4)])
+        plt.ylabel("Rate (Hz)")
+        plt.xlabel(xlabel)
+        plt.xlim(xlim)
+        plt.axes(ax1)
+    else:
+        plotid = plt.plot(ts1, node_ids, color_marker)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+
+    if title is None:
+        plt.title("Raster plot")
+    else:
+        plt.title(title)
+
+    #plt.draw()
+
+    return plotid
+
+def make_raster_plot(detec, **kwargs):
+
+    ts, node_ids = nest.raster_plot._from_memory(detec)
+    if not len(ts):
+        raise nest.kernel.NESTError("No events recorded!")
+
+    if "title" not in kwargs:
+        kwargs["title"] = "Raster plot from device '%i'" % detec.get("global_id")
+
+    if detec.get("time_in_steps"):
+        xlabel = "Steps"
+    else:
+        xlabel = "Time (ms)"
+    return _make_plot(ts, ts, node_ids, node_ids, xlabel=xlabel, **kwargs)
+
+
+
 FORMAT = '%(asctime)s %(message)s'
 logging.basicConfig(format=FORMAT, level=logging.INFO)
 log = logging.getLogger("Cur")
@@ -67,30 +165,35 @@ v3F_lo = 50.0  # Hz spiking rate
 
 bs_num = 100
 
+## RG
 l_f_rg_num = 200 # number of rhythm generator neurons
+rg_I_e = 500
+rg_g_L = 10.0
+rg_tau_plus = 120.0 # tau_w
+rg_E_L = -58.0
+rg_lambda = 5.0 # b= 100.0
+rg_C_m = 200.0
+rg_V_m = -58.0
+rg_w_mean = 4.0 # 5.0 # Initial weight #! must be equal to 5
+rg_w_std = 0.3
+rg_alpha = 2.0
+rg_delay = 120
+
 
 ## Ia projections
 Ia_fibers_num = 100 # 8 #100
 # [20,50,20,50,20]*Hz
 Ia_fibers_freq_hi = 50#Hz
 Ia_fibers_freq_lo = 10#Hz #20*Hz
-Ia_I_e = 500
-Ia_g_L = 10.0
-Ia_tau_plus = 120.0 # tau_w
-Ia_E_L = -58.0
-Ia_lambda = 5.0 # b= 100.0
-Ia_C_m = 200.0
-Ia_V_m = -58.0
-Ia_w_mean = 4.0 # 5.0 # Initial weight #! must be equal to 5
-Ia_w_std = 0.3
-Ia_alpha = 2.0
-Ia_delay = 120
 
 ## Cutaneous projectons
 cut_num = 100
 cut_lo = 5.0  # Hz spiking rate
 cut_hi = 50.0  # 200.0 # 50.0  # Hz spiking rate
 cut_chunk = int(cut_num / simulation_hill_toe_phases)
+
+## Motor neurons
+l_f_motor_neurons_num = 200
 
 ## synapses
 d = 1.0
@@ -127,27 +230,25 @@ l_e_cut_fiber_generator = nest.Create("poisson_generator", cut_num, params=cut_g
 l_f_Ia_fiber_generator = nest.Create("poisson_generator", Ia_fibers_num, params=Ia_g_params)
 
 ## Nuclei
-Ia_fibers_params = {"I_e": Ia_I_e,
-                    "g_L" : Ia_g_L,
-                    "E_L" : Ia_E_L,
-                    "C_m" :  Ia_C_m,
-                    "V_m" : Ia_V_m}
+f_rg_params = {"I_e": rg_I_e,
+                    "g_L" : rg_g_L,
+                    "E_L" : rg_E_L,
+                    "C_m" :  rg_C_m,
+                    "V_m" : rg_V_m}
 
-## + hh_psc_alpha_clopath
-## - hh_psc_alpha_gap
-## +/-- hh_cond_exp_traub
-## +/- pp_cond_exp_mc_urbanczik
-## +/-- hh_cond_beta_gap_traub
-## + hh_psc_alpha
-
-
+### BS
 bs_neurons = nest.Create("hh_psc_alpha_clopath", bs_num)
 l_f_v3F_neurons = nest.Create("hh_psc_alpha_clopath", v3F_num)
 
-l_f_Ia_fibers = nest.Create("hh_psc_alpha_clopath", Ia_fibers_num,
-                            params=Ia_fibers_params
-                            )
-l_f_rg_neurons = nest.Create("hh_psc_alpha_clopath", l_f_rg_num)
+### Ia and RG
+l_f_Ia_fibers = nest.Create("hh_psc_alpha_clopath", Ia_fibers_num)
+l_f_rg_neurons = nest.Create("hh_psc_alpha_clopath", l_f_rg_num,
+                             params=f_rg_params
+                             )
+
+### Motor neurons
+l_f_motor_neurons = nest.Create("hh_psc_alpha_clopath", l_f_motor_neurons_num)
+
 
 ###############################################################################
 # The ``spike_recorder`` is created and the handle stored in `sr`.
@@ -155,9 +256,13 @@ bs_sr = nest.Create("spike_recorder")
 bs_neurons_sr = nest.Create("spike_recorder")
 l_f_v3F_neurons_sr = nest.Create("spike_recorder")
 l_f_v3F_neurons_wr = nest.Create("weight_recorder")
-l_f_rg_neurons_sr = nest.Create("spike_recorder")
+
 l_f_Ia_fiber_generator_sr = nest.Create("spike_recorder")
+l_f_Ia_fiber_sr = nest.Create("spike_recorder")
+l_f_rg_neurons_sr = nest.Create("spike_recorder")
+
 l_f_Ia2rg_neurons_wr = nest.Create("weight_recorder")
+l_f_motor_neurons_sr = nest.Create("spike_recorder")
 
 ###############################################################################
 # The Connect function connects the nodes so spikes from pg are collected by
@@ -166,14 +271,20 @@ nest.Connect(bs_generator, bs_sr)
 nest.Connect(bs_neurons, bs_neurons_sr)
 nest.Connect(l_f_v3F_neurons, l_f_v3F_neurons_sr)
 nest.Connect(l_f_Ia_fiber_generator, l_f_Ia_fiber_generator_sr)
+nest.Connect(l_f_Ia_fibers, l_f_Ia_fiber_sr)
 nest.Connect(l_f_rg_neurons, l_f_rg_neurons_sr)
+nest.Connect(l_f_motor_neurons, l_f_motor_neurons_sr)
 
-# Generator w neurons
+# Static synapses
+## Generator 2 neurons
 conn_dict_ex = {"rule": "fixed_indegree", "indegree": Ke}
 gen2neuron_dict = {"rule": "all_to_all"}
 syn_dict_ex = {"delay": d, "weight": Je}
 nest.Connect(bs_generator, bs_neurons, gen2neuron_dict, syn_dict_ex)
 nest.Connect(l_f_Ia_fiber_generator, l_f_Ia_fibers, gen2neuron_dict, syn_dict_ex)
+
+## Neurons 2 neurons
+nest.Connect(l_f_rg_neurons, l_f_motor_neurons, gen2neuron_dict, syn_dict_ex)
 
 ## STDP synapses setup
 ### V3
@@ -194,18 +305,18 @@ nest.Connect(bs_neurons, l_f_v3F_neurons, neuron2neuron_stdp_dict, V3_syn_stdp_d
 nest.CopyModel("jonke_synapse", "Ia_stdp_synapse_rec",
                {"weight_recorder": l_f_Ia2rg_neurons_wr[0],
                 "Wmax": w_max,
-                "lambda": Ia_lambda,
+                "lambda": rg_lambda,
                 #"alpha": Ia_alpha,
                 })
 nrn_model = "pp_cond_exp_mc_urbanczik"
 syns = nest.GetDefaults(nrn_model)["receptor_types"]
 Ia_syn_stdp_dict = {"synapse_model": "Ia_stdp_synapse_rec",
-                    "weight": nest.random.lognormal(mean=Ia_w_mean, std=w_std),
+                    "weight": nest.random.lognormal(mean=rg_w_mean, std=w_std),
                     "delay": delay_def,
                     # "receptor_type": syns["dendritic_exc"] ## for pp_cond_exp_mc_urbanczik
                     }
-nest.Connect(l_f_Ia_fibers, l_f_rg_neurons, neuron2neuron_stdp_dict, Ia_syn_stdp_dict)
-
+l_f_Ia2rg = nest.Connect(l_f_Ia_fibers, l_f_rg_neurons, neuron2neuron_stdp_dict, Ia_syn_stdp_dict)
+log.debug(str(l_f_Ia2rg))
 ###############################################################################
 # Before each trial, we set the ``origin`` of the ``poisson_generator`` to the
 # current simulation time. This automatically sets the start and stop time of
@@ -247,29 +358,41 @@ log.info('Simulation completed ...')
 # plt.show()
 
 #V3 spikes
-nest.raster_plot.from_device(l_f_v3F_neurons_sr, hist=True, hist_binwidth=100.0, title="v3F spikes")
+# make_raster_plot(l_f_v3F_neurons_sr, hist=True, hist_binwidth=100.0, title="v3F spikes")
+# plt.show()
+
+#Ia gen spikes
+# make_raster_plot(l_f_Ia_fiber_generator_sr, hist=True, hist_binwidth=10.0, title="L F gen RG spikes")
+# plt.show()
+
+#Ia generator spikes
+make_raster_plot(l_f_Ia_fiber_generator_sr, hist=True, hist_binwidth=5.0, title="L F Ia gen spikes", color=",m")
 plt.show()
 
-
-#Ia spikes
-nest.raster_plot.from_device(l_f_Ia_fiber_generator_sr, hist=True, hist_binwidth=100.0, title="L F gen RG spikes")
+#Ia generator spikes
+make_raster_plot(l_f_Ia_fiber_generator_sr, hist=True, hist_binwidth=5.0, title="L F Ia fiber spikes", color=",g")
 plt.show()
 
-#Ia spikes
-nest.raster_plot.from_device(l_f_rg_neurons_sr, hist=True, hist_binwidth=100.0, title="L F RG spikes")
+#RG spikes
+make_raster_plot(l_f_rg_neurons_sr, hist=True, hist_binwidth=5.0, title="L F RG spikes", color=",b")
 plt.show()
 
-# plot results
-fs = 22
-lw = 2.5
+#motor spikes
+make_raster_plot(l_f_motor_neurons_sr, hist=True, hist_binwidth=5.0, title="L F Motor spikes", color=",r")
+plt.show()
+
+# Weights
+fs = 10
+lw = 0.5
 #V3 weights
 senders = l_f_v3F_neurons_wr.events["senders"]
 targets = l_f_v3F_neurons_wr.events["targets"]
 weights = l_f_v3F_neurons_wr.events["weights"]
 times = l_f_v3F_neurons_wr.events["times"]
 
-# synaptic weights
-fig2, axA = plt.subplots(1, 1)
+# bs2V3 weights
+
+fig1, axA = plt.subplots(1, 1)
 for i in np.arange(2, 200, 10):
     index = np.intersect1d(np.where(senders == senders[i]), np.where(targets == targets[1]))
     if not len(index) == 0:
@@ -281,7 +404,7 @@ axA.set_ylabel("weight", fontsize=fs)
 axA.legend(fontsize=fs - 4)
 plt.show()
 
-# Ia to rg weights
+# Ia 2 rg weights
 senders = l_f_Ia2rg_neurons_wr.events["senders"]
 targets = l_f_Ia2rg_neurons_wr.events["targets"]
 weights = l_f_Ia2rg_neurons_wr.events["weights"]
@@ -299,6 +422,5 @@ axA.set_xlabel("time [ms]", fontsize=fs)
 axA.set_ylabel("weight", fontsize=fs)
 axA.legend(fontsize=fs - 4)
 plt.show()
-
 
 log.info('Completed draw')
