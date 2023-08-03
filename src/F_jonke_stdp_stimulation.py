@@ -369,7 +369,7 @@ make_raster_plot(l_f_Ia_fiber_generator_sr, hist=False, hist_binwidth=5.0, title
 plt.show()
 
 #Ia generator spikes
-make_raster_plot(l_f_Ia_fiber_generator_sr, hist=False, hist_binwidth=5.0, title="L F Ia fiber spikes", color=",g")
+make_raster_plot(l_f_Ia_fiber_sr, hist=False, hist_binwidth=5.0, title="L F Ia fiber spikes", color=",g")
 plt.show()
 
 #RG spikes
