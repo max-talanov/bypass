@@ -3,7 +3,8 @@ import nest.raster_plot
 import matplotlib.pyplot as plt
 import logging
 import numpy as np
-
+import pickle
+import os
 ########################
 # Flexor implementation
 ########################
@@ -12,19 +13,6 @@ import numpy as np
 
 
 
-def make_raster_plot(detec, **kwargs):
-
-
-
-    if "title" not in kwargs:
-        kwargs["title"] = "Raster plot from device '%i'" % detec.get("global_id")
-
-    if detec.get("time_in_steps"):
-        xlabel = "Steps"
-    else:
-        xlabel = "Time (ms)"
-    return _make_plot(ts, ts, node_ids, node_ids, xlabel=xlabel, **kwargs)
-
 def get_V3_rate(phase, lo, mid, hi) -> float:
     if 5 < phase < 9:
         return hi
@@ -32,7 +20,6 @@ def get_V3_rate(phase, lo, mid, hi) -> float:
         return mid
     else:
         return lo
-
 
 def identity_cut_chunk(step, hi, lo):
     ## chunk_number
@@ -57,101 +44,36 @@ def get_Ia_rate(step, freq_hi, freq_lo):
   if step in [2,3,6,7]: return freq_hi
   else: return freq_lo
 
+def dump_spike_recorder(spike_recorder, name):
+    if not os.path.exists('pickle_'):
+        os.makedirs('pickle_')
 
-def _make_plot(ts, ts1, node_ids, neurons, hist=True, hist_binwidth=5.0, grayscale=False, title=None, xlabel=None,
-               color=',b'):
-
-    """Generic plotting routine.
-
-    Constructs a raster plot along with an optional histogram (common part in
-    all routines above).
-
-    Parameters
-    ----------
-    ts : list
-        All timestamps
-    ts1 : list
-        Timestamps corresponding to node_ids
-    node_ids : list
-        Global ids corresponding to ts1
-    neurons : list
-        Node IDs of neurons to plot
-    hist : bool, optional
-        Display histogram
-    hist_binwidth : float, optional
-        Width of histogram bins
-    grayscale : bool, optional
-        Plot in grayscale
-    title : str, optional
-        Plot title
-    xlabel : str, optional
-        Label for x-axis
-    """
-    import matplotlib.pyplot as plt
-
-    plt.figure()
-
-    color_marker: str = color
-    if grayscale:
-        color_marker = ".k"
-        color_bar = "gray"
-    else:
-        color_bar = "blue"
-
-    color_edge = "black"
-
-    if xlabel is None:
-        xlabel = "Time (ms)"
-
-    ylabel = "Neuron ID"
-
-    if hist:
-        ax1 = plt.axes([0.1, 0.3, 0.85, 0.6])
-        plotid = plt.plot(ts1, node_ids, color_marker)
-        plt.ylabel(ylabel)
-        plt.xticks([])
-        xlim = plt.xlim()
-
-        plt.axes([0.1, 0.1, 0.85, 0.17])
-        t_bins = np.arange(np.amin(ts), np.amax(ts), float(hist_binwidth))
-        n, _ = nest.raster_plot._histogram(ts, bins=t_bins)
-        num_neurons = len(np.unique(neurons))
-        heights = 1000 * n / (hist_binwidth * num_neurons)
-
-        plt.bar(t_bins, heights, width=hist_binwidth, color=color_bar, edgecolor=color_edge)
-        plt.yticks([int(x) for x in np.linspace(0.0, int(max(heights) * 1.1) + 5, 4)])
-        plt.ylabel("Rate (Hz)")
-        plt.xlabel(xlabel)
-        plt.xlim(xlim)
-        plt.axes(ax1)
-    else:
-        plotid = plt.plot(ts1, node_ids, color_marker)
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
-
-    if title is None:
-        plt.title("Raster plot")
-    else:
-        plt.title(title)
-
-    #plt.draw()
-
-    return plotid
-
-def make_raster_plot(detec, **kwargs):
-
-    ts, node_ids = nest.raster_plot._from_memory(detec)
+    ts, node_ids = nest.raster_plot._from_memory(spike_recorder)
     if not len(ts):
         raise nest.kernel.NESTError("No events recorded!")
+    with open(f'pickle_/{name}_ts.pkl', "wb") as handle:
+        pickle.dump(ts, handle)
+    with open(f'pickle_/{name}_node_ids.pkl', "wb") as handle:
+        pickle.dump(node_ids, handle)
 
-    if "title" not in kwargs:
-        kwargs["title"] = "Raster plot from device '%i'" % detec.get("global_id")
+def dump_weight_recorder(weight_recorder, name):
+    if not os.path.exists('pickle_'):
+        os.makedirs('pickle_')
 
-    if detec.get("time_in_steps"):
-        xlabel = "Steps"
-    else:
-        xlabel = "Time (ms)"
-    return _make_plot(ts, ts, node_ids, node_ids, xlabel=xlabel, **kwargs)
+    senders = weight_recorder.events["senders"]
+    targets = weight_recorder.events["targets"]
+    weights = weight_recorder.events["weights"]
+    times = weight_recorder.events["times"]
+
+    with open(f'pickle_/{name}_senders.pkl', "wb") as handle:
+        pickle.dump(senders, handle)
+    with open(f'pickle_/{name}_targets.pkl', "wb") as handle:
+        pickle.dump(targets, handle)
+    with open(f'pickle_/{name}_weights.pkl', "wb") as handle:
+        pickle.dump(weights, handle)
+    with open(f'pickle_/{name}_times.pkl', "wb") as handle:
+        pickle.dump(times, handle)
+
 
 
 FORMAT = '%(asctime)s %(message)s'
@@ -166,11 +88,11 @@ stop = 1000.0  # end of simulation relative to trial start, in ms
 
 ###############################################################################
 
-trial_duration = 1000.0  # trial duration, in ms
+trial_duration = 10.0  # trial duration, in ms
 phase_duration = 100.0
 simulation_hill_toe_phases = 4
 num_phases = 10
-num_steps = 100 #10  # 5  # number of trials to perform
+num_steps = 2 #10  # 5  # number of trials to perform
 
 ## Commisural projections
 v3F_num = 200
@@ -267,7 +189,7 @@ l_f_motor_neurons = nest.Create("hh_psc_alpha_clopath", l_f_motor_neurons_num)
 
 ###############################################################################
 # The ``spike_recorder`` is created and the handle stored in `sr`.
-bs_sr = nest.Create("spike_recorder", params={"record_from": ["V_m", "g_ex", "g_in"], "record_to": "ascii", "label": "my_multimeter"})
+bs_sr = nest.Create("spike_recorder")
 bs_neurons_sr = nest.Create("spike_recorder")
 l_f_v3F_neurons_sr = nest.Create("spike_recorder")
 l_f_v3F_neurons_wr = nest.Create("weight_recorder")
@@ -361,18 +283,13 @@ for n in range(num_steps):
 
 log.info('Simulation completed ...')
 
+dump_spike_recorder(l_f_Ia_fiber_generator_sr, 'l_f_Ia_fiber_generator_sr')
+dump_spike_recorder(l_f_Ia_fiber_sr, 'l_f_Ia_fiber_sr')
+dump_spike_recorder(l_f_rg_neurons_sr, 'l_f_rg_neurons_sr')
+dump_spike_recorder(l_f_motor_neurons_sr, 'l_f_motor_neurons_sr')
+dump_weight_recorder(l_f_v3F_neurons_wr, 'l_f_v3F_neurons_wr')
+dump_weight_recorder(l_f_Ia2rg_neurons_wr, 'l_f_Ia2rg_neurons_wr')
 
 
-ts, node_ids = nest.raster_plot._from_memory(detec)
-    if not len(ts):
-        raise nest.kernel.NESTError("No events recorded!")
 
-nest.GetStatus(bs_sr, {"to_file": "bs_sr.dat"})
-nest.GetStatus(bs_neurons_sr, {"to_file": "bs_neurons_sr.dat"})
-nest.GetStatus(l_f_v3F_neurons_sr, {"to_file": "l_f_v3F_neurons_sr.dat"})
-nest.GetStatus(l_f_v3F_neurons_wr, {"to_file": "l_f_v3F_neurons_wr.dat"})
-nest.GetStatus(l_f_Ia_fiber_generator_sr, {"to_file": "l_f_Ia_fiber_generator_sr.dat"})
-nest.GetStatus(l_f_Ia_fiber_sr, {"to_file": "l_f_Ia_fiber_sr.dat"})
-nest.GetStatus(l_f_rg_neurons_sr, {"to_file": "l_f_rg_neurons_sr.dat"})
-nest.GetStatus(l_f_Ia2rg_neurons_wr, {"to_file": "l_f_Ia2rg_neurons_wr.dat"})
-nest.GetStatus(l_f_motor_neurons_sr, {"to_file": "l_f_motor_neurons_sr.dat"})
+

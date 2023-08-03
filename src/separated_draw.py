@@ -1,8 +1,8 @@
+from bypass.src.separated_simulation import load_spike_recorder
 import nest
 import matplotlib.pyplot as plt
 import numpy as np
-
-from src.F_jonke_stdp_stimulation import make_raster_plot
+import pickle
 
 def _make_plot(ts, ts1, node_ids, neurons, hist=True, hist_binwidth=5.0, grayscale=False, title=None, xlabel=None,
                color=',b'):
@@ -84,77 +84,48 @@ def _make_plot(ts, ts1, node_ids, neurons, hist=True, hist_binwidth=5.0, graysca
 
     return plotid
 
-bs_sr = nest.Create("spike_recorder", params={"record_to": "ascii", "label": "bs_sr"})
-bs_neurons_sr = nest.Create("spike_recorder")
-l_f_v3F_neurons_sr = nest.Create("spike_recorder")
-l_f_v3F_neurons_wr = nest.Create("weight_recorder")
-l_f_Ia_fiber_generator_sr = nest.Create("spike_recorder")
-l_f_Ia_fiber_sr = nest.Create("spike_recorder")
-l_f_rg_neurons_sr = nest.Create("spike_recorder")
-l_f_Ia2rg_neurons_wr = nest.Create("weight_recorder")
-l_f_motor_neurons_sr = nest.Create("spike_recorder")
+def make_raster_plot(ts, node_ids, **kwargs):
+    return _make_plot(ts, ts, node_ids, node_ids, xlabel='Time/Steps', **kwargs)
 
-nest.SetStatus(bs_sr, {"from_file": "bs_sr.dat"})
-nest.SetStatus(bs_neurons_sr, {"from_file": "bs_neurons_sr.dat"})
-nest.SetStatus(l_f_v3F_neurons_sr, {"from_file": "l_f_v3F_neurons_sr.dat"})
-nest.SetStatus(l_f_v3F_neurons_wr, {"from_file": "l_f_v3F_neurons_wr.dat"})
-nest.SetStatus(l_f_Ia_fiber_generator_sr, {"from_file": "l_f_Ia_fiber_generator_sr.dat"})
-nest.SetStatus(l_f_Ia_fiber_sr, {"from_file": "l_f_Ia_fiber_sr.dat"})
-nest.SetStatus(l_f_rg_neurons_sr, {"from_file": "l_f_rg_neurons_sr.dat"})
-nest.SetStatus(l_f_Ia2rg_neurons_wr, {"from_file": "l_f_Ia2rg_neurons_wr.dat"})
-nest.SetStatus(l_f_motor_neurons_sr, {"from_file": "l_f_motor_neurons_sr.dat"})
+def load_spike_recorder(name):
+    with open(f'pickle_/{name}_ts.pkl', "rb") as handle:
+        ts = pickle.load(handle)
+    with open(f'pickle_/{name}_node_ids.pkl', "rb") as handle:
+        node_ids = pickle.load(handle)
+    return ts, node_ids
 
-"""
+def load_weight_recorder(name):
+    with open(f'pickle_/{name}_senders.pkl', "rb") as handle:
+        senders = pickle.load(handle)
+    with open(f'pickle_/{name}_targets.pkl', "rb") as handle:
+        targets = pickle.load(handle)
+    with open(f'pickle_/{name}_weights.pkl', "rb") as handle:
+        weights = pickle.load(handle)
+    with open(f'pickle_/{name}_times.pkl', "rb") as handle:
+        times = pickle.load(handle)
+    return senders, targets, weights, times
 
-
-time_intervals = [(0.0, 100.0), (100.0, 200.0), (200.0, 300.0)]  # Customize as needed
-
-# Save spike data to multiple files
-for i, (start_time, end_time) in enumerate(time_intervals):
-    file_name = f"spike_data_{i}.dat"
-    nest.SetStatus(l_f_v3F_neurons_sr, {"to_file": file_name, "start": start_time, "stop": end_time})
-
-"""
-
-
-#nest.raster_plot.from_device(bs_sr, hist=True, hist_binwidth=100.0, title="brainstem generator spikes")
-#plt.show()
-
-# nest.raster_plot.from_device(bs_neurons_sr, hist=True, hist_binwidth=100.0, title="brainstem spikes")
-# plt.show()
-
-#V3 spikes
-# make_raster_plot(l_f_v3F_neurons_sr, hist=True, hist_binwidth=100.0, title="v3F spikes")
-# plt.show()
-
-#Ia gen spikes
-# make_raster_plot(l_f_Ia_fiber_generator_sr, hist=True, hist_binwidth=10.0, title="L F gen RG spikes")
-# plt.show()
-
-#Ia generator spikes
-make_raster_plot(l_f_Ia_fiber_generator_sr, hist=False, hist_binwidth=5.0, title="L F Ia gen spikes", color=",m")
+#Ia fiber spikes
+make_raster_plot(*load_spike_recorder('l_f_Ia_fiber_sr'), hist=False, hist_binwidth=5.0, title="L F Ia gen spikes", color=",m")
 plt.show()
 
 #Ia generator spikes
-make_raster_plot(l_f_Ia_fiber_generator_sr, hist=False, hist_binwidth=5.0, title="L F Ia fiber spikes", color=",g")
+make_raster_plot(*load_spike_recorder('l_f_Ia_fiber_generator_sr'), hist=False, hist_binwidth=5.0, title="L F Ia fiber spikes", color=",g")
 plt.show()
 
 #RG spikes
-make_raster_plot(l_f_rg_neurons_sr, hist=False, hist_binwidth=5.0, title="L F RG spikes", color=",b")
+make_raster_plot(*load_spike_recorder('l_f_rg_neurons_sr'), hist=False, hist_binwidth=5.0, title="L F RG spikes", color=",b")
 plt.show()
 
 #motor spikes
-make_raster_plot(l_f_motor_neurons_sr, hist=False, hist_binwidth=5.0, title="L F Motor spikes", color=",r")
+make_raster_plot(*load_spike_recorder('l_f_motor_neurons_sr'), hist=False, hist_binwidth=5.0, title="L F Motor spikes", color=",r")
 plt.show()
 
 # Weights
 fs = 10
 lw = 0.5
 #V3 weights
-senders = l_f_v3F_neurons_wr.events["senders"]
-targets = l_f_v3F_neurons_wr.events["targets"]
-weights = l_f_v3F_neurons_wr.events["weights"]
-times = l_f_v3F_neurons_wr.events["times"]
+senders, targets, weights, times = load_weight_recorder('l_f_v3F_neurons_wr')
 
 # bs2V3 weights
 
@@ -171,10 +142,7 @@ axA.legend(fontsize=fs - 4)
 plt.show()
 
 # Ia 2 rg weights
-senders = l_f_Ia2rg_neurons_wr.events["senders"]
-targets = l_f_Ia2rg_neurons_wr.events["targets"]
-weights = l_f_Ia2rg_neurons_wr.events["weights"]
-times = l_f_Ia2rg_neurons_wr.events["times"]
+senders, targets, weights, times = load_weight_recorder('l_f_Ia2rg_neurons_wr')
 
 # synaptic weights
 fig2, axA = plt.subplots(1, 1)
