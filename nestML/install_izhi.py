@@ -10,10 +10,10 @@ import os
 from pynestml.frontend.pynestml_frontend import generate_target
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 
-generate_nest_target(input_path="izhikevich_tutorial.nestml", target_path="/tmp/nestml_target")
-nest.Install("izhikevich_tutorial")
+generate_nest_target(input_path="izhimodule", target_path="/tmp/nestml_target")
+nest.Install("nestmlmodule")
 
-nest.set_verbosity("M_WARNING")
+nest.set_verbosity("M_INFO")
 nest.ResetKernel()
 
 neuron = nest.Create("izhikevich_tutorial")
@@ -32,6 +32,7 @@ nest.Connect(neuron, sr)
 nest.Simulate(250.)
 
 spike_times = nest.GetStatus(sr, keys='events')[0]['times']
+print(spike_times)
 
 fig, ax = plt.subplots(nrows=2)
 ax[0].plot(voltmeter.get("events")["times"], voltmeter.get("events")["v"])
@@ -43,3 +44,4 @@ ax[0].set_ylabel("v [mV]")
 ax[1].set_ylabel("u")
 ax[-1].set_xlabel("Time [ms]")
 fig.show()
+print("script completed ...")
