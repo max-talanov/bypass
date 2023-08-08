@@ -117,6 +117,7 @@ neuron hh_moto_5ht:
         spike
 
     update:
+
         U_old mV = V_m
         integrate_odes()
         # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
