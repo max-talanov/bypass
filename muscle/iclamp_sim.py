@@ -1,7 +1,7 @@
 import nest
 import pylab
 import numpy
-
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 def plot_parameter(device, param_to_display, label, style='-'):
     status = nest.GetStatus(device)[0]
@@ -10,6 +10,7 @@ def plot_parameter(device, param_to_display, label, style='-'):
     pylab.plot(times, events[param_to_display], style, label=label)
 
 
+generate_nest_target(input_path="nestmlmodule", target_path="/tmp/nestml_target")
 nest.Install("nestmlmodule")
 nest.SetKernelStatus(dict(resolution=0.1))
 
@@ -20,6 +21,15 @@ neuron = nest.Create(
         "t_ref": 0.0,
     }
 )
+
+muscle = nest.Create(
+    'hh_muscle', params={
+        "I_e": 700.0,  # pA
+        "C_m": 200.0,  # pF
+        "t_ref": 0.0,
+    }
+)
+
 multimeter = nest.Create(
     'multimeter',
     params={
