@@ -70,6 +70,7 @@ neuron hh_muscle:
         Ca_in'= (0.01 / s) * (-alpha * (I_Ca_N + I_Ca_L) - 4. * Ca_in)
         
         ## the import from mod file
+        ## https://nrn.readthedocs.io/en/latest/hoc/modelspec/programmatic/mechanisms/nmodl.html
         _smth = rate(cli, CaT, AM, t)
         CaSR' = -k1*CS0*CaSR + (k1*CaSR+k2)*CaSRCS - R + U(Ca)
         CaSRCS' = k1*CS0*CaSR - (k1*CaSR+k2)*CaSRCS
