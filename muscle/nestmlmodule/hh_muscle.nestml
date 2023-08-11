@@ -31,6 +31,16 @@ neuron hh_muscle:
         Act_p real = p_inf(V_m_init)
         Act_mc real = mc_inf(V_m_init)
         Act_hc real = hc_inf(V_m_init)
+      
+      ## import from mod file
+        CaSR mol = CaSR_init
+        CaSRCS mol = CaSRCS_init
+        Ca mol = Ca_init
+        CaB mol = CaB_init
+        CaT mol = CaT_init
+        AM real = AM_init
+        mgi real = mgi_init
+
 
     equations:
         # synapses: alpha functions
@@ -41,14 +51,14 @@ neuron hh_muscle:
 
         inline E_Ca mV = ((1000.0 * R_const * T_current) / (2. * F_const)) * log10(Ca_out / Ca_in)
 
-        inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
-        inline I_K pA = g_K_rect * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
-        inline I_L pA = g_L * ( V_m - E_L )
+        inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Act_h * (V_m - E_Na)
+        inline I_K pA = g_K_rect * Inact_n * Inact_n * Inact_n * Inact_n * (V_m - E_K)
+        inline I_L pA = g_L * (V_m - E_L)
         inline I_Ca_N pA = g_Ca_N *    Act_mc * Act_mc * Act_hc * (V_m - E_Ca)
         inline I_Ca_L pA = g_Ca_L * Act_p * (V_m - E_Ca)
         inline I_K_Ca pA = g_K_Ca_5ht * g_K_Ca * ((Ca_in * Ca_in) / (Ca_in * Ca_in + 0.014 * 0.014)) * (V_m - E_K)
 
-        V_m' =( -( I_Na + I_K + I_L + I_Ca_N + I_Ca_L + I_K_Ca ) + I_stim + I_e + I_syn_inh + I_syn_exc ) / C_m
+        V_m' =(-(I_Na + I_K + I_L + I_Ca_N + I_Ca_L + I_K_Ca) + I_stim + I_e + I_syn_inh + I_syn_exc) / C_m
 
         Inact_n' = (n_inf(V_m) - Inact_n) / n_tau(V_m)
         Act_m' = alpha_m(V_m) * (1. - Act_m) - beta_m(V_m) * Act_m
@@ -60,14 +70,14 @@ neuron hh_muscle:
         Ca_in'= (0.01 / s) * (-alpha * (I_Ca_N + I_Ca_L) - 4. * Ca_in)
         
         ## the import from mod file
-        # rate (cli, CaT, AM, t)
+        _smth = rate(cli, CaT, AM, t)
         CaSR' = -k1*CS0*CaSR + (k1*CaSR+k2)*CaSRCS - R + U(Ca)
         CaSRCS' = k1*CS0*CaSR - (k1*CaSR+k2)*CaSRCS
         Ca' = - k5*T0*Ca + (k5*Ca+k6)*CaT - k3*B0*Ca + (k3*Ca+k4)*CaB + R - U(Ca)
         CaB' = k3*B0*Ca - (k3*Ca+k4)*CaB
         CaT' = k5*T0*Ca - (k5*Ca+k6)*CaT
-        AM' = (AMinf -AM)/AMtau
-        mgi' = AM^alpha
+        AM' = (AMinf - AM)/AMtau
+        mgi' = AM^alpha0
 
     parameters:
 
@@ -135,7 +145,7 @@ neuron hh_muscle:
         c3 real = 61.206
         c4 real = -13.116
         c5 real = 5.095
-        alpha real = 2
+        alpha0 real = 2
         alpha1 real = 4.77
         alpha2 real = 400
         alpha3 real = 160
@@ -146,6 +156,16 @@ neuron hh_muscle:
         vth real = -40
         spk_index real = 0
         t_axon real = 0.01
+    
+        ## init values
+        ## import from mod file
+        CaSR_init mol = 0.0025        #:[M]
+        CaSRCS_init mol = 0            #:[M]
+        Ca_init mol = 1e-10            #:[M]
+        CaB_init mol = 0                #:[M]
+        CaT_init mol = 0                #:[M]
+        AM_init real = 0                #:[M]
+        mgi_init real = 0
 
     internals:
         RefractoryCounts integer = steps(t_ref) # refractory time in steps
@@ -202,3 +222,9 @@ neuron hh_muscle:
             return U
         else:
             return 0
+
+    function rate (cli mmol, CaT mmol, AM mmol, t ms) void:
+        k5 = phi(cli)*k5i
+        k6 = k6i/(1 + SF_AM*AM)
+        AMinf = 0.5*(1+tanh(((CaT/T0)-c1)/c2))
+        AMtau = c3/(cosh(((CaT/T0)-c4)/(2*c5)))
