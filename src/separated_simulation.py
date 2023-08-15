@@ -11,8 +11,6 @@ import os
 
 # Functions
 
-
-
 def get_V3_rate(phase, lo, mid, hi) -> float:
     if 5 < phase < 9:
         return hi
@@ -74,8 +72,6 @@ def dump_weight_recorder(weight_recorder, name):
     with open(f'pickle_/{name}_times.pkl', "wb") as handle:
         pickle.dump(times, handle)
 
-
-
 FORMAT = '%(asctime)s %(message)s'
 logging.basicConfig(format=FORMAT, level=logging.INFO)
 log = logging.getLogger("Cur")
@@ -115,7 +111,6 @@ rg_w_mean = 4.0 # 5.0 # Initial weight #! must be equal to 5
 rg_w_std = 0.3
 rg_alpha = 2.0
 rg_delay = 120
-
 
 ## Ia projections
 Ia_fibers_num = 100 # 8 #100
@@ -182,7 +177,6 @@ l_f_Ia_fibers = nest.Create("hh_psc_alpha_clopath", Ia_fibers_num)
 l_f_rg_neurons = nest.Create("hh_psc_alpha_clopath", l_f_rg_num,
                              params=f_rg_params
                              )
-
 ### Motor neurons
 l_f_motor_neurons = nest.Create("hh_psc_alpha_clopath", l_f_motor_neurons_num)
 
@@ -290,6 +284,6 @@ dump_spike_recorder(l_f_motor_neurons_sr, 'l_f_motor_neurons_sr')
 dump_weight_recorder(l_f_v3F_neurons_wr, 'l_f_v3F_neurons_wr')
 dump_weight_recorder(l_f_Ia2rg_neurons_wr, 'l_f_Ia2rg_neurons_wr')
 
-
+log.info('Save data completed ...')
 
 
