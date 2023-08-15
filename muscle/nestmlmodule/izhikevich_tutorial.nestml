@@ -22,11 +22,10 @@ neuron izhikevich_tutorial:
         spike
 
     update:
-        integrate_odes()
 
+        integrate_odes()
         # add synaptic current
         v += spikes
-
         # threshold crossing
         if v >= 30mV:
             v = c
