@@ -174,6 +174,8 @@ neuron hh_muscle:
     input:
         inh_spikes pA <- inhibitory spike
         exc_spikes pA <- excitatory spike
+        inh_spikes_times real <- inhibitory spike
+        exc_spikes_times real <- excitatory spike
         I_stim pA <- continuous
 
     output:
@@ -183,6 +185,8 @@ neuron hh_muscle:
 
         U_old mV = V_m
         integrate_odes()
+        CAR(CaSR, t)
+
         # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
         if r > 0: # is refractory?
             r -= 1
@@ -217,6 +221,7 @@ neuron hh_muscle:
     function beta_m(V_m mV) 1/ms:
         return (0.4 * (-(V_m + 32.))) / mV / (1. - exp((V_m + 32.) / (5. mV))) / ms
 
+    ## Import from mod file
     function U (x mmol) 1/(mol*ms):
         if (x >= 0):
             U = Umax*(x^2*k^2/(1+x*k+x^2*k^2))^2
@@ -224,8 +229,27 @@ neuron hh_muscle:
         else:
             return 0
 
+    ## TODO refactor
     function rate (cli mmol, CaT mmol, AM mmol, t ms) void:
         k5 = phi(cli)*k5i
         k6 = k6i/(1 + SF_AM*AM)
         AMinf = 0.5*(1+tanh(((CaT/T0)-c1)/c2))
         AMtau = c3/(cosh(((CaT/T0)-c4)/(2*c5)))
+
+    ## R in the article
+    function CaR (CaSR mmol, t ms) 1/ms:
+        # LOCAL i, tempR
+        # ::Ca_Release::
+        # Recalculate tempR in case we have the spike
+        ## TODO refactor spk[spk_index-1]
+        if (R_On == 1):
+            if (spk_index > 0):
+                tempR = tempR + CaSR*Rmax*(1-exp(-(t-spk[spk_index-1])/t1))*exp(-(t-spk[spk_index-1])/t2)
+            R = tempR
+            tempR = 0
+        else:
+            R = 0
+        return R
+
+
+
