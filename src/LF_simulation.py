@@ -84,50 +84,16 @@ stop = 1000.0  # end of simulation relative to trial start, in ms
 
 ###############################################################################
 
-trial_duration = 10.0  # trial duration, in ms
-phase_duration = 100.0
+## trial_duration = 10.0  # trial duration, in ms
+# Simulation parameters
+phase_duration = 100.0 # phase duration in ms
 simulation_hill_toe_phases = 4
 num_phases = 10
 num_steps = 2 #10  # 5  # number of trials to perform
 
-## Commisural projections
-v3F_num = 200
-v3F_hi = 200.0  # Hz spiking rate
-v3F_mid = 100.0
-v3F_lo = 50.0  # Hz spiking rate
+# Nonspecific parameters
 
-bs_num = 100
-
-## RG
-l_f_rg_num = 200 # number of rhythm generator neurons
-rg_I_e = 500
-rg_g_L = 10.0
-rg_tau_plus = 120.0 # tau_w
-rg_E_L = -58.0
-rg_lambda = 5.0 # b= 100.0
-rg_C_m = 200.0
-rg_V_m = -58.0
-rg_w_mean = 4.0 # 5.0 # Initial weight #! must be equal to 5
-rg_w_std = 0.3
-rg_alpha = 2.0
-rg_delay = 120
-
-## Ia projections
-Ia_fibers_num = 100 # 8 #100
-# [20,50,20,50,20]*Hz
-Ia_fibers_freq_hi = 50#Hz
-Ia_fibers_freq_lo = 10#Hz #20*Hz
-
-## Cutaneous projectons
-cut_num = 100
-cut_lo = 5.0  # Hz spiking rate
-cut_hi = 50.0  # 200.0 # 50.0  # Hz spiking rate
-cut_chunk = int(cut_num / simulation_hill_toe_phases)
-
-## Motor neurons
-l_f_motor_neurons_num = 200
-
-## synapses
+## Synapses
 d = 1.0
 Je = 100.0 # 20.0
 Ke = 20
@@ -143,10 +109,55 @@ lambda_mean  = 5.0
 lambda_std = 0.3
 delay_def = 1.0
 
+## Commisural projections
+v3F_num = 200
+v3F_hi = 200.0  # Hz spiking rate
+v3F_mid = 100.0
+v3F_lo = 50.0  # Hz spiking rate
+
+## Brainstem projections
+bs_num = 100
+
+### Ia projections
+Ia_fibers_num = 100 # 8 #100
+# [20,50,20,50,20]*Hz
+Ia_fibers_freq_hi = 50#Hz
+Ia_fibers_freq_lo = 10#Hz #20*Hz
+
+## RG
+rg_I_e = 500
+rg_g_L = 10.0
+rg_tau_plus = 120.0 # tau_w
+rg_E_L = -58.0
+rg_lambda = 5.0 # b= 100.0
+rg_C_m = 200.0
+rg_V_m = -58.0
+rg_w_mean = 4.0 # 5.0 # Initial weight #! must be equal to 5
+rg_w_std = 0.3
+rg_alpha = 2.0
+rg_delay = 120
+
+## Cutaneous projectons
+cut_num = 100
+cut_lo = 5.0  # Hz spiking rate
+cut_hi = 50.0  # 200.0 # 50.0  # Hz spiking rate
+cut_chunk = int(cut_num / simulation_hill_toe_phases)
+
+# Left leg
+## Flexor
+### RG
+l_f_rg_num = 200 # number of rhythm generator neurons
+
+## Motor neurons
+l_f_motor_neurons_num = 200
+
+## Extensor
+### TODO add extensor here
+
 ###############################################################################
 # The network is set up.
 nest.ResetKernel()
-nest.total_num_virtual_procs = 16
+nest.total_num_virtual_procs = 16 # the number of threads to be used for the simulation
 
 v3F_g_params = {"rate": v3F_lo}
 cut_g_params = {"rate": cut_lo}
@@ -183,6 +194,7 @@ l_f_motor_neurons = nest.Create("hh_psc_alpha_clopath", l_f_motor_neurons_num)
 
 ###############################################################################
 # The ``spike_recorder`` is created and the handle stored in `sr`.
+
 bs_sr = nest.Create("spike_recorder")
 bs_neurons_sr = nest.Create("spike_recorder")
 l_f_v3F_neurons_sr = nest.Create("spike_recorder")
@@ -248,6 +260,7 @@ Ia_syn_stdp_dict = {"synapse_model": "Ia_stdp_synapse_rec",
                     }
 l_f_Ia2rg = nest.Connect(l_f_Ia_fibers, l_f_rg_neurons, neuron2neuron_stdp_dict, Ia_syn_stdp_dict)
 log.debug(str(l_f_Ia2rg))
+
 ###############################################################################
 # Before each trial, we set the ``origin`` of the ``poisson_generator`` to the
 # current simulation time. This automatically sets the start and stop time of
