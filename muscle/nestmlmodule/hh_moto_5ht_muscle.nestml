@@ -70,7 +70,8 @@ neuron hh_moto_5ht_muscle:
         Ca_in'= (0.01 / s) * (-alpha * (I_Ca_N + I_Ca_L) - 4. * Ca_in)
     
         ## muscle
-        kernel tempR = CaSR*Rmax*(1-exp(-(t-exc_spikes_time)/t1))*exp(-(t-exc_spikes_time)/t2)
+        ## CaSR*Rmax*
+        kernel tempR = (1-exp(-(t-exc_spikes_time)/t1))*exp(-(t-exc_spikes_time)/t2)
         inline R 1/ms = convolve(tempR, exc_spikes_time)
 
     parameters:
@@ -110,12 +111,12 @@ neuron hh_moto_5ht_muscle:
         alpha mmol/pA = 1E-5 mmol/pA
     
         ## muscle
-        t1 ms = 3
-        t2 ms = 25
-        Rmax 1/ms = 10
-      
+        t1 ms = 3 ms
+        t2 ms = 25 ms
         ## TODO update CASR!
-        CaSR real = 1
+        CaSR mmol = 1.0 mmol
+
+        Rmax 1/ms = 10.0 1/ms
 
 
     internals:
