@@ -116,7 +116,7 @@ neuron hh_moto_5ht_muscle:
         ## TODO update CASR!
         CaSR mmol = 1.0 mmol
 
-        Rmax 1/ms = 10.0 1/ms
+        Rmax 1/ms = 10.0 /ms
 
 
     internals:
