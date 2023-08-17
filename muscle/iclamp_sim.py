@@ -22,13 +22,13 @@ neuron = nest.Create(
     }
 )
 
-muscle = nest.Create(
-    'hh_muscle', params={
-        "I_e": 700.0,  # pA
-        "C_m": 200.0,  # pF
-        "t_ref": 0.0,
-    }
-)
+# muscle = nest.Create(
+#     'hh_muscle', params={
+#         "I_e": 700.0,  # pA
+#         "C_m": 200.0,  # pF
+#         "t_ref": 0.0,
+#     }
+# )
 
 multimeter = nest.Create(
     'multimeter',
