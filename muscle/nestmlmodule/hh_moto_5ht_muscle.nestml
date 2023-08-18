@@ -92,6 +92,7 @@ neuron hh_moto_5ht_muscle:
         AMtau = c3/(cosh(((CaT/T0)-c4)/(2*c5)))
 
     parameters:
+
         t_ref ms = 2.0 ms                # Refractory period
 
         g_Na nS = 5000.0 nS              # Sodium peak conductance
@@ -128,26 +129,61 @@ neuron hh_moto_5ht_muscle:
         alpha mmol/pA = 1E-5 mmol/pA
     
         ## muscle
+        ## TODO update CASR
+        # CaSR mmol = 1.0 mmol
+        
         t1 ms = 3 ms
         t2 ms = 25 ms
-        ## TODO update CASR
-        CaSR mmol = 1.0 mmol
         Rmax 1/ms = 10.0 /ms
-    
-        ## Ca transduction
-        ## init values
-        CaSR_init mol = 0.0025 mol       #:[M]
-        CaSRCS_init mol = 0 mol           #:[M]
-        Ca_init mol = 1e-10 mol           #:[M]
-        CaB_init mol = 0 mol               #:[M]
-        CaT_init mol = 0 mol               #:[M]
-        AM_init mol = 0 mol               #:[M]
-        mgi_init real = 0
         
+        ##::module 1::
+        k1 1/(mol*ms) = 3000 /(mol*ms)
+        k2 1/ms = 3 /ms
+        k3 1/(mol*ms) = 400 /(mol*ms)
+        k4 1/ms = 1 /ms
+        k5i 1/(mol*ms) = 4e5 /(mol*ms-1)
+        k6i 1/ms = 150 /ms
+        k 1/mol = 850 /mol
+        SF_AM real = 5
+        Rmax 1/ms = 10 /ms
+        Umax 1/(mol*ms) = 2000 /(mol*ms)
+        t1 ms = 3 ms
+        t2 ms = 25 ms
         phi1 real = 0.03
         phi2 real = 1.23
         phi3 real = 0.01
         phi4 real = 1.08
+        CS0 mol = 0.03 mol    	#:[M]
+        B0 mol = 0.00043 mol	#:[M]
+        T0 mol = 0.00007 mol 	#:[M]
+        
+        #::module 2::
+        c1 real = 0.128
+        c2 real = 0.093
+        c3 real = 61.206
+        c4 real = -13.116
+        c5 real = 5.095
+        alpha real = 2
+        alpha1 real = 4.77
+        alpha2 real = 400
+        alpha3 real = 160
+        beta real = 0.47
+        gamma real = 0.001
+    
+        ## Ca transduction
+        ## init values
+#        CaSR_init mol = 0.0025 mol       #:[M]
+#        CaSRCS_init mol = 0 mol           #:[M]
+#        Ca_init mol = 1e-10 mol           #:[M]
+#        CaB_init mol = 0 mol               #:[M]
+#        CaT_init mol = 0 mol               #:[M]
+#        AM_init mol = 0 mol               #:[M]
+#        mgi_init real = 0
+#        
+#        phi1 real = 0.03
+#        phi2 real = 1.23
+#        phi3 real = 0.01
+#        phi4 real = 1.08
     
         ## TODO update xm
         xm real = 8.0
