@@ -53,8 +53,8 @@ neuron hh_moto_5ht_muscle:
         k5 1/(mol*ms) = k5i
         k6 1/ms = k6i
         AMinf real = 0
-        AMtau ms = 0
-        R mol/ms = 0
+        AMtau ms = 0 ms
+        R mol/ms = 0 mol/ms
 
 
     equations:
@@ -95,8 +95,8 @@ neuron hh_moto_5ht_muscle:
         Ca' = - k3*B0*Ca - k5*T0*Ca + (k3*Ca+k4)*CaB + (k5*Ca+k6)*CaT + R - U(Ca)
         CaB' = k3*B0*Ca - (k3*Ca+k4)*CaB
         CaT' = k5*T0*Ca - (k5*Ca+k6)*CaT
-        AM' = (AMinf - AM)/AMtau
-        mgi' = AM**alpha0
+        #AM' = (AMinf - AM)/AMtau
+        #mgi' = AM**alpha0
 
     parameters:
 
@@ -251,7 +251,7 @@ neuron hh_moto_5ht_muscle:
             return phi3*x + phi4
 
     function U(x mol) real:
-        U 1/(mol*ms) = 0
+        U 1/(mol*ms) = 0 /(mol*ms)
         if (x >= 0):
             U = Umax*(x**2*k**2/(1+x*k+x**2*k**2))**2
             return U
