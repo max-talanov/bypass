@@ -161,7 +161,7 @@ neuron hh_moto_5ht_muscle:
         #::module 2::
         c1 real = 0.128
         c2 real = 0.093
-        c3 real = 61.206
+        c3 ms = 61.206 ms
         c4 real = -13.116
         c5 real = 5.095
         alpha0 real = 2
