@@ -44,13 +44,13 @@ neuron hh_moto_5ht_muscle:
     
         ## muscle 
         ## TODO -> init values
-        CaSR mol = 0.0025 mol 
-        CaSRCS mol = 0 mol 
-        Ca mol = 1e-10 mol 
-        CaB mol = 0 mol 
-        CaT mol = 0 mol	
-        AM mol = 0 mol
-        At real = 0
+        CaSR mol = CaSR_init 
+        CaSRCS mol = CaSR_init
+        Ca mol = Ca_init 
+        CaB mol = CaB_init 
+        CaT mol = CaT_init
+        AM mol = AM_init
+        At real = At_init
         k5 1/(mol*ms) = k5i
         k6 1/ms = k6i
         AMinf real = 0
@@ -165,6 +165,7 @@ neuron hh_moto_5ht_muscle:
         c3 ms = 61.206 ms
         c4 real = -13.116
         c5 real = 5.095
+        
         alpha0 real = 2
         alpha1 real = 4.77
         alpha2 real = 400
@@ -210,7 +211,8 @@ neuron hh_moto_5ht_muscle:
         
         integrate_odes()
         ## TODO fix unary operation **
-        At = AM*AM
+        ## As alpha = 2 ->
+        At = AM**2
 
         # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
         if r > 0: # is refractory?
