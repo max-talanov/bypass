@@ -309,3 +309,8 @@ neuron hh_moto_5ht_muscle:
             else:
                 dxdt = 1e-3*gain_length
         return dxdt
+
+    function g (x mm) real:
+        g real = exp(-((x-g1)/g2)**2)
+        return g
+
