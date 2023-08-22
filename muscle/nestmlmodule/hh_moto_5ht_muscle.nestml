@@ -173,6 +173,7 @@ neuron hh_moto_5ht_muscle:
         xce mm = xce_init
         xm mm = xm_init
         F N = 1e-5 N
+        Fc N = 0 N
 
     equations:
         # synapses: alpha functions
@@ -217,7 +218,6 @@ neuron hh_moto_5ht_muscle:
 
         ## TODO solve below
         ## Hill eq
-        #Fc = p0*g(xm)*A
         #xce' = dxdt(F, Fc)
 
     update:
@@ -238,7 +238,7 @@ neuron hh_moto_5ht_muscle:
         ## TODO solve below
         #SOLVE state_hill METHOD cnexp
         F = p0  * Kse * xse(xm, xce)
-
+        Fc = p0*g(xm)*At
 
         # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
         if r > 0: # is refractory?
