@@ -297,8 +297,8 @@ neuron hh_moto_5ht_muscle:
             d_se = 0 mm
         return d_se
 
-    function dxdt (x mm, xc mm) mm/s:
-        dxdt mm/s = 0 mm/s
+    function dxdt (x N, xc N) mm/s:
+        dxdt mm/s = 1e-3*1e5 mm/s
         ##{LOCAL gain_length
         if (x <= xc):
             dxdt = 1e-3*(-b0*(xc-x))/(x+a0*xc/p0)
