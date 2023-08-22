@@ -127,7 +127,7 @@ neuron hh_moto_5ht_muscle:
         At_init 1/ms = 0 /ms
       
       ## TODO update xm
-        ## xm real = 8.0
+      ## xm real = 8.0
     
       ## Hill eq
         a0 N = 2.35 N #            :[N]
@@ -156,7 +156,6 @@ neuron hh_moto_5ht_muscle:
         Act_hc real = hc_inf(V_m_init)
     
         ## muscle 
-        ## TODO -> init values
         CaSR mol = CaSR_init 
         CaSRCS mol = CaSR_init
         Ca mol = Ca_init 
@@ -173,7 +172,7 @@ neuron hh_moto_5ht_muscle:
         ## Hill eq
         xce mm = xce_init
         xm mm = xm_init
-
+        F N = 0 N
 
     equations:
         # synapses: alpha functions
@@ -216,11 +215,16 @@ neuron hh_moto_5ht_muscle:
         AM' = (AMinf - AM)/AMtau
         At' = 0.0 /ms
 
+        ## TODO solve below
+        ## Hill eq
+        #Fc = p0*g(xm)*A
+        #xce' = dxdt(F, Fc)
 
     update:
 
         U_old mV = V_m
         
+        ## muscle
         k5 = phi(xm)*k5i
         k6 = k6i/(1 + SF_AM*AM)
         AMinf = 0.5*(1+tanh(((CaT/T0)-c1)/c2))
@@ -228,9 +232,13 @@ neuron hh_moto_5ht_muscle:
         R = convR * CaSR * Rmax
         
         integrate_odes()
-        ## TODO fix unary operation **
-        ## As alpha = 2 ->
+        ## As alpha = 2 =>
         At = AM**2
+
+        ## TODO solve below
+        #SOLVE state_hill METHOD cnexp
+        F = p0  * Kse * xse(xm, xce)
+
 
         # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
         if r > 0: # is refractory?
@@ -279,3 +287,12 @@ neuron hh_moto_5ht_muscle:
             return U
         else:
             return U
+
+    function xse(xm mm, xce mm) mm:
+        d_xm mm = xm - xm_init
+        d_xce mm = xce - xce_init
+        d_se mm = d_xm - d_xce
+
+        if (d_se <= 0):
+            d_se = 0 mm
+        return d_se
