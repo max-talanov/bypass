@@ -31,6 +31,119 @@ See also
 hh_psc_alpha
 """
 neuron hh_moto_5ht_muscle:
+
+    input:
+        inh_spikes pA <- inhibitory spike
+        exc_spikes pA <- excitatory spike
+        inh_spikes_time ms <- inhibitory spike
+        exc_spikes_time ms <- excitatory spike
+        I_stim pA <- continuous
+
+    output:
+        spike
+
+    parameters:
+
+        t_ref ms = 2.0 ms                # Refractory period
+
+        g_Na nS = 5000.0 nS              # Sodium peak conductance
+        g_L nS = 200.0 nS                # Leak conductance
+        g_K_rect nS = 30000.0 nS         # Delayed Rectifier Potassium peak conductance
+        g_Ca_N nS = 5000.0 nS
+        g_Ca_L nS = 10.0 nS
+        g_K_Ca nS = 30000.0 nS
+        g_K_Ca_5ht real = 0.6            # modulation of K-Ca channels by 5HT. Its value 1.0 == no modulation.
+
+        Ca_in_init mmol = 0.0001 mmol    # Initial inside Calcium concentration
+        Ca_out mmol = 2.0 mmol           # Outside Calcium concentration. Remains constant during simulation.
+
+        C_m pF = 200.0 pF                # Membrane capacitance
+        E_Na mV = 50.0 mV
+        E_K mV = -80.0 mV
+        E_L mV = -70.0 mV
+      
+      # Nernst equation constants
+        R_const real = 8.314472
+        F_const real = 96485.34
+        T_current real = 309.15          # 36 Celcius
+
+        tau_syn_ex ms = 0.2 ms           # Rise time of the excitatory synaptic alpha function
+        tau_syn_in ms = 2.0 ms           # Rise time of the inhibitory synaptic alpha function
+        I_e pA = 0 pA                    # Constant current
+
+        V_m_init mV = -65. mV
+
+        hc_tau ms = 50.0 ms
+        mc_tau ms = 15.0 ms
+        p_tau ms = 400.0 ms
+
+        alpha mmol/pA = 1E-5 mmol/pA
+      
+      ## muscle
+      
+      ##::module 1::
+        k1 1/(mol*ms) = 3000 /(mol*ms)
+        k2 1/ms = 3 /ms
+        k3 1/(mol*ms) = 400 /(mol*ms)
+        k4 1/ms = 1 /ms
+        k5i 1/(mol*ms) = 4e5 /(mol*ms-1)
+        k6i 1/ms = 150 /ms
+        k 1/mol = 850 /mol
+        SF_AM real = 5
+        Rmax 1/ms = 10.0 /ms
+        Umax 1/(mol*ms) = 2000 /(mol*ms)
+        t1 ms = 3 ms
+        t2 ms = 25 ms
+        phi1 real = 0.03
+        phi2 real = 1.23
+        phi3 real = 0.01
+        phi4 real = 1.08
+        CS0 mol = 0.03 mol        #:[M]
+        B0 mol = 0.00043 mol    #:[M]
+        T0 mol = 0.00007 mol    #:[M]
+      
+      #::module 2::
+        c1 real = 0.128
+        c2 real = 0.093
+        c3 ms = 61.206 ms
+        c4 real = -13.116
+        c5 real = 5.095
+
+        alpha0 real = 2
+        alpha1 real = 4.77
+        alpha2 real = 400
+        alpha3 real = 160
+        beta real = 0.47
+        gamma real = 0.001
+      
+      ## Ca transduction
+      ## init values
+        CaSR_init mol = 0.0025 mol       #:[M]
+        CaSRCS_init mol = 0 mol           #:[M]
+        Ca_init mol = 1e-10 mol           #:[M]
+        CaB_init mol = 0 mol               #:[M]
+        CaT_init mol = 0 mol               #:[M]
+        AM_init mol = 0 mol               #:[M]
+        At_init 1/ms = 0 /ms
+      
+      ## TODO update xm
+        ## xm real = 8.0
+    
+      ## Hill eq
+        a0 N = 2.35 N #            :[N]
+        b0 mm/s = 24.35 mm/s #     :[mm*s-1]
+        c0 N = -7.4 N #		       :[N]
+        d0 mm/s = 30.3 mm/s #	   :[mm*s-1]
+        p0 N = 23	N #		       :[N]
+        g1 mm = -8	mm #		   :[mm]
+        g2 mm = 21.4 mm #		   :[mm]
+        xm_init mm = -8 mm #	   :[mm]
+        xce_init mm = -8 mm #	   :[mm]
+        Kse 1/mm = 0.4 /mm #	   :[mm-1]
+
+    internals:
+        RefractoryCounts integer = steps(t_ref) # refractory time in steps
+
     state:
         r integer = 0    # number of steps in the current refractory phase
         V_m mV = V_m_init    # Membrane potential
@@ -56,6 +169,10 @@ neuron hh_moto_5ht_muscle:
         AMinf real = 0
         AMtau ms = 0 ms
         R mol/ms = 0 mol/ms
+    
+        ## Hill eq
+        xce mm = xce_init
+        xm mm = xm_init
 
 
     equations:
@@ -99,105 +216,6 @@ neuron hh_moto_5ht_muscle:
         AM' = (AMinf - AM)/AMtau
         At' = 0.0 /ms
 
-    parameters:
-
-        t_ref ms = 2.0 ms                # Refractory period
-
-        g_Na nS = 5000.0 nS              # Sodium peak conductance
-        g_L nS = 200.0 nS                # Leak conductance
-        g_K_rect nS = 30000.0 nS         # Delayed Rectifier Potassium peak conductance
-        g_Ca_N nS = 5000.0 nS
-        g_Ca_L nS = 10.0 nS
-        g_K_Ca nS = 30000.0 nS
-        g_K_Ca_5ht real = 0.6            # modulation of K-Ca channels by 5HT. Its value 1.0 == no modulation.
-
-        Ca_in_init mmol = 0.0001 mmol    # Initial inside Calcium concentration
-        Ca_out mmol = 2.0 mmol           # Outside Calcium concentration. Remains constant during simulation.
-
-        C_m pF = 200.0 pF                # Membrane capacitance
-        E_Na mV = 50.0 mV
-        E_K mV = -80.0 mV
-        E_L mV = -70.0 mV
-
-        # Nernst equation constants
-        R_const real = 8.314472
-        F_const real = 96485.34
-        T_current real = 309.15          # 36 Celcius
-
-        tau_syn_ex ms = 0.2 ms           # Rise time of the excitatory synaptic alpha function
-        tau_syn_in ms = 2.0 ms           # Rise time of the inhibitory synaptic alpha function
-        I_e pA = 0 pA                    # Constant current
-        
-        V_m_init mV = -65. mV
-
-        hc_tau ms = 50.0 ms
-        mc_tau ms = 15.0 ms
-        p_tau ms = 400.0 ms
-
-        alpha mmol/pA = 1E-5 mmol/pA
-    
-        ## muscle
-        
-        ##::module 1::
-        k1 1/(mol*ms) = 3000 /(mol*ms)
-        k2 1/ms = 3 /ms
-        k3 1/(mol*ms) = 400 /(mol*ms)
-        k4 1/ms = 1 /ms
-        k5i 1/(mol*ms) = 4e5 /(mol*ms-1)
-        k6i 1/ms = 150 /ms
-        k 1/mol = 850 /mol
-        SF_AM real = 5
-        Rmax 1/ms = 10.0 /ms
-        Umax 1/(mol*ms) = 2000 /(mol*ms)
-        t1 ms = 3 ms
-        t2 ms = 25 ms
-        phi1 real = 0.03
-        phi2 real = 1.23
-        phi3 real = 0.01
-        phi4 real = 1.08
-        CS0 mol = 0.03 mol    	#:[M]
-        B0 mol = 0.00043 mol	#:[M]
-        T0 mol = 0.00007 mol 	#:[M]
-        
-        #::module 2::
-        c1 real = 0.128
-        c2 real = 0.093
-        c3 ms = 61.206 ms
-        c4 real = -13.116
-        c5 real = 5.095
-        
-        alpha0 real = 2
-        alpha1 real = 4.77
-        alpha2 real = 400
-        alpha3 real = 160
-        beta real = 0.47
-        gamma real = 0.001
-    
-        ## Ca transduction
-        ## init values
-        CaSR_init mol = 0.0025 mol       #:[M]
-        CaSRCS_init mol = 0 mol           #:[M]
-        Ca_init mol = 1e-10 mol           #:[M]
-        CaB_init mol = 0 mol               #:[M]
-        CaT_init mol = 0 mol               #:[M]
-        AM_init mol = 0 mol               #:[M]
-        At_init 1/ms = 0 /ms
-        
-        ## TODO update xm
-        xm real = 8.0
-
-    internals:
-        RefractoryCounts integer = steps(t_ref) # refractory time in steps
-
-    input:
-        inh_spikes pA <- inhibitory spike
-        exc_spikes pA <- excitatory spike
-        inh_spikes_time ms <- inhibitory spike
-        exc_spikes_time ms <- excitatory spike
-        I_stim pA <- continuous
-
-    output:
-        spike
 
     update:
 
