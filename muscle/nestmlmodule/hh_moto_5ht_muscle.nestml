@@ -215,10 +215,9 @@ neuron hh_moto_5ht_muscle:
         CaT' = k5*T0*Ca - (k5*Ca+k6)*CaT
         AM' = (AMinf - AM)/AMtau
         At' = 0.0 /ms
-
-        ## TODO solve below
+        
         ## Hill eq
-        #xce' = dxdt(F, Fc)
+        xce' = dxdt(F, Fc)
 
     update:
 
@@ -235,7 +234,6 @@ neuron hh_moto_5ht_muscle:
         ## As alpha = 2 =>
         At = AM**2
 
-        ## TODO solve below
         #SOLVE state_hill METHOD cnexp
         F = p0  * Kse * xse(xm, xce)
         Fc = p0*g(xm)*At
