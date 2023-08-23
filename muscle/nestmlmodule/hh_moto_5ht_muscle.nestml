@@ -92,8 +92,8 @@ neuron hh_moto_5ht_muscle:
         SF_AM real = 5
         Rmax 1/ms = 10.0 /ms
         Umax 1/(mol*ms) = 2000 /(mol*ms)
-        t1 ms = 3 ms
-        t2 ms = 25 ms
+        tau1 ms = 3 ms
+        tau2 ms = 25 ms
         phi1 real = 0.03
         phi2 real = 1.23
         phi3 real = 0.01
@@ -179,8 +179,8 @@ neuron hh_moto_5ht_muscle:
         # synapses: alpha functions
         kernel I_syn_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
         kernel I_syn_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
-        inline I_syn_exc pA = convolve(I_syn_ex, exc_spikes)
-        inline I_syn_inh pA = convolve(I_syn_in, inh_spikes)
+        recordable inline I_syn_exc pA = convolve(I_syn_ex, exc_spikes)
+        recordable inline I_syn_inh pA = convolve(I_syn_in, inh_spikes)
 
         inline E_Ca mV = ((1000.0 * R_const * T_current) / (2. * F_const)) * log10(Ca_out / Ca_in)
 
@@ -204,8 +204,9 @@ neuron hh_moto_5ht_muscle:
     
         ## muscle
         ## CaSR*Rmax*
-        kernel tempR = (1-exp(-(t-exc_spikes_time)/t1))*exp(-(t-exc_spikes_time)/t2)
-        inline convR real = convolve(tempR, exc_spikes_time)
+        ## kernel tempR = (1-exp(-(t-exc_spikes_time)/t1))*exp(-(t-exc_spikes_time)/t2)
+        kernel tempR = exp(-t/tau2) * (1-exp(-t/tau1))
+        recordable inline convR real = convolve(tempR, exc_spikes)
         
         ## Ca transduction
         CaSR' = -k1*CS0*CaSR + (k1*CaSR+k2)*CaSRCS + U(Ca) - R
@@ -228,7 +229,8 @@ neuron hh_moto_5ht_muscle:
         k6 = k6i/(1 + SF_AM*AM)
         AMinf = 0.5*(1+tanh(((CaT/T0)-c1)/c2))
         AMtau = c3/(cosh(((CaT/T0)-c4)/(2*c5)))
-        R = convR * CaSR * Rmax
+        ## TODO convR is 0 fix this bug
+        R = CaSR * Rmax * convR
         
         integrate_odes()
         ## As alpha = 2 =>
@@ -311,4 +313,3 @@ neuron hh_moto_5ht_muscle:
     function g (x mm) real:
         g real = exp(-((x-g1)/g2)**2)
         return g
-

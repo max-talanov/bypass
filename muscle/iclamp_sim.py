@@ -64,7 +64,11 @@ m_multimeter = nest.Create(
             "CaT",
             "At",
             "Fc",
-            "F"
+            "F",
+            ## Debug
+            "R",
+            "CaSR",
+            "convR"
         ],
         #"withtime": True,
         "interval": 0.1
@@ -108,9 +112,9 @@ pylab.legend()
 pylab.subplot(5, 1, 5)
 #pylab.ylim(0, 1)
 pylab.ylabel('Ca, CaT, At, Fc, F')
-plot_parameter(m_multimeter, 'Ca', 'Ca', 'r')
-plot_parameter(m_multimeter, 'CaT', 'CaT', 'g')
-plot_parameter(m_multimeter, 'At', 'At', 'b')
+plot_parameter(m_multimeter, 'R', 'R', 'r')
+plot_parameter(m_multimeter, 'CaSR', 'CaSR', 'g')
+plot_parameter(m_multimeter, 'convR', 'convR', 'b')
 pylab.legend()
 
 pylab.show()
