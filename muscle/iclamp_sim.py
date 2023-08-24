@@ -20,7 +20,7 @@ d = 1.0
 Je = 100.0 # 20.0
 Ke = 20
 Ia_fibers_freq_lo = 100
-Ia_fibers_num = 5
+Ia_fibers_num = 50
 
 Ia_g_params = {"rate": Ia_fibers_freq_lo}
 gen2neuron_dict = {"rule": "all_to_all"}
@@ -30,7 +30,7 @@ l_f_Ia_fiber_generator = nest.Create("poisson_generator", Ia_fibers_num, params=
 
 neuron = nest.Create(
     'hh_moto_5ht', params={
-        "I_e": 700.0,  # pA
+        #"I_e": 700.0,  # pA
         "C_m": 200.0,  # pF
         "t_ref": 0.0,
     }
@@ -90,6 +90,9 @@ m_multimeter = nest.Create(
     }
 )
 
+
+nest.Connect(multimeter, neuron)
+nest.Connect(l_f_Ia_fiber_generator, neuron, gen2neuron_dict, syn_dict_ex)
 
 nest.Connect(m_multimeter, muscle)
 nest.Connect(l_f_Ia_fiber_generator, muscle, gen2neuron_dict, syn_dict_ex)

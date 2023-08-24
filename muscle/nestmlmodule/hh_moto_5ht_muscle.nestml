@@ -174,6 +174,7 @@ neuron hh_moto_5ht_muscle:
         xm mm = xm_init
         F N = 1e-5 N
         Fc N = 0 N
+        tempR real = 1
         tempR1 real = 1
         tempR2 real = 1
         tempI_ex pA = 0 pA
@@ -208,11 +209,12 @@ neuron hh_moto_5ht_muscle:
         ## muscle
         ## CaSR*Rmax*
         ## kernel tempR = (1-exp(-(t-exc_spikes_time)/t1))*exp(-(t-exc_spikes_time)/t2)
-        ## kernel tempR = exp(-t/tau2) * (1-exp(-t/tau1))
+        ## kernel tempR1 = exp(-t/tau2) * (1-exp(-t/tau1))
         
-        kernel tempR1' = -tempR1/tau2 
-        kernel tempR2' =  tempR2/tau1
-        recordable inline R mol/ms = CaSR * Rmax * convolve(tempR2, exc_spikes) # * convolve(tempR1, exc_spikes) 
+        #kernel tempR1' = -tempR1/tau2 
+        #kernel tempR2' =  tempR2/tau1
+        recordable inline R mol/ms = CaSR * Rmax # * convolve(tempR2, exc_spikes) * convolve(tempR1, exc_spikes)
+        ##recordable inline R mol/ms = CaSR * Rmax * convolve(tempR1, exc_spikes)
         
         ## Ca transduction
         CaSR' = -k1*CS0*CaSR + (k1*CaSR+k2)*CaSRCS + U(Ca) - R
