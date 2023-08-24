@@ -145,7 +145,7 @@ neuron hh_moto_5ht_muscle:
         RefractoryCounts integer = steps(t_ref) # refractory time in steps
 
     state:
-        r integer = 0    # number of steps in the current refractory phase
+        n_r integer = 0    # number of steps in the current refractory phase
         V_m mV = V_m_init    # Membrane potential
         Ca_in mmol = Ca_in_init    # Inside Calcium concentration
         Act_m real =    alpha_m(V_m_init) / ( alpha_m(V_m_init) + beta_m(V_m_init) )
@@ -174,7 +174,8 @@ neuron hh_moto_5ht_muscle:
         xm mm = xm_init
         F N = 1e-5 N
         Fc N = 0 N
-        tempR real = 1
+        tempR1 real = 1
+        tempR2 real = 1
 
     equations:
         # synapses: alpha functions
@@ -208,8 +209,9 @@ neuron hh_moto_5ht_muscle:
         ## kernel tempR = (1-exp(-(t-exc_spikes_time)/t1))*exp(-(t-exc_spikes_time)/t2)
         ## kernel tempR = exp(-t/tau2) * (1-exp(-t/tau1))
         
-        kernel tempR' = -tempR/tau2 # * tempR/tau1
-        recordable inline R mol/ms = CaSR * Rmax * convolve(tempR, exc_spikes)
+        kernel tempR1' = -tempR1/tau2 
+        kernel tempR2' =  tempR2/tau1
+        recordable inline R mol/ms = CaSR * Rmax * convolve(tempR2, exc_spikes) # * convolve(tempR1, exc_spikes) 
         
         ## Ca transduction
         CaSR' = -k1*CS0*CaSR + (k1*CaSR+k2)*CaSRCS + U(Ca) - R
@@ -244,10 +246,10 @@ neuron hh_moto_5ht_muscle:
         Fc = p0*g(xm)*At
 
         # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
-        if r > 0: # is refractory?
-            r -= 1
+        if n_r > 0: # is refractory?
+            n_r -= 1
         elif V_m > 0 mV and U_old > V_m: # threshold && maximum
-            r = RefractoryCounts
+            n_r = RefractoryCounts
             emit_spike()
     
     function h_inf(V_m mV) real:
