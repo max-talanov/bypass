@@ -176,6 +176,7 @@ neuron hh_moto_5ht_muscle:
         Fc N = 0 N
         tempR1 real = 1
         tempR2 real = 1
+        tempI_ex pA = 0 pA
 
     equations:
         # synapses: alpha functions
@@ -238,6 +239,9 @@ neuron hh_moto_5ht_muscle:
         #R = CaSR * Rmax * convR
         
         integrate_odes()
+        
+        tempI_ex = I_syn_exc
+        
         ## As alpha = 2 =>
         At = AM**2
 

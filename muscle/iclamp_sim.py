@@ -9,10 +9,24 @@ def plot_parameter(device, param_to_display, label, style='-'):
     times = events['times']
     pylab.plot(times, events[param_to_display], style, label=label)
 
-
 generate_nest_target(input_path="nestmlmodule", target_path="/tmp/nestml_target")
 nest.Install("nestmlmodule")
+
+nest.total_num_virtual_procs = 16 # the number of threads to be used for the simulation
 nest.SetKernelStatus(dict(resolution=0.1))
+
+## Synapses
+d = 1.0
+Je = 100.0 # 20.0
+Ke = 20
+Ia_fibers_freq_lo = 100
+Ia_fibers_num = 5
+
+Ia_g_params = {"rate": Ia_fibers_freq_lo}
+gen2neuron_dict = {"rule": "all_to_all"}
+syn_dict_ex = {"delay": d, "weight": Je}
+
+l_f_Ia_fiber_generator = nest.Create("poisson_generator", Ia_fibers_num, params=Ia_g_params)
 
 neuron = nest.Create(
     'hh_moto_5ht', params={
@@ -24,7 +38,7 @@ neuron = nest.Create(
 
 muscle = nest.Create(
     'hh_moto_5ht_muscle', params={
-        "I_e": 700.0,  # pA
+        #"I_e": 700.0,  # pA
         "C_m": 200.0,  # pF
         "t_ref": 0.0,
     }
@@ -68,7 +82,8 @@ m_multimeter = nest.Create(
             ## Debug
             "R",
             "CaSR",
-            "Ca"
+            "Ca",
+            "tempI_ex"
         ],
         #"withtime": True,
         "interval": 0.1
@@ -77,6 +92,8 @@ m_multimeter = nest.Create(
 
 
 nest.Connect(m_multimeter, muscle)
+nest.Connect(l_f_Ia_fiber_generator, muscle, gen2neuron_dict, syn_dict_ex)
+
 nest.Simulate(150.)
 
 pylab.figure()
@@ -114,7 +131,7 @@ pylab.subplot(5, 1, 5)
 pylab.ylabel('Ca, CaT, At, Fc, F')
 plot_parameter(m_multimeter, 'R', 'R', 'r')
 plot_parameter(m_multimeter, 'CaSR', 'CaSR', 'g')
-# plot_parameter(m_multimeter, 'Ca', 'Ca', 'b')
+plot_parameter(m_multimeter, 'tempI_ex', 'tempI_ex', 'b')
 pylab.legend()
 
 pylab.show()
