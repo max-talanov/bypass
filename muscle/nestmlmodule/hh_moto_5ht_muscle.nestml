@@ -167,13 +167,14 @@ neuron hh_moto_5ht_muscle:
         k6 1/ms = k6i
         AMinf real = 0
         AMtau ms = 0 ms
-        R mol/ms = 0 mol/ms
+        #R mol/ms = 0 mol/ms
     
         ## Hill eq
         xce mm = xce_init
         xm mm = xm_init
         F N = 1e-5 N
         Fc N = 0 N
+        tempR ms = 1 ms
 
     equations:
         # synapses: alpha functions
@@ -205,8 +206,10 @@ neuron hh_moto_5ht_muscle:
         ## muscle
         ## CaSR*Rmax*
         ## kernel tempR = (1-exp(-(t-exc_spikes_time)/t1))*exp(-(t-exc_spikes_time)/t2)
-        kernel tempR = exp(-t/tau2) * (1-exp(-t/tau1))
-        recordable inline convR real = convolve(tempR, exc_spikes)
+        ## kernel tempR = exp(-t/tau2) * (1-exp(-t/tau1))
+        
+        kernel tempR' = -tempR/tau2 * tempR/tau1
+        recordable inline R mol/ms = CaSR * Rmax * convolve(tempR, exc_spikes)
         
         ## Ca transduction
         CaSR' = -k1*CS0*CaSR + (k1*CaSR+k2)*CaSRCS + U(Ca) - R
@@ -230,7 +233,7 @@ neuron hh_moto_5ht_muscle:
         AMinf = 0.5*(1+tanh(((CaT/T0)-c1)/c2))
         AMtau = c3/(cosh(((CaT/T0)-c4)/(2*c5)))
         ## TODO convR is 0 fix this bug
-        R = CaSR * Rmax * convR
+        #R = CaSR * Rmax * convR
         
         integrate_odes()
         ## As alpha = 2 =>
