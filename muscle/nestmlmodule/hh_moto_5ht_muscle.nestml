@@ -174,7 +174,7 @@ neuron hh_moto_5ht_muscle:
         xm mm = xm_init
         F N = 1e-5 N
         Fc N = 0 N
-        tempR ms = 1 ms
+        tempR real = 1
 
     equations:
         # synapses: alpha functions
@@ -208,7 +208,7 @@ neuron hh_moto_5ht_muscle:
         ## kernel tempR = (1-exp(-(t-exc_spikes_time)/t1))*exp(-(t-exc_spikes_time)/t2)
         ## kernel tempR = exp(-t/tau2) * (1-exp(-t/tau1))
         
-        kernel tempR' = -tempR/tau2 * tempR/tau1
+        kernel tempR' = -tempR/tau2 # * tempR/tau1
         recordable inline R mol/ms = CaSR * Rmax * convolve(tempR, exc_spikes)
         
         ## Ca transduction
