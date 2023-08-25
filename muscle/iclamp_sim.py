@@ -80,10 +80,17 @@ m_multimeter = nest.Create(
             "Fc",
             "F",
             ## Debug
+            "tempConvR1",
             "R",
             "CaSR",
             "Ca",
-            "tempI_ex"
+            "CaSRCS",
+            "CaB",
+            "CaT",
+            "AM",
+            "At",
+            "F",
+            "Fc"
         ],
         #"withtime": True,
         "interval": 0.1
@@ -105,36 +112,41 @@ pylab.title('Nest iclamp sim')
 pylab.subplot(5, 1, 1)
 pylab.ylabel('Membrane Voltage')
 plot_parameter(m_multimeter, 'V_m', 'V_m')
+#plot_parameter(m_multimeter, 'Fc', 'Fc', 'r')
 pylab.legend()
 
 pylab.subplot(5, 1, 2)
 pylab.ylabel('Ca inside')
-pylab.yticks(numpy.arange(0.0001, 0.0010, 0.0002))
-plot_parameter(m_multimeter, 'Ca_in', 'Ca_in')
+#pylab.yticks(numpy.arange(0.0001, 0.0010, 0.0002))
+#plot_parameter(m_multimeter, 'Ca_in', 'Ca_in')
+plot_parameter(m_multimeter, 'AM', 'AM', 'k')
 pylab.legend()
 
 pylab.subplot(5, 1, 3)
-pylab.ylim(0, 1)
-pylab.ylabel('h, m, n particles')
-plot_parameter(m_multimeter, 'Act_h', 'h', 'r')
-plot_parameter(m_multimeter, 'Act_m', 'm', 'g')
-plot_parameter(m_multimeter, 'Inact_n', 'n', 'b')
+#pylab.ylim(0, 1)
+pylab.ylabel('CaB')
+# plot_parameter(m_multimeter, 'Act_h', 'h', 'r')
+# plot_parameter(m_multimeter, 'Act_m', 'm', 'g')
+# plot_parameter(m_multimeter, 'Inact_n', 'n', 'b')
+plot_parameter(m_multimeter, 'CaB', 'CaB', 'b')
 pylab.legend()
 
 pylab.subplot(5, 1, 4)
-pylab.ylim(0, 1)
-pylab.ylabel('p, mc, hc particles')
-plot_parameter(m_multimeter, 'Act_p', 'p', 'r')
-plot_parameter(m_multimeter, 'Act_mc', 'mc', 'g')
-plot_parameter(m_multimeter, 'Act_hc', 'hc', 'b')
+#pylab.ylim(0, 1)
+pylab.ylabel('CaSR')
+# plot_parameter(m_multimeter, 'Act_p', 'p', 'r')
+# plot_parameter(m_multimeter, 'Act_mc', 'mc', 'g')
+# plot_parameter(m_multimeter, 'Act_hc', 'hc', 'b')
+plot_parameter(m_multimeter, 'CaSR', 'CaSR', 'g')
+# plot_parameter(m_multimeter, 'CaT', 'CaT', 'k')
 pylab.legend()
 
 pylab.subplot(5, 1, 5)
 #pylab.ylim(0, 1)
 pylab.ylabel('Ca, CaT, At, Fc, F')
 plot_parameter(m_multimeter, 'R', 'R', 'r')
-plot_parameter(m_multimeter, 'CaSR', 'CaSR', 'g')
-plot_parameter(m_multimeter, 'tempI_ex', 'tempI_ex', 'b')
+#plot_parameter(m_multimeter, 'tempConvR1', 'tempConvR1', 'b')
+plot_parameter(m_multimeter, 'CaSRCS', 'CaSRCS', 'k')
 pylab.legend()
 
 pylab.show()
