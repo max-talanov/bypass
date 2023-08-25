@@ -9,7 +9,7 @@ def plot_parameter(device, param_to_display, label, style='-'):
     times = events['times']
     pylab.plot(times, events[param_to_display], style, label=label)
 
-generate_nest_target(input_path="nestmlmodule", target_path="/tmp/nestml_target")
+# generate_nest_target(input_path="nestmlmodule", target_path="/tmp/nestml_target")
 nest.Install("nestmlmodule")
 
 nest.total_num_virtual_procs = 16 # the number of threads to be used for the simulation
@@ -118,7 +118,10 @@ pylab.subplot(5, 1, 2)
 pylab.ylabel('AM')
 #pylab.yticks(numpy.arange(0.0001, 0.0010, 0.0002))
 #plot_parameter(m_multimeter, 'Ca_in', 'Ca_in')
-plot_parameter(m_multimeter, 'tempConvR1', 'tempConvR1', 'k')
+#plot_parameter(m_multimeter, 'tempConvR1', 'tempConvR1', 'k')
+plot_parameter(m_multimeter, 'CaB', 'CaB', 'b')
+#plot_parameter(m_multimeter, 'CaT', 'CaT', 'k')
+#plot_parameter(m_multimeter, 'Ca', 'Ca', 'r')
 pylab.legend()
 
 pylab.subplot(5, 1, 3)
@@ -127,7 +130,7 @@ pylab.ylabel('CaB')
 # plot_parameter(m_multimeter, 'Act_h', 'h', 'r')
 # plot_parameter(m_multimeter, 'Act_m', 'm', 'g')
 # plot_parameter(m_multimeter, 'Inact_n', 'n', 'b')
-plot_parameter(m_multimeter, 'CaB', 'CaB', 'b')
+plot_parameter(m_multimeter, 'CaSRCS', 'CaSRCS', 'k')
 pylab.legend()
 
 pylab.subplot(5, 1, 4)
@@ -145,7 +148,6 @@ pylab.subplot(5, 1, 5)
 pylab.ylabel('R, CaSRCS')
 plot_parameter(m_multimeter, 'R', 'R', 'r')
 #plot_parameter(m_multimeter, 'tempConvR1', 'tempConvR1', 'b')
-plot_parameter(m_multimeter, 'CaSRCS', 'CaSRCS', 'k')
 pylab.legend()
 
 pylab.show()
