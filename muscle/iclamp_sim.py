@@ -9,7 +9,7 @@ def plot_parameter(device, param_to_display, label, style='-'):
     times = events['times']
     pylab.plot(times, events[param_to_display], style, label=label)
 
-# generate_nest_target(input_path="nestmlmodule", target_path="/tmp/nestml_target")
+generate_nest_target(input_path="nestmlmodule", target_path="/tmp/nestml_target")
 nest.Install("nestmlmodule")
 
 nest.total_num_virtual_procs = 16 # the number of threads to be used for the simulation
