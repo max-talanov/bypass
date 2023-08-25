@@ -232,14 +232,15 @@ neuron hh_moto_5ht_muscle:
         U_old mV = V_m
         
         ## muscle
+        
+        integrate_odes()
+        tempI_ex = I_syn_exc
+        
         k5 = phi(xm)*k5i
         k6 = k6i/(1 + SF_AM*AM)
         AMinf = 0.5*(1+tanh(((CaT/T0)-c1)/c2))
         AMtau = c3/(cosh(((CaT/T0)-c4)/(2*c5)))
-        
-        integrate_odes()
-        
-        tempI_ex = I_syn_exc
+      
         ## TODO convR is 0 fix this bug
         tempConvR1  = convR1
         R = CaSR * Rmax * convR1
