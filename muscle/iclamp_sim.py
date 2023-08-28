@@ -11,7 +11,7 @@ def plot_parameter(device, param_to_display, label, style='-'):
     ys = params[:len(times)]
     pylab.plot(times, ys, style, label=label)
 
-# generate_nest_target(input_path="nestmlmodule", target_path="/tmp/nestml_target")
+generate_nest_target(input_path="nestmlmodule", target_path="/tmp/nestml_target")
 nest.Install("nestmlmodule")
 
 nest.total_num_virtual_procs = 16 # the number of threads to be used for the simulation
@@ -106,7 +106,7 @@ nest.Connect(m_multimeter, muscle)
 nest.Connect(l_f_Ia_fiber_generator, muscle, gen2neuron_dict, syn_dict_ex)
 
 ## TODO down to 10
-nest.Simulate(100.) ##150.)
+nest.Simulate(20.) ##150.)
 
 pylab.figure()
 pylab.title('Nest iclamp sim')
