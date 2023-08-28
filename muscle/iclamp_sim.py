@@ -108,6 +108,10 @@ nest.Connect(l_f_Ia_fiber_generator, muscle, gen2neuron_dict, syn_dict_ex)
 ## TODO down to 10
 nest.Simulate(20.) ##150.)
 
+ca = nest.GetStatus(m_multimeter)[0]['events']['Ca']
+print("Ca = ")
+print(ca)
+
 pylab.figure()
 pylab.title('Nest iclamp sim')
 
