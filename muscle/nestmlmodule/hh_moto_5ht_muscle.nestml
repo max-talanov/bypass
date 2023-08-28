@@ -86,6 +86,7 @@ neuron hh_moto_5ht_muscle:
         k2 1/ms = 3 /ms
         k3 1/(mol*ms) = 400 /(mol*ms)
         k4 1/ms = 1 /ms
+        ## TODO debug inf here
         k5i 1/(mol*ms) = 4e5 /(mol*ms-1)
         k6i 1/ms = 150 /ms
         k 1/mol = 850 /mol
@@ -125,10 +126,7 @@ neuron hh_moto_5ht_muscle:
         CaT_init mol = 0 mol               #:[M]
         AM_init mol = 0 mol               #:[M]
         At_init 1/ms = 0 /ms
-      
-      ## TODO update xm
-      ## xm real = 8.0
-    
+
       ## Hill eq
         a0 N = 2.35 N #            :[N]
         b0 mm/s = 24.35 mm/s #     :[mm*s-1]
@@ -235,6 +233,10 @@ neuron hh_moto_5ht_muscle:
         
         integrate_odes()
         tempI_ex = I_syn_exc
+      
+        ## TODO debug k5 and k6
+
+        print("k5i={k5i};")
         
         k5 = phi(xm)*k5i
         k6 = k6i/(1 + SF_AM*AM)
@@ -288,10 +290,17 @@ neuron hh_moto_5ht_muscle:
         return (0.4 * (-(V_m + 32.))) / mV / (1. - exp((V_m + 32.) / (5. mV))) / ms
 
     function phi (x real) real:
+
+        print("x= {x};")
+        res real = 0
         if (x <= -8):
-            return phi1*x + phi2
+            res = phi1*x + phi2
+            print("res = {res};")
+            return res
         else:
-            return phi3*x + phi4
+            res = phi3*x + phi4
+            print("res = {res};")
+            return res
 
     function U(x mol) real:
         U 1/(mol*ms) = 0 /(mol*ms)

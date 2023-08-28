@@ -92,7 +92,9 @@ m_multimeter = nest.Create(
             "AM",
             "At",
             "F",
-            "Fc"
+            "Fc",
+            "k5",
+            "k6"
         ],
         #"withtime": True,
         "interval": 0.1
@@ -112,6 +114,14 @@ ca = nest.GetStatus(m_multimeter)[0]['events']['Ca']
 print("Ca = ")
 print(ca)
 
+k5 = nest.GetStatus(m_multimeter)[0]['events']['k5']
+print("k5 = ")
+print(k5)
+
+k6 = nest.GetStatus(m_multimeter)[0]['events']['k6']
+print("k6 = ")
+print(k6)
+
 pylab.figure()
 pylab.title('Nest iclamp sim')
 
@@ -129,6 +139,9 @@ pylab.ylabel('Ca')
 #plot_parameter(m_multimeter, 'CaB', 'CaB', 'b')
 #plot_parameter(m_multimeter, 'CaT', 'CaT', 'k')
 plot_parameter(m_multimeter, 'Ca', 'Ca', 'r')
+plot_parameter(m_multimeter, 'k5', 'k5', 'g')
+plot_parameter(m_multimeter, 'k6', 'k6', 'b')
+
 pylab.legend()
 
 pylab.subplot(5, 1, 3)
