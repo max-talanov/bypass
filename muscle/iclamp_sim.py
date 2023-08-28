@@ -7,9 +7,11 @@ def plot_parameter(device, param_to_display, label, style='-'):
     status = nest.GetStatus(device)[0]
     events = status['events']
     times = events['times']
-    pylab.plot(times, events[param_to_display], style, label=label)
+    params = events[param_to_display]
+    ys = params[:len(times)]
+    pylab.plot(times, ys, style, label=label)
 
-generate_nest_target(input_path="nestmlmodule", target_path="/tmp/nestml_target")
+# generate_nest_target(input_path="nestmlmodule", target_path="/tmp/nestml_target")
 nest.Install("nestmlmodule")
 
 nest.total_num_virtual_procs = 16 # the number of threads to be used for the simulation
@@ -103,7 +105,8 @@ nest.Connect(l_f_Ia_fiber_generator, neuron, gen2neuron_dict, syn_dict_ex)
 nest.Connect(m_multimeter, muscle)
 nest.Connect(l_f_Ia_fiber_generator, muscle, gen2neuron_dict, syn_dict_ex)
 
-nest.Simulate(150.)
+## TODO down to 10
+nest.Simulate(100.) ##150.)
 
 pylab.figure()
 pylab.title('Nest iclamp sim')
@@ -115,9 +118,9 @@ plot_parameter(m_multimeter, 'V_m', 'V_m')
 pylab.legend()
 
 pylab.subplot(5, 1, 2)
-pylab.ylabel('AM')
+pylab.ylabel('Ca')
 #pylab.yticks(numpy.arange(0.0001, 0.0010, 0.0002))
-plot_parameter(m_multimeter, 'Ca_in', 'Ca_in')
+#plot_parameter(m_multimeter, 'Ca_in', 'Ca_in')
 #plot_parameter(m_multimeter, 'tempConvR1', 'tempConvR1', 'k')
 #plot_parameter(m_multimeter, 'CaB', 'CaB', 'b')
 #plot_parameter(m_multimeter, 'CaT', 'CaT', 'k')
