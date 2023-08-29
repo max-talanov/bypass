@@ -95,13 +95,13 @@ neuron hh_moto_5ht_muscle:
         Umax 1/(mol*ms) = 2000 /(mol*ms)
         tau1 ms = 3 ms
         tau2 ms = 25 ms
-        phi1 real = 0.03
+        phi1 1/mm = 0.03 / mm
         phi2 real = 1.23
-        phi3 real = 0.01
+        phi3 1/mm = 0.01 /mm
         phi4 real = 1.08
         CS0 mol = 0.03 mol        #:[M]
         B0 mol = 0.00043 mol    #:[M]
-        T0 mol = 0.00007 mol    #:[M]
+        T0 mol = 0.00007 mol    # 70umol
       
       #::module 2::
         c1 real = 0.128
@@ -289,17 +289,17 @@ neuron hh_moto_5ht_muscle:
     function beta_m(V_m mV) 1/ms:
         return (0.4 * (-(V_m + 32.))) / mV / (1. - exp((V_m + 32.) / (5. mV))) / ms
 
-    function phi (x real) real:
+    function phi (x mm) real:
 
         print("x= {x};")
         res real = 0
         if (x <= -8):
             res = phi1*x + phi2
-            print("res = {res};")
+            print("phi = {res};")
             return res
         else:
             res = phi3*x + phi4
-            print("res = {res};")
+            print("phi = {res};")
             return res
 
     function U(x mol) real:
