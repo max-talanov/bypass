@@ -114,53 +114,52 @@ ca = nest.GetStatus(m_multimeter)[0]['events']['Ca']
 print("Ca = ")
 print(ca)
 
-k5 = nest.GetStatus(m_multimeter)[0]['events']['k5']
-print("k5 = ")
-print(k5)
+f = nest.GetStatus(m_multimeter)[0]['events']['F']
+print("F = ")
+print(f)
 
-k6 = nest.GetStatus(m_multimeter)[0]['events']['k6']
-print("k6 = ")
-print(k6)
+
+# k5 = nest.GetStatus(m_multimeter)[0]['events']['k5']
+# print("k5 = ")
+# print(k5)
+#
+# k6 = nest.GetStatus(m_multimeter)[0]['events']['k6']
+# print("k6 = ")
+# print(k6)
 
 pylab.figure()
 pylab.title('Nest iclamp sim')
 
 pylab.subplot(5, 1, 1)
 pylab.ylabel('Membrane Voltage')
-plot_parameter(m_multimeter, 'V_m', 'V_m')
-#plot_parameter(m_multimeter, 'Fc', 'Fc', 'r')
+#plot_parameter(m_multimeter, 'V_m', 'V_m')
+## plot_parameter(m_multimeter, 'Fc', 'Fc', 'r')
+plot_parameter(m_multimeter, 'F', 'F', 'k')
 pylab.legend()
 
 pylab.subplot(5, 1, 2)
 pylab.ylabel('Ca')
-#pylab.yticks(numpy.arange(0.0001, 0.0010, 0.0002))
-#plot_parameter(m_multimeter, 'Ca_in', 'Ca_in')
-#plot_parameter(m_multimeter, 'tempConvR1', 'tempConvR1', 'k')
-#plot_parameter(m_multimeter, 'CaB', 'CaB', 'b')
-#plot_parameter(m_multimeter, 'CaT', 'CaT', 'k')
+plot_parameter(m_multimeter, 'CaT', 'CaT', 'k')
 plot_parameter(m_multimeter, 'Ca', 'Ca', 'r')
-plot_parameter(m_multimeter, 'k5', 'k5', 'g')
-plot_parameter(m_multimeter, 'k6', 'k6', 'b')
+#plot_parameter(m_multimeter, 'k5', 'k5', 'g')
+#plot_parameter(m_multimeter, 'k6', 'k6', 'b')
 
 pylab.legend()
 
 pylab.subplot(5, 1, 3)
 #pylab.ylim(0, 1)
 pylab.ylabel('CaB')
-# plot_parameter(m_multimeter, 'Act_h', 'h', 'r')
-# plot_parameter(m_multimeter, 'Act_m', 'm', 'g')
-# plot_parameter(m_multimeter, 'Inact_n', 'n', 'b')
 plot_parameter(m_multimeter, 'CaSRCS', 'CaSRCS', 'k')
 pylab.legend()
 
 pylab.subplot(5, 1, 4)
 #pylab.ylim(0, 1)
 pylab.ylabel('CaSR')
-# plot_parameter(m_multimeter, 'Act_p', 'p', 'r')
-# plot_parameter(m_multimeter, 'Act_mc', 'mc', 'g')
-# plot_parameter(m_multimeter, 'Act_hc', 'hc', 'b')
-plot_parameter(m_multimeter, 'CaSR', 'CaSR', 'g')
-# plot_parameter(m_multimeter, 'CaT', 'CaT', 'k')
+#plot_parameter(m_multimeter, 'CaSR', 'CaSR', 'g')
+#plot_parameter(m_multimeter, 'CaT', 'CaT', 'k')
+#plot_parameter(m_multimeter, 'CaB', 'CaB', 'b')
+plot_parameter(m_multimeter, 'AM', 'AM', 'b')
+plot_parameter(m_multimeter, 'At', 'At', 'g')
 pylab.legend()
 
 pylab.subplot(5, 1, 5)

@@ -132,7 +132,7 @@ neuron hh_moto_5ht_muscle:
         b0 mm/s = 24.35 mm/s #     :[mm*s-1]
         c0 N = -7.4 N #		       :[N]
         d0 mm/s = 30.3 mm/s #	   :[mm*s-1]
-        p0 N = 23	N #		       :[N]
+        p0 N = 23 N #		       :[N]
         g1 mm = -8	mm #		   :[mm]
         g2 mm = 21.4 mm #		   :[mm]
         xm_init mm = -8 mm #	   :[mm]
@@ -174,6 +174,7 @@ neuron hh_moto_5ht_muscle:
         Fc N = 0 N
         tempI_ex pA = 0 pA
         tempConvR1 real = 0
+        xseTemp mm = 0 mm
 
     equations:
         # synapses: alpha functions
@@ -235,15 +236,13 @@ neuron hh_moto_5ht_muscle:
         tempI_ex = I_syn_exc
       
         ## TODO debug k5 and k6
-
-        print("k5i={k5i};")
+        ## print("k5i={k5i};")
         
-        k5 = phi(xm)*k5i
+        k5 = phi(xm)*k5i ## TODO fixing k5i issue
         k6 = k6i/(1 + SF_AM*AM)
         AMinf = 0.5*(1+tanh(((CaT/T0)-c1)/c2))
         AMtau = c3/(cosh(((CaT/T0)-c4)/(2*c5)))
       
-        ## TODO convR is 0 fix this bug
         tempConvR1  = convR1
         R = CaSR * Rmax * convR1
       
@@ -252,8 +251,11 @@ neuron hh_moto_5ht_muscle:
         At = AM**2
 
         #SOLVE state_hill METHOD cnexp
-        F = p0  * Kse * xse(xm, xce)
-        Fc = p0*g(xm)*At
+        println("call xce = {xce};")
+        xseTemp = xse(xm, xce)
+        print("xse = {xseTemp};")
+        F = p0  * Kse * xseTemp
+        Fc = p0 * g(xm) * At
 
         # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
         if n_r > 0: # is refractory?
@@ -291,15 +293,15 @@ neuron hh_moto_5ht_muscle:
 
     function phi (x mm) real:
 
-        print("x= {x};")
+        #print("x= {x};")
         res real = 0
         if (x <= -8):
             res = phi1*x + phi2
-            print("phi = {res};")
+            ## print("phi = {res};")
             return res
         else:
             res = phi3*x + phi4
-            print("phi = {res};")
+            ## print("phi = {res};")
             return res
 
     function U(x mol) real:
@@ -310,27 +312,31 @@ neuron hh_moto_5ht_muscle:
         else:
             return U
 
-    function xse(xm mm, xce mm) mm:
+    function xse(xm mm, xce1 mm) mm:
         d_xm mm = xm - xm_init
-        d_xce mm = xce - xce_init
+        d_xce mm = xce1 - xce_init
         d_se mm = d_xm - d_xce
+        print("d_xm = {d_xm};")
+        print("xce1 = {xce1};")
+        print("d_xce = {d_xce};")
+        print("d_se  =  {d_se};")
 
         if (d_se <= 0):
             d_se = 0 mm
         return d_se
 
     function dxdt (x N, xc N) mm/s:
-        dxdt mm/s = 1e-3*1e5 mm/s
+        res mm/s = 1e-3*1e5 mm/s
         ##{LOCAL gain_length
         if (x <= xc):
-            dxdt = 1e-3*(-b0*(xc-x))/(x+a0*xc/p0)
+            res = 1e-3*(-b0*(xc-x))/(x+a0*xc/p0)
         else:
             gain_length mm/s = (-d0*(xc-x))/(2*xc-x+c0*xc/p0)
             if (gain_length <= 0):
-                dxdt = 1e-3*1e5 mm/s
+                res = 1e-3*1e5 mm/s
             else:
-                dxdt = 1e-3*gain_length
-        return dxdt
+                res = 1e-3*gain_length
+        return res
 
     function g (x mm) real:
         g real = exp(-((x-g1)/g2)**2)
