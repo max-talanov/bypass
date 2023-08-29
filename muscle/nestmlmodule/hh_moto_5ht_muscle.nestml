@@ -319,7 +319,7 @@ neuron hh_moto_5ht_muscle:
         print("d_xm = {d_xm};")
         print("xce1 = {xce1};")
         print("d_xce = {d_xce};")
-        print("d_se  =  {d_se};")
+        println("d_se  =  {d_se};")
 
         if (d_se <= 0):
             d_se = 0 mm
