@@ -1,40 +1,12 @@
 version: "3"
 
 services:
-  nest-server:
-    image: nest/nest-simulator:3.4
-    environment:
-      LOCAL_USER_ID: "`id -u $USER`"
-      NEST_CONTAINER_MODE: "nest-server"
-    ports:
-      - "52425:52425"
-
-  nest-desktop:
-    image: nest/nest-simulator:3.4
-    environment:
-      LOCAL_USER_ID: "`id -u $USER`"
-      NEST_CONTAINER_MODE: "nest-desktop"
-    ports:
-      - "54286:54286"
-    depends_on:
-      - nest-server
-
   nest-notebook:
+    container_name: nest-simulation
     image: nest/nest-simulator:3.4
     volumes:
       - .:/opt/data
     environment:
       LOCAL_USER_ID: "`id -u $USER`"
       NEST_CONTAINER_MODE: "notebook"
-    ports:
-      - "8080:8080"
 
-  nest-jupyterlab:
-    image: nest/nest-simulator:3.4
-    volumes:
-      - .:/opt/data
-    environment:
-      LOCAL_USER_ID: "`id -u $USER`"
-      NEST_CONTAINER_MODE: "jupyterlab"
-    ports:
-      - "8080:8080"

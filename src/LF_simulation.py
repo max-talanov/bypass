@@ -89,7 +89,7 @@ stop = 1000.0  # end of simulation relative to trial start, in ms
 phase_duration = 100.0 # phase duration in ms
 simulation_hill_toe_phases = 4
 num_phases = 10
-num_steps = 50  #10  # 5  # number of trials to perform
+num_steps = 2000  #10  # 5  # number of trials to perform
 
 # Nonspecific parameters
 

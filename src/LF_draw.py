@@ -50,24 +50,24 @@ def _make_plot(ts, ts1, node_ids, neurons, hist=True, hist_binwidth=5.0, graysca
 
     if hist:
         pass
-        # ax1 = plt.axes([0.1, 0.3, 0.85, 0.6])
-        # plotid = plt.plot(ts1, node_ids, color_marker)
-        # plt.ylabel(ylabel)
-        # plt.xticks([])
-        # xlim = plt.xlim()
-        #
-        # plt.axes([0.1, 0.1, 0.85, 0.17])
-        # t_bins = np.arange(np.amin(ts), np.amax(ts), float(hist_binwidth))
-        # n, _ = nest.raster_plot._histogram(ts, bins=t_bins)
-        # num_neurons = len(np.unique(neurons))
-        # heights = 1000 * n / (hist_binwidth * num_neurons)
-        #
-        # plt.bar(t_bins, heights, width=hist_binwidth, color=color_bar, edgecolor=color_edge)
-        # plt.yticks([int(x) for x in np.linspace(0.0, int(max(heights) * 1.1) + 5, 4)])
-        # plt.ylabel("Rate (Hz)")
-        # plt.xlabel(xlabel)
-        # plt.xlim(xlim)
-        # plt.axes(ax1)
+        ax1 = plt.axes([0.1, 0.3, 0.85, 0.6])
+        plotid = plt.plot(ts1, node_ids, color_marker)
+        plt.ylabel(ylabel)
+        plt.xticks([])
+        xlim = plt.xlim()
+        
+        plt.axes([0.1, 0.1, 0.85, 0.17])
+        t_bins = np.arange(np.amin(ts), np.amax(ts), float(hist_binwidth))
+        n, _ = nest.raster_plot._histogram(ts, bins=t_bins)
+        num_neurons = len(np.unique(neurons))
+        heights = 1000 * n / (hist_binwidth * num_neurons)
+        
+        plt.bar(t_bins, heights, width=hist_binwidth, color=color_bar, edgecolor=color_edge)
+        plt.yticks([int(x) for x in np.linspace(0.0, int(max(heights) * 1.1) + 5, 4)])
+        plt.ylabel("Rate (Hz)")
+        plt.xlabel(xlabel)
+        plt.xlim(xlim)
+        plt.axes(ax1)
     else:
         plotid = plt.plot(ts1, node_ids, color_marker)
         plt.xlabel(xlabel)
@@ -83,7 +83,7 @@ def _make_plot(ts, ts1, node_ids, neurons, hist=True, hist_binwidth=5.0, graysca
     return plotid
 
 def make_raster_plot(ts, node_ids, **kwargs):
-    return _make_plot(ts, ts, node_ids, node_ids, xlabel='Time/Steps', **kwargs)
+    return _make_plot(ts[:10], ts[:10], node_ids[:10], node_ids[:10], xlabel='Time/Steps', **kwargs)
 
 def load_spike_recorder(name):
     with open(f'out/pickle_/{name}_ts.pkl', "rb") as handle:
