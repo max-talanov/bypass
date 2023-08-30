@@ -49,9 +49,9 @@ def dump_spike_recorder(spike_recorder, name):
     ts, node_ids = nest.raster_plot._from_memory(spike_recorder)
     if not len(ts):
         raise nest.kernel.NESTError("No events recorded!")
-    with open(f'pickle_/{name}_ts.pkl', "wb") as handle:
+    with open(f'out/pickle_/{name}_ts.pkl', "wb") as handle:
         pickle.dump(ts, handle)
-    with open(f'pickle_/{name}_node_ids.pkl', "wb") as handle:
+    with open(f'out/pickle_/{name}_node_ids.pkl', "wb") as handle:
         pickle.dump(node_ids, handle)
 
 def dump_weight_recorder(weight_recorder, name):
@@ -63,13 +63,13 @@ def dump_weight_recorder(weight_recorder, name):
     weights = weight_recorder.events["weights"]
     times = weight_recorder.events["times"]
 
-    with open(f'pickle_/{name}_senders.pkl', "wb") as handle:
+    with open(f'out/pickle_/{name}_senders.pkl', "wb") as handle:
         pickle.dump(senders, handle)
-    with open(f'pickle_/{name}_targets.pkl', "wb") as handle:
+    with open(f'out/pickle_/{name}_targets.pkl', "wb") as handle:
         pickle.dump(targets, handle)
-    with open(f'pickle_/{name}_weights.pkl', "wb") as handle:
+    with open(f'out/pickle_/{name}_weights.pkl', "wb") as handle:
         pickle.dump(weights, handle)
-    with open(f'pickle_/{name}_times.pkl', "wb") as handle:
+    with open(f'out/pickle_/{name}_times.pkl', "wb") as handle:
         pickle.dump(times, handle)
 
 FORMAT = '%(asctime)s %(message)s'
@@ -89,7 +89,7 @@ stop = 1000.0  # end of simulation relative to trial start, in ms
 phase_duration = 100.0 # phase duration in ms
 simulation_hill_toe_phases = 4
 num_phases = 10
-num_steps = 50 #10  # 5  # number of trials to perform
+num_steps = 50  #10  # 5  # number of trials to perform
 
 # Nonspecific parameters
 
@@ -150,10 +150,6 @@ rg_num = 200 # number of rhythm generator neurons
 
 ## Motor neurons
 motor_neurons_num = 200
-
-## Extensor
-
-l_e_rg_num = 200
 
 
 ###############################################################################
@@ -277,7 +273,7 @@ V3_syn_stdp_dict = {"synapse_model": "V3_stdp_synapse_rec",
                     }
 nest.Connect(bs_neurons, l_f_v3F_neurons, neuron2neuron_stdp_dict, V3_syn_stdp_dict)
 
-### Ia
+### F Ia 
 nest.CopyModel("jonke_synapse", "l_f_Ia_syn_stdp_rec",
                {"weight_recorder": l_f_Ia2rg_neurons_wr[0],
                 "Wmax": w_max,
@@ -294,7 +290,7 @@ l_f_Ia_syn_stdp_dict = {"synapse_model": "l_f_Ia_syn_stdp_rec",
 l_f_Ia2rg = nest.Connect(l_f_Ia_fibers, l_f_rg_neurons, neuron2neuron_stdp_dict, l_f_Ia_syn_stdp_dict)
 log.debug(str(l_f_Ia2rg))
 
-
+### E Ia
 nest.CopyModel("jonke_synapse", "l_e_Ia_syn_stdp_rec",
                {"weight_recorder": l_e_Ia2rg_neurons_wr[0],
                 "Wmax": w_max,
@@ -309,19 +305,21 @@ l_e_Ia_syn_stdp_dict = {"synapse_model": "l_e_Ia_syn_stdp_rec",
 l_e_Ia2rg = nest.Connect(l_e_Ia_fibers, l_e_rg_neurons, neuron2neuron_stdp_dict, l_e_Ia_syn_stdp_dict)
 log.debug(str(l_e_Ia2rg))
 
+
+### E cut
 nest.CopyModel("jonke_synapse", "l_e_cut_syn_stdp_rec",
                {"weight_recorder": l_e_cut2rg_neurons_wr[0],
                 "Wmax": w_max,
                 "lambda": rg_lambda
                 })
 nrn_model = "pp_cond_exp_mc_urbanczik"
-l_e_cut_syn_stdp_dict = {"synapse_model": "l_e_Ia_syn_stdp_rec",
+l_e_cut_syn_stdp_dict = {"synapse_model": "l_e_cut_syn_stdp_rec",
                     "weight": nest.random.lognormal(mean=rg_w_mean, std=w_std),
                     "delay": delay_def
                     }
 
 l_e_cut2rg = nest.Connect(l_e_cut_fibers, l_e_rg_neurons, neuron2neuron_stdp_dict, l_e_cut_syn_stdp_dict)
-log.debug(str(l_e_Ia2rg))
+log.debug(str(l_e_cut2rg))
 
 ###############################################################################
 # Before each trial, we set the ``origin`` of the ``poisson_generator`` to the
@@ -332,6 +330,12 @@ log.debug(str(l_e_Ia2rg))
 log.info('Simulation started ...')
 for n in range(num_steps):
     log.info("Step = " + str(n))
+
+    bs_generator.rate = 0
+    l_f_Ia_fiber_generator.rate = 0
+    l_e_Ia_fiber_generator.rate = 0
+    l_e_cut_fiber_generator.rate = 0
+
     for ph in range(num_phases):
         bs_generator.origin = nest.biological_time
         ### V3 rate
@@ -343,6 +347,12 @@ for n in range(num_steps):
         log.debug("Rate = " + str(Ia_rate))
         l_f_Ia_fiber_generator.rate = Ia_rate
         nest.Simulate(phase_duration)
+
+    bs_generator.rate = 0
+    l_f_Ia_fiber_generator.rate = 0
+    l_e_Ia_fiber_generator.rate = 0
+    l_e_cut_fiber_generator.rate = 0
+
     for ph in range(num_phases):
         ### Ia rate
         Ia_rate = get_Ia_rate(ph, Ia_fibers_freq_lo, Ia_fibers_freq_hi)
