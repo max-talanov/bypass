@@ -146,6 +146,7 @@ neuron hh_moto_5ht_muscle:
         n_r integer = 0    # number of steps in the current refractory phase
         V_m mV = V_m_init    # Membrane potential
         Ca_in mmol = Ca_in_init    # Inside Calcium concentration
+
         Act_m real =    alpha_m(V_m_init) / ( alpha_m(V_m_init) + beta_m(V_m_init) )
         Act_h real = h_inf(V_m_init)
         Inact_n real = n_inf(V_m_init)
@@ -175,6 +176,8 @@ neuron hh_moto_5ht_muscle:
         tempI_ex pA = 0 pA
         tempConvR1 real = 0
         xseTemp mm = 0 mm
+        xceTemp mm = 0 mm
+        temp_diff_time mm/s = 0 mm/s
 
     equations:
         # synapses: alpha functions
@@ -224,38 +227,36 @@ neuron hh_moto_5ht_muscle:
         At' = 0.0 /ms
         
         ## Hill eq
-        xce' = dxdt(F, Fc)
+        xce' = diff_time(F, Fc)
 
     update:
 
         U_old mV = V_m
-        
         ## muscle
-        
         integrate_odes()
         tempI_ex = I_syn_exc
-      
         ## TODO debug k5 and k6
-        ## print("k5i={k5i};")
         
+        println("xm={xm};")
         k5 = phi(xm)*k5i ## TODO fixing k5i issue
         k6 = k6i/(1 + SF_AM*AM)
         AMinf = 0.5*(1+tanh(((CaT/T0)-c1)/c2))
         AMtau = c3/(cosh(((CaT/T0)-c4)/(2*c5)))
-      
         tempConvR1  = convR1
         R = CaSR * Rmax * convR1
-      
-      
-      ## As alpha = 2 =>
+        ## As alpha = 2 =>
         At = AM**2
 
         #SOLVE state_hill METHOD cnexp
-        println("call xce = {xce};")
-        xseTemp = xse(xm, xce)
-        print("xse = {xseTemp};")
+        xceTemp = xce
+        println("call xce = {xceTemp};")
+        xseTemp = xse(xm, xceTemp)
+        println("xse = {xseTemp};")
         F = p0  * Kse * xseTemp
         Fc = p0 * g(xm) * At
+        println("F= {F}, Fc={Fc}")
+        temp_diff_time = diff_time_print(F, Fc)
+        println("diff_time= {temp_diff_time}")
 
         # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
         if n_r > 0: # is refractory?
@@ -286,6 +287,7 @@ neuron hh_moto_5ht_muscle:
         return (5. * ms) / (exp((V_m + 50.) / 40.) + exp(-(V_m + 50.) / 50.))
     
     function alpha_m(V_m mV) 1/ms:
+        # println("V_m = {V_m};")
         return (0.4 * (V_m + 66.)) / mV / (1. - exp(-(V_m + 66.) / (5. mV))) / ms
 
     function beta_m(V_m mV) 1/ms:
@@ -293,7 +295,7 @@ neuron hh_moto_5ht_muscle:
 
     function phi (x mm) real:
 
-        #print("x= {x};")
+        println("phi x= {x};")
         res real = 0
         if (x <= -8):
             res = phi1*x + phi2
@@ -305,6 +307,7 @@ neuron hh_moto_5ht_muscle:
             return res
 
     function U(x mol) real:
+
         U 1/(mol*ms) = 0 /(mol*ms)
         if (x >= 0):
             U = Umax*(x**2*k**2/(1+x*k+x**2*k**2))**2
@@ -312,12 +315,14 @@ neuron hh_moto_5ht_muscle:
         else:
             return U
 
-    function xse(xm mm, xce1 mm) mm:
-        d_xm mm = xm - xm_init
-        d_xce mm = xce1 - xce_init
+    function xse(xse_xm mm, xse_xce mm) mm:
+
+        print("xse_xm = {xse_xm};")
+        print("xse_xce = {xse_xce};")
+        d_xm mm = xse_xm - xm_init
+        d_xce mm = xse_xce - xce_init
         d_se mm = d_xm - d_xce
         print("d_xm = {d_xm};")
-        print("xce1 = {xce1};")
         print("d_xce = {d_xce};")
         println("d_se  =  {d_se};")
 
@@ -325,19 +330,44 @@ neuron hh_moto_5ht_muscle:
             d_se = 0 mm
         return d_se
 
-    function dxdt (x N, xc N) mm/s:
+    function diff_time(diff_time_x N, diff_time_xc N) mm/s:
+
+        #println("diff_time  x = {diff_time_x}, xc = {diff_time_xc};")
         res mm/s = 1e-3*1e5 mm/s
-        ##{LOCAL gain_length
-        if (x <= xc):
-            res = 1e-3*(-b0*(xc-x))/(x+a0*xc/p0)
+        zero_x N = 0 N
+        if (diff_time_x == zero_x and diff_time_xc == zero_x):
+            res = 0 mm/s
         else:
-            gain_length mm/s = (-d0*(xc-x))/(2*xc-x+c0*xc/p0)
-            if (gain_length <= 0):
-                res = 1e-3*1e5 mm/s
+            if (diff_time_x <= diff_time_xc):
+                res = 1e-3*(-b0*(diff_time_xc - diff_time_x))/(diff_time_x + a0 * diff_time_xc/p0)
             else:
-                res = 1e-3*gain_length
+                gain_length mm/s = (-d0*(diff_time_xc - diff_time_x))/(2* diff_time_xc - diff_time_x + c0 * diff_time_xc / p0)
+                if (gain_length <= 0):
+                    res = 1e-3*1e5 mm/s
+                else:
+                    res = 1e-3 * gain_length
+        ##println("diff_time res = {res};")
         return res
 
-    function g (x mm) real:
-        g real = exp(-((x-g1)/g2)**2)
+    function diff_time_print(diff_time_x N, diff_time_xc N) mm/s:
+
+        println("diff_time  x = {diff_time_x}, xc = {diff_time_xc};")
+        res mm/s = 1e-3*1e5 mm/s
+        zero_x N = 0 N
+        if (diff_time_x == zero_x and diff_time_xc == zero_x):
+            res = 0 mm/s
+        else:
+            if (diff_time_x <= diff_time_xc):
+                res = 1e-3*(-b0*(diff_time_xc - diff_time_x))/(diff_time_x + a0 * diff_time_xc/p0)
+            else:
+                gain_length mm/s = (-d0*(diff_time_xc - diff_time_x))/(2* diff_time_xc - diff_time_x + c0 * diff_time_xc / p0)
+                if (gain_length <= 0):
+                    res = 1e-3*1e5 mm/s
+                else:
+                    res = 1e-3 * gain_length
+        println("diff_time res = {res};")
+        return res
+
+    function g (g_x mm) real:
+        g real = exp(-((g_x - g1) / g2)**2)
         return g
