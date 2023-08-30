@@ -146,13 +146,15 @@ cut_chunk = int(cut_num / simulation_hill_toe_phases)
 # Left leg
 ## Flexor
 ### RG
-l_f_rg_num = 200 # number of rhythm generator neurons
+rg_num = 200 # number of rhythm generator neurons
 
 ## Motor neurons
-l_f_motor_neurons_num = 200
+motor_neurons_num = 200
 
 ## Extensor
-### TODO add extensor here
+
+l_e_rg_num = 200
+
 
 ###############################################################################
 # The network is set up.
@@ -168,12 +170,13 @@ bs_generator = nest.Create("poisson_generator", bs_num, params=v3F_g_params)
 
 ### Extensor
 l_e_cut_fiber_generator = nest.Create("poisson_generator", cut_num, params=cut_g_params)
+l_e_Ia_fiber_generator = nest.Create("poisson_generator", Ia_fibers_num, params=Ia_g_params)
 
 ### Flexor
 l_f_Ia_fiber_generator = nest.Create("poisson_generator", Ia_fibers_num, params=Ia_g_params)
 
 ## Nuclei
-f_rg_params = {"I_e": rg_I_e,
+rg_params = {"I_e": rg_I_e,
                     "g_L" : rg_g_L,
                     "E_L" : rg_E_L,
                     "C_m" :  rg_C_m,
@@ -185,12 +188,18 @@ l_f_v3F_neurons = nest.Create("hh_psc_alpha_clopath", v3F_num)
 
 ### Ia and RG
 l_f_Ia_fibers = nest.Create("hh_psc_alpha_clopath", Ia_fibers_num)
-l_f_rg_neurons = nest.Create("hh_psc_alpha_clopath", l_f_rg_num,
-                             params=f_rg_params
+l_f_rg_neurons = nest.Create("hh_psc_alpha_clopath", rg_num,
+                             params=rg_params
                              )
-### Motor neurons
-l_f_motor_neurons = nest.Create("hh_psc_alpha_clopath", l_f_motor_neurons_num)
 
+l_e_Ia_fibers = nest.Create("hh_psc_alpha_clopath", Ia_fibers_num)
+l_e_rg_neurons = nest.Create("hh_psc_alpha_clopath", rg_num,
+                             params=rg_params
+                             )
+
+### Motor neurons
+l_f_motor_neurons = nest.Create("hh_psc_alpha_clopath", motor_neurons_num)
+l_e_motor_neurons = nest.Create("hh_psc_alpha_clopath", motor_neurons_num)
 
 ###############################################################################
 # The ``spike_recorder`` is created and the handle stored in `sr`.
@@ -207,6 +216,13 @@ l_f_rg_neurons_sr = nest.Create("spike_recorder")
 l_f_Ia2rg_neurons_wr = nest.Create("weight_recorder")
 l_f_motor_neurons_sr = nest.Create("spike_recorder")
 
+l_e_Ia_fiber_generator_sr = nest.Create("spike_recorder")
+l_e_Ia_fiber_sr = nest.Create("spike_recorder")
+l_e_rg_neurons_sr = nest.Create("spike_recorder")
+
+l_e_Ia2rg_neurons_wr = nest.Create("weight_recorder")
+l_e_motor_neurons_sr = nest.Create("spike_recorder")
+
 ###############################################################################
 # The Connect function connects the nodes so spikes from pg are collected by
 # the spike_recorder
@@ -217,6 +233,10 @@ nest.Connect(l_f_Ia_fiber_generator, l_f_Ia_fiber_generator_sr)
 nest.Connect(l_f_Ia_fibers, l_f_Ia_fiber_sr)
 nest.Connect(l_f_rg_neurons, l_f_rg_neurons_sr)
 nest.Connect(l_f_motor_neurons, l_f_motor_neurons_sr)
+nest.Connect(l_e_Ia_fiber_generator, l_e_Ia_fiber_generator_sr)
+nest.Connect(l_e_Ia_fibers, l_e_Ia_fiber_sr)
+nest.Connect(l_e_rg_neurons, l_e_rg_neurons_sr)
+nest.Connect(l_e_motor_neurons, l_e_motor_neurons_sr)
 
 # Static synapses
 ## Generator 2 neurons
@@ -225,9 +245,11 @@ gen2neuron_dict = {"rule": "all_to_all"}
 syn_dict_ex = {"delay": d, "weight": Je}
 nest.Connect(bs_generator, bs_neurons, gen2neuron_dict, syn_dict_ex)
 nest.Connect(l_f_Ia_fiber_generator, l_f_Ia_fibers, gen2neuron_dict, syn_dict_ex)
+nest.Connect(l_e_Ia_fiber_generator, l_e_Ia_fibers, gen2neuron_dict, syn_dict_ex)
 
 ## Neurons 2 neurons
 nest.Connect(l_f_rg_neurons, l_f_motor_neurons, gen2neuron_dict, syn_dict_ex)
+nest.Connect(l_e_rg_neurons, l_e_motor_neurons, gen2neuron_dict, syn_dict_ex)
 
 ## STDP synapses setup
 ### V3
@@ -245,7 +267,7 @@ V3_syn_stdp_dict = {"synapse_model": "V3_stdp_synapse_rec",
 nest.Connect(bs_neurons, l_f_v3F_neurons, neuron2neuron_stdp_dict, V3_syn_stdp_dict)
 
 ### Ia
-nest.CopyModel("jonke_synapse", "Ia_stdp_synapse_rec",
+nest.CopyModel("jonke_synapse", "l_f_Ia_syn_stdp_rec",
                {"weight_recorder": l_f_Ia2rg_neurons_wr[0],
                 "Wmax": w_max,
                 "lambda": rg_lambda,
@@ -253,13 +275,31 @@ nest.CopyModel("jonke_synapse", "Ia_stdp_synapse_rec",
                 })
 nrn_model = "pp_cond_exp_mc_urbanczik"
 syns = nest.GetDefaults(nrn_model)["receptor_types"]
-Ia_syn_stdp_dict = {"synapse_model": "Ia_stdp_synapse_rec",
+l_f_Ia_syn_stdp_dict = {"synapse_model": "l_f_Ia_syn_stdp_rec",
                     "weight": nest.random.lognormal(mean=rg_w_mean, std=w_std),
                     "delay": delay_def,
                     # "receptor_type": syns["dendritic_exc"] ## for pp_cond_exp_mc_urbanczik
                     }
-l_f_Ia2rg = nest.Connect(l_f_Ia_fibers, l_f_rg_neurons, neuron2neuron_stdp_dict, Ia_syn_stdp_dict)
+l_f_Ia2rg = nest.Connect(l_f_Ia_fibers, l_f_rg_neurons, neuron2neuron_stdp_dict, l_f_Ia_syn_stdp_dict)
 log.debug(str(l_f_Ia2rg))
+
+
+nest.CopyModel("jonke_synapse", "l_e_Ia_syn_stdp_rec",
+               {"weight_recorder": l_e_Ia2rg_neurons_wr[0],
+                "Wmax": w_max,
+                "lambda": rg_lambda,
+                #"alpha": Ia_alpha,
+                })
+nrn_model = "pp_cond_exp_mc_urbanczik"
+syns = nest.GetDefaults(nrn_model)["receptor_types"]
+l_e_Ia_syn_stdp_dict = {"synapse_model": "l_e_Ia_syn_stdp_rec",
+                    "weight": nest.random.lognormal(mean=rg_w_mean, std=w_std),
+                    "delay": delay_def,
+                    # "receptor_type": syns["dendritic_exc"] ## for pp_cond_exp_mc_urbanczik
+                    }
+
+l_e_Ia2rg = nest.Connect(l_e_Ia_fibers, l_e_rg_neurons, neuron2neuron_stdp_dict, l_e_Ia_syn_stdp_dict)
+log.debug(str(l_e_Ia2rg))
 
 ###############################################################################
 # Before each trial, we set the ``origin`` of the ``poisson_generator`` to the
@@ -280,22 +320,56 @@ for n in range(num_steps):
         Ia_rate = get_Ia_rate(ph, Ia_fibers_freq_lo, Ia_fibers_freq_hi)
         log.debug("Rate = " + str(Ia_rate))
         l_f_Ia_fiber_generator.rate = Ia_rate
+        nest.Simulate(phase_duration)
+    for ph in range(num_phases):
+        ### Ia rate
+        Ia_rate = get_Ia_rate(ph, Ia_fibers_freq_lo, Ia_fibers_freq_hi)
+        log.debug("Rate = " + str(Ia_rate))
+        l_e_Ia_fiber_generator.rate = Ia_rate
         ### Cut fibers
         l_e_cut_fiber_generator[:].rate = cut_lo
         cut_chunk_number, cut_freq = identity_cut_chunk(ph, cut_hi, cut_lo)
         for chn in cut_chunk_number:
             ## log.info(str(chn*cut_chank) + ": " + str((chn+1)*cut_chank-1))
             l_e_cut_fiber_generator[chn * cut_chunk:(chn + 1) * cut_chunk - 1].rate = cut_freq
-        nest.Simulate(phase_duration)
 
 log.info('Simulation completed ...')
 
+###Flexor
 dump_spike_recorder(l_f_Ia_fiber_generator_sr, 'l_f_Ia_fiber_generator_sr')
+log.info('Dumped ' + 'l_f_Ia_fiber_generator_sr')
+
 dump_spike_recorder(l_f_Ia_fiber_sr, 'l_f_Ia_fiber_sr')
+log.info('Dumped ' + 'l_f_Ia_fiber_sr')
+
 dump_spike_recorder(l_f_rg_neurons_sr, 'l_f_rg_neurons_sr')
+log.info('Dumped ' + 'l_f_rg_neurons_sr')
+
 dump_spike_recorder(l_f_motor_neurons_sr, 'l_f_motor_neurons_sr')
+log.info('Dumped ' + 'l_f_motor_neurons_sr')
+
 dump_weight_recorder(l_f_v3F_neurons_wr, 'l_f_v3F_neurons_wr')
+log.info('Dumped ' + 'l_f_v3F_neurons_wr')
+
 dump_weight_recorder(l_f_Ia2rg_neurons_wr, 'l_f_Ia2rg_neurons_wr')
+log.info('Dumped ' + 'l_f_Ia2rg_neurons_wr')
+
+
+###Extensor
+dump_spike_recorder(l_e_Ia_fiber_generator_sr, 'l_e_Ia_fiber_generator_sr')
+log.info('Dumped ' + 'l_e_Ia_fiber_generator_sr')
+
+dump_spike_recorder(l_e_Ia_fiber_sr, 'l_e_Ia_fiber_sr')
+log.info('Dumped ' + 'l_e_Ia_fiber_sr')
+
+dump_spike_recorder(l_e_rg_neurons_sr, 'l_e_rg_neurons_sr')
+log.info('Dumped ' + 'l_e_rg_neurons_sr')
+
+dump_spike_recorder(l_e_motor_neurons_sr, 'l_e_motor_neurons_sr')
+log.info('Dumped ' + 'l_e_motor_neurons_sr')
+
+dump_weight_recorder(l_e_Ia2rg_neurons_wr, 'l_e_Ia2rg_neurons_wr')
+log.info('Dumped ' + 'l_e_Ia2rg_neurons_wr')
 
 log.info('Save data completed ...')
 
