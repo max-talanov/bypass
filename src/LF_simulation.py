@@ -89,7 +89,7 @@ stop = 1000.0  # end of simulation relative to trial start, in ms
 phase_duration = 100.0 # phase duration in ms
 simulation_hill_toe_phases = 4
 num_phases = 10
-num_steps = 2 #10  # 5  # number of trials to perform
+num_steps = 50 #10  # 5  # number of trials to perform
 
 # Nonspecific parameters
 
@@ -193,9 +193,11 @@ l_f_rg_neurons = nest.Create("hh_psc_alpha_clopath", rg_num,
                              )
 
 l_e_Ia_fibers = nest.Create("hh_psc_alpha_clopath", Ia_fibers_num)
+l_e_cut_fibers = nest.Create("hh_psc_alpha_clopath", cut_num)
 l_e_rg_neurons = nest.Create("hh_psc_alpha_clopath", rg_num,
                              params=rg_params
                              )
+
 
 ### Motor neurons
 l_f_motor_neurons = nest.Create("hh_psc_alpha_clopath", motor_neurons_num)
@@ -217,10 +219,13 @@ l_f_Ia2rg_neurons_wr = nest.Create("weight_recorder")
 l_f_motor_neurons_sr = nest.Create("spike_recorder")
 
 l_e_Ia_fiber_generator_sr = nest.Create("spike_recorder")
+l_e_cut_fiber_generator_sr = nest.Create("spike_recorder")
 l_e_Ia_fiber_sr = nest.Create("spike_recorder")
+l_e_cut_fiber_sr = nest.Create("spike_recorder")
 l_e_rg_neurons_sr = nest.Create("spike_recorder")
 
 l_e_Ia2rg_neurons_wr = nest.Create("weight_recorder")
+l_e_cut2rg_neurons_wr = nest.Create("weight_recorder")
 l_e_motor_neurons_sr = nest.Create("spike_recorder")
 
 ###############################################################################
@@ -233,8 +238,12 @@ nest.Connect(l_f_Ia_fiber_generator, l_f_Ia_fiber_generator_sr)
 nest.Connect(l_f_Ia_fibers, l_f_Ia_fiber_sr)
 nest.Connect(l_f_rg_neurons, l_f_rg_neurons_sr)
 nest.Connect(l_f_motor_neurons, l_f_motor_neurons_sr)
+
 nest.Connect(l_e_Ia_fiber_generator, l_e_Ia_fiber_generator_sr)
+nest.Connect(l_e_cut_fiber_generator, l_e_cut_fiber_generator_sr)
+
 nest.Connect(l_e_Ia_fibers, l_e_Ia_fiber_sr)
+nest.Connect(l_e_cut_fibers, l_e_cut_fiber_sr)
 nest.Connect(l_e_rg_neurons, l_e_rg_neurons_sr)
 nest.Connect(l_e_motor_neurons, l_e_motor_neurons_sr)
 
@@ -246,6 +255,8 @@ syn_dict_ex = {"delay": d, "weight": Je}
 nest.Connect(bs_generator, bs_neurons, gen2neuron_dict, syn_dict_ex)
 nest.Connect(l_f_Ia_fiber_generator, l_f_Ia_fibers, gen2neuron_dict, syn_dict_ex)
 nest.Connect(l_e_Ia_fiber_generator, l_e_Ia_fibers, gen2neuron_dict, syn_dict_ex)
+nest.Connect(l_e_cut_fiber_generator, l_e_cut_fibers, gen2neuron_dict, syn_dict_ex)
+
 
 ## Neurons 2 neurons
 nest.Connect(l_f_rg_neurons, l_f_motor_neurons, gen2neuron_dict, syn_dict_ex)
@@ -287,18 +298,29 @@ log.debug(str(l_f_Ia2rg))
 nest.CopyModel("jonke_synapse", "l_e_Ia_syn_stdp_rec",
                {"weight_recorder": l_e_Ia2rg_neurons_wr[0],
                 "Wmax": w_max,
-                "lambda": rg_lambda,
-                #"alpha": Ia_alpha,
+                "lambda": rg_lambda
                 })
 nrn_model = "pp_cond_exp_mc_urbanczik"
-syns = nest.GetDefaults(nrn_model)["receptor_types"]
 l_e_Ia_syn_stdp_dict = {"synapse_model": "l_e_Ia_syn_stdp_rec",
                     "weight": nest.random.lognormal(mean=rg_w_mean, std=w_std),
-                    "delay": delay_def,
-                    # "receptor_type": syns["dendritic_exc"] ## for pp_cond_exp_mc_urbanczik
+                    "delay": delay_def
                     }
 
 l_e_Ia2rg = nest.Connect(l_e_Ia_fibers, l_e_rg_neurons, neuron2neuron_stdp_dict, l_e_Ia_syn_stdp_dict)
+log.debug(str(l_e_Ia2rg))
+
+nest.CopyModel("jonke_synapse", "l_e_cut_syn_stdp_rec",
+               {"weight_recorder": l_e_cut2rg_neurons_wr[0],
+                "Wmax": w_max,
+                "lambda": rg_lambda
+                })
+nrn_model = "pp_cond_exp_mc_urbanczik"
+l_e_cut_syn_stdp_dict = {"synapse_model": "l_e_Ia_syn_stdp_rec",
+                    "weight": nest.random.lognormal(mean=rg_w_mean, std=w_std),
+                    "delay": delay_def
+                    }
+
+l_e_cut2rg = nest.Connect(l_e_cut_fibers, l_e_rg_neurons, neuron2neuron_stdp_dict, l_e_cut_syn_stdp_dict)
 log.debug(str(l_e_Ia2rg))
 
 ###############################################################################
@@ -332,6 +354,7 @@ for n in range(num_steps):
         for chn in cut_chunk_number:
             ## log.info(str(chn*cut_chank) + ": " + str((chn+1)*cut_chank-1))
             l_e_cut_fiber_generator[chn * cut_chunk:(chn + 1) * cut_chunk - 1].rate = cut_freq
+        nest.Simulate(phase_duration)
 
 log.info('Simulation completed ...')
 
@@ -362,6 +385,12 @@ log.info('Dumped ' + 'l_e_Ia_fiber_generator_sr')
 dump_spike_recorder(l_e_Ia_fiber_sr, 'l_e_Ia_fiber_sr')
 log.info('Dumped ' + 'l_e_Ia_fiber_sr')
 
+dump_spike_recorder(l_e_cut_fiber_generator_sr, 'l_e_cut_fiber_generator_sr')
+log.info('Dumped ' + 'l_e_cut_fiber_generator_sr')
+
+dump_spike_recorder(l_e_cut_fiber_sr, 'l_e_cut_fiber_sr')
+log.info('Dumped ' + 'l_e_cut_fiber_sr')
+
 dump_spike_recorder(l_e_rg_neurons_sr, 'l_e_rg_neurons_sr')
 log.info('Dumped ' + 'l_e_rg_neurons_sr')
 
@@ -370,6 +399,9 @@ log.info('Dumped ' + 'l_e_motor_neurons_sr')
 
 dump_weight_recorder(l_e_Ia2rg_neurons_wr, 'l_e_Ia2rg_neurons_wr')
 log.info('Dumped ' + 'l_e_Ia2rg_neurons_wr')
+
+dump_weight_recorder(l_e_cut2rg_neurons_wr, 'l_e_cut2rg_neurons_wr')
+log.info('Dumped ' + 'l_e_cut2rg_neurons_wr')
 
 log.info('Save data completed ...')
 
