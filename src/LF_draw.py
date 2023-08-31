@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pickle
+from pickle_slicing import load
 
 def _make_plot(ts, ts1, node_ids, neurons, hist=True, hist_binwidth=5.0, grayscale=False, title=None, xlabel=None,
                color=',b'):
@@ -93,14 +94,10 @@ def load_spike_recorder(name):
     return ts, node_ids
 
 def load_weight_recorder(name):
-    with open(f'out/pickle_/{name}_senders.pkl', "rb") as handle:
-        senders = pickle.load(handle)
-    with open(f'out/pickle_/{name}_targets.pkl', "rb") as handle:
-        targets = pickle.load(handle)
-    with open(f'out/pickle_/{name}_weights.pkl', "rb") as handle:
-        weights = pickle.load(handle)
-    with open(f'out/pickle_/{name}_times.pkl', "rb") as handle:
-        times = pickle.load(handle)
+    senders = load(f'{name}_senders')
+    targets = load(f'{name}_targets')
+    weights = load(f'{name}_weights')
+    times = load(f'{name}_times')
     return senders, targets, weights, times
 
 #Ia fiber spikes
