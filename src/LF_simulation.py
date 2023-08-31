@@ -5,6 +5,7 @@ import logging
 import numpy as np
 import pickle
 import os
+from pickle_slicing import dump
 ########################
 # Flexor implementation
 ########################
@@ -63,14 +64,21 @@ def dump_weight_recorder(weight_recorder, name):
     weights = weight_recorder.events["weights"]
     times = weight_recorder.events["times"]
 
-    with open(f'out/pickle_/{name}_senders.pkl', "wb") as handle:
-        pickle.dump(senders, handle)
-    with open(f'out/pickle_/{name}_targets.pkl', "wb") as handle:
-        pickle.dump(targets, handle)
-    with open(f'out/pickle_/{name}_weights.pkl', "wb") as handle:
-        pickle.dump(weights, handle)
-    with open(f'out/pickle_/{name}_times.pkl', "wb") as handle:
-        pickle.dump(times, handle)
+    slices = 10
+
+    dump(senders, f'{name}_senders', slices)
+    dump(targets, f'{name}_targets', slices)
+    dump(weights, f'{name}_weights', slices)
+    dump(times, f'{name}_times', slices)
+
+    # with open(f'out/pickle_/{name}_senders.pkl', "wb") as handle:
+    #     pickle.dump(senders, handle)
+    # with open(f'out/pickle_/{name}_targets.pkl', "wb") as handle:
+    #     pickle.dump(targets, handle)
+    # with open(f'out/pickle_/{name}_weights.pkl', "wb") as handle:
+    #     pickle.dump(weights, handle)
+    # with open(f'out/pickle_/{name}_times.pkl', "wb") as handle:
+    #     pickle.dump(times, handle)
 
 FORMAT = '%(asctime)s %(message)s'
 logging.basicConfig(format=FORMAT, level=logging.INFO)
