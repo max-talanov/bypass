@@ -5,8 +5,9 @@ import numpy as np
 def _slice(a, n):
     return [a[i:i + len(a) // n] for i in range(0, len(a), len(a) // n)]
 
-def dump(a, name, n):
-    a = _slice(a, n)
+def dump(a, name, sampling_rate=1, n_slices=1):
+    a = a[::sampling_rate]
+    a = _slice(a, n_slices)
     for i, s in enumerate(a):
         with open(f'out/pickle_/{name}_{i}.pkl', "wb") as handle:
             pickle.dump(s, handle)

@@ -64,12 +64,13 @@ def dump_weight_recorder(weight_recorder, name):
     weights = weight_recorder.events["weights"]
     times = weight_recorder.events["times"]
 
-    slices = 10
+    n_slices = 2
+    sampling_rate = 2
 
-    dump(senders, f'{name}_senders', slices)
-    dump(targets, f'{name}_targets', slices)
-    dump(weights, f'{name}_weights', slices)
-    dump(times, f'{name}_times', slices)
+    dump(senders, f'{name}_senders', n_slices=n_slices, sampling_rate=sampling_rate)
+    dump(targets, f'{name}_targets', n_slices=n_slices, sampling_rate=sampling_rate)
+    dump(weights, f'{name}_weights', n_slices=n_slices, sampling_rate=sampling_rate)
+    dump(times, f'{name}_times', n_slices=n_slices, sampling_rate=sampling_rate)
 
     # with open(f'out/pickle_/{name}_senders.pkl', "wb") as handle:
     #     pickle.dump(senders, handle)
@@ -97,7 +98,7 @@ stop = 1000.0  # end of simulation relative to trial start, in ms
 phase_duration = 100.0 # phase duration in ms
 simulation_hill_toe_phases = 4
 num_phases = 10
-num_steps = 2000  #10  # 5  # number of trials to perform
+num_steps = 15  #10  # 5  # number of trials to perform
 
 # Nonspecific parameters
 
