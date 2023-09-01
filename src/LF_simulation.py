@@ -6,6 +6,7 @@ import numpy as np
 import pickle
 import os
 from pickle_slicing import dump
+from pickle_slicing import dump
 ########################
 # Flexor implementation
 ########################
