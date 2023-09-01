@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 from pickle_slicing import load
 
-def _make_plot(ts, ts1, node_ids, neurons, hist=True, hist_binwidth=5.0, grayscale=False, title=None, xlabel=None,
+def _make_plot(ts, ts1, node_ids, neurons, hist=False, hist_binwidth=5.0, grayscale=False, title=None, xlabel=None,
                color=',b'):
 
     """Generic plotting routine.
@@ -101,64 +101,64 @@ def load_weight_recorder(name):
     return senders, targets, weights, times
 
 #Ia fiber spikes
-make_raster_plot(*load_spike_recorder('l_e_Ia_fiber_sr'), hist=False, hist_binwidth=5.0, title="l_e_Ia_fiber_sr", color=",m")
-plt.savefig('out/plots/l_e_Ia_fiber_sr.png')
+# make_raster_plot(*load_spike_recorder('l_e_Ia_fiber_sr'), title="l_e_Ia_fiber_sr", color=",m")
+# plt.savefig('out/plots/l_e_Ia_fiber_sr.png')
 
-#Ia generator spikes
-make_raster_plot(*load_spike_recorder('l_e_Ia_fiber_generator_sr'), hist=False, hist_binwidth=5.0, title="l_e_Ia_fiber_generator_sr", color=",g")
-plt.savefig('out/plots/l_e_Ia_fiber_generator_sr.png')
+# #Ia generator spikes
+# make_raster_plot(*load_spike_recorder('l_e_Ia_fiber_generator_sr'), title="l_e_Ia_fiber_generator_sr", color=",g")
+# plt.savefig('out/plots/l_e_Ia_fiber_generator_sr.png')
 
-#cut fiber spikes
-make_raster_plot(*load_spike_recorder('l_e_cut_fiber_sr'), hist=False, hist_binwidth=5.0, title="l_e_cut_fiber_sr", color=",m")
-plt.savefig('out/plots/l_e_cut_fiber_sr.png')
+# #cut fiber spikes
+# make_raster_plot(*load_spike_recorder('l_e_cut_fiber_sr'), title="l_e_cut_fiber_sr", color=",m")
+# plt.savefig('out/plots/l_e_cut_fiber_sr.png')
 
-#cut generator spikes
-make_raster_plot(*load_spike_recorder('l_e_cut_fiber_generator_sr'), hist=False, hist_binwidth=5.0, title="l_e_cut_fiber_generator_sr", color=",g")
-plt.savefig('out/plots/l_e_cut_fiber_generator_sr.png')
+# #cut generator spikes
+# make_raster_plot(*load_spike_recorder('l_e_cut_fiber_generator_sr'), title="l_e_cut_fiber_generator_sr", color=",g")
+# plt.savefig('out/plots/l_e_cut_fiber_generator_sr.png')
 
-#RG spikes
-make_raster_plot(*load_spike_recorder('l_e_rg_neurons_sr'), hist=False, hist_binwidth=5.0, title="l_e_rg_neurons_sr", color=",b")
-plt.savefig('out/plots/l_e_rg_neurons_sr.png')
+# #RG spikes
+# make_raster_plot(*load_spike_recorder('l_e_rg_neurons_sr'), title="l_e_rg_neurons_sr", color=",b")
+# plt.savefig('out/plots/l_e_rg_neurons_sr.png')
 
-#motor spikes
-make_raster_plot(*load_spike_recorder('l_e_motor_neurons_sr'), hist=False, hist_binwidth=5.0, title="l_e_motor_neurons_sr", color=",r")
-plt.savefig('out/plots/l_e_motor_neurons_sr.png')
+# #motor spikes
+# make_raster_plot(*load_spike_recorder('l_e_motor_neurons_sr'), title="l_e_motor_neurons_sr", color=",r")
+# plt.savefig('out/plots/l_e_motor_neurons_sr.png')
 
 # Weights
 fs = 10
 lw = 0.5
 #V3 weights
-senders, targets, weights, times = load_weight_recorder('l_f_v3F_neurons_wr')
+# senders, targets, weights, times = load_weight_recorder('l_f_v3F_neurons_wr')
 
-# bs2V3 weights
+# # bs2V3 weights
 
-fig1, axA = plt.subplots(1, 1)
-for i in np.arange(2, 200, 10):
-    index = np.intersect1d(np.where(senders == senders[i]), np.where(targets == targets[1]))
-    if not len(index) == 0:
-        axA.step(times[index], weights[index], label="v3{}".format(i - 2), lw=lw)
+# fig1, axA = plt.subplots(1, 1)
+# for i in np.arange(2, 200, 10):
+#     index = np.intersect1d(np.where(senders == senders[i]), np.where(targets == targets[1]))
+#     if not len(index) == 0:
+#         axA.step(times[index], weights[index], label="v3{}".format(i - 2), lw=lw)
 
-axA.set_title("bs -> V3 weights ")
-axA.set_xlabel("time [ms]", fontsize=fs)
-axA.set_ylabel("weight", fontsize=fs)
-axA.legend(fontsize=fs - 4)
-plt.savefig('out/plots/l_f_v3F_neurons_wr.png')
+# axA.set_title("bs -> V3 weights ")
+# axA.set_xlabel("time [ms]", fontsize=fs)
+# axA.set_ylabel("weight", fontsize=fs)
+# axA.legend(fontsize=fs - 4)
+# plt.savefig('out/plots/l_f_v3F_neurons_wr.png')
 
 # Ia 2 rg weights
-senders, targets, weights, times = load_weight_recorder('l_f_Ia2rg_neurons_wr')
+# senders, targets, weights, times = load_weight_recorder('l_f_Ia2rg_neurons_wr')
 
-# synaptic weights
-fig2, axA = plt.subplots(1, 1)
-for i in np.arange(2, 500, 10):
-    index = np.intersect1d(np.where(senders == senders[i]), np.where(targets == targets[1]))
-    if not len(index) == 0:
-        axA.step(times[index], weights[index], label="rg{}".format(i - 2), lw=lw)
+# # synaptic weights
+# fig2, axA = plt.subplots(1, 1)
+# for i in np.arange(2, 500, 10):
+#     index = np.intersect1d(np.where(senders == senders[i]), np.where(targets == targets[1]))
+#     if not len(index) == 0:
+#         axA.step(times[index], weights[index], label="rg{}".format(i - 2), lw=lw)
 
-axA.set_title("Ia -> f_rg weights of synapses")
-axA.set_xlabel("time [ms]", fontsize=fs)
-axA.set_ylabel("weight", fontsize=fs)
-axA.legend(fontsize=fs - 4)
-plt.savefig('out/plots/l_f_Ia2rg_neurons_wr.png')
+# axA.set_title("Ia -> f_rg weights of synapses")
+# axA.set_xlabel("time [ms]", fontsize=fs)
+# axA.set_ylabel("weight", fontsize=fs)
+# axA.legend(fontsize=fs - 4)
+# plt.savefig('out/plots/l_f_Ia2rg_neurons_wr.png')
 
 # cut 2 rg weights
 senders, targets, weights, times = load_weight_recorder('l_e_cut2rg_neurons_wr')
