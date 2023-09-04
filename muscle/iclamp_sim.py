@@ -94,7 +94,9 @@ m_multimeter = nest.Create(
             "F",
             "Fc",
             "k5",
-            "k6"
+            "k6",
+            "xce",
+            "xseTemp"
         ],
         #"withtime": True,
         "interval": 0.1
@@ -118,6 +120,14 @@ f = nest.GetStatus(m_multimeter)[0]['events']['F']
 print("F = ")
 print(f)
 
+xce = nest.GetStatus(m_multimeter)[0]['events']['xce']
+print("xce = ")
+print(xce)
+
+xse = nest.GetStatus(m_multimeter)[0]['events']['xseTemp']
+print("xseTemp = ")
+print(xse)
+
 
 # k5 = nest.GetStatus(m_multimeter)[0]['events']['k5']
 # print("k5 = ")
@@ -132,8 +142,8 @@ pylab.title('Nest iclamp sim')
 
 pylab.subplot(5, 1, 1)
 pylab.ylabel('Membrane Voltage')
-#plot_parameter(m_multimeter, 'V_m', 'V_m')
-## plot_parameter(m_multimeter, 'Fc', 'Fc', 'r')
+plot_parameter(m_multimeter, 'xseTemp', 'xse')
+plot_parameter(m_multimeter, 'Fc', 'Fc', 'r')
 plot_parameter(m_multimeter, 'F', 'F', 'k')
 pylab.legend()
 
