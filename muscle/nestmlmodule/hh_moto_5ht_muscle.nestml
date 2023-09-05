@@ -87,7 +87,7 @@ neuron hh_moto_5ht_muscle:
         k3 1/(mol*ms) = 400 /(mol*ms)
         k4 1/ms = 1 /ms
         ## TODO debug inf here
-        k5i 1/(mol*ms) = 4000 /(mol*ms)  #debugging 4e5
+        k5i 1/(mol*ms) = 400000 /(mol*ms)  #debugging 4e5
         k6i 1/ms = 150 /ms
         k 1/mol = 850 /mol
         SF_AM real = 5

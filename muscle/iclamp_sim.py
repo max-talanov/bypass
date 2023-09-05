@@ -31,7 +31,7 @@ syn_dict_ex = {"delay": d, "weight": Je}
 l_f_Ia_fiber_generator = nest.Create("poisson_generator", Ia_fibers_num, params=Ia_g_params)
 
 neuron = nest.Create(
-    'hh_moto_5ht', params={
+    'hh_moto_5ht', 1, params={
         #"I_e": 700.0,  # pA
         "C_m": 200.0,  # pF
         "t_ref": 0.0,
@@ -39,7 +39,7 @@ neuron = nest.Create(
 )
 
 muscle = nest.Create(
-    'hh_moto_5ht_muscle', params={
+    'hh_moto_5ht_muscle', 1 ,params={
         #"I_e": 700.0,  # pA
         "C_m": 200.0,  # pF
         "t_ref": 0.0,
