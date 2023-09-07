@@ -1,0 +1,6 @@
+11:43:02,630 root INFO let's get it started
+11:43:02,899 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+11:43:02,900 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+11:43:02,900 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+11:43:02,900 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+11:43:02,916 root INFO PLT
