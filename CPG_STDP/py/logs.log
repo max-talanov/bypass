@@ -1,0 +1,451 @@
+11:43:02,630 root INFO let's get it started
+11:43:02,899 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+11:43:02,900 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+11:43:02,900 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+11:43:02,900 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+11:43:02,916 root INFO PLT
+15:24:54,226 root INFO let's get it started
+15:24:54,226 root INFO let's get it started
+15:24:54,226 root INFO let's get it started
+15:24:54,226 root INFO let's get it started
+15:24:54,226 root INFO let's get it started
+15:24:54,226 root INFO let's get it started
+15:24:54,237 root INFO let's get it started
+15:24:54,239 root INFO let's get it started
+15:24:54,239 root INFO let's get it started
+15:24:54,239 root INFO let's get it started
+15:24:54,801 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,801 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,801 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,801 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,802 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,802 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,802 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,802 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,802 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,802 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,802 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,802 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,802 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,802 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,802 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,802 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,804 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,804 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,804 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,804 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,804 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,804 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,804 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,804 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,804 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,804 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,804 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,804 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,805 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,805 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,805 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,805 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,809 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,809 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,810 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,810 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,825 root INFO PLT
+15:24:54,825 root INFO PLT
+15:24:54,825 root INFO PLT
+15:24:54,825 root INFO PLT
+15:24:54,826 root INFO PLT
+15:24:54,826 root INFO PLT
+15:24:54,828 root INFO PLT
+15:24:54,828 root INFO PLT
+15:24:54,833 root INFO PLT
+15:24:54,928 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,928 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,929 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:24:54,929 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:24:54,959 root INFO PLT
+15:25:46,884 root INFO created
+15:25:48,227 root INFO created
+15:25:53,62 root INFO created
+15:25:54,63 root INFO created
+15:25:55,400 root INFO created
+15:25:58,290 root INFO created
+15:25:59,639 root INFO created
+15:26:02,892 root INFO created
+15:26:07,849 root INFO created
+15:26:09,988 root INFO created
+15:28:07,928 root INFO let's get it started
+15:28:07,928 root INFO let's get it started
+15:28:07,928 root INFO let's get it started
+15:28:07,928 root INFO let's get it started
+15:28:07,928 root INFO let's get it started
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:28:08,344 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+15:28:08,363 root INFO PLT
+15:28:08,363 root INFO PLT
+15:28:08,363 root INFO PLT
+15:28:08,363 root INFO PLT
+15:28:08,363 root INFO PLT
+15:30:40,129 root INFO created
+15:30:41,766 root INFO created
+15:30:43,808 root INFO created
+15:30:44,451 root INFO created
+15:30:45,127 root INFO created
+16:42:29,368 root INFO let's get it started
+16:42:29,650 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+16:42:29,650 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+16:42:29,650 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+16:42:29,650 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+16:42:29,666 root INFO PLT
+16:43:13,689 root INFO let's get it started
+16:43:13,943 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+16:43:13,943 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+16:43:13,943 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+16:43:13,943 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+16:43:13,960 root INFO PLT
+16:43:36,590 root INFO created
+16:43:38,226 root INFO added recorders
+17:41:12,165 root INFO let's get it started
+17:41:12,165 root INFO let's get it started
+17:41:12,165 root INFO let's get it started
+17:41:12,165 root INFO let's get it started
+17:41:12,165 root INFO let's get it started
+17:41:12,519 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:41:12,519 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:41:12,519 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:41:12,519 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:41:12,522 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:41:12,522 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:41:12,522 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:41:12,522 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:41:12,522 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:41:12,522 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:41:12,522 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:41:12,522 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:41:12,522 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:41:12,522 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:41:12,522 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:41:12,522 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:41:12,523 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:41:12,523 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:41:12,523 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:41:12,523 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:41:12,534 root INFO PLT
+17:41:12,536 root INFO PLT
+17:41:12,536 root INFO PLT
+17:41:12,536 root INFO PLT
+17:41:12,537 root INFO PLT
+17:41:13,617 root INFO created
+17:41:13,661 root INFO created
+17:41:13,689 root INFO created
+17:41:13,740 root INFO created
+17:41:13,833 root INFO created
+17:41:14,106 root INFO added recorders
+17:41:14,133 root INFO added recorders
+17:41:14,155 root INFO added recorders
+17:41:14,222 root INFO added recorders
+17:41:14,325 root INFO added recorders
+17:50:16,805 root INFO done
+17:50:16,805 root INFO done
+17:50:16,805 root INFO done
+17:50:16,805 root INFO done
+17:50:16,805 root INFO done
+17:50:16,867 root INFO 1
+17:50:16,867 root INFO 2
+17:50:16,867 root INFO 3
+17:50:16,867 root INFO 4
+17:50:16,868 root INFO start recording
+17:50:16,932 root INFO 1
+17:50:16,932 root INFO 2
+17:50:16,932 root INFO 3
+17:50:16,932 root INFO 4
+17:50:16,933 root INFO start recording
+17:50:18,452 root INFO 1
+17:50:18,452 root INFO 2
+17:50:18,452 root INFO 3
+17:50:18,452 root INFO 4
+17:50:18,452 root INFO start recording
+17:50:19,442 root INFO 1
+17:50:19,442 root INFO 2
+17:50:19,442 root INFO 3
+17:50:19,442 root INFO 4
+17:50:19,443 root INFO start recording
+17:50:19,499 root INFO 1
+17:50:19,499 root INFO 2
+17:50:19,499 root INFO 3
+17:50:19,499 root INFO 4
+17:50:19,499 root INFO start recording
+17:50:19,556 root INFO 1
+17:50:19,556 root INFO 2
+17:50:19,556 root INFO 3
+17:50:19,556 root INFO 4
+17:50:19,556 root INFO start recording
+17:50:21,38 root INFO 1
+17:50:21,38 root INFO 2
+17:50:21,38 root INFO 3
+17:50:21,38 root INFO 4
+17:50:21,38 root INFO start recording
+17:50:22,40 root INFO 1
+17:50:22,40 root INFO 2
+17:50:22,40 root INFO 3
+17:50:22,40 root INFO recorded
+17:50:22,40 root INFO 4
+17:50:22,40 root INFO recorded
+17:50:22,40 root INFO recorded
+17:50:22,40 root INFO recorded
+17:50:22,41 root INFO start recording
+17:50:22,46 root INFO recorded
+17:59:29,577 root INFO let's get it started
+17:59:29,577 root INFO let's get it started
+17:59:29,577 root INFO let's get it started
+17:59:29,577 root INFO let's get it started
+17:59:29,577 root INFO let's get it started
+17:59:29,917 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:59:29,917 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:59:29,917 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:59:29,917 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:59:29,917 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:59:29,917 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:59:29,917 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:59:29,917 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:59:29,927 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:59:29,927 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:59:29,927 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:59:29,927 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:59:29,928 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:59:29,928 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:59:29,928 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:59:29,928 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:59:29,928 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:59:29,928 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:59:29,928 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+17:59:29,928 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+17:59:29,931 root INFO PLT
+17:59:29,932 root INFO PLT
+17:59:29,942 root INFO PLT
+17:59:29,942 root INFO PLT
+17:59:29,942 root INFO PLT
+17:59:30,984 root INFO created
+17:59:31,83 root INFO created
+17:59:31,147 root INFO created
+17:59:31,174 root INFO created
+17:59:31,236 root INFO created
+17:59:31,455 root INFO added recorders
+17:59:31,558 root INFO added recorders
+17:59:31,631 root INFO added recorders
+17:59:31,649 root INFO added recorders
+17:59:31,716 root INFO added recorders
+18:08:33,91 root INFO done
+18:08:33,91 root INFO done
+18:08:33,91 root INFO done
+18:08:33,91 root INFO done
+18:08:33,92 root INFO done
+18:08:33,153 root INFO 1
+18:08:33,153 root INFO 2
+18:08:33,154 root INFO 3
+18:08:33,154 root INFO 4
+18:08:33,154 root INFO start recording
+18:08:33,213 root INFO 1
+18:08:33,213 root INFO 2
+18:08:33,214 root INFO 3
+18:08:33,214 root INFO 4
+18:08:33,214 root INFO start recording
+18:08:34,747 root INFO 1
+18:08:34,748 root INFO 2
+18:08:34,748 root INFO 3
+18:08:34,748 root INFO 4
+18:08:34,748 root INFO start recording
+18:08:35,733 root INFO 1
+18:08:35,733 root INFO 2
+18:08:35,733 root INFO 3
+18:08:35,733 root INFO 4
+18:08:35,733 root INFO start recording
+18:08:35,789 root INFO 1
+18:08:35,789 root INFO 2
+18:08:35,789 root INFO 3
+18:08:35,789 root INFO 4
+18:08:35,789 root INFO start recording
+18:08:35,846 root INFO 1
+18:08:35,846 root INFO 2
+18:08:35,846 root INFO 3
+18:08:35,846 root INFO 4
+18:08:35,846 root INFO start recording
+18:08:37,311 root INFO 1
+18:08:37,311 root INFO 2
+18:08:37,312 root INFO 3
+18:08:37,312 root INFO 4
+18:08:37,312 root INFO start recording
+18:08:38,325 root INFO 2
+18:08:38,325 root INFO 1
+18:08:38,325 root INFO 3
+18:08:38,325 root INFO 4
+18:08:38,325 root INFO recorded
+18:08:38,325 root INFO recorded
+18:08:38,325 root INFO recorded
+18:08:38,325 root INFO recorded
+18:08:38,325 root INFO start recording
+18:08:38,330 root INFO recorded
+18:09:54,775 root INFO let's get it started
+18:09:54,775 root INFO let's get it started
+18:09:54,775 root INFO let's get it started
+18:09:54,775 root INFO let's get it started
+18:09:54,775 root INFO let's get it started
+18:09:54,775 root INFO let's get it started
+18:09:54,788 root INFO let's get it started
+18:09:54,790 root INFO let's get it started
+18:09:54,790 root INFO let's get it started
+18:09:54,790 root INFO let's get it started
+18:09:55,261 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,261 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,261 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,261 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,268 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,268 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,268 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,268 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,268 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,268 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,268 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,268 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,279 root INFO PLT
+18:09:55,285 root INFO PLT
+18:09:55,286 root INFO PLT
+18:09:55,289 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,289 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,290 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,290 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,302 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,302 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,302 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,302 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,304 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,304 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,304 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,304 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,307 root INFO PLT
+18:09:55,320 root INFO PLT
+18:09:55,322 root INFO PLT
+18:09:55,448 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,449 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,449 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,449 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,464 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,464 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,464 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,464 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,466 root INFO PLT
+18:09:55,494 root INFO PLT
+18:09:55,495 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,495 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,495 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,495 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,495 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,495 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+18:09:55,495 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,495 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+18:09:55,525 root INFO PLT
+18:09:55,525 root INFO PLT
+18:09:56,22 root INFO created
+18:09:56,40 root INFO created
+18:09:56,119 root INFO created
+18:09:56,228 root INFO created
+18:09:56,274 root INFO added recorders
+18:09:56,290 root INFO added recorders
+18:09:56,370 root INFO added recorders
+18:09:56,389 root INFO created
+18:09:56,475 root INFO added recorders
+18:09:56,634 root INFO added recorders
+12:12:05,500 root INFO let's get it started
+12:12:05,811 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:05,811 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:05,811 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:05,811 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:05,831 root INFO PLT
+12:12:55,558 root INFO let's get it started
+12:12:55,558 root INFO let's get it started
+12:12:55,558 root INFO let's get it started
+12:12:55,558 root INFO let's get it started
+12:12:55,558 root INFO let's get it started
+12:12:55,558 root INFO let's get it started
+12:12:55,571 root INFO let's get it started
+12:12:55,571 root INFO let's get it started
+12:12:55,571 root INFO let's get it started
+12:12:55,571 root INFO let's get it started
+12:12:56,45 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,45 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,45 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,45 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,45 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,45 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,45 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,45 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,46 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,46 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,46 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,46 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,50 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,50 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,50 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,50 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,54 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,54 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,54 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,54 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,63 root INFO PLT
+12:12:56,63 root INFO PLT
+12:12:56,64 root INFO PLT
+12:12:56,68 root INFO PLT
+12:12:56,71 root INFO PLT
+12:12:56,87 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,87 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,87 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,87 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,106 root INFO PLT
+12:12:56,228 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,229 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,229 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,229 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,260 root INFO PLT
+12:12:56,262 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,262 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,262 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,262 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,268 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,268 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,268 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,268 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,277 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,277 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,277 h5py._debian_h5py_serial._conv DEBUG Creating converter from 7 to 5
+12:12:56,277 h5py._debian_h5py_serial._conv DEBUG Creating converter from 5 to 7
+12:12:56,294 root INFO PLT
+12:12:56,299 root INFO PLT
+12:12:56,308 root INFO PLT
+12:12:56,769 root INFO created
+12:12:56,857 root INFO created
+12:12:56,887 root INFO created
+12:12:57,19 root INFO created
+12:12:57,30 root INFO added recorders
+12:12:57,50 root INFO created
+12:12:57,111 root INFO added recorders
+12:12:57,142 root INFO added recorders
+12:12:57,270 root INFO added recorders
+12:12:57,302 root INFO added recorders
