@@ -82,6 +82,7 @@ class CPG:
         self.IP_F = []
 
         for layer in range(layers):
+            #TODO OMs --
             self.dict_0 = {layer: 'OM{}_0'.format(layer + 1)}
             self.dict_1 = {layer: 'OM{}_1'.format(layer + 1)}
             self.dict_2E = {layer: 'OM{}_2E'.format(layer + 1)}
@@ -90,12 +91,15 @@ class CPG:
             self.dict_C = {layer: 'C{}'.format(layer + 1)}
 
         for layer in range(CV_number):
+            '''cut and muscle feedback'''
             self.dict_CV = {layer: 'CV{}'.format(layer + 1)}
             self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
+            # TODO -> RG
             self.dict_IP_E = {layer: 'IP{}_E'.format(layer + 1)}
             self.dict_IP_F = {layer: 'IP{}_F'.format(layer + 1)}
 
         for layer in range(layers, extra_layers):
+            #TODO OMs --
             self.dict_0 = {layer: 'OM{}_0'.format(layer + 1)}
             self.dict_1 = {layer: 'OM{}_1'.format(layer + 1)}
             self.dict_2E = {layer: 'OM{}_2E'.format(layer + 1)}
@@ -104,18 +108,21 @@ class CPG:
             self.dict_C = {layer: 'C{}'.format(layer + 1)}
 
         if mode == 'QPZ':
+            #TODO --
             self.OM1_0E = self.addpool(self.ncell, "OM1_0E", "delay")
             self.OM1_0F = self.addpool(self.ncell, "OM1_0F", "delay")
         else:
             self.OM1_0E = self.addpool(self.ncell, "OM1_0E", "int")
             self.OM1_0F = self.addpool(self.ncell, "OM1_0F", "int")
 
-        '''addpool'''
+        '''add pool'''
         for layer in range(layers):
             if mode == 'QPZ':
+                #TODO --
                 self.dict_0[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_0", "delay")
             else:
                 self.dict_0[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_0", "int")
+            # TODO --
             self.dict_1[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_1", "int")
             self.dict_2E[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2E", "int")
             self.dict_2F[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2F", "int")
@@ -126,28 +133,34 @@ class CPG:
             self.dict_CV_1[layer] = self.addpool(self.ncell, "CV" + str(layer + 1) + "_1", "aff")
 
             '''interneuronal pool'''
+            # TODO -> RG
             self.dict_IP_E[layer] = self.addpool(self.ncell, "IP" + str(layer + 1) + "_E", "int")
             self.dict_IP_F[layer] = self.addpool(self.ncell, "IP" + str(layer + 1) + "_F", "int")
             self.IP_E.append(self.dict_IP_E[layer])
             self.IP_F.append(self.dict_IP_F[layer])
 
         for layer in range(layers, extra_layers):
+            # TODO --
             self.dict_0[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_0", "int")
             self.dict_1[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_1", "int")
             self.dict_2E[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2E", "int")
             self.dict_2F[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2F", "int")
             self.dict_3[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_3", "int")
 
+        # TODO -> RG
         self.IP_E = sum(self.IP_E, [])
         self.IP_F = sum(self.IP_F, [])
 
+        '''sensory and muscle afferents'''
         self.sens_aff = self.addpool(nAff, "sens_aff", "aff")
         self.Ia_aff_E = self.addpool(nAff, "Ia_aff_E", "aff")
         self.Ia_aff_F = self.addpool(nAff, "Ia_aff_F", "aff")
 
+        '''moto neuron pools'''
         self.mns_E = self.addpool(nMN, "mns_E", "moto")
         self.mns_F = self.addpool(nMN, "mns_F", "moto")
 
+        '''muscles'''
         self.muscle_E = self.addpool(nMN*30, "muscle_E", "muscle")
         self.muscle_F = self.addpool(nMN*20, "muscle_F", "muscle")
 
@@ -163,20 +176,23 @@ class CPG:
         # self.Iagener_F = []
 
         '''ees'''
+        # TODO --
         self.ees = self.addgener(0, ees_fr, 10000, False)
 
+        '''muscle afferents generators'''
         self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 10)
         self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_F, speed*6)
 
-        '''skin inputs'''
+        '''cutaneous inputs'''
         cfr = 200
         c_int = 1000 / cfr
-
+        '''cutaneous inputs generators'''
         for layer in range(CV_number):
             self.dict_C[layer] = []
             for i in range(step_number):
                 self.dict_C[layer].append(self.addgener(25 + speed * layer + i * (speed * CV_number + CV_0_len), random.gauss(cfr, cfr/10), (speed / c_int + 1)))
 
+        # TODO  --
         for layer in range(layers, extra_layers):
             self.dict_C[layer] = []
             for i in range(step_number):
@@ -206,6 +222,7 @@ class CPG:
         # self.Iagener_F = sum(self.Iagener_F, [])
 
         '''generators'''
+        # TODO --
         createmotif(self.OM1_0E, self.dict_1[0], self.dict_2E[0], self.dict_3[0])
         for layer in range(1, layers):
             createmotif(self.dict_0[layer], self.dict_1[layer], self.dict_2E[layer], self.dict_3[layer])
@@ -237,12 +254,14 @@ class CPG:
         for layer in range(1, layers):
             connectcells(self.dict_CV[layer - 1], self.dict_CV[layer], 0.75, 3)
 
+        #TODO OM1->RG
         connectcells(self.dict_CV[0], self.OM1_0E, 0.00047, 2)
         for layer in range(1, layers):
             connectcells(self.dict_CV[layer], self.dict_0[layer], 0.00048, 2)
 
         '''inhibitory projections'''
         '''extensor'''
+        #TODO OM1->RG
         for layer in range(2, layers+1):
             if layer > 3:
                 for i in range(0, (layer - 2)):
@@ -255,16 +274,18 @@ class CPG:
         for layer in range(layers, extra_layers):
             connectcells(self.dict_C[layer-3], self.dict_3[layer], 1.95, 1)
 
-
+        #TODO ees -> BS
         genconnect(self.ees, self.Ia_aff_E, 1.5, 1)
         genconnect(self.ees, self.Ia_aff_F, 1.5, 1)
         genconnect(self.ees, self.dict_CV[0], 1.5, 2)
+
+        '''generators of Ia aff'''
         genconnect(self.Iagener_E, self.Ia_aff_E, 0.00005, 1, False, 5)
         genconnect(self.Iagener_F, self.Ia_aff_F, 0.0001, 1, False, 15)
-
+        '''Ia2motor'''
         connectcells(self.Ia_aff_E, self.mns_E, 1.55, 1.5)
         connectcells(self.Ia_aff_F, self.mns_F, 0.5, 1.5)
-
+        '''motor2muscles'''
         connectcells(self.mns_E, self.muscle_E, 15.5, 2, False, 45)
         connectcells(self.mns_F, self.muscle_F, 15.5, 2, False, 45)
 
@@ -272,33 +293,43 @@ class CPG:
         # for layer in range(1, 4):
         #     connectcells(self.dict_IP_E[layer-1], self.dict_IP_E[layer+1], 0.45*layer, 2)
         #     connectcells(self.dict_IP_F[layer-1], self.dict_IP_F[layer+1], 0.45*layer, 2)
+
         for layer in range(layers):
             '''Extensor'''
             connectinsidenucleus(self.dict_IP_F[layer])
             # connectinsidenucleus(self.dict_1[layer])
+            #TODO look into dict_2E, dict_2F
             connectinsidenucleus(self.dict_2E[layer])
             connectinsidenucleus(self.dict_2F[layer])
             # connectcells(self.dict_1[layer], self.dict_IP_E[layer], 0.75, 2)
+            #TODO --
             connectcells(self.dict_2E[layer], self.dict_IP_E[layer], 1.75, 3)
+            '''RG2Motor'''
             connectcells(self.dict_IP_E[layer], self.mns_E, 2.75, 3)
+
             if layer > 3:
+                #TODO --
                 connectcells(self.dict_IP_E[layer], self.Ia_aff_E, layer*0.0002, 1, True)
             else:
+                '''RG2Ia'''
                 connectcells(self.dict_IP_E[layer], self.Ia_aff_E, 0.0001, 1, True)
             '''Flexor'''
             # connectcells(self.dict_1[layer], self.dict_IP_F[layer], 0.75, 2)
             connectcells(self.dict_2F[layer], self.dict_IP_F[layer], 2.85, 2)
+            '''RG2Motor RG2Ia'''
             connectcells(self.dict_IP_F[layer], self.mns_F, 3.75, 2)
+            #TODO check this
             connectcells(self.dict_IP_F[layer], self.Ia_aff_F, 0.95, 1, True)
 
         for layer in range(CV_number):
-            '''skin inputs'''
+            '''cutaneous inputs'''
             connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15*k*speed, 2)
 
         # connectcells(self.IP_F, self.Ia_aff_F, 0.0015, 2, True)
         # connectcells(self.IP_E, self.Ia_aff_E, 0.0015, 2, True)
 
         '''C'''
+        #TODO --
         if layers > 0:
             '''C1'''
             connectcells(self.dict_CV_1[0], self.OM1_0E, 0.00075*k*speed, 2)
@@ -339,10 +370,12 @@ class CPG:
 
         connectcells(self.iIP_E, self.OM1_0F, 1.9, 1, True)
 
+        #TODO look into dict_2F and dict_2E
         for layer in range(layers):
             connectcells(self.iIP_E, self.dict_2F[layer], 1.8, 2, True)
             connectcells(self.iIP_F, self.dict_2E[layer], 0.5, 2, True)
 
+        '''RG2Ia, RG2Motor'''
         connectcells(self.iIP_E, self.IP_F, 0.5, 1, True)
         connectcells(self.iIP_E, self.Ia_aff_F, 1.2, 1, True)
         connectcells(self.iIP_E, self.mns_F, 0.8, 1, True)
