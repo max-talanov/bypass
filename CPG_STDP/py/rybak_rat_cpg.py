@@ -78,8 +78,8 @@ class CPG:
         self.groups = []
         self.motogroups = []
         self.affgroups = []
-        self.IP_E = []
-        self.IP_F = []
+        self.E_RG = []
+        self.F_RG = []
 
         for layer in range(layers):
             #TODO OMs --
@@ -138,8 +138,8 @@ class CPG:
             # TODO -> RG
             self.dict_IP_E[layer] = self.addpool(self.ncell, "IP" + str(layer + 1) + "_E", "int")
             self.dict_IP_F[layer] = self.addpool(self.ncell, "IP" + str(layer + 1) + "_F", "int")
-            self.IP_E.append(self.dict_IP_E[layer])
-            self.IP_F.append(self.dict_IP_F[layer])
+            self.E_RG.append(self.dict_IP_E[layer])
+            self.F_RG.append(self.dict_IP_F[layer])
 
         for layer in range(layers, extra_layers):
             # TODO OM0 -> E:RG
@@ -151,8 +151,8 @@ class CPG:
             self.dict_3[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_3", "int")
 
         # TODO -> RG
-        self.IP_E = sum(self.IP_E, [])
-        self.IP_F = sum(self.IP_F, [])
+        self.E_RG = sum(self.E_RG, [])
+        self.F_RG = sum(self.F_RG, [])
 
         '''sensory and muscle afferents'''
         self.sens_aff = self.addpool(nAff, "sens_aff", "aff")
@@ -169,11 +169,11 @@ class CPG:
 
         '''reflex arc'''
         self.Ia_E = self.addpool(nInt, "Ia_E", "int")
-        self.iIP_E = self.addpool(nInt, "iIP_E", "int")
+        self.InE = self.addpool(nInt, "iIP_E", "int")
         self.R_E = self.addpool(nInt, "R_E", "int")
 
         self.Ia_F = self.addpool(nInt, "Ia_F", "int")
-        self.iIP_F = self.addpool(nInt, "iIP_F", "int")
+        self.InF = self.addpool(nInt, "iIP_F", "int")
         self.R_F = self.addpool(nInt, "R_F", "int")
         # self.Iagener_E = []
         # self.Iagener_F = []
@@ -368,41 +368,46 @@ class CPG:
             connectcells(self.dict_CV_1[5], self.dict_0[3], 0.0001*k*speed, 3)
 
         '''C=1 Extensor'''
-        connectcells(self.IP_E, self.iIP_E, 0.001, 1)
+        connectcells(self.E_RG, self.InE, 0.001, 1)
 
         for layer in range(layers+1):
-            connectcells(self.dict_CV_1[layer], self.iIP_E, 1.8, 1)
-            connectcells(self.dict_C[layer], self.iIP_E, 1.8, 1)
+            connectcells(self.dict_CV_1[layer], self.InE, 1.8, 1)
+            connectcells(self.dict_C[layer], self.InE, 1.8, 1)
 
-        connectcells(self.iIP_E, self.OM1_0F, 1.9, 1, True)
+        connectcells(self.InE, self.OM1_0F, 1.9, 1, True)
 
         #TODO look into dict_2F and dict_2E
         for layer in range(layers):
-            connectcells(self.iIP_E, self.dict_2F[layer], 1.8, 2, True)
-            connectcells(self.iIP_F, self.dict_2E[layer], 0.5, 2, True)
+            connectcells(self.InE, self.dict_2F[layer], 1.8, 2, True)
+            connectcells(self.InF, self.dict_2E[layer], 0.5, 2, True)
 
         '''RG2Ia, RG2Motor'''
-        connectcells(self.iIP_E, self.IP_F, 0.5, 1, True)
-        connectcells(self.iIP_E, self.Ia_aff_F, 1.2, 1, True)
-        connectcells(self.iIP_E, self.mns_F, 0.8, 1, True)
+        connectcells(self.InE, self.F_RG, 0.5, 1, True)
+        ## TODO STDP weight
+        connectcells(self.Ia_aff_F, self.F_RG, 0.5, 1)
+        connectcells(self.InE, self.Ia_aff_F, 1.2, 1, True)
+        connectcells(self.InE, self.mns_F, 0.8, 1, True)
 
         '''C=0 Flexor'''
-        connectcells(self.IP_F, self.iIP_F, 0.0001, 1)
-        connectcells(self.iIP_F, self.IP_E, 0.8, 1, True)
-        connectcells(self.iIP_F, self.iIP_E, 0.5, 1, True)
-        connectcells(self.iIP_F, self.Ia_aff_E, 0.5, 1, True)
-        connectcells(self.iIP_F, self.mns_E, 0.4, 1, True)
-        connectcells(self.C_0, self.iIP_F, 0.8, 1)
+        connectcells(self.F_RG, self.InF, 0.0001, 1)
+
+        connectcells(self.InF, self.E_RG, 0.8, 1, True)
+        ## TODO STDP weight
+        connectcells(self.Ia_aff_E, self.E_RG, 0.5, 1)
+        connectcells(self.InF, self.InE, 0.5, 1, True)
+        connectcells(self.InF, self.Ia_aff_E, 0.5, 1, True)
+        connectcells(self.InF, self.mns_E, 0.4, 1, True)
+        connectcells(self.C_0, self.InF, 0.8, 1)
 
         '''reflex arc'''
-        connectcells(self.iIP_E, self.Ia_E, 0.001, 1)
+        connectcells(self.InE, self.Ia_E, 0.001, 1)
         connectcells(self.Ia_aff_E, self.Ia_E, 0.008, 1)
         connectcells(self.mns_E, self.R_E, 0.00015, 1)
         connectcells(self.Ia_E, self.mns_F, 0.08, 1, True)
         connectcells(self.R_E, self.mns_E, 0.00015, 1, True)
         connectcells(self.R_E, self.Ia_E, 0.001, 1, True)
 
-        connectcells(self.iIP_F, self.Ia_F, 0.001, 1)
+        connectcells(self.InF, self.Ia_F, 0.001, 1)
         connectcells(self.Ia_aff_F, self.Ia_F, 0.008, 1)
         connectcells(self.mns_F, self.R_F, 0.00015, 1)
         connectcells(self.Ia_F, self.mns_E, 0.08, 1, True)
@@ -413,8 +418,8 @@ class CPG:
         connectcells(self.R_F, self.R_E, 0.04, 1, True)
         connectcells(self.Ia_E, self.Ia_F, 0.08, 1, True)
         connectcells(self.Ia_F, self.Ia_E, 0.08, 1, True)
-        connectcells(self.iIP_E, self.iIP_F, 0.04, 1, True)
-        connectcells(self.iIP_F, self.iIP_E, 0.04, 1, True)
+        connectcells(self.InE, self.InF, 0.04, 1, True)
+        connectcells(self.InF, self.InE, 0.04, 1, True)
 
 
     def addpool(self, num, name="test", neurontype="int"):
