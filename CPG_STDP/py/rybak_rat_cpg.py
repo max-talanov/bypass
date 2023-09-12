@@ -99,6 +99,8 @@ class CPG:
             # TODO -> RG
             self.dict_IP_E = {layer: 'IP{}_E'.format(layer + 1)}
             self.dict_IP_F = {layer: 'IP{}_F'.format(layer + 1)}
+            self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
+
 
         for layer in range(layers, extra_layers):
             #TODO OMs for extra layers --
@@ -163,6 +165,8 @@ class CPG:
         self.sens_aff = self.addpool(nAff, "sens_aff", "aff")
         self.Ia_aff_E = self.addpool(nAff, "Ia_aff_E", "aff")
         self.Ia_aff_F = self.addpool(nAff, "Ia_aff_F", "aff")
+        self.BS_aff_E = self.addpool(nAff, "BS_aff_E", "aff")
+        self.BS_aff_F = self.addpool(nAff, "BS_aff_F", "aff")
 
         '''moto neuron pools'''
         self.mns_E = self.addpool(nMN, "mns_E", "moto")
@@ -287,13 +291,13 @@ class CPG:
             connectcells(self.dict_C[layer-3], self.dict_3[layer], 1.95, 1)
 
         #TODO ees -> BS
-        # genconnect(self.E_bs, self.Ia_aff_E, 1.5, 1)
-        # genconnect(self.E_bs, self.Ia_aff_F, 1.5, 1)
+        genconnect(self.E_bs, self.Ia_aff_E, 1.5, 1)
+        genconnect(self.E_bs, self.Ia_aff_F, 1.5, 1)
         # genconnect(self.E_bs, self.dict_CV[0], 1.5, 2)
-        genconnect(self.E_bs, self.E_RG, 1.5, 1)
-        genconnect(self.F_bs, self.F_RG, 1.5, 1)
-        genconnect(self.F_bs, self.V3F, 1.5, 1)
+        genconnect(self.E_bs, self.BS_aff_E, 1.5, 1)
+        genconnect(self.F_bs, self.BS_aff_F, 1.5, 1)
 
+        connectcells(self.BS_aff_F, self.V3F, 1.5, 1)
 
         '''generators of Ia aff'''
         genconnect(self.Iagener_E, self.Ia_aff_E, 0.00005, 1, False, 5)
