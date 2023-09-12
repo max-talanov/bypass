@@ -21,7 +21,8 @@ logging.info(mode)
 
 #param
 speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
-ees_fr = 40 # frequency of EES
+#TODO update freq
+bs_fr = 100 #40 # frequency of brainstem inputs
 versions = 1
 step_number = 2# 10 # number of steps
 layers =  2 # 5  # 5 is default
@@ -46,7 +47,7 @@ if mode == 'QUAD':
     CV_0_len = 175
     k = 0.003
 
-one_step_time = int((6 * speed + CV_0_len)/(int(1000 / ees_fr))) * (int(1000 / ees_fr))
+one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = 25 + one_step_time * step_number
 
 exnclist = []
@@ -68,7 +69,7 @@ see topology https://github.com/research-team/memristive-spinal-cord/blob/master
 and all will be clear
 '''
 class CPG:
-    def __init__(self, speed, ees_fr, inh_p, step_number, layers, extra_layers, N):
+    def __init__(self, speed, bs_fr, inh_p, step_number, layers, extra_layers, N):
 
         self.interneurons = []
         self.motoneurons = []
@@ -80,6 +81,7 @@ class CPG:
         self.affgroups = []
         self.E_RG = []
         self.F_RG = []
+        self.V3F = []
 
         for layer in range(layers):
             #TODO OMs --
@@ -138,8 +140,11 @@ class CPG:
             # TODO -> RG
             self.dict_IP_E[layer] = self.addpool(self.ncell, "IP" + str(layer + 1) + "_E", "int")
             self.dict_IP_F[layer] = self.addpool(self.ncell, "IP" + str(layer + 1) + "_F", "int")
+            self.dict_V3F[layer] = self.addpool(self.ncell, "V3F" + str(layer + 1) + "", "int")
             self.E_RG.append(self.dict_IP_E[layer])
             self.F_RG.append(self.dict_IP_F[layer])
+            self.V3F.append(self.dict_V3F[layer])
+
 
         for layer in range(layers, extra_layers):
             # TODO OM0 -> E:RG
@@ -179,8 +184,9 @@ class CPG:
         # self.Iagener_F = []
 
         '''ees'''
-        # TODO --
-        self.ees = self.addgener(0, ees_fr, 10000, False)
+        # TODO -> BS
+        self.E_bs = self.addgener(0, bs_fr, 10000, False)
+        self.F_bs = self.addgener(0, bs_fr, 10000, False)
 
         '''muscle afferents generators'''
         self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 10)
@@ -281,9 +287,13 @@ class CPG:
             connectcells(self.dict_C[layer-3], self.dict_3[layer], 1.95, 1)
 
         #TODO ees -> BS
-        genconnect(self.ees, self.Ia_aff_E, 1.5, 1)
-        genconnect(self.ees, self.Ia_aff_F, 1.5, 1)
-        genconnect(self.ees, self.dict_CV[0], 1.5, 2)
+        # genconnect(self.E_bs, self.Ia_aff_E, 1.5, 1)
+        # genconnect(self.E_bs, self.Ia_aff_F, 1.5, 1)
+        # genconnect(self.E_bs, self.dict_CV[0], 1.5, 2)
+        genconnect(self.E_bs, self.E_RG, 1.5, 1)
+        genconnect(self.F_bs, self.F_RG, 1.5, 1)
+        genconnect(self.F_bs, self.V3F, 1.5, 1)
+
 
         '''generators of Ia aff'''
         genconnect(self.Iagener_E, self.Ia_aff_E, 0.00005, 1, False, 5)
@@ -480,6 +490,7 @@ class CPG:
     def addgener(self, start, freq, nums, r=True):
         '''
         Creates generator and returns generator gid
+
         Parameters
         ----------
         start: int
@@ -488,6 +499,8 @@ class CPG:
             generator frequency
         nums: int
             signals number
+        r: bool
+            generates noizy output
         Returns
         -------
         gid: int
@@ -719,9 +732,9 @@ def spikeout(pool, name, version, v_vec):
     if rank == 0:
         logging.info("start recording")
         result = np.mean(np.array(result), axis = 0, dtype=np.float32)
-        with hdf5.File('./res/new_rat4_{}_speed_{}_layers_{}1_eeshz_{}.hdf5'.format(name, speed, layers, ees_fr), 'w') as file:
+        with hdf5.File('./res/new_rat4_{}_speed_{}_layers_{}1_eeshz_{}.hdf5'.format(name, speed, layers, bs_fr), 'w') as file:
             for i in range(step_number):
-                sl = slice((int(1000/ees_fr)*40+i*one_step_time*40),(int(1000/ees_fr)*40+(i+1)*one_step_time*40))
+                sl = slice((int(1000 / bs_fr) * 40 + i * one_step_time * 40), (int(1000 / bs_fr) * 40 + (i + 1) * one_step_time * 40))
                 file.create_dataset('#0_step_{}'.format(i), data=np.array(result)[sl], compression="gzip")
     else:
         logging.info(rank)
@@ -757,7 +770,7 @@ if __name__ == '__main__':
     k_name = 1
 
     for i in range(versions):
-        cpg_ex = CPG(speed, ees_fr, 100, step_number, layers, extra_layers, N)
+        cpg_ex = CPG(speed, bs_fr, 100, step_number, layers, extra_layers, N)
         logging.info("created")
         motorecorders = []
         motorecorders_mem = []
