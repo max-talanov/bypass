@@ -142,10 +142,9 @@ class CPG:
             # TODO -> RG
             self.dict_IP_E[layer] = self.addpool(self.ncell, "IP" + str(layer + 1) + "_E", "int")
             self.dict_IP_F[layer] = self.addpool(self.ncell, "IP" + str(layer + 1) + "_F", "int")
-            self.dict_V3F[layer] = self.addpool(self.ncell, "V3F" + str(layer + 1) + "", "int")
             self.E_RG.append(self.dict_IP_E[layer])
             self.F_RG.append(self.dict_IP_F[layer])
-            self.V3F.append(self.dict_V3F[layer])
+
 
 
         for layer in range(layers, extra_layers):
@@ -157,16 +156,17 @@ class CPG:
             self.dict_2F[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2F", "int")
             self.dict_3[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_3", "int")
 
-        # TODO -> RG
+        '''RG'''
         self.E_RG = sum(self.E_RG, [])
         self.F_RG = sum(self.F_RG, [])
 
-        '''sensory and muscle afferents'''
+        '''sensory and muscle afferents and brainstem and V3F'''
         self.sens_aff = self.addpool(nAff, "sens_aff", "aff")
         self.Ia_aff_E = self.addpool(nAff, "Ia_aff_E", "aff")
         self.Ia_aff_F = self.addpool(nAff, "Ia_aff_F", "aff")
         self.BS_aff_E = self.addpool(nAff, "BS_aff_E", "aff")
         self.BS_aff_F = self.addpool(nAff, "BS_aff_F", "aff")
+        self.V3F      = self.addpool(nAff, "V3F", "int")
 
         '''moto neuron pools'''
         self.mns_E = self.addpool(nMN, "mns_E", "moto")
