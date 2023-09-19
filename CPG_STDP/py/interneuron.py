@@ -38,6 +38,8 @@ class interneuron(object):
     self.synlistinh = []
     self.synlistex = []
     self.synlistees = []
+    self.synliststdp = []
+    ## TODO add stdp here?
     self.synapses()
     self.x = self.y = self.z = 0.
 

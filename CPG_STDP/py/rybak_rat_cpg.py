@@ -79,8 +79,8 @@ class CPG:
         self.groups = []
         self.motogroups = []
         self.affgroups = []
-        self.E_RG = []
-        self.F_RG = []
+        self.RG_E = []
+        self.RG_F = []
         self.V3F = []
 
         for layer in range(layers):
@@ -97,8 +97,8 @@ class CPG:
             self.dict_CV = {layer: 'CV{}'.format(layer + 1)}
             self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
             # TODO -> RG
-            self.dict_IP_E = {layer: 'IP{}_E'.format(layer + 1)}
-            self.dict_IP_F = {layer: 'IP{}_F'.format(layer + 1)}
+            self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
+            self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
             self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
 
 
@@ -140,10 +140,10 @@ class CPG:
 
             '''interneuronal pool'''
             # TODO -> RG
-            self.dict_IP_E[layer] = self.addpool(self.ncell, "IP" + str(layer + 1) + "_E", "int")
-            self.dict_IP_F[layer] = self.addpool(self.ncell, "IP" + str(layer + 1) + "_F", "int")
-            self.E_RG.append(self.dict_IP_E[layer])
-            self.F_RG.append(self.dict_IP_F[layer])
+            self.dict_RG_E[layer] = self.addpool(self.ncell, "IP" + str(layer + 1) + "_E", "int")
+            self.dict_RG_F[layer] = self.addpool(self.ncell, "IP" + str(layer + 1) + "_F", "int")
+            self.RG_E.append(self.dict_RG_E[layer])
+            self.RG_F.append(self.dict_RG_F[layer])
 
 
 
@@ -157,8 +157,8 @@ class CPG:
             self.dict_3[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_3", "int")
 
         '''RG'''
-        self.E_RG = sum(self.E_RG, [])
-        self.F_RG = sum(self.F_RG, [])
+        self.RG_E = sum(self.RG_E, [])
+        self.RG_F = sum(self.RG_F, [])
 
         '''sensory and muscle afferents and brainstem and V3F'''
         self.sens_aff = self.addpool(nAff, "sens_aff", "aff")
@@ -187,13 +187,13 @@ class CPG:
         # self.Iagener_E = []
         # self.Iagener_F = []
 
-        '''ees'''
-        # TODO -> BS
+        '''BS'''
+        #TODO BS -> periodic stimulation
         self.E_bs = self.addgener(0, bs_fr, 10000, False)
         self.F_bs = self.addgener(0, bs_fr, 10000, False)
 
         '''muscle afferents generators'''
-        self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 10)
+        self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_E, 10)
         self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_F, speed*6)
 
         '''cutaneous inputs'''
@@ -290,10 +290,10 @@ class CPG:
         for layer in range(layers, extra_layers):
             connectcells(self.dict_C[layer-3], self.dict_3[layer], 1.95, 1)
 
-        #TODO ees -> BS
-        genconnect(self.E_bs, self.Ia_aff_E, 1.5, 1)
-        genconnect(self.E_bs, self.Ia_aff_F, 1.5, 1)
-        # genconnect(self.E_bs, self.dict_CV[0], 1.5, 2)
+        ''' BS '''
+        #genconnect(self.E_bs, self.Ia_aff_E, 1.5, 1)
+        #genconnect(self.E_bs, self.Ia_aff_F, 1.5, 1)
+        #genconnect(self.E_bs, self.dict_CV[0], 1.5, 2)
         genconnect(self.E_bs, self.BS_aff_E, 1.5, 1)
         genconnect(self.F_bs, self.BS_aff_F, 1.5, 1)
 
@@ -316,30 +316,30 @@ class CPG:
 
         for layer in range(layers):
             '''Extensor'''
-            connectinsidenucleus(self.dict_IP_F[layer])
+            connectinsidenucleus(self.dict_RG_F[layer])
             # connectinsidenucleus(self.dict_1[layer])
             #TODO look into dict_2E, dict_2F
             connectinsidenucleus(self.dict_2E[layer])
             connectinsidenucleus(self.dict_2F[layer])
             # connectcells(self.dict_1[layer], self.dict_IP_E[layer], 0.75, 2)
             #TODO --
-            connectcells(self.dict_2E[layer], self.dict_IP_E[layer], 1.75, 3)
+            connectcells(self.dict_2E[layer], self.dict_RG_E[layer], 1.75, 3)
             '''RG2Motor'''
-            connectcells(self.dict_IP_E[layer], self.mns_E, 2.75, 3)
+            connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
 
             if layer > 3:
                 #TODO --
-                connectcells(self.dict_IP_E[layer], self.Ia_aff_E, layer*0.0002, 1, True)
+                connectcells(self.dict_RG_E[layer], self.Ia_aff_E, layer * 0.0002, 1, True)
             else:
                 '''RG2Ia'''
-                connectcells(self.dict_IP_E[layer], self.Ia_aff_E, 0.0001, 1, True)
+                connectcells(self.dict_RG_E[layer], self.Ia_aff_E, 0.0001, 1, True)
             '''Flexor'''
             # connectcells(self.dict_1[layer], self.dict_IP_F[layer], 0.75, 2)
-            connectcells(self.dict_2F[layer], self.dict_IP_F[layer], 2.85, 2)
+            connectcells(self.dict_2F[layer], self.dict_RG_F[layer], 2.85, 2)
             '''RG2Motor RG2Ia'''
-            connectcells(self.dict_IP_F[layer], self.mns_F, 3.75, 2)
+            connectcells(self.dict_RG_F[layer], self.mns_F, 3.75, 2)
             #TODO check this
-            connectcells(self.dict_IP_F[layer], self.Ia_aff_F, 0.95, 1, True)
+            connectcells(self.dict_RG_F[layer], self.Ia_aff_F, 0.95, 1, True)
 
         for layer in range(CV_number):
             '''cutaneous inputs'''
@@ -382,7 +382,7 @@ class CPG:
             connectcells(self.dict_CV_1[5], self.dict_0[3], 0.0001*k*speed, 3)
 
         '''C=1 Extensor'''
-        connectcells(self.E_RG, self.InE, 0.001, 1)
+        connectcells(self.RG_E, self.InE, 0.001, 1)
 
         for layer in range(layers+1):
             connectcells(self.dict_CV_1[layer], self.InE, 1.8, 1)
@@ -395,19 +395,20 @@ class CPG:
             connectcells(self.InE, self.dict_2F[layer], 1.8, 2, True)
             connectcells(self.InF, self.dict_2E[layer], 0.5, 2, True)
 
-        '''RG2Ia, RG2Motor'''
-        connectcells(self.InE, self.F_RG, 0.5, 1, True)
+        '''Ia2RG, RG2Motor'''
+        connectcells(self.InE, self.RG_F, 0.5, 1, True)
         ## TODO STDP weight
-        connectcells(self.Ia_aff_F, self.F_RG, 0.5, 1)
+        connectcells(self.Ia_aff_F, self.RG_F, 0.5, 1)
+
         connectcells(self.InE, self.Ia_aff_F, 1.2, 1, True)
         connectcells(self.InE, self.mns_F, 0.8, 1, True)
 
         '''C=0 Flexor'''
-        connectcells(self.F_RG, self.InF, 0.0001, 1)
-
-        connectcells(self.InF, self.E_RG, 0.8, 1, True)
+        connectcells(self.RG_F, self.InF, 0.0001, 1)
+        connectcells(self.InF, self.RG_E, 0.8, 1, True)
         ## TODO STDP weight
-        connectcells(self.Ia_aff_E, self.E_RG, 0.5, 1)
+        connectcells(self.Ia_aff_E, self.RG_E, 0.5, 1)
+
         connectcells(self.InF, self.InE, 0.5, 1, True)
         connectcells(self.InF, self.Ia_aff_E, 0.5, 1, True)
         connectcells(self.InF, self.mns_E, 0.4, 1, True)
