@@ -23,6 +23,7 @@ extern void _muscle_reg(void);
 extern void _nav14_reg(void);
 extern void _pregen_reg(void);
 extern void _slow5HT_reg(void);
+extern void _stdp_reg(void);
 extern void _stdwa_soft_reg(void);
 extern void _xm_reg(void);
 
@@ -46,6 +47,7 @@ void modl_reg() {
     fprintf(stderr, " \"./mod_files/nav14.mod\"");
     fprintf(stderr, " \"./mod_files/pregen.mod\"");
     fprintf(stderr, " \"./mod_files/slow5HT.mod\"");
+    fprintf(stderr, " \"./mod_files/stdp.mod\"");
     fprintf(stderr, " \"./mod_files/stdwa_soft.mod\"");
     fprintf(stderr, " \"./mod_files/xm.mod\"");
     fprintf(stderr, "\n");
@@ -67,6 +69,7 @@ void modl_reg() {
   _nav14_reg();
   _pregen_reg();
   _slow5HT_reg();
+  _stdp_reg();
   _stdwa_soft_reg();
   _xm_reg();
 }

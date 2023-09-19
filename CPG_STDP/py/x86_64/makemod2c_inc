@@ -134,6 +134,14 @@
 	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I".././mod_files" $(INCLUDES) -fPIC -c $< -o $@
 
+./stdp.c: .././mod_files/stdp.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd ".././mod_files";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "stdp.mod" -o "/home/max/PROJECTS/bypass/bypass/CPG_STDP/py/x86_64")
+
+./stdp.o: ./stdp.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
+	$(COMPILE) -I".././mod_files" $(INCLUDES) -fPIC -c $< -o $@
+
 ./stdwa_soft.c: .././mod_files/stdwa_soft.mod
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
 	(cd ".././mod_files";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "stdwa_soft.mod" -o "/home/max/PROJECTS/bypass/bypass/CPG_STDP/py/x86_64")
