@@ -599,13 +599,13 @@ def connectcells(pre, post, weight, delay, inhtype = False, N = 50):
                     nc.weight[0] = random.gauss(weight, weight / 5)
                 nc.delay = random.gauss(delay, delay / 5)
 
-
+#TODO integrate into connectcells
 """Create STDP synapses"""
 # threshold = 10 # Set voltage threshold
 # delay = 1 # Set connection delay
 # singlesyn = h.NetCon(cells[0],cells[1], threshold, delay, 0.5) # Create a connection between the cells
 # stdpmech = h.STDP(0,sec=dummy) # Create the STDP mechanism
-# TODO NetCon -> gid_connect
+#TODO NetCon -> gid_connect
 # presyn = h.NetCon(cells[0],stdpmech, threshold, delay, 1) # Feed presynaptic spikes to the STDP mechanism -- must have weight >0
 # pstsyn = h.NetCon(cells[1],stdpmech, threshold, delay, -1) # Feed postsynaptic spikes to the STDP mechanism -- must have weight <0
 # h.setpointer(singlesyn._ref_weight[0],'synweight',stdpmech) # Point the STDP mechanism to the connection weight
