@@ -182,23 +182,29 @@ class interneuron(object):
     '''
     for sec in self.dend:
       for i in range(50):
+        '''Somatic'''
         s = h.ExpSyn(self.soma(0.8)) # Excitatory
         s.tau = 0.3
         s.e = 50
         self.synlistex.append(s)
+
         s = h.Exp2Syn(self.soma(0.5)) # Inhibitory
         s.tau1 = 0.5
         s.tau2 = 3.5
         s.e = -80
         self.synlistinh.append(s)
+        '''Dendritic'''
         s = h.ExpSyn(sec(0.5)) # Excitatory
         s.tau = 0.3
         s.e = 50
         self.synlistex.append(s)
+
         s = h.ExpSyn(sec(0.5)) # Inhibitory
         s.tau = 0.5
         s.e = -80
         self.synlistinh.append(s)
+
+        ## TODO add stdp synapse here ?
 
 
   def is_art(self):
