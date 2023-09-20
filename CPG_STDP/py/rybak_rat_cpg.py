@@ -52,6 +52,8 @@ time_sim = 25 + one_step_time * step_number
 
 exnclist = []
 inhnclist = []
+exstdpnclist = []
+inhstdpnclist = []
 eesnclist = []
 stimnclist = []
 
@@ -559,7 +561,7 @@ class CPG:
 
         return gid
 
-def connectcells(pre, post, weight, delay, inhtype = False, N = 50):
+def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 50, stdptype = False, threshold = 10):
     ''' Connects with excitatory synapses
       Parameters
       ----------
@@ -577,6 +579,12 @@ def connectcells(pre, post, weight, delay, inhtype = False, N = 50):
           numder of synapses
       inhtype: bool
           is this connection inhibitory?
+      N: int
+          number of synapses
+      stdptype: bool
+           is connection stdp?
+      threshold: int
+            voltage thershold
     '''
     nsyn = random.randint(N-15, N)
     for i in post:
@@ -584,31 +592,69 @@ def connectcells(pre, post, weight, delay, inhtype = False, N = 50):
             for j in range(nsyn):
                 srcgid = random.randint(pre[0], pre[-1])
                 target = pc.gid2cell(i)
-                if inhtype:
-                    syn = target.synlistinh[j]
-                    nc = pc.gid_connect(srcgid, syn)
-                    inhnclist.append(nc)
+                if stdptype:
+                    # TODO integrate into connectcells
+                    if inhtype:
+                        syn = target.synlistinhstdp[j]
+                        nc = pc.gid_connect(srcgid, syn)
+                        nc.delay = delay
+                        pc.threshold(srcgid, threshold)
+                        """Create STDP synapses"""
+                        dummy = h.Section()  # Create a dummy section to put the point processes in
+                        stdpmech = h.STDP(0, sec=dummy)  # Create the STDP mechanism
+                        # TODO check target, threshold,
+                        presyn = pc.gid_connect(srcgid,
+                                                stdpmech)  # threshold, delay, 1)  # Feed presynaptic spikes to the STDP mechanism -- must have weight >0
+                        presyn.delay = delay
+                        presyn.weight = 1
+                        pstsyn = pc.gid_connect(target,
+                                                stdpmech)  # threshold, delay, -1)  # Feed postsynaptic spikes to the STDP mechanism -- must have weight <0
+                        pstsyn.delay = delay
+                        pstsyn.weight = -1
+                        pc.threshold(target, threshold)
+                        h.setpointer(nc._ref_weight[0], 'synweight',
+                                     stdpmech)  # Point the STDP mechanism to the connection weight
+                        inhstdpnclist.append(nc)
+                    else:
+                        syn = target.synlistex[j]
+                        nc = pc.gid_connect(srcgid, syn)
+                        nc.delay = delay
+                        pc.threshold(srcgid, threshold)
+                        """Create STDP synapses"""
+                        dummy = h.Section()  # Create a dummy section to put the point processes in
+                        stdpmech = h.STDP(0, sec=dummy)  # Create the STDP mechanism
+                        # TODO check target, threshold,
+                        presyn = pc.gid_connect(srcgid,
+                                                stdpmech)  # threshold, delay, 1)  # Feed presynaptic spikes to the STDP mechanism -- must have weight >0
+                        presyn.delay = delay
+                        presyn.weight = 1
+                        pstsyn = pc.gid_connect(target,
+                                                stdpmech)  # threshold, delay, -1)  # Feed postsynaptic spikes to the STDP mechanism -- must have weight <0
+                        pstsyn.delay = delay
+                        pstsyn.weight = -1
+                        pc.threshold(target, threshold)
+                        h.setpointer(nc._ref_weight[0], 'synweight',
+                                     stdpmech)  # Point the STDP mechanism to the connection weight
+                        exstdpnclist.append(nc)
+                        # nc.weight[0] = random.gauss(weight, weight / 6) # str
+
                 else:
-                    syn = target.synlistex[j]
-                    nc = pc.gid_connect(srcgid, syn)
-                    exnclist.append(nc)
-                    # nc.weight[0] = random.gauss(weight, weight / 6) # str
+                    if inhtype:
+                        syn = target.synlistinh[j]
+                        nc = pc.gid_connect(srcgid, syn)
+                        inhnclist.append(nc)
+                    else:
+                        syn = target.synlistex[j]
+                        nc = pc.gid_connect(srcgid, syn)
+                        exnclist.append(nc)
+                        # nc.weight[0] = random.gauss(weight, weight / 6) # str
+
                 if mode == 'STR':
                     nc.weight[0] = 0 # str
                 else:
                     nc.weight[0] = random.gauss(weight, weight / 5)
                 nc.delay = random.gauss(delay, delay / 5)
 
-#TODO integrate into connectcells
-"""Create STDP synapses"""
-# threshold = 10 # Set voltage threshold
-# delay = 1 # Set connection delay
-# singlesyn = h.NetCon(cells[0],cells[1], threshold, delay, 0.5) # Create a connection between the cells
-# stdpmech = h.STDP(0,sec=dummy) # Create the STDP mechanism
-#TODO NetCon -> gid_connect
-# presyn = h.NetCon(cells[0],stdpmech, threshold, delay, 1) # Feed presynaptic spikes to the STDP mechanism -- must have weight >0
-# pstsyn = h.NetCon(cells[1],stdpmech, threshold, delay, -1) # Feed postsynaptic spikes to the STDP mechanism -- must have weight <0
-# h.setpointer(singlesyn._ref_weight[0],'synweight',stdpmech) # Point the STDP mechanism to the connection weight
 
 
 def genconnect(gen_gid, afferents_gids, weight, delay, inhtype = False, N = 50):
