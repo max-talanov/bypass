@@ -24,7 +24,7 @@ speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
 ees_fr = 40 # frequency of EES
 versions = 1
 step_number = 2# 10 # number of steps
-layers =  2 # 5  # 5 is default
+layers =  5  # 5 is default
 
 CV_number = 6
 extra_layers = 0 # 1 + layers
