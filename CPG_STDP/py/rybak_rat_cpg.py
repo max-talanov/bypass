@@ -62,13 +62,10 @@ from motoneuron import motoneuron
 from bioaffrat import bioaffrat
 from muscle import muscle
 
-
 import random
 
 '''
-network creation
-see topology https://github.com/research-team/memristive-spinal-cord/blob/master/doc/diagram/cpg_generator_FE_paper.png
-and all will be clear
+network topology https://github.com/max-talanov/bypass/blob/main/figs/CPG_feedback_loops.png
 '''
 class CPG:
     def __init__(self, speed, bs_fr, inh_p, step_number, layers, extra_layers, N):
@@ -205,13 +202,15 @@ class CPG:
         for layer in range(CV_number):
             self.dict_C[layer] = []
             for i in range(step_number):
-                self.dict_C[layer].append(self.addgener(25 + speed * layer + i * (speed * CV_number + CV_0_len), random.gauss(cfr, cfr/10), (speed / c_int + 1)))
+                self.dict_C[layer].append(self.addgener(25 + speed * layer + i * (speed * CV_number + CV_0_len),
+                                                        random.gauss(cfr, cfr/10), (speed / c_int + 1)))
 
         # TODO  --
         for layer in range(layers, extra_layers):
             self.dict_C[layer] = []
             for i in range(step_number):
-                self.dict_C[layer].append(self.addgener(25 + speed * (layer - 4) + i * (speed * CV_number + CV_0_len), random.gauss(cfr, cfr/10), (speed / c_int + 1)))
+                self.dict_C[layer].append(self.addgener(25 + speed * (layer - 4) + i * (speed * CV_number + CV_0_len),
+                                                        random.gauss(cfr, cfr/10), (speed / c_int + 1)))
 
         self.C_1 = []
         self.C_0 = []
@@ -223,6 +222,7 @@ class CPG:
         for i in range(step_number):
             self.C_0.append(self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, CV_0_len/c_int, False))
             self.V0v.append(self.addgener(40 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, 100/c_int, False))
+            ## TODO add BS here
 
 
         # self.C_0.append(self.addgener(0, cfr, (speed / c_int)))
@@ -494,7 +494,7 @@ class CPG:
 
         return gids
 
-    def addgener(self, start, freq, nums, r=True):
+    def addgener(self, start, freq, nums, noise=True):
         '''
         Creates generator and returns generator gid
 
@@ -506,7 +506,7 @@ class CPG:
             generator frequency
         nums: int
             signals number
-        r: bool
+        noise: bool
             generates noizy output
         Returns
         -------
@@ -516,7 +516,7 @@ class CPG:
         gid = 0
         stim = h.NetStim()
         stim.number = nums
-        if r:
+        if noise:
             stim.start = random.uniform(start - 3, start + 3)
             stim.noise = 0.05
         else:
@@ -728,12 +728,12 @@ def spike_record(pool, extra = False):
       ----------
       pool: list
         list of neurons gids
-      version: int
-          test number
+      extra: bool
+          extracellular or intracellular voltages to record
       Returns
       -------
       v_vec: list of h.Vector()
-          recorded voltage
+          recorded voltages
     '''
     v_vec = []
 
@@ -839,12 +839,12 @@ if __name__ == '__main__':
 
         for group in cpg_ex.motogroups:
             motorecorders_mem.append(spike_record(group[k_nrns]))
-        # affrecorders = []
-        # for group in cpg_ex.affgroups:
-        #   affrecorders.append(spike_record(group[k_nrns], i))
-        # recorders = []
-        # for group in cpg_ex.groups:
-        #   recorders.append(spike_record(group[k_nrns], i))
+        affrecorders = []
+        for group in cpg_ex.affgroups:
+          affrecorders.append(spike_record(group[k_nrns], i))
+        recorders = []
+        for group in cpg_ex.groups:
+          recorders.append(spike_record(group[k_nrns], i))
         logging.info("added recorders")
 
         print("- " * 10, "\nstart")
@@ -858,10 +858,10 @@ if __name__ == '__main__':
 
         for group, recorder in zip(cpg_ex.motogroups, motorecorders_mem):
             spikeout(group[k_nrns], 'mem_{}'.format(group[k_name]), i, recorder)
-        # for group, recorder in zip(cpg_ex.affgroups, affrecorders):
-        #   spikeout(group[k_nrns], group[k_name], i, recorder)
-        # for group, recorder in zip(cpg_ex.groups, recorders):
-        #   spikeout(group[k_nrns], group[k_name], i, recorder)
+        for group, recorder in zip(cpg_ex.affgroups, affrecorders):
+          spikeout(group[k_nrns], group[k_name], i, recorder)
+        for group, recorder in zip(cpg_ex.groups, recorders):
+          spikeout(group[k_nrns], group[k_name], i, recorder)
         logging.info("recorded")
 
     finish()
