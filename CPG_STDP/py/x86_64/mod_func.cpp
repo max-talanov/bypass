@@ -20,6 +20,7 @@ extern void _kno_reg(void);
 extern void _MOTONEURON_5HT_reg(void);
 extern void _MOTONEURON_reg(void);
 extern void _muscle_reg(void);
+extern void _NaP_reg(void);
 extern void _nav14_reg(void);
 extern void _pregen_reg(void);
 extern void _slow5HT_reg(void);
@@ -44,6 +45,7 @@ void modl_reg() {
     fprintf(stderr, " \"./mod_files/MOTONEURON_5HT.mod\"");
     fprintf(stderr, " \"./mod_files/MOTONEURON.mod\"");
     fprintf(stderr, " \"./mod_files/muscle.mod\"");
+    fprintf(stderr, " \"./mod_files/NaP.mod\"");
     fprintf(stderr, " \"./mod_files/nav14.mod\"");
     fprintf(stderr, " \"./mod_files/pregen.mod\"");
     fprintf(stderr, " \"./mod_files/slow5HT.mod\"");
@@ -66,6 +68,7 @@ void modl_reg() {
   _MOTONEURON_5HT_reg();
   _MOTONEURON_reg();
   _muscle_reg();
+  _NaP_reg();
   _nav14_reg();
   _pregen_reg();
   _slow5HT_reg();
