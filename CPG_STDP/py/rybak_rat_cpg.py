@@ -137,8 +137,7 @@ class CPG:
             self.dict_CV[layer] = self.addpool(self.ncell, "CV" + str(layer + 1), "aff")
             self.dict_CV_1[layer] = self.addpool(self.ncell, "CV" + str(layer + 1) + "_1", "aff")
 
-            '''interneuronal pool'''
-            # TODO -> RG
+            '''Rhythm generator pools'''
             self.dict_RG_E[layer] = self.addpool(self.ncell, "IP" + str(layer + 1) + "_E", "int")
             self.dict_RG_F[layer] = self.addpool(self.ncell, "IP" + str(layer + 1) + "_F", "int")
             self.RG_E.append(self.dict_RG_E[layer])
