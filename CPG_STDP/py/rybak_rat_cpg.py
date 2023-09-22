@@ -24,7 +24,7 @@ speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
 #TODO update freq
 bs_fr = 100 #40 # frequency of brainstem inputs
 versions = 1
-step_number = 20 # number of steps
+step_number = 2 # number of steps
 layers =  2 # 5  # 5 is default
 
 CV_number = 6
@@ -188,8 +188,10 @@ class CPG:
 
         '''BS'''
         #TODO BS -> periodic stimulation
-        self.E_bs = self.addgener(0, bs_fr, 10000, False)
-        self.F_bs = self.addgener(0, bs_fr, 10000, False)
+        # self.E_bs = self.addgener(0, bs_fr, 10000, False)
+        # self.F_bs = self.addgener(0, bs_fr, 10000, False)
+        
+        self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 10)
 
         '''muscle afferents generators'''
         self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_E, 10)
@@ -296,8 +298,12 @@ class CPG:
         #genconnect(self.E_bs, self.Ia_aff_E, 1.5, 1)
         #genconnect(self.E_bs, self.Ia_aff_F, 1.5, 1)
         #genconnect(self.E_bs, self.dict_CV[0], 1.5, 2)
-        genconnect(self.E_bs, self.BS_aff_E, 1.5, 1)
-        genconnect(self.F_bs, self.BS_aff_F, 1.5, 1)
+        
+        for E_bs_gid in self.E_bs_gids:
+            genconnect(E_bs_gid, self.BS_aff_E, 1.5, 1)
+
+        for F_bs_gid in self.F_bs_gids:
+            genconnect(F_bs_gid, self.BS_aff_F, 1.5, 1)
 
         connectcells(self.BS_aff_F, self.V3F, 1.5, 1)
 
@@ -493,6 +499,14 @@ class CPG:
             self.groups.append((gids, name))
 
         return gids
+
+    def add_bs_geners(self, freq, spikes_per_step):
+        E_bs_gids = []
+        F_bs_gids = []
+        for step in range(step_number):
+            F_bs_gids.append(self.addgener(int(one_step_time * step), freq, spikes_per_step, False))
+            E_bs_gids.append(self.addgener(int(one_step_time * (step + 0.5)), freq, spikes_per_step, False))
+        return E_bs_gids, F_bs_gids
 
     def addgener(self, start, freq, nums, noise=True):
         '''
