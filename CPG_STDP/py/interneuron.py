@@ -38,9 +38,9 @@ class interneuron(object):
     self.synlistinh = []
     self.synlistex = []
     self.synlistees = []
+    '''STDP'''
     self.synlistexstdp = []
     self.synlistinhstdp = []
-    ## TODO add stdp here?
     self.synapses()
     self.x = self.y = self.z = 0.
 
@@ -102,6 +102,13 @@ class interneuron(object):
     self.soma.gl_fastchannels = 0.002
     self.soma.el_fastchannels = -72
     self.soma.insert('extracellular') #adds extracellular mechanism for recording extracellular potential
+    # TODO Bursting properties of RG-F0 and RG-FE ph A4 interneurons were provided by INaP
+    # TODO add SUFFIX nap
+    # TODO add slow NaP channels
+    # TODO g_NaP = 0.75(±0.0375) mS/cm2
+    # TODO g_NaP = 0.35 mS/cm2
+    self.soma.insert('nap')
+    self.soma.gbar_nap = 0.75e-3
 
     for sec in self.dend:
       sec.Ra = 100 # Ra ohm cm - membrane resistance
@@ -154,7 +161,7 @@ class interneuron(object):
     NEURON staff
     Adds 3D position
     '''
-    soma.push()
+    self.soma.push()
     for i in range(h.n3d()):
       h.pt3dchange(i, x-self.x+h.x3d(i), y-self.y+h.y3d(i), z-self.z+h.z3d(i), h.diam3d(i))
     self.x = x; self.y = y; self.z = z
@@ -179,7 +186,7 @@ class interneuron(object):
 
   def synapses(self):
     '''
-    Adds static synapses
+    Adds static and stdp synapses
     '''
     for sec in self.dend:
       for i in range(50):

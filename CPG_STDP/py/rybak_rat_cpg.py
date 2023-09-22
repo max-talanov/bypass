@@ -440,20 +440,23 @@ class CPG:
 
     def addpool(self, num, name="test", neurontype="int"):
         '''
-        Creates interneuronal pool and returns gids of pool
+        Creates pool of cells determined by the neurontype and returns gids of the pool
         Parameters
         ----------
         num: int
             neurons number in pool
+        name: string
+            the name of the pool
         neurontype: string
             int: interneuron
             delay: interneuron with 5ht
-            moto: motoneuron
+            moto: motor neuron
             aff: afferent
+            muscle: muscle fiber
         Returns
         -------
         gids: list
-            the list of neurons gids
+            the list of cells gids
         '''
         gids = []
         gid = 0
@@ -698,7 +701,7 @@ def genconnect(gen_gid, afferents_gids, weight, delay, inhtype = False, N = 50):
 
 def createmotif(OM0, OM1, OM2, OM3):
     ''' Connects motif module
-      see https://github.cself.OM/research-team/memristive-spinal-cord/blob/master/doc/dself.Iagram/cpg_generatoself.R_FE_paper.png
+      see https://github.com/research-team/memristive-spinal-cord/blob/master/doc/diagram/cpg_generator_FE_paper.png
       Parameters
       ----------
       self.OM0: list
