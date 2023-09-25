@@ -24,7 +24,7 @@ speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
 #100 Hz is the motor cortex frequency
 bs_fr = 100 #40 # frequency of brainstem inputs
 versions = 1
-step_number = 5 # number of steps
+step_number = 10 # number of steps
 layers =  2 # 5  # 5 is default
 
 CV_number = 6
@@ -177,11 +177,11 @@ class CPG:
         '''reflex arc'''
         self.Ia_E = self.addpool(nInt, "Ia_E", "int")
         self.InE = self.addpool(nInt, "iInE", "int")
-        self.R_E = self.addpool(nInt, "R_E", "int")
+        self.R_E = self.addpool(nInt, "R_E", "int") # Renshaw cells
 
         self.Ia_F = self.addpool(nInt, "Ia_F", "int")
         self.InF = self.addpool(nInt, "iInF", "int")
-        self.R_F = self.addpool(nInt, "R_F", "int")
+        self.R_F = self.addpool(nInt, "R_F", "int") # Renshaw cells
         # self.Iagener_E = []
         # self.Iagener_F = []
 
