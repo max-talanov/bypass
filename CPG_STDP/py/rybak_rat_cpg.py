@@ -21,7 +21,7 @@ logging.info(mode)
 
 #param
 speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
-#TODO update freq
+#100 Hz is the motor cortex frequency
 bs_fr = 100 #40 # frequency of brainstem inputs
 versions = 1
 step_number = 5 # number of steps
@@ -138,8 +138,8 @@ class CPG:
             self.dict_CV_1[layer] = self.addpool(self.ncell, "CV" + str(layer + 1) + "_1", "aff")
 
             '''Rhythm generator pools'''
-            self.dict_RG_E[layer] = self.addpool(self.ncell, "IP" + str(layer + 1) + "_E", "int")
-            self.dict_RG_F[layer] = self.addpool(self.ncell, "IP" + str(layer + 1) + "_F", "int")
+            self.dict_RG_E[layer] = self.addpool(self.ncell, "RG" + str(layer + 1) + "_E", "int")
+            self.dict_RG_F[layer] = self.addpool(self.ncell, "RG" + str(layer + 1) + "_F", "int")
             self.RG_E.append(self.dict_RG_E[layer])
             self.RG_F.append(self.dict_RG_F[layer])
 
@@ -176,11 +176,11 @@ class CPG:
 
         '''reflex arc'''
         self.Ia_E = self.addpool(nInt, "Ia_E", "int")
-        self.InE = self.addpool(nInt, "iIP_E", "int")
+        self.InE = self.addpool(nInt, "iInE", "int")
         self.R_E = self.addpool(nInt, "R_E", "int")
 
         self.Ia_F = self.addpool(nInt, "Ia_F", "int")
-        self.InF = self.addpool(nInt, "iIP_F", "int")
+        self.InF = self.addpool(nInt, "iInF", "int")
         self.R_F = self.addpool(nInt, "R_F", "int")
         # self.Iagener_E = []
         # self.Iagener_F = []
