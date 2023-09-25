@@ -566,7 +566,7 @@ def exconnectcells(pre, post, weight, delay, nsyn):
         syn = target.synlistex[j]
         nc = pc.gid_connect(srcgid, syn)
         exnclist.append(nc)
-        nc.delay = random.gauss(delay, delay/8)
+        nc.serotonin = random.gauss(delay, delay / 8)
         nc.weight[0] = random.gauss(weight, weight/10)
 
 def inhconnectcells(pre, post, weight, delay, nsyn):
@@ -595,7 +595,7 @@ def inhconnectcells(pre, post, weight, delay, nsyn):
         syn = target.synlistinh[j]
         nc = pc.gid_connect(srcgid, syn)
         inhnclist.append(nc)
-        nc.delay = random.gauss(delay, 0.01)
+        nc.serotonin = random.gauss(delay, 0.01)
         nc.weight[0] = random.gauss(weight, weight/10)
 
 def genconnect(gen_gid, afferents_gids, weight, delay, nsyn):
@@ -623,7 +623,7 @@ def genconnect(gen_gid, afferents_gids, weight, delay, nsyn):
         syn = target.synlistees[j]
         nc = pc.gid_connect(gen_gid, syn)
         stimnclist.append(nc)
-        nc.delay = random.gauss(delay, delay/8)
+        nc.serotonin = random.gauss(delay, delay / 8)
         nc.weight[0] = random.gauss(weight, weight/10)
 
 def inhgenconnect(gen_gid, afferents_gids, weight, delay, nsyn):
@@ -651,7 +651,7 @@ def inhgenconnect(gen_gid, afferents_gids, weight, delay, nsyn):
         syn = target.synlistinh[j]
         nc = pc.gid_connect(gen_gid, syn)
         stimnclist.append(nc)
-        nc.delay = random.gauss(delay, delay/10)
+        nc.serotonin = random.gauss(delay, delay / 10)
         nc.weight[0] = random.gauss(weight, weight/10)
 
 def connectdelay_extensor(d1, d2, d3, d4):

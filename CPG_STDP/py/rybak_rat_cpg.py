@@ -450,6 +450,7 @@ class CPG:
         neurontype: string
             int: interneuron
             delay: interneuron with 5ht
+            bursting: interneuron with bursting
             moto: motor neuron
             aff: afferent
             muscle: muscle fiber
@@ -464,6 +465,7 @@ class CPG:
             delaytype = True
         else:
             delaytype = False
+
         if neurontype.lower() == "moto":
             diams = motodiams(num)
         for i in range(rank, num, nhost):
@@ -476,9 +478,13 @@ class CPG:
             elif neurontype.lower() == "muscle":
                 cell = muscle()
                 self.motoneurons.append(cell)
+            elif neurontype.lower() == "bursting":
+                cell = interneuron(False, bursting_mode=True)
+                self.interneurons.append(cell)
             else:
                 cell = interneuron(delaytype)
                 self.interneurons.append(cell)
+
             while pc.gid_exists(gid) != 0:
                 gid += 1
             gids.append(gid)
@@ -598,7 +604,7 @@ def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 50, stdptype
                     if inhtype:
                         syn = target.synlistinhstdp[j]
                         nc = pc.gid_connect(src_gid, syn)
-                        nc.delay = delay
+                        nc.serotonin = delay
                         pc.threshold(src_gid, threshold)
                         """Create STDP synapses"""
                         dummy = h.Section()  # Create a dummy section to put the point processes in
@@ -606,11 +612,11 @@ def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 50, stdptype
                         # TODO check target, threshold,
                         presyn = pc.gid_connect(src_gid,
                                                 stdpmech)  # threshold, delay, 1)  # Feed presynaptic spikes to the STDP mechanism -- must have weight >0
-                        presyn.delay = delay
+                        presyn.serotonin = delay
                         presyn.weight = 1
                         pstsyn = pc.gid_connect(post_gid,
                                                 stdpmech)  # threshold, delay, -1)  # Feed postsynaptic spikes to the STDP mechanism -- must have weight <0
-                        pstsyn.delay = delay
+                        pstsyn.serotonin = delay
                         pstsyn.weight = -1
                         pc.threshold(post_gid, threshold)
                         h.setpointer(nc._ref_weight[0], 'synweight',
@@ -619,7 +625,7 @@ def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 50, stdptype
                     else:
                         syn = target.synlistex[j]
                         nc = pc.gid_connect(src_gid, syn)
-                        nc.delay = delay
+                        nc.serotonin = delay
                         pc.threshold(src_gid, threshold)
                         """Create STDP synapses"""
                         dummy = h.Section()  # Create a dummy section to put the point processes in
@@ -627,11 +633,11 @@ def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 50, stdptype
                         # TODO check target, threshold,
                         presyn = pc.gid_connect(src_gid,
                                                 stdpmech)  # threshold, delay, 1)  # Feed presynaptic spikes to the STDP mechanism -- must have weight >0
-                        presyn.delay = delay
+                        presyn.serotonin = delay
                         presyn.weight[0] = 1
                         pstsyn = pc.gid_connect(post_gid,
                                                 stdpmech)  # threshold, delay, -1)  # Feed postsynaptic spikes to the STDP mechanism -- must have weight <0
-                        pstsyn.delay = delay
+                        pstsyn.serotonin = delay
                         pstsyn.weight[0] = -1
                         pc.threshold(post_gid, threshold)
                         h.setpointer(nc._ref_weight[0], 'synweight',
@@ -654,7 +660,7 @@ def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 50, stdptype
                     nc.weight[0] = 0 # str
                 else:
                     nc.weight[0] = random.gauss(weight, weight / 5)
-                nc.delay = random.gauss(delay, delay / 5)
+                nc.serotonin = random.gauss(delay, delay / 5)
 
 
 
@@ -696,7 +702,7 @@ def genconnect(gen_gid, afferents_gids, weight, delay, inhtype = False, N = 50):
                     # nc.weight[0] = random.gauss(weight, weight / 6)
                 nc = pc.gid_connect(gen_gid, syn)
                 stimnclist.append(nc)
-                nc.delay = random.gauss(delay, delay / 5)
+                nc.serotonin = random.gauss(delay, delay / 5)
                 nc.weight[0] = random.gauss(weight, weight / 6)
 
 def createmotif(OM0, OM1, OM2, OM3):

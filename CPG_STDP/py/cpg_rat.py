@@ -535,7 +535,7 @@ def connectcells(pre, post, weight, delay, inhtype = False, N = 50):
                     nc.weight[0] = 0 # str
                 else:
                     nc.weight[0] = random.gauss(weight, weight / 5)
-                nc.delay = random.gauss(delay, delay / 5)
+                nc.serotonin = random.gauss(delay, delay / 5)
 
 
 
@@ -577,7 +577,7 @@ def genconnect(gen_gid, afferents_gids, weight, delay, inhtype = False, N = 50):
                     # nc.weight[0] = random.gauss(weight, weight / 6)
                 nc = pc.gid_connect(gen_gid, syn)
                 stimnclist.append(nc)
-                nc.delay = random.gauss(delay, delay / 5)
+                nc.serotonin = random.gauss(delay, delay / 5)
                 nc.weight[0] = random.gauss(weight, weight / 6)
 
 def createmotif(OM0, OM1, OM2, OM3):

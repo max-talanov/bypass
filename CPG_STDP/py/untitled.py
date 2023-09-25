@@ -33,7 +33,7 @@ for i in range(10):
 for cell in afferents:
 	for i in range(10):
 		ncstim = h.NetCon(stims[0], cell.synlistex[i])
-		ncstim.delay = random.gauss(1, 0.1)
+		ncstim.serotonin = random.gauss(1, 0.1)
 		ncstim.weight[0] = random.gauss(1, 0.1)
 		ncs.append(ncstim)
 

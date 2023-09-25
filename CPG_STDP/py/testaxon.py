@@ -87,14 +87,14 @@ if __name__ == '__main__':
     stim.start = 30
     stim.interval = 4
     ncstim = h.NetCon(stim, cell.synlistex[0])
-    ncstim.delay = 1
+    ncstim.serotonin = 1
     ncstim.weight[0] = 0.75
     stim3 = h.NetStim()
     stim3.number = 3
     stim3.start = 80
     stim3.interval = 5
     ncstim3 = h.NetCon(stim3, cell.synlistex[2])
-    ncstim3.delay = 1
+    ncstim3.serotonin = 1
     ncstim3.weight[0] = 0.75
     # # dummy = h.Section(name='dummy')
     stim2 = h.IaGenerator(0.5)
@@ -103,22 +103,22 @@ if __name__ == '__main__':
     v_vec, v_vec1, v_vec2, t_vec = set_recording_vectors(muscle.soma)
     # soma_vec2, t_vec = set_recording_vectors(cell.soma)
     ncstim2 = h.NetCon(stim2, aff.synlistex[1])
-    ncstim2.delay = 1
+    ncstim2.serotonin = 1
     ncstim2.weight[0] = 0.05
 
     nc1 = h.NetCon(aff.node[len(aff.node)-1](0.5)._ref_v, cell.synlistex[5], sec=aff.node[len(aff.node)-1])
-    nc1.delay = 1
+    nc1.serotonin = 1
     nc1.weight[0] = 0.5
     nclist = []
     for i in range(50):
         nc2 = h.NetCon(stim, muscle.synlistex[i])
-        nc2.delay = random.gauss(1, 0.05)
+        nc2.serotonin = random.gauss(1, 0.05)
         nc2.weight[0] = random.gauss(0.5, 0.03)
         nclist.append(nc2)
 
     for i in range(50,80):
         nc2 = h.NetCon(stim3, muscle.synlistex[i])
-        nc2.delay = random.gauss(1, 0.05)
+        nc2.serotonin = random.gauss(1, 0.05)
         nc2.weight[0] = random.gauss(0.5, 0.05)
         nclist.append(nc2)
 

@@ -257,7 +257,7 @@ def connectcells(pre, post, weight, delay, inhtype = False):
                     exnclist.append(nc)
                     # str nc.weight[0] = random.gauss(weight, weight / 10)
                 nc.weight[0] = random.gauss(weight, weight / 10)
-                nc.delay = random.gauss(delay, delay / 9)
+                nc.serotonin = random.gauss(delay, delay / 9)
 
 
 def genconnect(gen_gid, afferents_gids, weight, delay, inhtype = False):
@@ -290,7 +290,7 @@ def genconnect(gen_gid, afferents_gids, weight, delay, inhtype = False):
                     syn = target.synlistex[j]
                 nc = pc.gid_connect(gen_gid, syn)
                 stimnclist.append(nc)
-                nc.delay = random.gauss(delay, delay / 7)
+                nc.serotonin = random.gauss(delay, delay / 7)
                 nc.weight[0] = random.gauss(weight, weight / 10)
 
 def spike_record(pool):

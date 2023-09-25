@@ -26,8 +26,9 @@ class interneuron(object):
     recs: list
       list of receptors mechanisms (NEURON staff)
   '''
-  def __init__(self, delay):
-    self.delay = delay
+  def __init__(self, serotonin_mode=False, bursting_mode=False):
+    self.serotonin = serotonin_mode
+    self.bursting = bursting_mode
     self.diffs = []
     self.recs = []
     self.topol()
@@ -90,7 +91,8 @@ class interneuron(object):
   def biophys(self):
     '''
     Adds channels and their parameters
-    if delay is true, adds 5ht receptors
+    if delay is True, adds 5ht receptors
+    if bursting is True, adds bursting to soma
     '''
     for sec in self.all:
       sec.cm = random.gauss(1, 0.01) # cm uf/cm2 - membrane capacitance
@@ -102,19 +104,18 @@ class interneuron(object):
     self.soma.gl_fastchannels = 0.002
     self.soma.el_fastchannels = -72
     self.soma.insert('extracellular') #adds extracellular mechanism for recording extracellular potential
-    # TODO Bursting properties of RG-F0 and RG-FE ph A4 interneurons were provided by INaP
-    # TODO add SUFFIX nap
-    # TODO add slow NaP channels
-    # TODO g_NaP = 0.75(±0.0375) mS/cm2
-    # TODO g_NaP = 0.35 mS/cm2
-    self.soma.insert('nap')
-    self.soma.gbar_nap = 0.75e-3
+    if self.bursting:
+      # Bursting properties of RG-F0 and RG-FE ph A4 interneurons were provided by INaP
+      # add slow NaP channels
+      # TODO g_NaP = 0.75(±0.0375) mS/cm2
+      self.soma.insert('nap')
+      self.soma.gbar_nap = 0.75e-3
 
     for sec in self.dend:
       sec.Ra = 100 # Ra ohm cm - membrane resistance
 
     for sec in self.dend:
-      if self.delay:
+      if self.serotonin:
         sec.insert('fastchannels')
         sec.gnabar_fastchannels = 0.25
         sec.gkbar_fastchannels = 0.04
@@ -125,7 +126,7 @@ class interneuron(object):
         sec.g_pas = 0.0002
         sec.e_pas = -70
 
-    if self.delay:
+    if self.serotonin:
         self.add_5HTreceptors(self.soma, 10, 5)
 
     self.axon.Ra = 50
