@@ -19,7 +19,6 @@ library.zip
 *.pickle
 *.dvek
 *.dmat
-t
 atlassian-ide-plugin.xml
 local/
 tu.util.log
@@ -55,6 +54,5 @@ obj
 */x86_64/*.o
 */x86_64/*.c
 *.hdf5
-*.pyc
 *.inc
 *.so
