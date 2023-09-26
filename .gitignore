@@ -56,6 +56,6 @@ obj
 *.hdf5
 *.inc
 *.so
-**/res
-**/__pycache__
+**/res/*.*
+**/__pycache__/*.*
 
