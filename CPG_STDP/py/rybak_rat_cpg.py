@@ -25,7 +25,7 @@ speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
 bs_fr = 100 #40 # frequency of brainstem inputs
 versions = 1
 step_number = 10 # number of steps
-layers =  2 # 5  # 5 is default
+layers =  1 # 5  # 5 is default #TODO get rid of layers
 
 CV_number = 6
 extra_layers = 0 # 1 + layers
@@ -78,8 +78,8 @@ class CPG:
         self.groups = []
         self.motogroups = []
         self.affgroups = []
-        self.RG_E = []
-        self.RG_F = []
+        self.RG_E = [] # Rhythm generators of extensors
+        self.RG_F = [] # Rhythm generators of flexor
         self.V3F = []
 
         for layer in range(layers):
@@ -142,8 +142,6 @@ class CPG:
             self.dict_RG_F[layer] = self.addpool(self.ncell, "RG" + str(layer + 1) + "_F", "int")
             self.RG_E.append(self.dict_RG_E[layer])
             self.RG_F.append(self.dict_RG_F[layer])
-
-
 
         for layer in range(layers, extra_layers):
             # TODO OM0 -> E:RG
@@ -218,6 +216,7 @@ class CPG:
         #     self.Iagener_E.append(self.addIagener((1 + i * (speed * 6 + 125)), self.ncell, speed))
         # for i in range(step_number):
         #     self.Iagener_F.append(self.addIagener((speed * 6 + i * (speed * 6 + 125)), self.ncell, 25))
+        '''generators'''
         for i in range(step_number):
             self.C_0.append(self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, CV_0_len/c_int, False))
             self.V0v.append(self.addgener(40 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, 100/c_int, False))
@@ -235,8 +234,8 @@ class CPG:
         # self.Iagener_E = sum(self.Iagener_E, [])
         # self.Iagener_F = sum(self.Iagener_F, [])
 
-        '''generators'''
         # TODO --
+        '''motifs'''
         createmotif(self.OM1_0E, self.dict_1[0], self.dict_2E[0], self.dict_3[0])
         for layer in range(1, layers):
             createmotif(self.dict_0[layer], self.dict_1[layer], self.dict_2E[layer], self.dict_3[layer])
@@ -316,9 +315,8 @@ class CPG:
         #     connectcells(self.dict_IP_F[layer-1], self.dict_IP_F[layer+1], 0.45*layer, 2)
 
         for layer in range(layers):
-            '''Extensor'''
+            '''Internal to RG topology'''
             connectinsidenucleus(self.dict_RG_F[layer])
-            # connectinsidenucleus(self.dict_1[layer])
             #TODO look into dict_2E, dict_2F
             connectinsidenucleus(self.dict_2E[layer])
             connectinsidenucleus(self.dict_2F[layer])
@@ -328,18 +326,21 @@ class CPG:
             '''RG2Motor'''
             connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
 
+            '''Neg feedback RG -> Ia_aff'''
             if layer > 3:
-                #TODO --
                 connectcells(self.dict_RG_E[layer], self.Ia_aff_E, layer * 0.0002, 1, True)
             else:
                 '''RG2Ia'''
                 connectcells(self.dict_RG_E[layer], self.Ia_aff_E, 0.0001, 1, True)
             '''Flexor'''
             # connectcells(self.dict_1[layer], self.dict_IP_F[layer], 0.75, 2)
-            connectcells(self.dict_2F[layer], self.dict_RG_F[layer], 2.85, 2)
+            ## TODO OM[2]-> RG (IP)
+            # connectcells(self.dict_2F[layer], self.dict_RG_F[layer], 2.85, 2)
+            connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 2.85, 2)
+
             '''RG2Motor RG2Ia'''
             connectcells(self.dict_RG_F[layer], self.mns_F, 3.75, 2)
-            #TODO check this
+            '''Neg feedback loop RG->Ia'''
             connectcells(self.dict_RG_F[layer], self.Ia_aff_F, 0.95, 1, True)
 
         for layer in range(CV_number):
@@ -375,14 +376,15 @@ class CPG:
             connectcells(self.dict_CV_1[4], self.dict_0[2], 0.00035*k*speed, 3)
             connectcells(self.dict_CV_1[4], self.dict_0[3], 0.00035*k*speed, 3)
         if layers > 4:
+
             connectcells(self.dict_CV_1[3], self.dict_0[4], 0.0001*k*speed, 3)
             connectcells(self.dict_CV_1[4], self.dict_0[4], 0.0001*k*speed, 3)
-            #
             '''C5'''
             connectcells(self.dict_CV_1[5], self.dict_0[4], 0.00025*k*speed, 3)
             connectcells(self.dict_CV_1[5], self.dict_0[3], 0.0001*k*speed, 3)
 
         '''C=1 Extensor'''
+        '''Commisural projections'''
         connectcells(self.RG_E, self.InE, 0.001, 1)
 
         for layer in range(layers+1):
@@ -398,9 +400,10 @@ class CPG:
 
         '''Ia2RG, RG2Motor'''
         connectcells(self.InE, self.RG_F, 0.5, 1, True)
-        ## TODO STDP weight
+        ## STDP synapse
         connectcells(self.Ia_aff_F, self.RG_F, 0.5, 1, stdptype=True)
 
+        # TODO check this too many reciprocal inh connections
         connectcells(self.InE, self.Ia_aff_F, 1.2, 1, True)
         connectcells(self.InE, self.mns_F, 0.8, 1, True)
 
@@ -410,6 +413,7 @@ class CPG:
         ## TODO STDP weight
         connectcells(self.Ia_aff_E, self.RG_E, 0.5, 1)
 
+        # TODO check this too many reciprocal inh connections
         connectcells(self.InF, self.InE, 0.5, 1, True)
         connectcells(self.InF, self.Ia_aff_E, 0.5, 1, True)
         connectcells(self.InF, self.mns_E, 0.4, 1, True)
