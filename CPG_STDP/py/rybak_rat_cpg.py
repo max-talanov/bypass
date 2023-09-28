@@ -320,9 +320,9 @@ class CPG:
             #TODO look into dict_2E, dict_2F
             connectinsidenucleus(self.dict_2E[layer])
             connectinsidenucleus(self.dict_2F[layer])
-            # connectcells(self.dict_1[layer], self.dict_IP_E[layer], 0.75, 2)
+            ## connectcells(self.dict_1[layer], self.dict_IP_E[layer], 0.75, 2)
             #TODO --
-            connectcells(self.dict_2E[layer], self.dict_RG_E[layer], 1.75, 3)
+            ## connectcells(self.dict_2E[layer], self.dict_RG_E[layer], 1.75, 3)
             '''RG2Motor'''
             connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
 
@@ -333,18 +333,18 @@ class CPG:
                 '''RG2Ia'''
                 connectcells(self.dict_RG_E[layer], self.Ia_aff_E, 0.0001, 1, True)
             '''Flexor'''
-            # connectcells(self.dict_1[layer], self.dict_IP_F[layer], 0.75, 2)
+            ## connectcells(self.dict_1[layer], self.dict_IP_F[layer], 0.75, 2)
             ## TODO OM[2]-> RG (IP)
-            # connectcells(self.dict_2F[layer], self.dict_RG_F[layer], 2.85, 2)
-            connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 2.85, 2)
+            ## connectcells(self.dict_2F[layer], self.dict_RG_F[layer], 2.85, 2)
+            ## connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 2.85, 2)
 
             '''RG2Motor RG2Ia'''
             connectcells(self.dict_RG_F[layer], self.mns_F, 3.75, 2)
             '''Neg feedback loop RG->Ia'''
             connectcells(self.dict_RG_F[layer], self.Ia_aff_F, 0.95, 1, True)
 
+        '''cutaneous inputs'''
         for layer in range(CV_number):
-            '''cutaneous inputs'''
             connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15*k*speed, 2)
 
         # connectcells(self.IP_F, self.Ia_aff_F, 0.0015, 2, True)
@@ -394,9 +394,9 @@ class CPG:
         connectcells(self.InE, self.OM1_0F, 1.9, 1, True)
 
         #TODO look into dict_2F and dict_2E
-        for layer in range(layers):
-            connectcells(self.InE, self.dict_2F[layer], 1.8, 2, True)
-            connectcells(self.InF, self.dict_2E[layer], 0.5, 2, True)
+        ## for layer in range(layers):
+        ##     connectcells(self.InE, self.dict_2F[layer], 1.8, 2, True)
+        ##     connectcells(self.InF, self.dict_2E[layer], 0.5, 2, True)
 
         '''Ia2RG, RG2Motor'''
         connectcells(self.InE, self.RG_F, 0.5, 1, True)
