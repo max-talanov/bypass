@@ -83,13 +83,13 @@ class CPG:
         self.V3F = []
 
         for layer in range(layers):
-            #TODO OMs --
-            self.dict_0 = {layer: 'OM{}_0'.format(layer + 1)}
-            self.dict_1 = {layer: 'OM{}_1'.format(layer + 1)}
-            self.dict_2E = {layer: 'OM{}_2E'.format(layer + 1)}
-            self.dict_2F = {layer: 'OM{}_2F'.format(layer + 1)}
-            self.dict_3 = {layer: 'OM{}_3'.format(layer + 1)}
-            self.dict_C = {layer: 'C{}'.format(layer + 1)}
+        #     #TODO OMs --
+        #     self.dict_0 = {layer: 'OM{}_0'.format(layer + 1)}
+        #     self.dict_1 = {layer: 'OM{}_1'.format(layer + 1)}
+        #     self.dict_2E = {layer: 'OM{}_2E'.format(layer + 1)}
+        #     self.dict_2F = {layer: 'OM{}_2F'.format(layer + 1)}
+        #     self.dict_3 = {layer: 'OM{}_3'.format(layer + 1)}
+             self.dict_C = {layer: 'C{}'.format(layer + 1)}
 
         for layer in range(CV_number):
             '''cut and muscle feedback'''
@@ -101,36 +101,36 @@ class CPG:
             self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
 
 
-        for layer in range(layers, extra_layers):
-            #TODO OMs for extra layers --
-            self.dict_0 = {layer: 'OM{}_0'.format(layer + 1)}
-            self.dict_1 = {layer: 'OM{}_1'.format(layer + 1)}
-            self.dict_2E = {layer: 'OM{}_2E'.format(layer + 1)}
-            self.dict_2F = {layer: 'OM{}_2F'.format(layer + 1)}
-            self.dict_3 = {layer: 'OM{}_3'.format(layer + 1)}
-            self.dict_C = {layer: 'C{}'.format(layer + 1)}
+        # for layer in range(layers, extra_layers):
+        #     #TODO OMs for extra layers --
+        #     self.dict_0 = {layer: 'OM{}_0'.format(layer + 1)}
+        #     self.dict_1 = {layer: 'OM{}_1'.format(layer + 1)}
+        #     self.dict_2E = {layer: 'OM{}_2E'.format(layer + 1)}
+        #     self.dict_2F = {layer: 'OM{}_2F'.format(layer + 1)}
+        #     self.dict_3 = {layer: 'OM{}_3'.format(layer + 1)}
+        #     self.dict_C = {layer: 'C{}'.format(layer + 1)}
 
-        if mode == 'QPZ':
-            #TODO --
-            self.OM1_0E = self.addpool(self.ncell, "OM1_0E", "delay")
-            self.OM1_0F = self.addpool(self.ncell, "OM1_0F", "delay")
-        else:
-            self.OM1_0E = self.addpool(self.ncell, "OM1_0E", "int")
-            self.OM1_0F = self.addpool(self.ncell, "OM1_0F", "int")
+        # if mode == 'QPZ':
+        #     #TODO --
+        #     self.OM1_0E = self.addpool(self.ncell, "OM1_0E", "delay")
+        #     self.OM1_0F = self.addpool(self.ncell, "OM1_0F", "delay")
+        # else:
+        #     self.OM1_0E = self.addpool(self.ncell, "OM1_0E", "int")
+        #     self.OM1_0F = self.addpool(self.ncell, "OM1_0F", "int")
 
         '''add pool'''
-        for layer in range(layers):
-            if mode == 'QPZ':
-                #TODO --
-                self.dict_0[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_0", "delay")
-            else:
-                # TODO OM0 -> E:RG
-                self.dict_0[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_0", "int")
-            # TODO --
-            self.dict_1[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_1", "int")
-            self.dict_2E[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2E", "int")
-            self.dict_2F[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2F", "int")
-            self.dict_3[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_3", "int")
+        # for layer in range(layers):
+        #     if mode == 'QPZ':
+        #         #TODO --
+        #         self.dict_0[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_0", "delay")
+        #     else:
+        #         # TODO OM0 -> E:RG
+        #         self.dict_0[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_0", "int")
+        #     # TODO --
+        #     self.dict_1[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_1", "int")
+        #     self.dict_2E[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2E", "int")
+        #     self.dict_2F[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2F", "int")
+        #     self.dict_3[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_3", "int")
 
         for layer in range(CV_number):
             '''Cutaneous pools'''
@@ -143,14 +143,14 @@ class CPG:
             self.RG_E.append(self.dict_RG_E[layer])
             self.RG_F.append(self.dict_RG_F[layer])
 
-        for layer in range(layers, extra_layers):
-            # TODO OM0 -> E:RG
-            self.dict_0[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_0", "int")
-            # TODO --
-            self.dict_1[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_1", "int")
-            self.dict_2E[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2E", "int")
-            self.dict_2F[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2F", "int")
-            self.dict_3[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_3", "int")
+        # for layer in range(layers, extra_layers):
+        #     # TODO OM0 -> E:RG
+        #     self.dict_0[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_0", "int")
+        #     # TODO --
+        #     self.dict_1[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_1", "int")
+        #     self.dict_2E[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2E", "int")
+        #     self.dict_2F[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2F", "int")
+        #     self.dict_3[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_3", "int")
 
         '''RG'''
         self.RG_E = sum(self.RG_E, [])
@@ -236,33 +236,34 @@ class CPG:
 
         # TODO --
         '''motifs'''
-        createmotif(self.OM1_0E, self.dict_1[0], self.dict_2E[0], self.dict_3[0])
-        for layer in range(1, layers):
-            createmotif(self.dict_0[layer], self.dict_1[layer], self.dict_2E[layer], self.dict_3[layer])
-
-        for layer in range(layers, extra_layers):
-            createmotif(self.dict_0[layer], self.dict_1[layer], self.dict_2E[layer], self.dict_3[layer])
-
-        '''extra flexor connections'''
-        createmotif(self.OM1_0F, self.dict_1[0], self.dict_2F[0], self.dict_3[0])
+        # createmotif(self.OM1_0E, self.dict_1[0], self.dict_2E[0], self.dict_3[0])
+        # for layer in range(1, layers):
+        #     createmotif(self.dict_0[layer], self.dict_1[layer], self.dict_2E[layer], self.dict_3[layer])
         #
-        for layer in range(1, layers):
-            createmotif(self.dict_0[layer], self.dict_1[layer], self.dict_2F[layer], self.dict_3[layer])
-
-        # TODO --
-        for layer in range(1, layers):
-            connectcells(self.dict_2F[layer - 1], self.dict_2F[layer], 2.5, 2)
-
-        # TODO --
-        for layer in range(layers, extra_layers):
-            connectcells(self.dict_2F[layer - 1], self.dict_2F[layer], 0.45, 2)
+        # for layer in range(layers, extra_layers):
+        #     createmotif(self.dict_0[layer], self.dict_1[layer], self.dict_2E[layer], self.dict_3[layer])
+        #
+        # '''extra flexor connections'''
+        # createmotif(self.OM1_0F, self.dict_1[0], self.dict_2F[0], self.dict_3[0])
+        # #
+        # for layer in range(1, layers):
+        #     createmotif(self.dict_0[layer], self.dict_1[layer], self.dict_2F[layer], self.dict_3[layer])
+        #
+        # # TODO --
+        # for layer in range(1, layers):
+        #     connectcells(self.dict_2F[layer - 1], self.dict_2F[layer], 2.5, 2)
+        #
+        # # TODO --
+        # for layer in range(layers, extra_layers):
+        #     connectcells(self.dict_2F[layer - 1], self.dict_2F[layer], 0.45, 2)
 
         # connectcells(self.dict_CV[0], self.OM1_0F, 0.0005, 3)
         # connectcells(self.V0v, self.dict_2F[0], 0.75, 1)
 
         #TODO OM0 -> RG
-        connectcells(self.dict_CV[0], self.OM1_0F, 0.00075, 3)
-        connectcells(self.V0v, self.OM1_0F, 3.75, 3)
+        ## connectcells(self.dict_CV[0], self.OM1_0F, 0.00075, 3)
+        ## TODO possibly project to RG_F
+        connectcells(self.V0v, self.RG_F, 3.75, 3)
         # connectcells(self.V0v, self.dict_2F[0], 3.5, 3)
 
         '''between delays via excitatory pools'''
@@ -271,24 +272,26 @@ class CPG:
             connectcells(self.dict_CV[layer - 1], self.dict_CV[layer], 0.75, 3)
 
         #TODO OM0->RG
-        connectcells(self.dict_CV[0], self.OM1_0E, 0.00047, 2)
+        ## connectcells(self.dict_CV[0], self.OM1_0E, 0.00047, 2)
+        connectcells(self.dict_CV[0], self.RG_E, 0.00047, 2)
         for layer in range(1, layers):
-            connectcells(self.dict_CV[layer], self.dict_0[layer], 0.00048, 2)
+            ## connectcells(self.dict_CV[layer], self.dict_0[layer], 0.00048, 2)
+            connectcells(self.dict_CV[layer], self.RG_E[layer], 0.00048, 2)
 
         '''inhibitory projections'''
         '''extensor'''
-        #TODO OM1->RG
-        for layer in range(2, layers+1):
-            if layer > 3:
-                for i in range(0, (layer - 2)):
-                    connectcells(self.dict_C[layer], self.dict_3[i], 1.95, 1)
-                    # connectcells(self.dict_C[layer], self.dict_2E[i], 1.75, 1, True)
-            else:
-                for i in range(0, (layer - 1)):
-                    connectcells(self.dict_C[layer], self.dict_3[i], 1.95, 1)
-                    # connectcells(self.dict_C[layer], self.dict_2E[i], 1.75, 1, True)
-        for layer in range(layers, extra_layers):
-            connectcells(self.dict_C[layer-3], self.dict_3[layer], 1.95, 1)
+        # TODO --
+        # for layer in range(2, layers+1):
+        #     if layer > 3:
+        #         for i in range(0, (layer - 2)):
+        #             connectcells(self.dict_C[layer], self.dict_3[i], 1.95, 1)
+        #             # connectcells(self.dict_C[layer], self.dict_2E[i], 1.75, 1, True)
+        #     else:
+        #         for i in range(0, (layer - 1)):
+        #             connectcells(self.dict_C[layer], self.dict_3[i], 1.95, 1)
+        #             # connectcells(self.dict_C[layer], self.dict_2E[i], 1.75, 1, True)
+        # for layer in range(layers, extra_layers):
+        #     connectcells(self.dict_C[layer-3], self.dict_3[layer], 1.95, 1)
 
         ''' BS '''
         #genconnect(self.E_bs, self.Ia_aff_E, 1.5, 1)
@@ -318,8 +321,8 @@ class CPG:
             '''Internal to RG topology'''
             connectinsidenucleus(self.dict_RG_F[layer])
             #TODO look into dict_2E, dict_2F
-            connectinsidenucleus(self.dict_2E[layer])
-            connectinsidenucleus(self.dict_2F[layer])
+            ##connectinsidenucleus(self.dict_2E[layer])
+            ##connectinsidenucleus(self.dict_2F[layer])
             ## connectcells(self.dict_1[layer], self.dict_IP_E[layer], 0.75, 2)
             #TODO --
             ## connectcells(self.dict_2E[layer], self.dict_RG_E[layer], 1.75, 3)
@@ -351,37 +354,37 @@ class CPG:
         # connectcells(self.IP_E, self.Ia_aff_E, 0.0015, 2, True)
 
         '''C'''
-        #TODO OM0 -> E:RG
-        if layers > 0:
-            '''C1'''
-            connectcells(self.dict_CV_1[0], self.OM1_0E, 0.00075*k*speed, 2)
-        if layers > 1:
-            connectcells(self.dict_CV_1[0], self.dict_0[1], 0.00001*k*speed, 3)
-            '''C2'''
-            connectcells(self.dict_CV_1[1], self.OM1_0E, 0.0005*k*speed, 2)
-            connectcells(self.dict_CV_1[1], self.dict_0[1], 0.00045*k*speed, 3)
-        if layers > 2:
-            connectcells(self.dict_CV_1[0], self.dict_0[2], 0.00001*k*speed, 3)
-            '''C2'''
-            connectcells(self.dict_CV_1[1], self.dict_0[2], 0.00025*k*speed, 3)
-            '''C3'''
-            # connectcells(self.dict_CV_1[2], self.OM1_0E, 0.00001*k*speed, 2)
-            connectcells(self.dict_CV_1[2], self.dict_0[1], 0.0004*k*speed, 2)
-            connectcells(self.dict_CV_1[2], self.dict_0[2], 0.00035*k*speed, 3)
-        if layers > 3:
-            connectcells(self.dict_CV_1[2], self.dict_0[3], 0.0002*k*speed, 3)
-            '''C4'''
-            connectcells(self.dict_CV_1[3], self.dict_0[2], 0.00035*k*speed, 3)
-            connectcells(self.dict_CV_1[3], self.dict_0[3], 0.00035*k*speed, 3)
-            connectcells(self.dict_CV_1[4], self.dict_0[2], 0.00035*k*speed, 3)
-            connectcells(self.dict_CV_1[4], self.dict_0[3], 0.00035*k*speed, 3)
-        if layers > 4:
-
-            connectcells(self.dict_CV_1[3], self.dict_0[4], 0.0001*k*speed, 3)
-            connectcells(self.dict_CV_1[4], self.dict_0[4], 0.0001*k*speed, 3)
-            '''C5'''
-            connectcells(self.dict_CV_1[5], self.dict_0[4], 0.00025*k*speed, 3)
-            connectcells(self.dict_CV_1[5], self.dict_0[3], 0.0001*k*speed, 3)
+        # TODO OM0 -> E:RG
+        # if layers > 0:
+        #     '''C1'''
+        #     connectcells(self.dict_CV_1[0], self.OM1_0E, 0.00075*k*speed, 2)
+        # if layers > 1:
+        #     connectcells(self.dict_CV_1[0], self.dict_0[1], 0.00001*k*speed, 3)
+        #     '''C2'''
+        #     connectcells(self.dict_CV_1[1], self.OM1_0E, 0.0005*k*speed, 2)
+        #     connectcells(self.dict_CV_1[1], self.dict_0[1], 0.00045*k*speed, 3)
+        # if layers > 2:
+        #     connectcells(self.dict_CV_1[0], self.dict_0[2], 0.00001*k*speed, 3)
+        #     '''C2'''
+        #     connectcells(self.dict_CV_1[1], self.dict_0[2], 0.00025*k*speed, 3)
+        #     '''C3'''
+        #     # connectcells(self.dict_CV_1[2], self.OM1_0E, 0.00001*k*speed, 2)
+        #     connectcells(self.dict_CV_1[2], self.dict_0[1], 0.0004*k*speed, 2)
+        #     connectcells(self.dict_CV_1[2], self.dict_0[2], 0.00035*k*speed, 3)
+        # if layers > 3:
+        #     connectcells(self.dict_CV_1[2], self.dict_0[3], 0.0002*k*speed, 3)
+        #     '''C4'''
+        #     connectcells(self.dict_CV_1[3], self.dict_0[2], 0.00035*k*speed, 3)
+        #     connectcells(self.dict_CV_1[3], self.dict_0[3], 0.00035*k*speed, 3)
+        #     connectcells(self.dict_CV_1[4], self.dict_0[2], 0.00035*k*speed, 3)
+        #     connectcells(self.dict_CV_1[4], self.dict_0[3], 0.00035*k*speed, 3)
+        # if layers > 4:
+        #
+        #     connectcells(self.dict_CV_1[3], self.dict_0[4], 0.0001*k*speed, 3)
+        #     connectcells(self.dict_CV_1[4], self.dict_0[4], 0.0001*k*speed, 3)
+        #     '''C5'''
+        #     connectcells(self.dict_CV_1[5], self.dict_0[4], 0.00025*k*speed, 3)
+        #     connectcells(self.dict_CV_1[5], self.dict_0[3], 0.0001*k*speed, 3)
 
         '''C=1 Extensor'''
         '''Commisural projections'''
@@ -391,7 +394,7 @@ class CPG:
             connectcells(self.dict_CV_1[layer], self.InE, 1.8, 1)
             connectcells(self.dict_C[layer], self.InE, 1.8, 1)
 
-        connectcells(self.InE, self.OM1_0F, 1.9, 1, True)
+        ## connectcells(self.InE, self.OM1_0F, 1.9, 1, True)
 
         #TODO look into dict_2F and dict_2E
         ## for layer in range(layers):
