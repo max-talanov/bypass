@@ -15,10 +15,6 @@ pc = h.ParallelContext()
 rank = int(pc.id())
 nhost = int(pc.nhost())
 
-modes = ['PLT', 'STR', 'AIR', 'TOE', 'QPZ', 'QUAD']
-mode = 'PLT'
-logging.info(mode)
-
 #param
 speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
 #100 Hz is the motor cortex frequency
@@ -26,27 +22,14 @@ bs_fr = 100 #40 # frequency of brainstem inputs
 versions = 1
 
 step_number = 10 # number of steps
-layers =  1 # 5  # 5 is default #TODO get rid of layers
 
 CV_number = 6
-extra_layers = 0 # 1 + layers
 nMN = 21 # 210
 nAff = 12 # 120
 nInt = 19 # 196
 N = 5 #50
 k = 0.017
 CV_0_len = 12 # 125
-
-if mode == 'AIR':
-    k = 0.001
-    speed = 25
-
-if mode == 'TOE':
-    k = 0.01
-
-if mode == 'QUAD':
-    CV_0_len = 175
-    k = 0.003
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = 25 + one_step_time * step_number
@@ -83,11 +66,9 @@ class CPG:
         self.RG_F = [] # Rhythm generators of flexor
         self.V3F = []
 
-        for layer in range(layers):
-             self.dict_C = {layer: 'C{}'.format(layer + 1)}
-
         for layer in range(CV_number):
             '''cut and muscle feedback'''
+            self.dict_C = {layer: 'C{}'.format(layer + 1)}
             self.dict_CV = {layer: 'CV{}'.format(layer + 1)} # TODO -- EES
             self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)} ## cutaneus inputs
             self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
@@ -159,12 +140,6 @@ class CPG:
                 self.dict_C[layer].append(self.addgener(25 + speed * layer + i * (speed * CV_number + CV_0_len),
                                                         random.gauss(cfr, cfr/10), (speed / c_int + 1)))
 
-        # TODO  --
-        for layer in range(layers, extra_layers):
-            self.dict_C[layer] = []
-            for i in range(step_number):
-                self.dict_C[layer].append(self.addgener(25 + speed * (layer - 4) + i * (speed * CV_number + CV_0_len),
-                                                        random.gauss(cfr, cfr/10), (speed / c_int + 1)))
 
         self.C_1 = []
         self.C_0 = []
@@ -210,7 +185,7 @@ class CPG:
         connectcells(self.mns_E, self.muscle_E, 15.5, 2, False, 45)
         connectcells(self.mns_F, self.muscle_F, 15.5, 2, False, 45)
 
-        for layer in range(layers):
+        for layer in range(CV_number):
             '''Internal to RG topology'''
             connectinsidenucleus(self.dict_RG_F[layer])
             '''RG2Motor'''
@@ -235,7 +210,7 @@ class CPG:
         '''Commisural projections'''
         connectcells(self.RG_E, self.InE, 0.001, 1)
 
-        for layer in range(layers+1):
+        for layer in range(CV_number):
             connectcells(self.dict_CV_1[layer], self.InE, 1.8, 1)
             connectcells(self.dict_C[layer], self.InE, 1.8, 1)
 
@@ -510,11 +485,6 @@ def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 50, stdptype
                         exnclist.append(nc)
                         # nc.weight[0] = random.gauss(weight, weight / 6) # str
 
-                if mode == 'STR':
-                    nc.weight[0] = 0 # str
-                else:
-                    nc.weight[0] = random.gauss(weight, weight / 5)
-                nc.delay = random.gauss(delay, delay / 5)
 
 
 
@@ -654,7 +624,7 @@ def spikeout(pool, name, version, v_vec):
     if rank == 0:
         logging.info("start recording")
         result = np.mean(np.array(result), axis = 0, dtype=np.float32)
-        with hdf5.File('./res/new_rat4_{}_speed_{}_layers_{}1_eeshz_{}.hdf5'.format(name, speed, layers, bs_fr), 'w') as file:
+        with hdf5.File('./res/new_rat4_{}_speed_{}_layers_{}1_eeshz_{}.hdf5'.format(name, speed, CV_number, bs_fr), 'w') as file:
             for i in range(step_number):
                 sl = slice((int(1000 / bs_fr) * 40 + i * one_step_time * 40), (int(1000 / bs_fr) * 40 + (i + 1) * one_step_time * 40))
                 file.create_dataset('#0_step_{}'.format(i), data=np.array(result)[sl], compression="gzip")
