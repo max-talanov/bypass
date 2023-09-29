@@ -69,7 +69,7 @@ import random
 network topology https://github.com/max-talanov/bypass/blob/main/figs/CPG_feedback_loops.png
 '''
 class CPG:
-    def __init__(self, speed, bs_fr, inh_p, step_number, layers, extra_layers, N):
+    def __init__(self, speed, bs_fr, inh_p, step_number, N):
 
         self.interneurons = []
         self.motoneurons = []
@@ -860,7 +860,7 @@ if __name__ == '__main__':
     k_name = 1
 
     for i in range(versions):
-        cpg_ex = CPG(speed, bs_fr, 100, step_number, layers, extra_layers, N)
+        cpg_ex = CPG(speed, bs_fr, 100, step_number, N)
         logging.info("created")
         motorecorders = []
         motorecorders_mem = []
