@@ -84,12 +84,6 @@ class CPG:
         self.V3F = []
 
         for layer in range(layers):
-        #     #TODO OMs --
-        #     self.dict_0 = {layer: 'OM{}_0'.format(layer + 1)}
-        #     self.dict_1 = {layer: 'OM{}_1'.format(layer + 1)}
-        #     self.dict_2E = {layer: 'OM{}_2E'.format(layer + 1)}
-        #     self.dict_2F = {layer: 'OM{}_2F'.format(layer + 1)}
-        #     self.dict_3 = {layer: 'OM{}_3'.format(layer + 1)}
              self.dict_C = {layer: 'C{}'.format(layer + 1)}
 
         for layer in range(CV_number):
@@ -101,38 +95,7 @@ class CPG:
             self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
             self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
 
-
-        # for layer in range(layers, extra_layers):
-        #     #TODO OMs for extra layers --
-        #     self.dict_0 = {layer: 'OM{}_0'.format(layer + 1)}
-        #     self.dict_1 = {layer: 'OM{}_1'.format(layer + 1)}
-        #     self.dict_2E = {layer: 'OM{}_2E'.format(layer + 1)}
-        #     self.dict_2F = {layer: 'OM{}_2F'.format(layer + 1)}
-        #     self.dict_3 = {layer: 'OM{}_3'.format(layer + 1)}
-        #     self.dict_C = {layer: 'C{}'.format(layer + 1)}
-
-        # if mode == 'QPZ':
-        #     #TODO --
-        #     self.OM1_0E = self.addpool(self.ncell, "OM1_0E", "delay")
-        #     self.OM1_0F = self.addpool(self.ncell, "OM1_0F", "delay")
-        # else:
-        #     self.OM1_0E = self.addpool(self.ncell, "OM1_0E", "int")
-        #     self.OM1_0F = self.addpool(self.ncell, "OM1_0F", "int")
-
-        '''add pool'''
-        # for layer in range(layers):
-        #     if mode == 'QPZ':
-        #         #TODO --
-        #         self.dict_0[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_0", "delay")
-        #     else:
-        #         # TODO OM0 -> E:RG
-        #         self.dict_0[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_0", "int")
-        #     # TODO --
-        #     self.dict_1[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_1", "int")
-        #     self.dict_2E[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2E", "int")
-        #     self.dict_2F[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2F", "int")
-        #     self.dict_3[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_3", "int")
-
+        '''Pools'''
         for layer in range(CV_number):
             '''Cutaneous pools'''
             self.dict_CV[layer] = self.addpool(self.ncell, "CV" + str(layer + 1), "aff")
@@ -144,14 +107,6 @@ class CPG:
             self.RG_E.append(self.dict_RG_E[layer])
             self.RG_F.append(self.dict_RG_F[layer])
 
-        # for layer in range(layers, extra_layers):
-        #     # TODO OM0 -> E:RG
-        #     self.dict_0[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_0", "int")
-        #     # TODO --
-        #     self.dict_1[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_1", "int")
-        #     self.dict_2E[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2E", "int")
-        #     self.dict_2F[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2F", "int")
-        #     self.dict_3[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_3", "int")
 
         '''RG'''
         self.RG_E = sum(self.RG_E, [])
@@ -237,49 +192,8 @@ class CPG:
         # self.Iagener_E = sum(self.Iagener_E, [])
         # self.Iagener_F = sum(self.Iagener_F, [])
 
-        # TODO --
-        '''motifs'''
-        # createmotif(self.OM1_0E, self.dict_1[0], self.dict_2E[0], self.dict_3[0])
-        # for layer in range(1, layers):
-        #     createmotif(self.dict_0[layer], self.dict_1[layer], self.dict_2E[layer], self.dict_3[layer])
-        #
-        # for layer in range(layers, extra_layers):
-        #     createmotif(self.dict_0[layer], self.dict_1[layer], self.dict_2E[layer], self.dict_3[layer])
-        #
-        # '''extra flexor connections'''
-        # createmotif(self.OM1_0F, self.dict_1[0], self.dict_2F[0], self.dict_3[0])
-        # #
-        # for layer in range(1, layers):
-        #     createmotif(self.dict_0[layer], self.dict_1[layer], self.dict_2F[layer], self.dict_3[layer])
-        #
-        # # TODO --
-        # for layer in range(1, layers):
-        #     connectcells(self.dict_2F[layer - 1], self.dict_2F[layer], 2.5, 2)
-        #
-        # # TODO --
-        # for layer in range(layers, extra_layers):
-        #     connectcells(self.dict_2F[layer - 1], self.dict_2F[layer], 0.45, 2)
-
-        # connectcells(self.dict_CV[0], self.OM1_0F, 0.0005, 3)
-        # connectcells(self.V0v, self.dict_2F[0], 0.75, 1)
-
-        #TODO OM0 -> RG
-        ## connectcells(self.dict_CV[0], self.OM1_0F, 0.00075, 3)
         ## TODO possibly project to RG_F
         connectcells(self.V0v, self.RG_F, 3.75, 3)
-        # connectcells(self.V0v, self.dict_2F[0], 3.5, 3)
-
-        '''between delays via excitatory pools'''
-        '''extensor'''
-        for layer in range(1, layers):
-            connectcells(self.dict_CV[layer - 1], self.dict_CV[layer], 0.75, 3)
-
-        #TODO OM0->RG
-        ## connectcells(self.dict_CV[0], self.OM1_0E, 0.00047, 2)
-        connectcells(self.dict_CV[0], self.RG_E, 0.00047, 2)
-        for layer in range(1, layers):
-            ## connectcells(self.dict_CV[layer], self.dict_0[layer], 0.00048, 2)
-            connectcells(self.dict_CV[layer], self.RG_E[layer], 0.00048, 2)
 
         '''inhibitory projections'''
         '''extensor'''
