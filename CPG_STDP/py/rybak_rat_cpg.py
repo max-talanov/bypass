@@ -214,7 +214,6 @@ class CPG:
             connectcells(self.dict_CV_1[layer], self.InE, 1.8, 1)
             connectcells(self.dict_C[layer], self.InE, 1.8, 1)
 
-
         '''Ia2RG, RG2Motor'''
         connectcells(self.InE, self.RG_F, 0.5, 1, True)
         ## STDP synapse
@@ -484,9 +483,6 @@ def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 50, stdptype
                         nc = pc.gid_connect(src_gid, syn)
                         exnclist.append(nc)
                         # nc.weight[0] = random.gauss(weight, weight / 6) # str
-
-
-
 
 def genconnect(gen_gid, afferents_gids, weight, delay, inhtype = False, N = 50):
     ''' Connects with generator
