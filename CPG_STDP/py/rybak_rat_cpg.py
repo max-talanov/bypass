@@ -239,12 +239,6 @@ class CPG:
             connectcells(self.dict_CV_1[layer], self.InE, 1.8, 1)
             connectcells(self.dict_C[layer], self.InE, 1.8, 1)
 
-        ## connectcells(self.InE, self.OM1_0F, 1.9, 1, True)
-
-        #TODO look into dict_2F and dict_2E
-        ## for layer in range(layers):
-        ##     connectcells(self.InE, self.dict_2F[layer], 1.8, 2, True)
-        ##     connectcells(self.InF, self.dict_2E[layer], 0.5, 2, True)
 
         '''Ia2RG, RG2Motor'''
         connectcells(self.InE, self.RG_F, 0.5, 1, True)
