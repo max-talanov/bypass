@@ -88,9 +88,8 @@ class CPG:
 
         for layer in range(CV_number):
             '''cut and muscle feedback'''
-            self.dict_CV = {layer: 'CV{}'.format(layer + 1)}
-            self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
-            # TODO -> RG
+            self.dict_CV = {layer: 'CV{}'.format(layer + 1)} # TODO -- EES
+            self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)} ## cutaneus inputs
             self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
             self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
             self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
@@ -98,7 +97,7 @@ class CPG:
         '''Pools'''
         for layer in range(CV_number):
             '''Cutaneous pools'''
-            self.dict_CV[layer] = self.addpool(self.ncell, "CV" + str(layer + 1), "aff")
+            self.dict_CV[layer] = self.addpool(self.ncell, "CV" + str(layer + 1), "aff") # TODO --
             self.dict_CV_1[layer] = self.addpool(self.ncell, "CV" + str(layer + 1) + "_1", "aff")
 
             '''Rhythm generator pools'''
@@ -178,8 +177,6 @@ class CPG:
         for i in range(step_number):
             self.C_0.append(self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, CV_0_len/c_int, False))
             self.V0v.append(self.addgener(40 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, 100/c_int, False))
-            ## TODO add BS here
-
 
         # self.C_0.append(self.addgener(0, cfr, (speed / c_int)))
 
@@ -194,26 +191,6 @@ class CPG:
 
         ## TODO possibly project to RG_F
         connectcells(self.V0v, self.RG_F, 3.75, 3)
-
-        '''inhibitory projections'''
-        '''extensor'''
-        # TODO --
-        # for layer in range(2, layers+1):
-        #     if layer > 3:
-        #         for i in range(0, (layer - 2)):
-        #             connectcells(self.dict_C[layer], self.dict_3[i], 1.95, 1)
-        #             # connectcells(self.dict_C[layer], self.dict_2E[i], 1.75, 1, True)
-        #     else:
-        #         for i in range(0, (layer - 1)):
-        #             connectcells(self.dict_C[layer], self.dict_3[i], 1.95, 1)
-        #             # connectcells(self.dict_C[layer], self.dict_2E[i], 1.75, 1, True)
-        # for layer in range(layers, extra_layers):
-        #     connectcells(self.dict_C[layer-3], self.dict_3[layer], 1.95, 1)
-
-        ''' BS '''
-        #genconnect(self.E_bs, self.Ia_aff_E, 1.5, 1)
-        #genconnect(self.E_bs, self.Ia_aff_F, 1.5, 1)
-        #genconnect(self.E_bs, self.dict_CV[0], 1.5, 2)
         
         for E_bs_gid in self.E_bs_gids:
             genconnect(E_bs_gid, self.BS_aff_E, 1.5, 1)
@@ -233,23 +210,11 @@ class CPG:
         connectcells(self.mns_E, self.muscle_E, 15.5, 2, False, 45)
         connectcells(self.mns_F, self.muscle_F, 15.5, 2, False, 45)
 
-        # '''IP'''
-        # for layer in range(1, 4):
-        #     connectcells(self.dict_IP_E[layer-1], self.dict_IP_E[layer+1], 0.45*layer, 2)
-        #     connectcells(self.dict_IP_F[layer-1], self.dict_IP_F[layer+1], 0.45*layer, 2)
-
         for layer in range(layers):
             '''Internal to RG topology'''
             connectinsidenucleus(self.dict_RG_F[layer])
-            #TODO look into dict_2E, dict_2F
-            ##connectinsidenucleus(self.dict_2E[layer])
-            ##connectinsidenucleus(self.dict_2F[layer])
-            ## connectcells(self.dict_1[layer], self.dict_IP_E[layer], 0.75, 2)
-            #TODO --
-            ## connectcells(self.dict_2E[layer], self.dict_RG_E[layer], 1.75, 3)
             '''RG2Motor'''
             connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
-
             '''Neg feedback RG -> Ia_aff'''
             if layer > 3:
                 connectcells(self.dict_RG_E[layer], self.Ia_aff_E, layer * 0.0002, 1, True)
@@ -257,11 +222,6 @@ class CPG:
                 '''RG2Ia'''
                 connectcells(self.dict_RG_E[layer], self.Ia_aff_E, 0.0001, 1, True)
             '''Flexor'''
-            ## connectcells(self.dict_1[layer], self.dict_IP_F[layer], 0.75, 2)
-            ## TODO OM[2]-> RG (IP)
-            ## connectcells(self.dict_2F[layer], self.dict_RG_F[layer], 2.85, 2)
-            ## connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 2.85, 2)
-
             '''RG2Motor RG2Ia'''
             connectcells(self.dict_RG_F[layer], self.mns_F, 3.75, 2)
             '''Neg feedback loop RG->Ia'''
@@ -270,42 +230,6 @@ class CPG:
         '''cutaneous inputs'''
         for layer in range(CV_number):
             connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15*k*speed, 2)
-
-        # connectcells(self.IP_F, self.Ia_aff_F, 0.0015, 2, True)
-        # connectcells(self.IP_E, self.Ia_aff_E, 0.0015, 2, True)
-
-        '''C'''
-        # TODO OM0 -> E:RG
-        # if layers > 0:
-        #     '''C1'''
-        #     connectcells(self.dict_CV_1[0], self.OM1_0E, 0.00075*k*speed, 2)
-        # if layers > 1:
-        #     connectcells(self.dict_CV_1[0], self.dict_0[1], 0.00001*k*speed, 3)
-        #     '''C2'''
-        #     connectcells(self.dict_CV_1[1], self.OM1_0E, 0.0005*k*speed, 2)
-        #     connectcells(self.dict_CV_1[1], self.dict_0[1], 0.00045*k*speed, 3)
-        # if layers > 2:
-        #     connectcells(self.dict_CV_1[0], self.dict_0[2], 0.00001*k*speed, 3)
-        #     '''C2'''
-        #     connectcells(self.dict_CV_1[1], self.dict_0[2], 0.00025*k*speed, 3)
-        #     '''C3'''
-        #     # connectcells(self.dict_CV_1[2], self.OM1_0E, 0.00001*k*speed, 2)
-        #     connectcells(self.dict_CV_1[2], self.dict_0[1], 0.0004*k*speed, 2)
-        #     connectcells(self.dict_CV_1[2], self.dict_0[2], 0.00035*k*speed, 3)
-        # if layers > 3:
-        #     connectcells(self.dict_CV_1[2], self.dict_0[3], 0.0002*k*speed, 3)
-        #     '''C4'''
-        #     connectcells(self.dict_CV_1[3], self.dict_0[2], 0.00035*k*speed, 3)
-        #     connectcells(self.dict_CV_1[3], self.dict_0[3], 0.00035*k*speed, 3)
-        #     connectcells(self.dict_CV_1[4], self.dict_0[2], 0.00035*k*speed, 3)
-        #     connectcells(self.dict_CV_1[4], self.dict_0[3], 0.00035*k*speed, 3)
-        # if layers > 4:
-        #
-        #     connectcells(self.dict_CV_1[3], self.dict_0[4], 0.0001*k*speed, 3)
-        #     connectcells(self.dict_CV_1[4], self.dict_0[4], 0.0001*k*speed, 3)
-        #     '''C5'''
-        #     connectcells(self.dict_CV_1[5], self.dict_0[4], 0.00025*k*speed, 3)
-        #     connectcells(self.dict_CV_1[5], self.dict_0[3], 0.0001*k*speed, 3)
 
         '''C=1 Extensor'''
         '''Commisural projections'''
