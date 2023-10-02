@@ -21,11 +21,11 @@ speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
 bs_fr = 100 #40 # frequency of brainstem inputs
 versions = 1
 
-step_number = 10 # number of steps
+step_number = 3 # number of steps
 
 CV_number = 6
 nMN = 21 # 210
-nAff = 12 # 120
+nAff = 120 # 120
 nInt = 19 # 196
 N = 5 #50
 k = 0.017
@@ -164,7 +164,7 @@ class CPG:
         # self.Iagener_E = sum(self.Iagener_E, [])
         # self.Iagener_F = sum(self.Iagener_F, [])
 
-        ## TODO possibly project to RG_F
+        ## TODO possibly remove
         connectcells(self.V0v, self.RG_F, 3.75, 3)
         
         for E_bs_gid in self.E_bs_gids:
@@ -174,8 +174,9 @@ class CPG:
             genconnect(F_bs_gid, self.BS_aff_F, 1.5, 1)
 
         '''BS 2 RG and V3F'''
-        connectcells(self.BS_aff_F, self.V3F, 1.5, 1)
-        connectcells(self.BS_aff_F, self.RG_F, 1.5, 1, stdptype=True)
+        ## TODO weight: 1.5
+        connectcells(self.BS_aff_F, self.V3F, 115, 1)
+        connectcells(self.BS_aff_F, self.RG_F, 115, 1) # stdptype=True)
 
         '''generators of Ia aff'''
         genconnect(self.Iagener_E, self.Ia_aff_E, 0.00005, 1, False, 5)
