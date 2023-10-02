@@ -89,6 +89,7 @@ class CPG:
 
 
         '''RG'''
+        # flattened
         self.RG_E = sum(self.RG_E, [])
         self.RG_F = sum(self.RG_F, [])
 
