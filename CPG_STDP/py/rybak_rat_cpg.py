@@ -29,7 +29,7 @@ nAff = 120 # 120
 nInt = 19 # 196
 N = 5 #50
 k = 0.017
-CV_0_len = 12 # 125
+CV_0_len = 125 # 125
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = 25 + one_step_time * step_number
