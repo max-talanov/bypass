@@ -176,7 +176,7 @@ class CPG:
         '''BS 2 RG and V3F'''
         ## TODO weight: 1.5
         connectcells(self.BS_aff_F, self.V3F, 115, 1)
-        connectcells(self.BS_aff_F, self.RG_F, 115, 1) # stdptype=True)
+        connectcells(self.BS_aff_F, self.RG_F,115, 1) # stdptype=True)
 
         '''generators of Ia aff'''
         genconnect(self.Iagener_E, self.Ia_aff_E, 0.00005, 1, False, 5)
