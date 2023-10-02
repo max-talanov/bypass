@@ -19,4 +19,4 @@ def _show_one(path, name):
         plt.title(name)
         plt.show()
 
-show_all(r'C:\Users\Korisnik\Desktop')
+show_all(r'./res/')
