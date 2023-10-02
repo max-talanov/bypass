@@ -173,7 +173,9 @@ class CPG:
         for F_bs_gid in self.F_bs_gids:
             genconnect(F_bs_gid, self.BS_aff_F, 1.5, 1)
 
+        '''BS 2 RG and V3F'''
         connectcells(self.BS_aff_F, self.V3F, 1.5, 1)
+        connectcells(self.BS_aff_F, self.RG_F, 1.5, 1, stdptype=True)
 
         '''generators of Ia aff'''
         genconnect(self.Iagener_E, self.Ia_aff_E, 0.00005, 1, False, 5)
