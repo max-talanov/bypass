@@ -281,7 +281,7 @@ class CPG:
         connectcells(self.dict_CV[0], self.RG_E, 0.00047, 2)
         for layer in range(1, CV_number):
             ## connectcells(self.dict_CV[layer], self.dict_0[layer], 0.00048, 2)
-            connectcells(self.dict_CV[layer], self.RG_E[layer], 0.00048, 2)
+            connectcells(self.dict_CV[layer], self.dict_RG_E[layer], 0.00048, 2)
 
         '''inhibitory projections'''
         '''extensor'''
@@ -402,7 +402,7 @@ class CPG:
         '''Commisural projections'''
         connectcells(self.RG_E, self.InE, 0.001, 1)
 
-        for layer in range(layers+1):
+        for layer in range(CV_number):
             connectcells(self.dict_CV_1[layer], self.InE, 1.8, 1)
             connectcells(self.dict_C[layer], self.InE, 1.8, 1)
 
