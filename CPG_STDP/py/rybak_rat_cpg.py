@@ -272,13 +272,14 @@ class CPG:
 
         '''between delays via excitatory pools'''
         '''extensor'''
-        for layer in range(1, layers):
+        for layer in range(1, CV_number):
             connectcells(self.dict_CV[layer - 1], self.dict_CV[layer], 0.75, 3)
 
         #TODO OM0->RG
+        ## TODO CV  is empty why?
         ## connectcells(self.dict_CV[0], self.OM1_0E, 0.00047, 2)
         connectcells(self.dict_CV[0], self.RG_E, 0.00047, 2)
-        for layer in range(1, layers):
+        for layer in range(1, CV_number):
             ## connectcells(self.dict_CV[layer], self.dict_0[layer], 0.00048, 2)
             connectcells(self.dict_CV[layer], self.RG_E[layer], 0.00048, 2)
 
@@ -325,9 +326,11 @@ class CPG:
         #     connectcells(self.dict_IP_E[layer-1], self.dict_IP_E[layer+1], 0.45*layer, 2)
         #     connectcells(self.dict_IP_F[layer-1], self.dict_IP_F[layer+1], 0.45*layer, 2)
 
-        for layer in range(layers):
+        for layer in range(CV_number):
             '''Internal to RG topology'''
             connectinsidenucleus(self.dict_RG_F[layer])
+            connectinsidenucleus(self.dict_RG_E[layer])
+
             #TODO look into dict_2E, dict_2F
             ##connectinsidenucleus(self.dict_2E[layer])
             ##connectinsidenucleus(self.dict_2F[layer])
@@ -336,6 +339,7 @@ class CPG:
             ## connectcells(self.dict_2E[layer], self.dict_RG_E[layer], 1.75, 3)
             '''RG2Motor'''
             connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
+            connectcells(self.dict_RG_F[layer], self.mns_F, 2.75, 3)
 
             '''Neg feedback RG -> Ia_aff'''
             if layer > 3:
@@ -823,7 +827,7 @@ def spikeout(pool, name, version, v_vec):
     if rank == 0:
         logging.info("start recording")
         result = np.mean(np.array(result), axis = 0, dtype=np.float32)
-        with hdf5.File('./res/new_rat4_{}_speed_{}_layers_{}1_eeshz_{}.hdf5'.format(name, speed, layers, bs_fr), 'w') as file:
+        with hdf5.File('./res/rat_{}_speed_{}_CVs_{}1_bshz_{}.hdf5'.format(name, speed, layers, bs_fr), 'w') as file:
             for i in range(step_number):
                 sl = slice((int(1000 / bs_fr) * 40 + i * one_step_time * 40), (int(1000 / bs_fr) * 40 + (i + 1) * one_step_time * 40))
                 file.create_dataset('#0_step_{}'.format(i), data=np.array(result)[sl], compression="gzip")
