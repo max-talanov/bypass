@@ -207,11 +207,11 @@ class CPG:
                                                         random.gauss(cfr, cfr/10), (speed / c_int + 1)))
 
         # TODO  --
-        for layer in range(layers, extra_layers):
-            self.dict_C[layer] = []
-            for i in range(step_number):
-                self.dict_C[layer].append(self.addgener(25 + speed * (layer - 4) + i * (speed * CV_number + CV_0_len),
-                                                        random.gauss(cfr, cfr/10), (speed / c_int + 1)))
+        # for layer in range(layers, extra_layers):
+        #     self.dict_C[layer] = []
+        #     for i in range(step_number):
+        #         self.dict_C[layer].append(self.addgener(25 + speed * (layer - 4) + i * (speed * CV_number + CV_0_len),
+        #                                                 random.gauss(cfr, cfr/10), (speed / c_int + 1)))
 
         self.C_1 = []
         self.C_0 = []
