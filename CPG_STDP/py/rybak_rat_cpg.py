@@ -26,7 +26,7 @@ bs_fr = 100 #40 # frequency of brainstem inputs
 versions = 1
 
 step_number = 3 # number of steps
-layers =  1 # 5  # 5 is default #TODO get rid of layers
+## layers =  1 # 5  # 5 is default #TODO get rid of layers
 
 CV_number = 6
 extra_layers = 0 # 1 + layers
@@ -272,6 +272,7 @@ class CPG:
 
         '''between delays via excitatory pools'''
         '''extensor'''
+        ## TODO possibly remove
         for layer in range(1, CV_number):
             connectcells(self.dict_CV[layer - 1], self.dict_CV[layer], 0.75, 3)
 
@@ -361,6 +362,7 @@ class CPG:
         '''cutaneous inputs'''
         for layer in range(CV_number):
             connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15*k*speed, 2)
+            connectcells(self.dict_CV_1[3], self.dict_RG_E[layer], 0.00035 * k * speed, 3)
 
         # connectcells(self.IP_F, self.Ia_aff_F, 0.0015, 2, True)
         # connectcells(self.IP_E, self.Ia_aff_E, 0.0015, 2, True)
@@ -827,7 +829,7 @@ def spikeout(pool, name, version, v_vec):
     if rank == 0:
         logging.info("start recording")
         result = np.mean(np.array(result), axis = 0, dtype=np.float32)
-        with hdf5.File('./res/rat_{}_speed_{}_CVs_{}1_bshz_{}.hdf5'.format(name, speed, layers, bs_fr), 'w') as file:
+        with hdf5.File('./res/rat_{}_speed_{}_CVs_{}1_bshz_{}.hdf5'.format(name, speed, CV_number, bs_fr), 'w') as file:
             for i in range(step_number):
                 sl = slice((int(1000 / bs_fr) * 40 + i * one_step_time * 40), (int(1000 / bs_fr) * 40 + (i + 1) * one_step_time * 40))
                 file.create_dataset('#0_step_{}'.format(i), data=np.array(result)[sl], compression="gzip")
