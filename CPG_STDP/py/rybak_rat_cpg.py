@@ -25,7 +25,7 @@ speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
 bs_fr = 100 #40 # frequency of brainstem inputs
 versions = 1
 
-step_number = 10 # number of steps
+step_number = 5 # number of steps
 layers =  1 # 5  # 5 is default #TODO get rid of layers
 
 CV_number = 6
@@ -83,14 +83,14 @@ class CPG:
         self.RG_F = [] # Rhythm generators of flexor
         self.V3F = []
 
-        for layer in range(layers):
+        ## for layer in range(layers):
         #     #TODO OMs --
         #     self.dict_0 = {layer: 'OM{}_0'.format(layer + 1)}
         #     self.dict_1 = {layer: 'OM{}_1'.format(layer + 1)}
         #     self.dict_2E = {layer: 'OM{}_2E'.format(layer + 1)}
         #     self.dict_2F = {layer: 'OM{}_2F'.format(layer + 1)}
         #     self.dict_3 = {layer: 'OM{}_3'.format(layer + 1)}
-             self.dict_C = {layer: 'C{}'.format(layer + 1)}
+
 
         for layer in range(CV_number):
             '''cut and muscle feedback'''
@@ -100,6 +100,7 @@ class CPG:
             self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
             self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
             self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
+            self.dict_C = {layer: 'C{}'.format(layer + 1)}
 
 
         # for layer in range(layers, extra_layers):
