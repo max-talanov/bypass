@@ -15,6 +15,10 @@ pc = h.ParallelContext()
 rank = int(pc.id())
 nhost = int(pc.nhost())
 
+modes = ['PLT', 'STR', 'AIR', 'TOE', 'QPZ', 'QUAD']
+mode = 'PLT'
+logging.info(mode)
+
 #param
 speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
 #100 Hz is the motor cortex frequency
@@ -22,14 +26,27 @@ bs_fr = 100 #40 # frequency of brainstem inputs
 versions = 1
 
 step_number = 10 # number of steps
+layers =  1 # 5  # 5 is default #TODO get rid of layers
 
 CV_number = 6
+extra_layers = 0 # 1 + layers
 nMN = 21 # 210
 nAff = 12 # 120
 nInt = 19 # 196
 N = 5 #50
 k = 0.017
 CV_0_len = 12 # 125
+
+if mode == 'AIR':
+    k = 0.001
+    speed = 25
+
+if mode == 'TOE':
+    k = 0.01
+
+if mode == 'QUAD':
+    CV_0_len = 175
+    k = 0.003
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = 25 + one_step_time * step_number
@@ -66,19 +83,59 @@ class CPG:
         self.RG_F = [] # Rhythm generators of flexor
         self.V3F = []
 
+        for layer in range(layers):
+        #     #TODO OMs --
+        #     self.dict_0 = {layer: 'OM{}_0'.format(layer + 1)}
+        #     self.dict_1 = {layer: 'OM{}_1'.format(layer + 1)}
+        #     self.dict_2E = {layer: 'OM{}_2E'.format(layer + 1)}
+        #     self.dict_2F = {layer: 'OM{}_2F'.format(layer + 1)}
+        #     self.dict_3 = {layer: 'OM{}_3'.format(layer + 1)}
+             self.dict_C = {layer: 'C{}'.format(layer + 1)}
+
         for layer in range(CV_number):
             '''cut and muscle feedback'''
-            self.dict_C = {layer: 'C{}'.format(layer + 1)}
-            self.dict_CV = {layer: 'CV{}'.format(layer + 1)} # TODO -- EES
-            self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)} ## cutaneus inputs
+            self.dict_CV = {layer: 'CV{}'.format(layer + 1)}
+            self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
+            # TODO -> RG
             self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
             self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
             self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
 
-        '''Pools'''
+
+        # for layer in range(layers, extra_layers):
+        #     #TODO OMs for extra layers --
+        #     self.dict_0 = {layer: 'OM{}_0'.format(layer + 1)}
+        #     self.dict_1 = {layer: 'OM{}_1'.format(layer + 1)}
+        #     self.dict_2E = {layer: 'OM{}_2E'.format(layer + 1)}
+        #     self.dict_2F = {layer: 'OM{}_2F'.format(layer + 1)}
+        #     self.dict_3 = {layer: 'OM{}_3'.format(layer + 1)}
+        #     self.dict_C = {layer: 'C{}'.format(layer + 1)}
+
+        # if mode == 'QPZ':
+        #     #TODO --
+        #     self.OM1_0E = self.addpool(self.ncell, "OM1_0E", "delay")
+        #     self.OM1_0F = self.addpool(self.ncell, "OM1_0F", "delay")
+        # else:
+        #     self.OM1_0E = self.addpool(self.ncell, "OM1_0E", "int")
+        #     self.OM1_0F = self.addpool(self.ncell, "OM1_0F", "int")
+
+        '''add pool'''
+        # for layer in range(layers):
+        #     if mode == 'QPZ':
+        #         #TODO --
+        #         self.dict_0[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_0", "delay")
+        #     else:
+        #         # TODO OM0 -> E:RG
+        #         self.dict_0[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_0", "int")
+        #     # TODO --
+        #     self.dict_1[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_1", "int")
+        #     self.dict_2E[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2E", "int")
+        #     self.dict_2F[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2F", "int")
+        #     self.dict_3[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_3", "int")
+
         for layer in range(CV_number):
             '''Cutaneous pools'''
-            self.dict_CV[layer] = self.addpool(self.ncell, "CV" + str(layer + 1), "aff") # TODO --
+            self.dict_CV[layer] = self.addpool(self.ncell, "CV" + str(layer + 1), "aff")
             self.dict_CV_1[layer] = self.addpool(self.ncell, "CV" + str(layer + 1) + "_1", "aff")
 
             '''Rhythm generator pools'''
@@ -87,6 +144,14 @@ class CPG:
             self.RG_E.append(self.dict_RG_E[layer])
             self.RG_F.append(self.dict_RG_F[layer])
 
+        # for layer in range(layers, extra_layers):
+        #     # TODO OM0 -> E:RG
+        #     self.dict_0[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_0", "int")
+        #     # TODO --
+        #     self.dict_1[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_1", "int")
+        #     self.dict_2E[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2E", "int")
+        #     self.dict_2F[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_2F", "int")
+        #     self.dict_3[layer] = self.addpool(self.ncell, "OM" + str(layer + 1) + "_3", "int")
 
         '''RG'''
         self.RG_E = sum(self.RG_E, [])
@@ -140,6 +205,12 @@ class CPG:
                 self.dict_C[layer].append(self.addgener(25 + speed * layer + i * (speed * CV_number + CV_0_len),
                                                         random.gauss(cfr, cfr/10), (speed / c_int + 1)))
 
+        # TODO  --
+        for layer in range(layers, extra_layers):
+            self.dict_C[layer] = []
+            for i in range(step_number):
+                self.dict_C[layer].append(self.addgener(25 + speed * (layer - 4) + i * (speed * CV_number + CV_0_len),
+                                                        random.gauss(cfr, cfr/10), (speed / c_int + 1)))
 
         self.C_1 = []
         self.C_0 = []
@@ -152,6 +223,8 @@ class CPG:
         for i in range(step_number):
             self.C_0.append(self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, CV_0_len/c_int, False))
             self.V0v.append(self.addgener(40 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, 100/c_int, False))
+            ## TODO add BS here
+
 
         # self.C_0.append(self.addgener(0, cfr, (speed / c_int)))
 
@@ -164,8 +237,69 @@ class CPG:
         # self.Iagener_E = sum(self.Iagener_E, [])
         # self.Iagener_F = sum(self.Iagener_F, [])
 
+        # TODO --
+        '''motifs'''
+        # createmotif(self.OM1_0E, self.dict_1[0], self.dict_2E[0], self.dict_3[0])
+        # for layer in range(1, layers):
+        #     createmotif(self.dict_0[layer], self.dict_1[layer], self.dict_2E[layer], self.dict_3[layer])
+        #
+        # for layer in range(layers, extra_layers):
+        #     createmotif(self.dict_0[layer], self.dict_1[layer], self.dict_2E[layer], self.dict_3[layer])
+        #
+        # '''extra flexor connections'''
+        # createmotif(self.OM1_0F, self.dict_1[0], self.dict_2F[0], self.dict_3[0])
+        # #
+        # for layer in range(1, layers):
+        #     createmotif(self.dict_0[layer], self.dict_1[layer], self.dict_2F[layer], self.dict_3[layer])
+        #
+        # # TODO --
+        # for layer in range(1, layers):
+        #     connectcells(self.dict_2F[layer - 1], self.dict_2F[layer], 2.5, 2)
+        #
+        # # TODO --
+        # for layer in range(layers, extra_layers):
+        #     connectcells(self.dict_2F[layer - 1], self.dict_2F[layer], 0.45, 2)
+
+        # connectcells(self.dict_CV[0], self.OM1_0F, 0.0005, 3)
+        # connectcells(self.V0v, self.dict_2F[0], 0.75, 1)
+
+        #TODO OM0 -> RG
+        ## connectcells(self.dict_CV[0], self.OM1_0F, 0.00075, 3)
         ## TODO possibly project to RG_F
         connectcells(self.V0v, self.RG_F, 3.75, 3)
+        # connectcells(self.V0v, self.dict_2F[0], 3.5, 3)
+
+        '''between delays via excitatory pools'''
+        '''extensor'''
+        for layer in range(1, layers):
+            connectcells(self.dict_CV[layer - 1], self.dict_CV[layer], 0.75, 3)
+
+        #TODO OM0->RG
+        ## connectcells(self.dict_CV[0], self.OM1_0E, 0.00047, 2)
+        connectcells(self.dict_CV[0], self.RG_E, 0.00047, 2)
+        for layer in range(1, layers):
+            ## connectcells(self.dict_CV[layer], self.dict_0[layer], 0.00048, 2)
+            connectcells(self.dict_CV[layer], self.RG_E[layer], 0.00048, 2)
+
+        '''inhibitory projections'''
+        '''extensor'''
+        # TODO --
+        # for layer in range(2, layers+1):
+        #     if layer > 3:
+        #         for i in range(0, (layer - 2)):
+        #             connectcells(self.dict_C[layer], self.dict_3[i], 1.95, 1)
+        #             # connectcells(self.dict_C[layer], self.dict_2E[i], 1.75, 1, True)
+        #     else:
+        #         for i in range(0, (layer - 1)):
+        #             connectcells(self.dict_C[layer], self.dict_3[i], 1.95, 1)
+        #             # connectcells(self.dict_C[layer], self.dict_2E[i], 1.75, 1, True)
+        # for layer in range(layers, extra_layers):
+        #     connectcells(self.dict_C[layer-3], self.dict_3[layer], 1.95, 1)
+
+        ''' BS '''
+        #genconnect(self.E_bs, self.Ia_aff_E, 1.5, 1)
+        #genconnect(self.E_bs, self.Ia_aff_F, 1.5, 1)
+        #genconnect(self.E_bs, self.dict_CV[0], 1.5, 2)
         
         for E_bs_gid in self.E_bs_gids:
             genconnect(E_bs_gid, self.BS_aff_E, 1.5, 1)
@@ -185,11 +319,23 @@ class CPG:
         connectcells(self.mns_E, self.muscle_E, 15.5, 2, False, 45)
         connectcells(self.mns_F, self.muscle_F, 15.5, 2, False, 45)
 
-        for layer in range(CV_number):
+        # '''IP'''
+        # for layer in range(1, 4):
+        #     connectcells(self.dict_IP_E[layer-1], self.dict_IP_E[layer+1], 0.45*layer, 2)
+        #     connectcells(self.dict_IP_F[layer-1], self.dict_IP_F[layer+1], 0.45*layer, 2)
+
+        for layer in range(layers):
             '''Internal to RG topology'''
             connectinsidenucleus(self.dict_RG_F[layer])
+            #TODO look into dict_2E, dict_2F
+            ##connectinsidenucleus(self.dict_2E[layer])
+            ##connectinsidenucleus(self.dict_2F[layer])
+            ## connectcells(self.dict_1[layer], self.dict_IP_E[layer], 0.75, 2)
+            #TODO --
+            ## connectcells(self.dict_2E[layer], self.dict_RG_E[layer], 1.75, 3)
             '''RG2Motor'''
             connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
+
             '''Neg feedback RG -> Ia_aff'''
             if layer > 3:
                 connectcells(self.dict_RG_E[layer], self.Ia_aff_E, layer * 0.0002, 1, True)
@@ -197,6 +343,11 @@ class CPG:
                 '''RG2Ia'''
                 connectcells(self.dict_RG_E[layer], self.Ia_aff_E, 0.0001, 1, True)
             '''Flexor'''
+            ## connectcells(self.dict_1[layer], self.dict_IP_F[layer], 0.75, 2)
+            ## TODO OM[2]-> RG (IP)
+            ## connectcells(self.dict_2F[layer], self.dict_RG_F[layer], 2.85, 2)
+            ## connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 2.85, 2)
+
             '''RG2Motor RG2Ia'''
             connectcells(self.dict_RG_F[layer], self.mns_F, 3.75, 2)
             '''Neg feedback loop RG->Ia'''
@@ -206,13 +357,56 @@ class CPG:
         for layer in range(CV_number):
             connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15*k*speed, 2)
 
+        # connectcells(self.IP_F, self.Ia_aff_F, 0.0015, 2, True)
+        # connectcells(self.IP_E, self.Ia_aff_E, 0.0015, 2, True)
+
+        '''C'''
+        # TODO OM0 -> E:RG
+        # if layers > 0:
+        #     '''C1'''
+        #     connectcells(self.dict_CV_1[0], self.OM1_0E, 0.00075*k*speed, 2)
+        # if layers > 1:
+        #     connectcells(self.dict_CV_1[0], self.dict_0[1], 0.00001*k*speed, 3)
+        #     '''C2'''
+        #     connectcells(self.dict_CV_1[1], self.OM1_0E, 0.0005*k*speed, 2)
+        #     connectcells(self.dict_CV_1[1], self.dict_0[1], 0.00045*k*speed, 3)
+        # if layers > 2:
+        #     connectcells(self.dict_CV_1[0], self.dict_0[2], 0.00001*k*speed, 3)
+        #     '''C2'''
+        #     connectcells(self.dict_CV_1[1], self.dict_0[2], 0.00025*k*speed, 3)
+        #     '''C3'''
+        #     # connectcells(self.dict_CV_1[2], self.OM1_0E, 0.00001*k*speed, 2)
+        #     connectcells(self.dict_CV_1[2], self.dict_0[1], 0.0004*k*speed, 2)
+        #     connectcells(self.dict_CV_1[2], self.dict_0[2], 0.00035*k*speed, 3)
+        # if layers > 3:
+        #     connectcells(self.dict_CV_1[2], self.dict_0[3], 0.0002*k*speed, 3)
+        #     '''C4'''
+        #     connectcells(self.dict_CV_1[3], self.dict_0[2], 0.00035*k*speed, 3)
+        #     connectcells(self.dict_CV_1[3], self.dict_0[3], 0.00035*k*speed, 3)
+        #     connectcells(self.dict_CV_1[4], self.dict_0[2], 0.00035*k*speed, 3)
+        #     connectcells(self.dict_CV_1[4], self.dict_0[3], 0.00035*k*speed, 3)
+        # if layers > 4:
+        #
+        #     connectcells(self.dict_CV_1[3], self.dict_0[4], 0.0001*k*speed, 3)
+        #     connectcells(self.dict_CV_1[4], self.dict_0[4], 0.0001*k*speed, 3)
+        #     '''C5'''
+        #     connectcells(self.dict_CV_1[5], self.dict_0[4], 0.00025*k*speed, 3)
+        #     connectcells(self.dict_CV_1[5], self.dict_0[3], 0.0001*k*speed, 3)
+
         '''C=1 Extensor'''
         '''Commisural projections'''
         connectcells(self.RG_E, self.InE, 0.001, 1)
 
-        for layer in range(CV_number):
+        for layer in range(layers+1):
             connectcells(self.dict_CV_1[layer], self.InE, 1.8, 1)
             connectcells(self.dict_C[layer], self.InE, 1.8, 1)
+
+        ## connectcells(self.InE, self.OM1_0F, 1.9, 1, True)
+
+        #TODO look into dict_2F and dict_2E
+        ## for layer in range(layers):
+        ##     connectcells(self.InE, self.dict_2F[layer], 1.8, 2, True)
+        ##     connectcells(self.InF, self.dict_2E[layer], 0.5, 2, True)
 
         '''Ia2RG, RG2Motor'''
         connectcells(self.InE, self.RG_F, 0.5, 1, True)
@@ -484,6 +678,14 @@ def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 50, stdptype
                         exnclist.append(nc)
                         # nc.weight[0] = random.gauss(weight, weight / 6) # str
 
+                if mode == 'STR':
+                    nc.weight[0] = 0 # str
+                else:
+                    nc.weight[0] = random.gauss(weight, weight / 5)
+                nc.delay = random.gauss(delay, delay / 5)
+
+
+
 def genconnect(gen_gid, afferents_gids, weight, delay, inhtype = False, N = 50):
     ''' Connects with generator
       Parameters
@@ -620,7 +822,7 @@ def spikeout(pool, name, version, v_vec):
     if rank == 0:
         logging.info("start recording")
         result = np.mean(np.array(result), axis = 0, dtype=np.float32)
-        with hdf5.File('./res/new_rat4_{}_speed_{}_layers_{}1_eeshz_{}.hdf5'.format(name, speed, CV_number, bs_fr), 'w') as file:
+        with hdf5.File('./res/new_rat4_{}_speed_{}_layers_{}1_eeshz_{}.hdf5'.format(name, speed, layers, bs_fr), 'w') as file:
             for i in range(step_number):
                 sl = slice((int(1000 / bs_fr) * 40 + i * one_step_time * 40), (int(1000 / bs_fr) * 40 + (i + 1) * one_step_time * 40))
                 file.create_dataset('#0_step_{}'.format(i), data=np.array(result)[sl], compression="gzip")

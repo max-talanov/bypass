@@ -58,6 +58,4 @@ obj
 *.so
 **/res/*.*
 **/__pycache__/*.*
-CPG_STDP/py/logs.log
-
 
