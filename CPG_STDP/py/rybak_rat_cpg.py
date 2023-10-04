@@ -210,6 +210,9 @@ class CPG:
             genconnect(F_bs_gid, self.BS_aff_F, 1.5, 1)
 
         connectcells(self.BS_aff_F, self.V3F, 1.5, 1)
+        connectcells(self.BS_aff_F, self.RG_F, 1.5, 1)
+
+        connectcells(self.BS_aff_E, self.RG_E, 1.5, 1)
 
         '''generators of Ia aff'''
         genconnect(self.Iagener_E, self.Ia_aff_E, 0.00005, 1, False, 5)
@@ -388,8 +391,8 @@ class CPG:
         E_bs_gids = []
         F_bs_gids = []
         for step in range(step_number):
-            F_bs_gids.append(self.addgener(int(one_step_time * step), freq, spikes_per_step, False))
-            E_bs_gids.append(self.addgener(int(one_step_time * (step + 0.5)), freq, spikes_per_step, False))
+            F_bs_gids.append(self.addgener(int(one_step_time * (step + 0.5)), freq, spikes_per_step, False))
+            E_bs_gids.append(self.addgener(int(one_step_time * step), freq, spikes_per_step, False))
         return E_bs_gids, F_bs_gids
 
     def addgener(self, start, freq, nums, noise=True):
