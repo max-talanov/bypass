@@ -136,10 +136,7 @@ class CPG:
         # self.Iagener_F = []
 
         '''BS'''
-        #TODO BS -> periodic stimulation
-        # self.E_bs = self.addgener(0, bs_fr, 10000, False)
-        # self.F_bs = self.addgener(0, bs_fr, 10000, False)
-        
+        #periodic stimulation
         self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 10)
 
         '''muscle afferents generators'''
@@ -200,10 +197,10 @@ class CPG:
         #genconnect(self.E_bs, self.dict_CV[0], 1.5, 2)
         
         for E_bs_gid in self.E_bs_gids:
-            genconnect(E_bs_gid, self.BS_aff_E, 1.5, 1)
+            genconnect(E_bs_gid, self.BS_aff_E, 3.5, 3)
 
         for F_bs_gid in self.F_bs_gids:
-            genconnect(F_bs_gid, self.BS_aff_F, 1.5, 1)
+            genconnect(F_bs_gid, self.BS_aff_F, 3.5, 3)
 
         connectcells(self.BS_aff_F, self.V3F, 1.5, 3)
         connectcells(self.BS_aff_F, self.RG_F, 3.75, 3)
