@@ -15,9 +15,9 @@ pc = h.ParallelContext()
 rank = int(pc.id())
 nhost = int(pc.nhost())
 
-modes = ['PLT', 'STR', 'AIR', 'TOE', 'QPZ', 'QUAD']
-mode = 'PLT'
-logging.info(mode)
+# modes = ['PLT', 'STR', 'AIR', 'TOE', 'QPZ', 'QUAD']
+# mode = 'PLT'
+# logging.info(mode)
 
 #param
 speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
@@ -26,7 +26,6 @@ bs_fr = 100 #40 # frequency of brainstem inputs
 versions = 1
 
 step_number = 3 # number of steps
-## layers =  1 # 5  # 5 is default #TODO get rid of layers
 
 CV_number = 6
 extra_layers = 0 # 1 + layers
@@ -37,16 +36,16 @@ N = 5 #50
 k = 0.017
 CV_0_len = 12 # 125
 
-if mode == 'AIR':
-    k = 0.001
-    speed = 25
-
-if mode == 'TOE':
-    k = 0.01
-
-if mode == 'QUAD':
-    CV_0_len = 175
-    k = 0.003
+# if mode == 'AIR':
+#     k = 0.001
+#     speed = 25
+#
+# if mode == 'TOE':
+#     k = 0.01
+#
+# if mode == 'QUAD':
+#     CV_0_len = 175
+#     k = 0.003
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = 25 + one_step_time * step_number
@@ -85,7 +84,7 @@ class CPG:
 
         for layer in range(CV_number):
             '''cut and muscle feedback'''
-            self.dict_CV = {layer: 'CV{}'.format(layer + 1)}
+            ## self.dict_CV = {layer: 'CV{}'.format(layer + 1)}
             self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
             # TODO -> RG
             self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
@@ -95,7 +94,7 @@ class CPG:
 
         for layer in range(CV_number):
             '''Cutaneous pools'''
-            self.dict_CV[layer] = self.addpool(self.ncell, "CV" + str(layer + 1), "aff")
+            ##self.dict_CV[layer] = self.addpool(self.ncell, "CV" + str(layer + 1), "aff")
             self.dict_CV_1[layer] = self.addpool(self.ncell, "CV" + str(layer + 1) + "_1", "aff")
 
             '''Rhythm generator pools'''
@@ -187,16 +186,13 @@ class CPG:
         '''between delays via excitatory pools'''
         '''extensor'''
         ## TODO possibly remove
-        for layer in range(1, CV_number):
-            connectcells(self.dict_CV[layer - 1], self.dict_CV[layer], 0.75, 3)
+        # for layer in range(1, CV_number):
+        #     connectcells(self.dict_CV[layer - 1], self.dict_CV[layer], 0.75, 3)
 
-        #TODO OM0->RG
-        ## TODO CV  is empty why?
-        ## connectcells(self.dict_CV[0], self.OM1_0E, 0.00047, 2)
-        connectcells(self.dict_CV[0], self.RG_E, 0.00047, 2)
-        for layer in range(1, CV_number):
-            ## connectcells(self.dict_CV[layer], self.dict_0[layer], 0.00048, 2)
-            connectcells(self.dict_CV[layer], self.dict_RG_E[layer], 0.00048, 2)
+
+        ## connectcells(self.dict_CV[0], self.RG_E, 0.00047, 2)
+        # for layer in range(1, CV_number):
+        #     connectcells(self.dict_CV[layer], self.dict_RG_E[layer], 0.00048, 2)
 
         ''' BS '''
         #genconnect(self.E_bs, self.Ia_aff_E, 1.5, 1)
@@ -209,10 +205,10 @@ class CPG:
         for F_bs_gid in self.F_bs_gids:
             genconnect(F_bs_gid, self.BS_aff_F, 1.5, 1)
 
-        connectcells(self.BS_aff_F, self.V3F, 1.5, 1)
-        connectcells(self.BS_aff_F, self.RG_F, 1.5, 1)
+        connectcells(self.BS_aff_F, self.V3F, 1.5, 3)
+        connectcells(self.BS_aff_F, self.RG_F, 3.75, 3)
 
-        connectcells(self.BS_aff_E, self.RG_E, 1.5, 1)
+        connectcells(self.BS_aff_E, self.RG_E, 3.75, 3)
 
         '''generators of Ia aff'''
         genconnect(self.Iagener_E, self.Ia_aff_E, 0.00005, 1, False, 5)
@@ -549,10 +545,10 @@ def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 50, stdptype
                         exnclist.append(nc)
                         # nc.weight[0] = random.gauss(weight, weight / 6) # str
 
-                if mode == 'STR':
-                    nc.weight[0] = 0 # str
-                else:
-                    nc.weight[0] = random.gauss(weight, weight / 5)
+                # if mode == 'STR':
+                #     nc.weight[0] = 0 # str
+                # else:
+                nc.weight[0] = random.gauss(weight, weight / 5)
                 nc.delay = random.gauss(delay, delay / 5)
 
 
