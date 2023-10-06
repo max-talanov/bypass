@@ -109,7 +109,7 @@ class CPG:
         self.RG_F = sum(self.RG_F, [])
 
         '''sensory and muscle afferents and brainstem and V3F'''
-        self.sens_aff = self.addpool(nAff, "sens_aff", "aff")
+        ## self.sens_aff = self.addpool(nAff, "sens_aff", "aff")
         self.Ia_aff_E = self.addpool(nAff, "Ia_aff_E", "aff")
         self.Ia_aff_F = self.addpool(nAff, "Ia_aff_F", "aff")
         self.BS_aff_E = self.addpool(nAff, "BS_aff_E", "aff")
@@ -180,7 +180,7 @@ class CPG:
         # self.Iagener_F = sum(self.Iagener_F, [])
 
         ## TODO possibly project to RG_F
-        connectcells(self.V0v, self.RG_F, 3.75, 3)
+        ## connectcells(self.V0v, self.RG_F, 3.75, 3)
         # connectcells(self.V0v, self.dict_2F[0], 3.5, 3)
 
         '''between delays via excitatory pools'''
