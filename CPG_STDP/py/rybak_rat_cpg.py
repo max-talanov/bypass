@@ -30,8 +30,8 @@ step_number = 3 # number of steps
 CV_number = 6
 extra_layers = 0 # 1 + layers
 nMN = 21 # 210
-nAff = 12 # 120
-nInt = 19 # 196
+nAff = 120 # 120 # Number of afferents
+nInt = 19 # 196 # Number of neurons in interneuronal pools
 N = 5 #50
 k = 0.017
 CV_0_len = 12 # 125
@@ -263,7 +263,7 @@ class CPG:
 
         for layer in range(CV_number):
             connectcells(self.dict_CV_1[layer], self.InE, 1.8, 1)
-            connectcells(self.dict_C[layer], self.InE, 1.8, 1)
+            ## connectcells(self.dict_C[layer], self.InE, 1.8, 1)
 
         ## connectcells(self.InE, self.OM1_0F, 1.9, 1, True)
 
