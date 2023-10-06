@@ -126,11 +126,11 @@ class CPG:
 
         '''reflex arc'''
         self.Ia_E = self.addpool(nInt, "Ia_E", "int")
-        self.InE = self.addpool(nInt, "iInE", "int")
+        self.InE = self.addpool(nInt, "InE", "int")
         self.R_E = self.addpool(nInt, "R_E", "int") # Renshaw cells
 
         self.Ia_F = self.addpool(nInt, "Ia_F", "int")
-        self.InF = self.addpool(nInt, "iInF", "int")
+        self.InF = self.addpool(nInt, "InF", "int")
         self.R_F = self.addpool(nInt, "R_F", "int") # Renshaw cells
         # self.Iagener_E = []
         # self.Iagener_F = []
@@ -288,10 +288,10 @@ class CPG:
         connectcells(self.Ia_aff_E, self.RG_E, 0.5, 1)
 
         # TODO check this too many reciprocal inh connections
-        connectcells(self.InF, self.InE, 0.5, 1, True)
+        ## connectcells(self.InF, self.InE, 0.5, 1, True)
         connectcells(self.InF, self.Ia_aff_E, 0.5, 1, True)
         connectcells(self.InF, self.mns_E, 0.4, 1, True)
-        connectcells(self.C_0, self.InF, 0.8, 1)
+        ##connectcells(self.C_0, self.InF, 0.8, 1)
 
         '''reflex arc'''
         connectcells(self.InE, self.Ia_E, 0.001, 1)
@@ -312,7 +312,8 @@ class CPG:
         connectcells(self.R_F, self.R_E, 0.04, 1, True)
         connectcells(self.Ia_E, self.Ia_F, 0.08, 1, True)
         connectcells(self.Ia_F, self.Ia_E, 0.08, 1, True)
-        connectcells(self.InE, self.InF, 0.04, 1, True)
+        ## TODO check the inh connection
+        ## connectcells(self.InE, self.InF, 0.04, 1, True)
         connectcells(self.InF, self.InE, 0.04, 1, True)
 
 
@@ -686,7 +687,7 @@ def spikeout(pool, name, version, v_vec):
     if rank == 0:
         logging.info("start recording")
         result = np.mean(np.array(result), axis = 0, dtype=np.float32)
-        with hdf5.File('./res/rat_{}_speed_{}_CVs_{}1_bshz_{}.hdf5'.format(name, speed, CV_number, bs_fr), 'w') as file:
+        with hdf5.File('./res/{}_sp_{}_CVs_{}_bs_{}.hdf5'.format(name, speed, CV_number, bs_fr), 'w') as file:
             for i in range(step_number):
                 sl = slice((int(1000 / bs_fr) * 40 + i * one_step_time * 40), (int(1000 / bs_fr) * 40 + (i + 1) * one_step_time * 40))
                 file.create_dataset('#0_step_{}'.format(i), data=np.array(result)[sl], compression="gzip")
