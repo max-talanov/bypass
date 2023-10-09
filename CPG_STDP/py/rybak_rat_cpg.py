@@ -86,7 +86,6 @@ class CPG:
             '''cut and muscle feedback'''
             ## self.dict_CV = {layer: 'CV{}'.format(layer + 1)}
             self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
-            # TODO -> RG
             self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
             self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
             self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
@@ -161,9 +160,8 @@ class CPG:
         '''generators'''
         for i in range(step_number):
             self.C_0.append(self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, CV_0_len/c_int, False))
+            ## TODO possibly we don't need this
             self.V0v.append(self.addgener(40 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, 100/c_int, False))
-            ## TODO add BS here
-
 
         # self.C_0.append(self.addgener(0, cfr, (speed / c_int)))
 
@@ -173,24 +171,10 @@ class CPG:
 
         # self.C_0 = sum(self.C_0, [])
 
-        # self.Iagener_E = sum(self.Iagener_E, [])
-        # self.Iagener_F = sum(self.Iagener_F, [])
-
         ## TODO possibly project to RG_F
         ## connectcells(self.V0v, self.RG_F, 3.75, 3)
-        # connectcells(self.V0v, self.dict_2F[0], 3.5, 3)
 
-        '''between delays via excitatory pools'''
         '''extensor'''
-        ## TODO possibly remove
-        # for layer in range(1, CV_number):
-        #     connectcells(self.dict_CV[layer - 1], self.dict_CV[layer], 0.75, 3)
-
-
-        ## connectcells(self.dict_CV[0], self.RG_E, 0.00047, 2)
-        # for layer in range(1, CV_number):
-        #     connectcells(self.dict_CV[layer], self.dict_RG_E[layer], 0.00048, 2)
-
         ''' BS '''
         #genconnect(self.E_bs, self.Ia_aff_E, 1.5, 1)
         #genconnect(self.E_bs, self.Ia_aff_F, 1.5, 1)
@@ -204,10 +188,10 @@ class CPG:
 
         connectcells(self.BS_aff_F, self.V3F, 1.5, 3)
         connectcells(self.BS_aff_F, self.RG_F, 3.75, 3)
-
         connectcells(self.BS_aff_E, self.RG_E, 3.75, 3)
 
         '''generators of Ia aff'''
+        ## TODO why weights are so differenet?
         genconnect(self.Iagener_E, self.Ia_aff_E, 0.00005, 1, False, 5)
         genconnect(self.Iagener_F, self.Ia_aff_F, 0.0001, 1, False, 15)
         '''Ia2motor'''
@@ -216,11 +200,6 @@ class CPG:
         '''motor2muscles'''
         connectcells(self.mns_E, self.muscle_E, 15.5, 2, False, 45)
         connectcells(self.mns_F, self.muscle_F, 15.5, 2, False, 45)
-
-        # '''IP'''
-        # for layer in range(1, 4):
-        #     connectcells(self.dict_IP_E[layer-1], self.dict_IP_E[layer+1], 0.45*layer, 2)
-        #     connectcells(self.dict_IP_F[layer-1], self.dict_IP_F[layer+1], 0.45*layer, 2)
 
         for layer in range(CV_number):
             '''Internal to RG topology'''
@@ -231,19 +210,15 @@ class CPG:
             connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
             connectcells(self.dict_RG_F[layer], self.mns_F, 2.75, 3)
 
-            '''Neg feedback RG -> Ia_aff'''
+            '''Neg feedback RG -> Ia'''
+            ## TODO why do we have this neg feedback ?
             if layer > 3:
                 connectcells(self.dict_RG_E[layer], self.Ia_aff_E, layer * 0.0002, 1, True)
             else:
                 '''RG2Ia'''
                 connectcells(self.dict_RG_E[layer], self.Ia_aff_E, 0.0001, 1, True)
-            '''Flexor'''
 
-            ## TODO OM[2]-> RG (IP)
-            ## connectcells(self.dict_2F[layer], self.dict_RG_F[layer], 2.85, 2)
-            ## connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 2.85, 2)
-
-            '''RG2Motor RG2Ia'''
+            '''RG2Motor, RG2Ia'''
             connectcells(self.dict_RG_F[layer], self.mns_F, 3.75, 2)
             '''Neg feedback loop RG->Ia'''
             connectcells(self.dict_RG_F[layer], self.Ia_aff_F, 0.95, 1, True)
@@ -265,13 +240,6 @@ class CPG:
             connectcells(self.dict_CV_1[layer], self.InE, 1.8, 1)
             ## connectcells(self.dict_C[layer], self.InE, 1.8, 1)
 
-        ## connectcells(self.InE, self.OM1_0F, 1.9, 1, True)
-
-        #TODO look into dict_2F and dict_2E
-        ## for layer in range(layers):
-        ##     connectcells(self.InE, self.dict_2F[layer], 1.8, 2, True)
-        ##     connectcells(self.InF, self.dict_2E[layer], 0.5, 2, True)
-
         '''Ia2RG, RG2Motor'''
         connectcells(self.InE, self.RG_F, 0.5, 1, True)
         ## STDP synapse
@@ -282,7 +250,8 @@ class CPG:
         connectcells(self.InE, self.mns_F, 0.8, 1, True)
 
         '''C=0 Flexor'''
-        connectcells(self.RG_F, self.InF, 0.0001, 1)
+        ## TODO weight 0.0001
+        connectcells(self.RG_F, self.InF, 0.001, 1)
         connectcells(self.InF, self.RG_E, 0.8, 1, True)
         ## TODO STDP weight
         connectcells(self.Ia_aff_E, self.RG_E, 0.5, 1)
