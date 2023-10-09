@@ -157,7 +157,7 @@ class CPG:
         self.C_0 = []
         self.V0v = []
 
-        '''generators'''
+        '''Generators'''
         for i in range(step_number):
             self.C_0.append(self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, CV_0_len/c_int, False))
             ## TODO possibly we don't need this
@@ -168,18 +168,13 @@ class CPG:
         for layer in range(CV_number):
             self.C_1.append(self.dict_CV_1[layer])
         self.C_1 = sum(self.C_1, [])
-
         # self.C_0 = sum(self.C_0, [])
 
         ## TODO possibly project to RG_F
         ## connectcells(self.V0v, self.RG_F, 3.75, 3)
 
-        '''extensor'''
+        '''Extensor'''
         ''' BS '''
-        #genconnect(self.E_bs, self.Ia_aff_E, 1.5, 1)
-        #genconnect(self.E_bs, self.Ia_aff_F, 1.5, 1)
-        #genconnect(self.E_bs, self.dict_CV[0], 1.5, 2)
-        
         for E_bs_gid in self.E_bs_gids:
             genconnect(E_bs_gid, self.BS_aff_E, 3.5, 3)
 
@@ -236,31 +231,29 @@ class CPG:
         '''Commisural projections'''
         connectcells(self.RG_E, self.InE, 0.001, 1)
 
-        for layer in range(CV_number):
-            connectcells(self.dict_CV_1[layer], self.InE, 1.8, 1)
-            ## connectcells(self.dict_C[layer], self.InE, 1.8, 1)
+        ##for layer in range(CV_number):
+        ##    connectcells(self.dict_CV_1[layer], self.InE, 1.8, 1)
+        ##    connectcells(self.dict_C[layer], self.InE, 1.8, 1)
 
         '''Ia2RG, RG2Motor'''
         connectcells(self.InE, self.RG_F, 0.5, 1, True)
-        ## STDP synapse
+        '''STDP synapse'''
         connectcells(self.Ia_aff_F, self.RG_F, 0.5, 1, stdptype=True)
 
         # TODO check this too many reciprocal inh connections
         connectcells(self.InE, self.Ia_aff_F, 1.2, 1, True)
         connectcells(self.InE, self.mns_F, 0.8, 1, True)
 
-        '''C=0 Flexor'''
         ## TODO weight 0.0001
-        connectcells(self.RG_F, self.InF, 0.001, 1)
+        connectcells(self.RG_F, self.InF, 0.01, 1)
         connectcells(self.InF, self.RG_E, 0.8, 1, True)
         ## TODO STDP weight
-        connectcells(self.Ia_aff_E, self.RG_E, 0.5, 1)
+        connectcells(self.Ia_aff_E, self.RG_E, 0.5, 1, stdptype=True)
 
         # TODO check this too many reciprocal inh connections
         ## connectcells(self.InF, self.InE, 0.5, 1, True)
         connectcells(self.InF, self.Ia_aff_E, 0.5, 1, True)
         connectcells(self.InF, self.mns_E, 0.4, 1, True)
-        ##connectcells(self.C_0, self.InF, 0.8, 1)
 
         '''reflex arc'''
         connectcells(self.InE, self.Ia_E, 0.001, 1)
@@ -283,7 +276,7 @@ class CPG:
         connectcells(self.Ia_F, self.Ia_E, 0.08, 1, True)
         ## TODO check the inh connection
         ## connectcells(self.InE, self.InF, 0.04, 1, True)
-        connectcells(self.InF, self.InE, 0.04, 1, True)
+        ## connectcells(self.InF, self.InE, 0.04, 1, True)
 
 
     def addpool(self, num, name="test", neurontype="int"):
