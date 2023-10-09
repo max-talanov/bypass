@@ -105,7 +105,9 @@ class CPG:
 
         '''RG'''
         self.RG_E = sum(self.RG_E, [])
+        self.InE = self.addpool(nInt, "InE", "int")
         self.RG_F = sum(self.RG_F, [])
+        self.InF = self.addpool(nInt, "InF", "int")
 
         '''sensory and muscle afferents and brainstem and V3F'''
         ## self.sens_aff = self.addpool(nAff, "sens_aff", "aff")
@@ -125,11 +127,8 @@ class CPG:
 
         '''reflex arc'''
         self.Ia_E = self.addpool(nInt, "Ia_E", "int")
-        self.InE = self.addpool(nInt, "InE", "int")
         self.R_E = self.addpool(nInt, "R_E", "int") # Renshaw cells
-
         self.Ia_F = self.addpool(nInt, "Ia_F", "int")
-        self.InF = self.addpool(nInt, "InF", "int")
         self.R_F = self.addpool(nInt, "R_F", "int") # Renshaw cells
         # self.Iagener_E = []
         # self.Iagener_F = []
@@ -145,13 +144,13 @@ class CPG:
         '''cutaneous inputs'''
         cfr = 200
         c_int = 1000 / cfr
+
         '''cutaneous inputs generators'''
         for layer in range(CV_number):
             self.dict_C[layer] = []
             for i in range(step_number):
                 self.dict_C[layer].append(self.addgener(25 + speed * layer + i * (speed * CV_number + CV_0_len),
                                                         random.gauss(cfr, cfr/10), (speed / c_int + 1)))
-
 
         self.C_1 = []
         self.C_0 = []
@@ -275,8 +274,8 @@ class CPG:
         connectcells(self.Ia_E, self.Ia_F, 0.08, 1, True)
         connectcells(self.Ia_F, self.Ia_E, 0.08, 1, True)
         ## TODO check the inh connection
-        ## connectcells(self.InE, self.InF, 0.04, 1, True)
-        ## connectcells(self.InF, self.InE, 0.04, 1, True)
+        connectcells(self.InE, self.InF, 0.04, 1, True)
+        connectcells(self.InF, self.InE, 0.04, 1, True)
 
 
     def addpool(self, num, name="test", neurontype="int"):
@@ -553,28 +552,6 @@ def genconnect(gen_gid, afferents_gids, weight, delay, inhtype = False, N = 50):
                 stimnclist.append(nc)
                 nc.delay = random.gauss(delay, delay / 5)
                 nc.weight[0] = random.gauss(weight, weight / 6)
-
-def createmotif(OM0, OM1, OM2, OM3):
-    ''' Connects motif module
-      see https://github.com/research-team/memristive-spinal-cord/blob/master/doc/diagram/cpg_generator_FE_paper.png
-      Parameters
-      ----------
-      self.OM0: list
-          list of self.OM0 pool gids
-      self.OM1: list
-          list of self.OM1 pool gids
-      self.OM2: list
-          list of self.OM2 pool gids
-      self.OM3: list
-          list of self.OM3 pool gids
-    '''
-    connectcells(OM0, OM1, 2.85, 3)
-    connectcells(OM1, OM2, 2.85, 3)
-    connectcells(OM2, OM1, 1.95, 3)
-    connectcells(OM2, OM3, 0.001, 3)
-    connectcells(OM1, OM3, 0.00005, 3)
-    connectcells(OM3, OM2, 4.5, 1, True)
-    connectcells(OM3, OM1, 4.5, 1, True)
 
 def connectinsidenucleus(nucleus):
     connectcells(nucleus, nucleus, 0.25, 0.5)
