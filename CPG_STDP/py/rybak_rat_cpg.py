@@ -226,8 +226,11 @@ class CPG:
         # connectcells(self.IP_E, self.Ia_aff_E, 0.0015, 2, True)
 
 
-        '''C=1 Extensor'''
-        ## connectcells(self.RG_E, self.InE, 0.001, 1)
+        '''Rhythm generators'''
+        for layer in range(CV_number):
+            connectcells(self.dict_RG_E[layer], self.InE, 0.001, 1)
+            ## TODO weight 0.0001
+            connectcells(self.dict_RG_F[layer], self.InF, 0.001, 1)
 
         '''Ia2RG, RG2Motor'''
         connectcells(self.InE, self.RG_F, 0.5, 1, True)
@@ -238,8 +241,7 @@ class CPG:
         connectcells(self.InE, self.Ia_aff_F, 1.2, 1, True)
         connectcells(self.InE, self.mns_F, 0.8, 1, True)
 
-        ## TODO weight 0.0001
-        ## connectcells(self.RG_F, self.InF, 0.01, 1)
+
         connectcells(self.InF, self.RG_E, 0.8, 1, True)
         ## TODO STDP weight
         connectcells(self.Ia_aff_E, self.RG_E, 0.5, 1, stdptype=True)
