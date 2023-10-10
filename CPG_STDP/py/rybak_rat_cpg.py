@@ -227,12 +227,7 @@ class CPG:
 
 
         '''C=1 Extensor'''
-        '''Commisural projections'''
-        connectcells(self.RG_E, self.InE, 0.001, 1)
-
-        ##for layer in range(CV_number):
-        ##    connectcells(self.dict_CV_1[layer], self.InE, 1.8, 1)
-        ##    connectcells(self.dict_C[layer], self.InE, 1.8, 1)
+        ## connectcells(self.RG_E, self.InE, 0.001, 1)
 
         '''Ia2RG, RG2Motor'''
         connectcells(self.InE, self.RG_F, 0.5, 1, True)
@@ -244,7 +239,7 @@ class CPG:
         connectcells(self.InE, self.mns_F, 0.8, 1, True)
 
         ## TODO weight 0.0001
-        connectcells(self.RG_F, self.InF, 0.01, 1)
+        ## connectcells(self.RG_F, self.InF, 0.01, 1)
         connectcells(self.InF, self.RG_E, 0.8, 1, True)
         ## TODO STDP weight
         connectcells(self.Ia_aff_E, self.RG_E, 0.5, 1, stdptype=True)
