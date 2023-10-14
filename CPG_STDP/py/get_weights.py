@@ -726,7 +726,7 @@ def weight_record(pool):
           w_vec: list of h.Vector()
               recorded weights
         '''
-    w_vec = []
+    v_vec = []
     for i in pool:
         pool[i].weight[0]
         vec = h.Vector(np.zeros(int(time_sim/0.025 + 1), dtype=np.float32))
@@ -780,6 +780,9 @@ if __name__ == '__main__':
         recorders = []
         for group in cpg_ex.groups:
           recorders.append(spike_record(group[k_nrns], i))
+        weight_recorders = []
+        weight_recorders.append(NCHolder.record_excitatory_netcons())
+        weight_recorders.append(NCHolder.record_inhibitory_netcons())
         logging.info("added recorders")
 
         print("- " * 10, "\nstart")
@@ -797,6 +800,7 @@ if __name__ == '__main__':
           spikeout(group[k_nrns], group[k_name], i, recorder)
         for group, recorder in zip(cpg_ex.groups, recorders):
           spikeout(group[k_nrns], group[k_name], i, recorder)
+
         logging.info("recorded")
 
     finish()
