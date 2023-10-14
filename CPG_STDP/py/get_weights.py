@@ -8,6 +8,8 @@ logging.info("let's get it started")
 import numpy as np
 from neuron import h
 import h5py as hdf5
+from nc_holder import *
+NCHolder = NC_holder()
 h.load_file('nrngui.hoc')
 
 #paralleling NEURON stuff
@@ -551,6 +553,9 @@ def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 50, stdptype
                 nc.weight[0] = random.gauss(weight, weight / 5)
                 nc.delay = random.gauss(delay, delay / 5)
 
+    NCHolder.add_inhibitory_netcons(inhstdpnclist)
+    NCHolder.add_excitatory_netcons(exstdpnclist)
+
 
 
 def genconnect(gen_gid, afferents_gids, weight, delay, inhtype = False, N = 50):
@@ -568,7 +573,7 @@ def genconnect(gen_gid, afferents_gids, weight, delay, inhtype = False, N = 50):
           synaptic delay
           used with Gaussian distribution
       nsyn: int
-          numder of synapses
+          number of synapses
       inhtype: bool
           is this connection inhibitory?
     '''
@@ -635,7 +640,7 @@ def spike_record(pool, extra = False):
     v_vec = []
 
     for i in pool:
-        cell = pc.gid2cell(i)
+        cell = pc.gid2cell(i)  # Returns cell by its id
         vec = h.Vector(np.zeros(int(time_sim/0.025 + 1), dtype=np.float32))
         if extra:
             vec.record(cell.soma(0.5)._ref_vext[0])
@@ -710,6 +715,38 @@ def prun(speed, step_number):
     h.stdinit()
     pc.psolve(tstop)
 
+def weight_record(pool):
+    ''' Records weights
+          Parameters
+          ----------
+          pool: list
+            list of synapses
+          Returns
+          -------
+          w_vec: list of h.Vector()
+              recorded weights
+        '''
+    w_vec = []
+    for i in pool:
+        pool[i].weight[0]
+        vec = h.Vector(np.zeros(int(time_sim/0.025 + 1), dtype=np.float32))
+        w_vec.append(vec)
+    return v_vec
+
+
+
+
+
+'''
+def get_weights(synapses, w_vec):
+    with hdf5.File('./res/rat_{}_speed_{}_CVs_{}1_bshz_{}.hdf5'.format(name, speed, CV_number, bs_fr), 'w') as file:
+        for i in range(step_number):
+            sl = slice((int(1000 / bs_fr) * 40 + i * one_step_time * 40),
+                       (int(1000 / bs_fr) * 40 + (i + 1) * one_step_time * 40))
+            file.create_dataset('#0_step_{}'.format(i), data=np.array(result)[sl], compression="gzip")
+'''
+
+
 
 def finish():
     ''' proper exit '''
@@ -723,6 +760,7 @@ if __name__ == '__main__':
     cpg_ex: cpg
         topology of central pattern generation + reflex arc
     '''
+
     k_nrns = 0
     k_name = 1
 
