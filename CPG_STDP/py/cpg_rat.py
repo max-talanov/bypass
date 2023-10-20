@@ -722,12 +722,12 @@ if __name__ == '__main__':
 
         for group in cpg_ex.motogroups:
             motorecorders_mem.append(spike_record(group[k_nrns]))
-        # affrecorders = []
-        # for group in cpg_ex.affgroups:
-        #   affrecorders.append(spike_record(group[k_nrns], i))
-        # recorders = []
-        # for group in cpg_ex.groups:
-        #   recorders.append(spike_record(group[k_nrns], i))
+        affrecorders = []
+        for group in cpg_ex.affgroups:
+          affrecorders.append(spike_record(group[k_nrns], i))
+        recorders = []
+        for group in cpg_ex.groups:
+          recorders.append(spike_record(group[k_nrns], i))
         logging.info("added recorders")
 
         print("- " * 10, "\nstart")
@@ -741,10 +741,10 @@ if __name__ == '__main__':
 
         for group, recorder in zip(cpg_ex.motogroups, motorecorders_mem):
             spikeout(group[k_nrns], 'mem_{}'.format(group[k_name]), i, recorder)
-        # for group, recorder in zip(cpg_ex.affgroups, affrecorders):
-        #   spikeout(group[k_nrns], group[k_name], i, recorder)
-        # for group, recorder in zip(cpg_ex.groups, recorders):
-        #   spikeout(group[k_nrns], group[k_name], i, recorder)
+        for group, recorder in zip(cpg_ex.affgroups, affrecorders):
+          spikeout(group[k_nrns], group[k_name], i, recorder)
+        for group, recorder in zip(cpg_ex.groups, recorders):
+          spikeout(group[k_nrns], group[k_name], i, recorder)
         logging.info("recorded")
 
     finish()
