@@ -25,13 +25,13 @@ speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
 bs_fr = 100 #40 # frequency of brainstem inputs
 versions = 1
 
-step_number = 3 # number of steps
+step_number = 10 # number of steps
 
 CV_number = 6
 extra_layers = 0 # 1 + layers
 nMN = 21 # 210
 nAff = 120 # 120 # Number of afferents
-nInt = 19 # 196 # Number of neurons in interneuronal pools
+nInt = 50 #19 # 196 # Number of neurons in interneuronal pools
 N = 5 #50
 k = 0.017
 CV_0_len = 12 # 125
@@ -186,8 +186,8 @@ class CPG:
 
         '''generators of Ia aff'''
         ## TODO why weights are so differenet?
-        genconnect(self.Iagener_E, self.Ia_aff_E, 0.00005, 1, False, 5)
-        genconnect(self.Iagener_F, self.Ia_aff_F, 0.0001, 1, False, 15)
+        genconnect(self.Iagener_E, self.Ia_aff_E, 1, 1, False, 5)
+        genconnect(self.Iagener_F, self.Ia_aff_F, 1.5, 1, False, 15)
         '''Ia2motor'''
         connectcells(self.Ia_aff_E, self.mns_E, 1.55, 1.5)
         connectcells(self.Ia_aff_F, self.mns_F, 0.5, 1.5)
