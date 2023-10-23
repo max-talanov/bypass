@@ -34,8 +34,8 @@ nInt = 50 #19 # 196 # Number of neurons in interneuronal pools
 N = 50 #5 #50
 
 ## TODO clarify these
-k = 0.017
-CV_0_len = 12 # 125
+k = 0.017 # CV weights multiplier to take into account air and toe stepping
+CV_0_len = 12 # 125 # Duration of the CV generator with no sensory inputs
 extra_layers = 0 # 1 + layers
 
 # if mode == 'AIR':
