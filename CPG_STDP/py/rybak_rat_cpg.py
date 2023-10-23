@@ -28,12 +28,11 @@ versions = 1
 step_number = 5 # number of steps
 
 CV_number = 6
-nMN = 210 # 21 # 210 # Number of motor neurons
-nAff = 120  # 120 # Number of afferents
-nInt = 50 #19 # 196 # Number of neurons in interneuronal pools
-N = 50 #5 #50
+nMN = 21 # 21 # 210 # Number of motor neurons
+nAff = 12  # 120 # Number of afferents
+nInt = 5 #19 # 196 # Number of neurons in interneuronal pools
+N = 5 #5 #50
 
-## TODO clarify these
 k = 0.017 # CV weights multiplier to take into account air and toe stepping
 CV_0_len = 12 # 125 # Duration of the CV generator with no sensory inputs
 extra_layers = 0 # 1 + layers
@@ -142,6 +141,9 @@ class CPG:
         '''muscle afferents generators'''
         self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_E, 10)
         self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_F, speed*6)
+        Iagener_E_1000 = self.addIagener(self.muscle_E, self.muscle_E, 1000)
+        Iagener_F_1000 = self.addIagener(self.muscle_E, self.muscle_E, 1000 + (speed*6))
+
 
         '''cutaneous inputs'''
         cfr = 200
@@ -191,6 +193,9 @@ class CPG:
         ## TODO fix Iagener
         genconnect(self.Iagener_E, self.Ia_aff_E, 5.0, 1, False, 5)
         genconnect(self.Iagener_F, self.Ia_aff_F, 5.0, 1, False, 15)
+        genconnect(Iagener_E_1000, self.Ia_aff_E, 5.0, 1, False, 5)
+        genconnect(Iagener_F_1000, self.Ia_aff_F, 5.0, 1, False, 15)
+
         '''Ia2motor'''
         connectcells(self.Ia_aff_E, self.mns_E, 1.55, 1.5)
         connectcells(self.Ia_aff_F, self.mns_F, 0.5, 1.5)
