@@ -188,7 +188,7 @@ class CPG:
 
         '''generators of Ia aff'''
         ## TODO originally: 00005 and 0001
-
+        ## TODO fix Iagener
         genconnect(self.Iagener_E, self.Ia_aff_E, 5.0, 1, False, 5)
         genconnect(self.Iagener_F, self.Ia_aff_F, 5.0, 1, False, 15)
         '''Ia2motor'''
