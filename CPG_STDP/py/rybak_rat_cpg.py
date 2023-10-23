@@ -182,9 +182,9 @@ class CPG:
         for F_bs_gid in self.F_bs_gids:
             genconnect(F_bs_gid, self.BS_aff_F, 3.5, 3)
 
-        connectcells(self.BS_aff_F, self.V3F, 1.5, 3)
-        connectcells(self.BS_aff_F, self.RG_F, 3.75, 3)
-        connectcells(self.BS_aff_E, self.RG_E, 3.75, 3)
+        connectcells(self.BS_aff_F, self.V3F, 1.5, 3, stdptype=True)
+        connectcells(self.BS_aff_F, self.RG_F, 3.75, 3, stdptype=True)
+        connectcells(self.BS_aff_E, self.RG_E, 3.75, 3, stdptype=True)
 
         '''generators of Ia aff'''
         ## TODO originally: 00005 and 0001
