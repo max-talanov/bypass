@@ -25,7 +25,7 @@ speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
 bs_fr = 100 #40 # frequency of brainstem inputs
 versions = 1
 
-step_number = 5 # number of steps
+step_number = 20 # number of steps
 
 CV_number = 6
 nMN = 210 # 21 # 210 # Number of motor neurons
@@ -182,9 +182,7 @@ class CPG:
         for F_bs_gid in self.F_bs_gids:
             genconnect(F_bs_gid, self.BS_aff_F, 3.5, 3)
 
-        connectcells(self.BS_aff_F, self.V3F, 1.5, 3, stdptype=True)
-        connectcells(self.BS_aff_F, self.RG_F, 3.75, 3, stdptype=True)
-        connectcells(self.BS_aff_E, self.RG_E, 3.75, 3, stdptype=True)
+        connectcells(self.BS_aff_F, self.V3F, 0.5, 3, stdptype=True)
 
         '''generators of Ia aff'''
         ## TODO originally: 00005 and 0001
@@ -199,6 +197,10 @@ class CPG:
         connectcells(self.mns_F, self.muscle_F, 15.5, 2, False, 45)
 
         for layer in range(CV_number):
+            '''BS2RG'''
+            connectcells(self.BS_aff_F, self.RG_F[layer], 0.75, 3, stdptype=True)
+            connectcells(self.BS_aff_E, self.RG_E[layer], 0.75, 3, stdptype=True)
+
             '''Internal to RG topology'''
             connectinsidenucleus(self.dict_RG_F[layer])
             connectinsidenucleus(self.dict_RG_E[layer])
