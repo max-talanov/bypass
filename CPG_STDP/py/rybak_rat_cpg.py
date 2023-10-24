@@ -124,10 +124,10 @@ class CPG:
         self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 10)
 
         '''muscle afferents generators'''
-        self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_E, 10)
-        self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_F, speed*6)
-        Iagener_E_1000 = self.addIagener(self.muscle_E, self.muscle_E, 1000)
-        Iagener_F_1000 = self.addIagener(self.muscle_E, self.muscle_E, 1000 + (speed*6))
+        self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_E, 10, weight=20)
+        self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_F, speed*6, weight=20)
+        Iagener_E_1000 = self.addIagener(self.muscle_E, self.muscle_E, 1000, weight=20)
+        Iagener_F_1000 = self.addIagener(self.muscle_E, self.muscle_E, 1000 + (speed*6), weight=20)
 
 
         '''cutaneous inputs'''
@@ -377,7 +377,7 @@ class CPG:
         pc.cell(gid, ncstim)
         return gid
 
-    def addIagener(self, mn, mn2, start, w_in=1.0):
+    def addIagener(self, mn, mn2, start, weight=1.0):
         '''
         Creates self.Ia generators and returns generator gids
         Parameters
@@ -405,7 +405,7 @@ class CPG:
             gid += 1
         pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)
-        ncstim.weight[0] = w_in
+        ncstim.weight[0] = weight
         pc.cell(gid, ncstim)
 
         return gid
