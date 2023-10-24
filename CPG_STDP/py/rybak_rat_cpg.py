@@ -15,10 +15,6 @@ pc = h.ParallelContext()
 rank = int(pc.id())
 nhost = int(pc.nhost())
 
-# modes = ['PLT', 'STR', 'AIR', 'TOE', 'QPZ', 'QUAD']
-# mode = 'PLT'
-# logging.info(mode)
-
 #param
 speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
 #100 Hz is the motor cortex frequency
@@ -36,17 +32,6 @@ N = 5 #5 #50
 k = 0.017 # CV weights multiplier to take into account air and toe stepping
 CV_0_len = 12 # 125 # Duration of the CV generator with no sensory inputs
 extra_layers = 0 # 1 + layers
-
-# if mode == 'AIR':
-#     k = 0.001
-#     speed = 25
-#
-# if mode == 'TOE':
-#     k = 0.01
-#
-# if mode == 'QUAD':
-#     CV_0_len = 175
-#     k = 0.003
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = 25 + one_step_time * step_number
@@ -392,7 +377,7 @@ class CPG:
         pc.cell(gid, ncstim)
         return gid
 
-    def addIagener(self, mn, mn2, start):
+    def addIagener(self, mn, mn2, start, w_in=1.0):
         '''
         Creates self.Ia generators and returns generator gids
         Parameters
@@ -401,6 +386,8 @@ class CPG:
             generator start up
         num: int
             number in pool
+        w_in: int
+            weight of the connection
         Returns
         -------
         gids: list
@@ -418,6 +405,7 @@ class CPG:
             gid += 1
         pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)
+        ncstim.weight[0] = w_in
         pc.cell(gid, ncstim)
 
         return gid

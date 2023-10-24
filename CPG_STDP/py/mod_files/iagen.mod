@@ -74,7 +74,7 @@ FUNCTION invl(t (ms)) (ms) {
   v0 = vel
   fhill0 = fhill
   mean = 1000/vel
-  printf("time: %g, mean: %g \n", t, mean)
+  printf("IaGenerator time: %g, mean: %g \n", t, mean)
 
   t0 = t
 	if (noise == 0) {
@@ -98,7 +98,7 @@ NET_RECEIVE (w) {
 		if (w > 0 && on == 0) { : turn on spike sequence
 			init_sequence(t)
 			net_send(0, 1)
-		}else if (w < 0 && on == 1) { : turn off spiking
+		} else if (w < 0 && on == 1) { : turn off spiking
 			on = 0
 		}
 	}
