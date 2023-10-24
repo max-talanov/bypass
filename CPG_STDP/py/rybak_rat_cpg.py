@@ -198,8 +198,8 @@ class CPG:
 
         for layer in range(CV_number):
             '''BS2RG'''
-            connectcells(self.BS_aff_F, self.RG_F[layer], 0.75, 3, stdptype=True)
-            connectcells(self.BS_aff_E, self.RG_E[layer], 0.75, 3, stdptype=True)
+            connectcells(self.BS_aff_F, self.dict_RG_F[layer], 0.75, 3, stdptype=True)
+            connectcells(self.BS_aff_E, self.dict_RG_E[layer], 0.75, 3, stdptype=True)
 
             '''Internal to RG topology'''
             connectinsidenucleus(self.dict_RG_F[layer])
