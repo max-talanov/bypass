@@ -259,8 +259,8 @@ class CPG:
         genconnect(self.ees, self.Ia_aff_E, 0.000005, 1)
         genconnect(self.ees, self.Ia_aff_F, 0.000005, 1)
         genconnect(self.ees, self.dict_CV[0], 1.5, 2)
-        genconnect(self.Iagener_E, self.Ia_aff_E, 0.05, 1, False, 5)
-        genconnect(self.Iagener_F, self.Ia_aff_F, 5.05, 1, False, 15)
+        genconnect(self.Iagener_E, self.Ia_aff_E, 0.005, 1, False, 5)
+        genconnect(self.Iagener_F, self.Ia_aff_F, 55.05, 1, False, 105)
 
         connectcells(self.Ia_aff_E, self.mns_E, 1.55, 1.5)
         connectcells(self.Ia_aff_F, self.mns_F, 0.5, 1.5)
