@@ -382,6 +382,10 @@ class CPG:
         Creates self.Ia generators and returns generator gids
         Parameters
         ----------
+        mn:
+            motor neurons of agonist muscle that contract spindle
+        mn2:
+            motor neurons of antogonist muscle that extend spindle
         start: int
             generator start up
         num: int
