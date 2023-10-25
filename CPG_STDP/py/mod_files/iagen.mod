@@ -74,6 +74,8 @@ FUNCTION invl(t (ms)) (ms) {
   v0 = vel
   fhill0 = fhill
   mean = 1000/vel
+  printf("IaGenerator len2: %g, fhill2: %g \n", len2, fhill2)
+  printf("IaGenerator v0: %g, fhill: %g \n", v0, fhill0)
   printf("IaGenerator time: %g, mean: %g \n", t, mean)
 
   t0 = t
