@@ -166,7 +166,8 @@ class CPG:
         self.ees = self.addgener(0, ees_fr, 10000, False)
 
         self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 10)
-        self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_F, speed*6)
+        # TODO speed*6
+        self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, speed*4)
 
         '''skin inputs'''
         cfr = 200

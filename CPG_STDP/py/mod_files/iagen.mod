@@ -73,11 +73,11 @@ FUNCTION invl(t (ms)) (ms) {
   }
 
   printf("time: %g, mean: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g \n", t, mean, len2, fhill2, fhill0, fhill)
-  printf("IaGenerator v0: %g, vel: %g \n", v0, vel)
+  :printf("IaGenerator v0: %g, vel: %g \n", v0, vel)
   v0 = vel
   fhill0 = fhill
   mean = 1000/vel
-  printf("IaGenerator time: %g, mean: %g \n", t, mean)
+  :printf("IaGenerator time: %g, mean: %g \n", t, mean)
 
   t0 = t
 	if (noise == 0) {
