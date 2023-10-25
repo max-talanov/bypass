@@ -71,11 +71,12 @@ FUNCTION invl(t (ms)) (ms) {
     vel = v0 - len2 - 0.4*fhill*(t-t0)*(t-t0)
     if (vel < 0){vel = 1}
   }
+
+  printf("time: %g, mean: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g \n", t, mean, len2, fhill2, fhill0, fhill)
+  printf("IaGenerator v0: %g, vel: %g \n", v0, vel)
   v0 = vel
   fhill0 = fhill
   mean = 1000/vel
-  printf("IaGenerator len2: %g, fhill2: %g \n", len2, fhill2)
-  printf("IaGenerator v0: %g, fhill: %g \n", v0, fhill0)
   printf("IaGenerator time: %g, mean: %g \n", t, mean)
 
   t0 = t
