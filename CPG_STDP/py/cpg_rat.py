@@ -709,6 +709,43 @@ def spikeout(pool, name, version, v_vec):
         logging.info(rank)
 
 
+def forceout(pool, name, version, v_vec):
+    ''' Reports simulation results
+      Parameters
+      ----------
+      pool: list
+        list of neurons gids
+      name: string
+        pool name
+      version: int
+          test number
+      v_vec: list of h.Vector()
+          recorded voltage
+    '''
+    global rank
+    pc.barrier()
+    vec = h.Vector()
+    for i in range(nhost):
+        if i == rank:
+            outavg = []
+            for j in range(len(pool)):
+                outavg.append(list(v_vec[j]))
+            outavg = np.mean(np.array(outavg), axis = 0, dtype=np.float32)
+            vec = vec.from_python(outavg)
+        pc.barrier()
+    pc.barrier()
+    result = pc.py_gather(vec, 0)
+    if rank == 0:
+        logging.info("start recording")
+        result = np.mean(np.array(result), axis = 0, dtype=np.float32)
+        with hdf5.File('./res/new_rat4_{}_speed_{}_layers_{}1_eeshz_{}_Force.hdf5'.format(name, speed, layers, ees_fr), 'w') as file:
+            for i in range(step_number):
+                sl = slice((int(1000/ees_fr)*40+i*one_step_time*40),(int(1000/ees_fr)*40+(i+1)*one_step_time*40))
+                file.create_dataset('#0_step_{}'.format(i), data=np.array(result)[sl], compression="gzip")
+    else:
+        logging.info(rank)
+
+
 def prun(speed, step_number):
     ''' simulation control
     Parameters
@@ -743,6 +780,7 @@ if __name__ == '__main__':
         logging.info("created")
         motorecorders = []
         motorecorders_mem = []
+        force_recorders = []
         for group in cpg_ex.motogroups:
             motorecorders.append(spike_record(group[k_nrns], True))
 
@@ -755,7 +793,7 @@ if __name__ == '__main__':
         for group in cpg_ex.groups:
           recorders.append(spike_record(group[k_nrns], i))
         for group in cpg_ex.musclegroups:
-            recorders.append(force_record(group[k_nrns]))
+            force_recorders.append(force_record(group[k_nrns]))
 
         logging.info("added recorders")
 
@@ -767,15 +805,15 @@ if __name__ == '__main__':
 
         for group, recorder in zip(cpg_ex.motogroups, motorecorders):
             spikeout(group[k_nrns], group[k_name], i, recorder)
-
         for group, recorder in zip(cpg_ex.motogroups, motorecorders_mem):
             spikeout(group[k_nrns], 'mem_{}'.format(group[k_name]), i, recorder)
         for group, recorder in zip(cpg_ex.affgroups, affrecorders):
           spikeout(group[k_nrns], group[k_name], i, recorder)
         for group, recorder in zip(cpg_ex.groups, recorders):
           spikeout(group[k_nrns], group[k_name], i, recorder)
-        for group, recorder in zip(cpg_ex.musclegroups, recorders):
-            spikeout(group[k_nrns], group[k_name], i, recorder)
+        for group, recorder in zip(cpg_ex.musclegroups, force_recorders):
+            spikeout(group[k_nrns], 'force_{}'.format(group[k_name]), i, recorder)
+
         logging.info("recorded")
 
     finish()
