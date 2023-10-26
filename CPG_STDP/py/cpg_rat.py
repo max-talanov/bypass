@@ -631,6 +631,25 @@ def spike_record(pool, extra = False):
         v_vec.append(vec)
     return v_vec
 
+def force_record(pool):
+    ''' Records force from gids of motor neurons muscle unit
+      Parameters
+      ----------
+      pool: list
+        list of neurons gids
+      Returns
+      -------
+      v_vec: list of h.Vector()
+          recorded voltage
+    '''
+    v_vec = []
+    for i in pool:
+        cell = pc.gid2cell(i)
+        vec = h.Vector(np.zeros(int(time_sim/0.025 + 1), dtype=np.float32))
+        vec.record(cell.muscle_unit(0.5)._ref_F_fHill)
+        v_vec.append(vec)
+    return v_vec
+
 def motodiams(number):
     nrn_number = number
     standby_percent = 70
