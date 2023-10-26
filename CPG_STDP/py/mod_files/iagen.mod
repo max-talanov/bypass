@@ -63,6 +63,7 @@ PROCEDURE init_sequence(t(ms)) {
 }
 
 FUNCTION invl(t (ms)) (ms) {
+	:interspike interval
   len2 = 1.5*fhill2*(t-t0)
   if (fhill > fhill0){
     vel = v0 + len2 + 0.15*fhill*(t-t0)*(t-t0)
@@ -72,7 +73,7 @@ FUNCTION invl(t (ms)) (ms) {
     if (vel < 0){vel = 1}
   }
 
-  printf("time: %g, mean: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g \n", t, mean, len2, fhill2, fhill0, fhill)
+  printf("t: %g, t0: %g, mean: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g, v0: %g, vel: %g \n", t, t0 , mean, len2, fhill2, fhill0, fhill, v0, vel)
   :printf("IaGenerator v0: %g, vel: %g \n", v0, vel)
   v0 = vel
   fhill0 = fhill
