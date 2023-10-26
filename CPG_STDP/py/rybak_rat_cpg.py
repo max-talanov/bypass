@@ -391,7 +391,7 @@ class CPG:
         mn:
             motor neurons of agonist muscle that contract spindle
         mn2:
-            motor neurons of antogonist muscle that extend spindle
+            motor neurons of antagonist muscle that extend spindle
         start: int
             generator start up
         num: int
