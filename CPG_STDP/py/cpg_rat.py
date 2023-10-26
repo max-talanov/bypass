@@ -23,7 +23,7 @@ logging.info(mode)
 speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
 ees_fr = 40 # frequency of EES
 versions = 1
-step_number = 2# 10 # number of steps
+step_number = 6 # 10 # number of steps
 layers =  5  # 5 is default
 
 CV_number = 6
@@ -259,8 +259,8 @@ class CPG:
             connectcells(self.dict_C[layer-3], self.dict_3[layer], 1.95, 1)
 
 
-        genconnect(self.ees, self.Ia_aff_E, 0.000001, 1)
-        genconnect(self.ees, self.Ia_aff_F, 0.000001, 1)
+        genconnect(self.ees, self.Ia_aff_E, 0.0001, 1)
+        genconnect(self.ees, self.Ia_aff_F, 0.0001, 1)
         genconnect(self.ees, self.dict_CV[0], 1.5, 2)
         genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 5)
         genconnect(self.Iagener_F, self.Ia_aff_F, 1.5, 1, False, 15)
