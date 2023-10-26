@@ -72,11 +72,13 @@ class CPG:
 
         self.interneurons = []
         self.motoneurons = []
+        self.muscles = []
         self.afferents = []
         self.stims = []
         self.ncell = N
         self.groups = []
         self.motogroups = []
+        self.musclegroups = []
         self.affgroups = []
         self.IP_E = []
         self.IP_F = []
@@ -167,7 +169,7 @@ class CPG:
 
         self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 10)
         # TODO speed*6
-        self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, 10)
+        self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, speed^6)
 
         '''skin inputs'''
         cfr = 200
@@ -260,8 +262,8 @@ class CPG:
         genconnect(self.ees, self.Ia_aff_E, 0.000001, 1)
         genconnect(self.ees, self.Ia_aff_F, 0.000001, 1)
         genconnect(self.ees, self.dict_CV[0], 1.5, 2)
-        genconnect(self.Iagener_E, self.Ia_aff_E, 0.05, 1, False, 5)
-        genconnect(self.Iagener_F, self.Ia_aff_F, 5.05, 1, False, 15)
+        genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 5)
+        genconnect(self.Iagener_F, self.Ia_aff_F, 1.5, 1, False, 15)
 
         connectcells(self.Ia_aff_E, self.mns_E, 1.55, 1.5)
         connectcells(self.Ia_aff_F, self.mns_F, 0.5, 1.5)
@@ -414,6 +416,7 @@ class CPG:
             elif neurontype.lower() == "muscle":
                 cell = muscle()
                 self.motoneurons.append(cell)
+                self.muscles.append(cell)
             else:
                 cell = interneuron(delaytype)
                 self.interneurons.append(cell)
@@ -424,8 +427,11 @@ class CPG:
             nc = cell.connect2target(None)
             pc.cell(gid, nc)
 
-        # ToDo remove me (Alex code) - NO
-        if neurontype.lower() == "moto" or neurontype.lower() == "muscle":
+        ## Groups
+        if (neurontype.lower() == "muscle"):
+            self.musclegroups.append((gids, name))
+            self.motogroups.append((gids, name))
+        elif (neurontype.lower() == "moto"):
             self.motogroups.append((gids, name))
         elif neurontype.lower() == "aff":
             self.affgroups.append((gids, name))
@@ -748,6 +754,9 @@ if __name__ == '__main__':
         recorders = []
         for group in cpg_ex.groups:
           recorders.append(spike_record(group[k_nrns], i))
+        for group in cpg_ex.musclegroups:
+            recorders.append(force_record(group[k_nrns]))
+
         logging.info("added recorders")
 
         print("- " * 10, "\nstart")
