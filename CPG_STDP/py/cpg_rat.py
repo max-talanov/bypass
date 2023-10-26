@@ -774,6 +774,8 @@ if __name__ == '__main__':
           spikeout(group[k_nrns], group[k_name], i, recorder)
         for group, recorder in zip(cpg_ex.groups, recorders):
           spikeout(group[k_nrns], group[k_name], i, recorder)
+        for group, recorder in zip(cpg_ex.musclegroups, recorders):
+            spikeout(group[k_nrns], group[k_name], i, recorder)
         logging.info("recorded")
 
     finish()
