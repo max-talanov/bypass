@@ -49,6 +49,8 @@ INITIAL {
 	}
 	if (start >= 0 && number > 0) {
 		: randomize the first spike so on average it occurs at start+interval
+	
+	    printf("initial inv \n")
 		event = start + invl(t)
 		net_send(event, 3)
 	}
@@ -90,6 +92,7 @@ FUNCTION invl(t (ms)) (ms) {
 
 PROCEDURE event_time(t (ms)) {
 	if (number > 0) {
+	    printf("event_time inv \n")
 		event = event + invl(t)
 	}
 	if (event > end) {
@@ -115,6 +118,7 @@ NET_RECEIVE (w) {
 	if (flag == 1 && on == 1) {
 		y = 2
 		net_event(t)
+	    printf("net_receive event_time(t) \n")
 		event_time(t)
 		if (on == 1) {
 			net_send(event - t, 1)
