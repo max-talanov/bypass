@@ -163,7 +163,6 @@ class CPG:
         ## TODO possibly project to RG_F
         ## connectcells(self.V0v, self.RG_F, 3.75, 3)
 
-        '''Extensor'''
         ''' BS '''
         for E_bs_gid in self.E_bs_gids:
             genconnect(E_bs_gid, self.BS_aff_E, 3.5, 3)
@@ -172,8 +171,9 @@ class CPG:
             genconnect(F_bs_gid, self.BS_aff_F, 3.5, 3)
 
         connectcells(self.BS_aff_F, self.V3F, 1.5, 3)
-        connectcells(self.BS_aff_F, self.RG_F, 3.75, 3)
-        connectcells(self.BS_aff_E, self.RG_E, 3.75, 3)
+        '''STDP synapse'''
+        connectcells(self.BS_aff_F, self.RG_F, 3.75, 3, stdptype=True)
+        connectcells(self.BS_aff_E, self.RG_E, 3.75, 3, stdptype=True)
 
         '''generators of Ia aff'''
         ## TODO originally: 00005 and 0001
@@ -236,9 +236,8 @@ class CPG:
         connectcells(self.InE, self.Ia_aff_F, 1.2, 1, True)
         connectcells(self.InE, self.mns_F, 0.8, 1, True)
 
-
         connectcells(self.InF, self.RG_E, 0.8, 1, True)
-        ## TODO STDP weight
+        '''STDP synapse'''
         connectcells(self.Ia_aff_E, self.RG_E, 0.5, 1, stdptype=True)
 
         # TODO check this too many reciprocal inh connections
