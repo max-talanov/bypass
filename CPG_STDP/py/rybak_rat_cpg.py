@@ -21,13 +21,13 @@ speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
 bs_fr = 100 #40 # frequency of brainstem inputs
 versions = 1
 
-step_number = 5 # number of steps
+step_number = 20 # number of steps
 
 CV_number = 6
 nMN = 21 # 21 # 210 # Number of motor neurons
 nAff = 12  # 120 # Number of afferents
 nInt = 5 #19 # 196 # Number of neurons in interneuronal pools
-N = 20 #5 #50
+N = 5 #5 #50
 
 k = 0.017 # CV weights multiplier to take into account air and toe stepping
 CV_0_len = 12 # 125 # Duration of the CV generator with no sensory inputs
