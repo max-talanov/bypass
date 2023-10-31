@@ -27,7 +27,7 @@ CV_number = 6
 nMN = 21 # 21 # 210 # Number of motor neurons
 nAff = 12  # 120 # Number of afferents
 nInt = 5 #19 # 196 # Number of neurons in interneuronal pools
-N = 5 #5 #50
+N = 20 #5 #50
 
 k = 0.017 # CV weights multiplier to take into account air and toe stepping
 CV_0_len = 12 # 125 # Duration of the CV generator with no sensory inputs
