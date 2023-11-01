@@ -21,7 +21,7 @@ speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
 bs_fr = 100 #40 # frequency of brainstem inputs
 versions = 1
 
-step_number = 20 # number of steps
+step_number = 5 # number of steps
 
 CV_number = 6
 nMN = 21 # 21 # 210 # Number of motor neurons
