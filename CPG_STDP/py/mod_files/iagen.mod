@@ -97,6 +97,7 @@ PROCEDURE event_time(t (ms)) {
 	if (number > 0) {
 	    printf("event_time inv \n")
 		event = event + invl(t)
+	    printf("event = %g \n", event)
 	}
 	if (event > end) {
 		on = 0

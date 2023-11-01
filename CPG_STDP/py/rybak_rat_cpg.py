@@ -414,7 +414,7 @@ class CPG:
             gid += 1
         pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)
-        ncstim.weight[0] = weight
+        #ncstim.weight[0] = weight
         pc.cell(gid, ncstim)
 
         return gid
