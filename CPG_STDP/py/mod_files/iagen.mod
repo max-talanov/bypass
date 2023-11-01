@@ -66,6 +66,7 @@ PROCEDURE init_sequence(t(ms)) {
 
 FUNCTION invl(t (ms)) (ms) {
 	:interspike interval
+	:len2 is the length 
   len2 = 1.5*fhill2*(t-t0)
   if (fhill > fhill0){
     vel = v0 + len2 + 0.15*fhill*(t-t0)*(t-t0)
