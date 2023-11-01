@@ -70,12 +70,12 @@ FUNCTION invl(t (ms)) (ms) {
 	
  if (fhill > fhill0){
     printf("INC \n")
-    : vel = v0 + 0.005*fhill*(t-t0) + 0.00015*fhill*(t-t0)*(t-t0)
-    vel = v0 + 0.02*fhill*(t-t0) + 0.0004*fhill*(t-t0)*(t-t0)
+    : vel = v0 + 0.005*fhill*(t-t0) + 0.00015*fhill*(t-t0)*(t-t0) 
+    vel = v0 + 0.02*fhill*(t-t0) + 0.0004*fhill*(t-t0)*(t-t0) + fhill
     if (vel < 0){vel = 1}
   }else{
 	printf("DEC \n")
-    vel = v0 - 0.02*fhill*(t-t0) - 0.0004*fhill*(t-t0)*(t-t0)
+    vel = v0 - 0.02*fhill*(t-t0) - 0.0004*fhill*(t-t0)*(t-t0) - fhill
 	: vel = v0 - 0.005*fhill*(t-t0) - 0.00015*fhill*(t-t0)*(t-t0)
     if (vel < 0){vel = 1}
   }
