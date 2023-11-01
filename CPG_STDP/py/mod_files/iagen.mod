@@ -69,11 +69,14 @@ FUNCTION invl(t (ms)) (ms) {
 	:len2 is the length increase of the antagonist muscle
 	
  if (fhill > fhill0){
-    vel = v0 + 0.005*fhill*(t-t0) + 0.00015*fhill*(t-t0)*(t-t0)
+    printf("INC \n")
+    : vel = v0 + 0.005*fhill*(t-t0) + 0.00015*fhill*(t-t0)*(t-t0)
+    vel = v0 + 0.02*fhill*(t-t0) + 0.0004*fhill*(t-t0)*(t-t0)
     if (vel < 0){vel = 1}
   }else{
-    % vel = v0 - 0.02*fhill*(t-t0) - 0.0004*fhill*(t-t0)*(t-t0)
-	vel = v0 - 0.005*fhill*(t-t0) - 0.00015*fhill*(t-t0)*(t-t0)
+	printf("DEC \n")
+    vel = v0 - 0.02*fhill*(t-t0) - 0.0004*fhill*(t-t0)*(t-t0)
+	: vel = v0 - 0.005*fhill*(t-t0) - 0.00015*fhill*(t-t0)*(t-t0)
     if (vel < 0){vel = 1}
   }
   printf("t: %g, t0: %g, mean: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g, v0: %g, vel: %g \n", t, t0 , mean, len2, fhill2, fhill0, fhill, v0, vel)
