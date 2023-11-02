@@ -73,19 +73,19 @@ FUNCTION invl(t (ms)) (ms) {
     : vel = v0 + 0.005*fhill*(t-t0) + 0.00015*fhill*(t-t0)*(t-t0) 
     vel = v0 + 0.02*fhill*(t-t0) + 0.0004*fhill*(t-t0)*(t-t0)
 	: vel = fhill
-    if (vel < 0){vel = 1}
+    if (vel < 0){vel = 0}
   }else{
 	printf("DEC \n")
     : vel = v0 - 0.02*fhill*(t-t0) - 0.0004*fhill*(t-t0)*(t-t0)
 	vel = v0 - 0.005*fhill*(t-t0) - 0.00015*fhill*(t-t0)*(t-t0)
 	: vel = fhill
-    if (vel < 0){vel = 1}
+    if (vel < 0){vel = 0}
   }
   printf("t: %g, t0: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g, vel: %g, ", t, t0 , len2, fhill2, fhill0, fhill, vel)
   :printf("IaGenerator v0: %g, vel: %g \n", v0, vel)
   v0 = vel
   fhill0 = fhill
-  mean = 1000/vel
+  mean = 1000/(vel+10)
   printf("v0: %g, mean: %g \n", v0, mean)
   t0 = t
 	if (noise == 0) {
