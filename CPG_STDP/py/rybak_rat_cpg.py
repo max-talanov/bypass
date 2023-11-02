@@ -201,16 +201,16 @@ class CPG:
 
             '''Neg feedback RG -> Ia'''
             ## TODO why do we have this neg feedback ?
-            if layer > 3:
-                connectcells(self.dict_RG_E[layer], self.Ia_aff_E, layer * 0.0002, 1, True)
-            else:
-                '''RG2Ia'''
-                connectcells(self.dict_RG_E[layer], self.Ia_aff_E, 0.0001, 1, True)
-
-            '''RG2Motor, RG2Ia'''
-            connectcells(self.dict_RG_F[layer], self.mns_F, 3.75, 2)
-            '''Neg feedback loop RG->Ia'''
-            connectcells(self.dict_RG_F[layer], self.Ia_aff_F, 0.95, 1, True)
+            # if layer > 3:
+            #     connectcells(self.dict_RG_E[layer], self.Ia_aff_E, layer * 0.0002, 1, True)
+            # else:
+            #     '''RG2Ia'''
+            #     connectcells(self.dict_RG_E[layer], self.Ia_aff_E, 0.0001, 1, True)
+            #
+            # '''RG2Motor, RG2Ia'''
+            # connectcells(self.dict_RG_F[layer], self.mns_F, 3.75, 2)
+            # '''Neg feedback loop RG->Ia'''
+            # connectcells(self.dict_RG_F[layer], self.Ia_aff_F, 0.95, 1, True)
 
         '''cutaneous inputs'''
         for layer in range(CV_number):
@@ -233,7 +233,7 @@ class CPG:
         connectcells(self.Ia_aff_F, self.RG_F, 0.5, 1, stdptype=True)
 
         # TODO check this too many reciprocal inh connections
-        connectcells(self.InE, self.Ia_aff_F, 1.2, 1, True)
+        # connectcells(self.InE, self.Ia_aff_F, 1.2, 1, True)
         connectcells(self.InE, self.mns_F, 0.8, 1, True)
 
         connectcells(self.InF, self.RG_E, 0.8, 1, True)
@@ -242,7 +242,7 @@ class CPG:
 
         # TODO check this too many reciprocal inh connections
         ## connectcells(self.InF, self.InE, 0.5, 1, True)
-        connectcells(self.InF, self.Ia_aff_E, 0.5, 1, True)
+        # connectcells(self.InF, self.Ia_aff_E, 0.5, 1, True)
         connectcells(self.InF, self.mns_E, 0.4, 1, True)
 
         '''reflex arc'''
