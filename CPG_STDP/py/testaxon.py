@@ -100,6 +100,7 @@ if __name__ == '__main__':
     stim2 = h.IaGenerator(0.5)
     stim2.number = 1000000
     h.setpointer(muscle.muscle_unit(0.5)._ref_F_fHill, 'fhill', stim2)
+    h.setpointer(muscle.muscle_unit(0.5)._ref_F_fHill, 'fhill2', stim2)
     v_vec, v_vec1, v_vec2, t_vec = set_recording_vectors(muscle.soma)
     # soma_vec2, t_vec = set_recording_vectors(cell.soma)
     ncstim2 = h.NetCon(stim2, aff.synlistex[1])
