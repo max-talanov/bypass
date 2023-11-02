@@ -65,8 +65,8 @@ def show_output(v_vec, v_vec1, v_vec2, t_vec):
     # v_vec = list(v_vec)[100:]
     # dend_plot =
     pyplot.plot(t_vec, v_vec, label = 'ina')
-    # pyplot.plot(t_vec, v_vec2, label = 'ica')
-    # pyplot.plot(t_vec, v_vec1, label = 'ik')
+    pyplot.plot(t_vec, v_vec2, label = 'ica')
+    pyplot.plot(t_vec, v_vec1, label = 'ik')
 
     pyplot.legend()
     # f = open('./res.txt', 'w')
