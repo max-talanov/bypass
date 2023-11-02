@@ -178,8 +178,8 @@ class CPG:
         '''generators of Ia aff'''
         ## TODO originally: 00005 and 0001
         ## TODO fix Iagener
-        genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 5)
-        genconnect(self.Iagener_F, self.Ia_aff_F, 1.5, 1, False, 15)
+        genconnect(self.Iagener_E, self.Ia_aff_E, 3.5, 1, False, 5)
+        genconnect(self.Iagener_F, self.Ia_aff_F, 3.5, 1, False, 15)
         #genconnect(Iagener_E_1000, self.Ia_aff_E, 5.0, 1, False, 5)
         #genconnect(Iagener_F_1000, self.Ia_aff_F, 5.0, 1, False, 15)
 
