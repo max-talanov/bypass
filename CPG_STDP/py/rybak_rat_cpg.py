@@ -21,7 +21,7 @@ speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
 bs_fr = 100 #40 # frequency of brainstem inputs
 versions = 1
 
-step_number = 2 # number of steps
+step_number = 20 # number of steps
 
 CV_number = 6
 nMN = 21 # 21 # 210 # Number of motor neurons
@@ -215,7 +215,8 @@ class CPG:
         '''cutaneous inputs'''
         for layer in range(CV_number):
             connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15*k*speed, 2)
-            connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 0.00035 * k * speed, 3)
+            ## weight =  0.00035 * k * speed
+            connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 0.00035 * k * speed, 3, stdptype=True)
 
         # connectcells(self.IP_F, self.Ia_aff_F, 0.0015, 2, True)
         # connectcells(self.IP_E, self.Ia_aff_E, 0.0015, 2, True)
@@ -230,7 +231,7 @@ class CPG:
         '''Ia2RG, RG2Motor'''
         connectcells(self.InE, self.RG_F, 0.5, 1, True)
         '''STDP synapse'''
-        connectcells(self.Ia_aff_F, self.RG_F, 0.5, 1, stdptype=True)
+        connectcells(self.Ia_aff_F, self.RG_F, 0.5, 1, stdptype=False)
 
         # TODO check this too many reciprocal inh connections
         # connectcells(self.InE, self.Ia_aff_F, 1.2, 1, True)
@@ -238,7 +239,7 @@ class CPG:
 
         connectcells(self.InF, self.RG_E, 0.8, 1, True)
         '''STDP synapse'''
-        connectcells(self.Ia_aff_E, self.RG_E, 0.5, 1, stdptype=True)
+        connectcells(self.Ia_aff_E, self.RG_E, 0.5, 1, stdptype=False)
 
         # TODO check this too many reciprocal inh connections
         ## connectcells(self.InF, self.InE, 0.5, 1, True)
