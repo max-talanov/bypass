@@ -85,7 +85,7 @@ FUNCTION invl(t (ms)) (ms) {
   :printf("IaGenerator v0: %g, vel: %g \n", v0, vel)
   v0 = vel
   fhill0 = fhill
-  mean = 1000/(vel+10)
+  mean = 1000/(vel+1)
   printf("v0: %g, mean: %g \n", v0, mean)
   t0 = t
 	if (noise == 0) {
