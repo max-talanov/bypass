@@ -449,3 +449,128 @@
 12:12:57,142 root INFO added recorders
 12:12:57,270 root INFO added recorders
 12:12:57,302 root INFO added recorders
+01:08:25,916 root INFO let's get it started
+01:08:25,916 root INFO let's get it started
+01:08:27,260 h5py._conv DEBUG Creating converter from 7 to 5
+01:08:27,260 h5py._conv DEBUG Creating converter from 5 to 7
+01:08:27,260 h5py._conv DEBUG Creating converter from 7 to 5
+01:08:27,260 h5py._conv DEBUG Creating converter from 5 to 7
+01:08:27,276 h5py._conv DEBUG Creating converter from 7 to 5
+01:08:27,276 h5py._conv DEBUG Creating converter from 5 to 7
+01:08:27,276 h5py._conv DEBUG Creating converter from 7 to 5
+01:08:27,276 h5py._conv DEBUG Creating converter from 5 to 7
+13:11:01,140 root INFO let's get it started
+13:11:01,140 root INFO let's get it started
+13:11:01,140 root INFO let's get it started
+13:11:02,802 h5py._conv DEBUG Creating converter from 7 to 5
+13:11:02,802 h5py._conv DEBUG Creating converter from 7 to 5
+13:11:02,802 h5py._conv DEBUG Creating converter from 5 to 7
+13:11:02,802 h5py._conv DEBUG Creating converter from 5 to 7
+13:11:02,802 h5py._conv DEBUG Creating converter from 7 to 5
+13:11:02,802 h5py._conv DEBUG Creating converter from 7 to 5
+13:11:02,802 h5py._conv DEBUG Creating converter from 7 to 5
+13:11:02,802 h5py._conv DEBUG Creating converter from 5 to 7
+13:11:02,802 h5py._conv DEBUG Creating converter from 5 to 7
+13:11:02,802 h5py._conv DEBUG Creating converter from 5 to 7
+13:11:02,819 h5py._conv DEBUG Creating converter from 7 to 5
+13:11:02,819 h5py._conv DEBUG Creating converter from 5 to 7
+13:11:02,819 h5py._conv DEBUG Creating converter from 7 to 5
+13:11:02,819 h5py._conv DEBUG Creating converter from 5 to 7
+13:16:58,185 root INFO created
+13:17:00,673 root INFO created
+13:17:03,543 root INFO created
+01:08:25,916 root INFO let's get it started
+01:08:25,916 root INFO let's get it started
+01:08:27,260 h5py._conv DEBUG Creating converter from 7 to 5
+01:08:27,260 h5py._conv DEBUG Creating converter from 5 to 7
+01:08:27,260 h5py._conv DEBUG Creating converter from 7 to 5
+01:08:27,260 h5py._conv DEBUG Creating converter from 5 to 7
+01:08:27,276 h5py._conv DEBUG Creating converter from 7 to 5
+01:08:27,276 h5py._conv DEBUG Creating converter from 5 to 7
+01:08:27,276 h5py._conv DEBUG Creating converter from 7 to 5
+01:08:27,276 h5py._conv DEBUG Creating converter from 5 to 7
+13:11:01,140 root INFO let's get it started
+13:11:01,140 root INFO let's get it started
+13:11:01,140 root INFO let's get it started
+13:11:02,802 h5py._conv DEBUG Creating converter from 7 to 5
+13:11:02,802 h5py._conv DEBUG Creating converter from 7 to 5
+13:11:02,802 h5py._conv DEBUG Creating converter from 5 to 7
+13:11:02,802 h5py._conv DEBUG Creating converter from 5 to 7
+13:11:02,802 h5py._conv DEBUG Creating converter from 7 to 5
+13:11:02,802 h5py._conv DEBUG Creating converter from 7 to 5
+13:11:02,802 h5py._conv DEBUG Creating converter from 7 to 5
+13:11:02,802 h5py._conv DEBUG Creating converter from 5 to 7
+13:11:02,802 h5py._conv DEBUG Creating converter from 5 to 7
+13:11:02,802 h5py._conv DEBUG Creating converter from 5 to 7
+13:11:02,819 h5py._conv DEBUG Creating converter from 7 to 5
+13:11:02,819 h5py._conv DEBUG Creating converter from 5 to 7
+13:11:02,819 h5py._conv DEBUG Creating converter from 7 to 5
+13:11:02,819 h5py._conv DEBUG Creating converter from 5 to 7
+13:16:58,185 root INFO created
+13:17:00,673 root INFO created
+13:17:03,543 root INFO created
+15:33:00,344 root INFO let's get it started
+15:33:00,345 root INFO let's get it started
+15:33:00,345 root INFO let's get it started
+15:33:01,637 h5py._conv DEBUG Creating converter from 7 to 5
+15:33:01,637 h5py._conv DEBUG Creating converter from 7 to 5
+15:33:01,637 h5py._conv DEBUG Creating converter from 5 to 7
+15:33:01,637 h5py._conv DEBUG Creating converter from 5 to 7
+15:33:01,637 h5py._conv DEBUG Creating converter from 5 to 7
+15:33:01,637 h5py._conv DEBUG Creating converter from 5 to 7
+15:33:01,637 h5py._conv DEBUG Creating converter from 7 to 5
+15:33:01,637 h5py._conv DEBUG Creating converter from 7 to 5
+15:33:01,637 h5py._conv DEBUG Creating converter from 7 to 5
+15:33:01,637 h5py._conv DEBUG Creating converter from 5 to 7
+15:33:01,637 h5py._conv DEBUG Creating converter from 5 to 7
+15:33:01,637 h5py._conv DEBUG Creating converter from 5 to 7
+15:33:04,495 root INFO created
+15:33:04,501 root INFO created
+15:33:04,617 root INFO created
+15:33:04,943 root INFO created
+15:33:04,971 root INFO created
+15:33:16,259 root INFO added recorders
+15:33:16,285 root INFO added recorders
+15:33:17,49 root INFO added recorders
+15:33:17,229 root INFO added recorders
+15:33:17,337 root INFO added recorders
+15:36:12,5 root INFO let's get it started
+15:36:12,6 root INFO let's get it started
+15:36:12,10 root INFO let's get it started
+15:36:12,13 root INFO let's get it started
+15:36:12,15 root INFO let's get it started
+15:36:12,234 h5py._conv DEBUG Creating converter from 7 to 5
+15:36:12,234 h5py._conv DEBUG Creating converter from 5 to 7
+15:36:12,234 h5py._conv DEBUG Creating converter from 7 to 5
+15:36:12,234 h5py._conv DEBUG Creating converter from 5 to 7
+15:36:12,234 h5py._conv DEBUG Creating converter from 7 to 5
+15:36:12,235 h5py._conv DEBUG Creating converter from 5 to 7
+15:36:12,235 h5py._conv DEBUG Creating converter from 7 to 5
+15:36:12,235 h5py._conv DEBUG Creating converter from 5 to 7
+15:36:12,235 h5py._conv DEBUG Creating converter from 5 to 7
+15:36:12,235 h5py._conv DEBUG Creating converter from 7 to 5
+15:36:12,235 h5py._conv DEBUG Creating converter from 7 to 5
+15:36:12,235 h5py._conv DEBUG Creating converter from 5 to 7
+15:36:12,235 h5py._conv DEBUG Creating converter from 7 to 5
+15:36:12,235 h5py._conv DEBUG Creating converter from 5 to 7
+15:36:12,235 h5py._conv DEBUG Creating converter from 5 to 7
+15:36:12,235 h5py._conv DEBUG Creating converter from 5 to 7
+15:36:14,449 root INFO created
+15:36:14,467 root INFO created
+15:36:14,560 root INFO created
+15:36:14,820 root INFO created
+15:36:14,858 root INFO created
+15:36:18,71 root INFO added recorders
+15:36:18,137 root INFO added recorders
+15:36:18,154 root INFO added recorders
+15:36:18,388 root INFO added recorders
+15:36:18,451 root INFO added recorders
+16:50:27,184 root INFO simulation done
+16:50:27,192 root INFO simulation done
+16:50:27,193 root INFO simulation done
+16:50:27,194 root INFO simulation done
+16:50:27,195 root INFO simulation done
+16:50:27,494 root INFO 2
+16:50:27,494 root INFO 3
+16:50:27,494 root INFO 4
+16:50:27,504 root INFO start recording

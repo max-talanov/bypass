@@ -419,7 +419,7 @@ class CPG:
 
         return gid
 
-def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 50, stdptype = False, threshold = 10):
+def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 15, stdptype = False, threshold = 10):
     ''' Connects with excitatory synapses
       Parameters
       ----------
@@ -444,7 +444,7 @@ def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 50, stdptype
       threshold: int
             voltage thershold
     '''
-    nsyn = random.randint(N-15, N)
+    nsyn = random.randint(N-10, N)
     for post_gid in post:
         if pc.gid_exists(post_gid):
             for j in range(nsyn):
