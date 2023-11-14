@@ -135,11 +135,11 @@ class muscle(object):
         # s.tau2 = 0.5
         s.e = 0
         self.synlistex.append(s)
-        # s = h.ExpSyn(self.muscle_unit(0.5)) # Inhibitory
-        # s.tau = 0.2
-        # # s.tau2 = 0.5
-        # s.e = 30
-        # self.synlistinh.append(s)
+        s = h.ExpSyn(self.muscle_unit(0.5)) # Inhibitory
+        s.tau = 0.2
+        # s.tau2 = 0.5
+        s.e = -70
+        self.synlistinh.append(s)
 
 
   def is_art(self):

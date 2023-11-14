@@ -1,37 +1,39 @@
 import logging
+
 logging.basicConfig(filename='logs.log',
-                        filemode='a',
-                        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-                        datefmt='%H:%M:%S',
-                        level=logging.DEBUG)
+                    filemode='a',
+                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                    datefmt='%H:%M:%S',
+                    level=logging.DEBUG)
 logging.info("let's get it started")
 import numpy as np
 from neuron import h
 import h5py as hdf5
+
 h.load_file('nrngui.hoc')
 
-#paralleling NEURON stuff
+# paralleling NEURON stuff
 pc = h.ParallelContext()
 rank = int(pc.id())
 nhost = int(pc.nhost())
 
-#param
-speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
-#100 Hz is the motor cortex frequency
-bs_fr = 100 #40 # frequency of brainstem inputs
+# param
+speed = 50  # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
+# 100 Hz is the motor cortex frequency
+bs_fr = 100  # 40 # frequency of brainstem inputs
 versions = 1
 
-step_number = 5 # number of steps
+step_number = 5  # number of steps
 
 CV_number = 6
-nMN = 21 # 21 # 210 # Number of motor neurons
+nMN = 21  # 21 # 210 # Number of motor neurons
 nAff = 12  # 120 # Number of afferents
-nInt = 5 #19 # 196 # Number of neurons in interneuronal pools
-N = 5 #5 #50
+nInt = 5  # 19 # 196 # Number of neurons in interneuronal pools
+N = 5  # 5 #50
 
-k = 0.017 # CV weights multiplier to take into account air and toe stepping
-CV_0_len = 12 # 125 # Duration of the CV generator with no sensory inputs
-extra_layers = 0 # 1 + layers
+k = 0.017  # CV weights multiplier to take into account air and toe stepping
+CV_0_len = 12  # 125 # Duration of the CV generator with no sensory inputs
+extra_layers = 0  # 1 + layers
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = 25 + one_step_time * step_number
@@ -53,6 +55,8 @@ import random
 '''
 network topology https://github.com/max-talanov/bypass/blob/main/figs/CPG_feedback_loops.png
 '''
+
+
 class CPG:
     def __init__(self, speed, bs_fr, inh_p, step_number, N):
 
@@ -66,8 +70,8 @@ class CPG:
         self.motogroups = []
         self.musclegroups = []
         self.affgroups = []
-        self.RG_E = [] # Rhythm generators of extensors
-        self.RG_F = [] # Rhythm generators of flexor
+        self.RG_E = []  # Rhythm generators of extensors
+        self.RG_F = []  # Rhythm generators of flexor
         self.V3F = []
 
         for layer in range(CV_number):
@@ -90,7 +94,6 @@ class CPG:
             self.RG_E.append(self.dict_RG_E[layer])
             self.RG_F.append(self.dict_RG_F[layer])
 
-
         '''RG'''
         self.RG_E = sum(self.RG_E, [])
         self.InE = self.addpool(nInt, "InE", "int")
@@ -103,34 +106,33 @@ class CPG:
         self.Ia_aff_F = self.addpool(nAff, "Ia_aff_F", "aff")
         self.BS_aff_E = self.addpool(nAff, "BS_aff_E", "aff")
         self.BS_aff_F = self.addpool(nAff, "BS_aff_F", "aff")
-        self.V3F      = self.addpool(nAff, "V3F", "int")
+        self.V3F = self.addpool(nAff, "V3F", "int")
 
         '''moto neuron pools'''
         self.mns_E = self.addpool(nMN, "mns_E", "moto")
         self.mns_F = self.addpool(nMN, "mns_F", "moto")
 
         '''muscles'''
-        self.muscle_E = self.addpool(nMN*30, "muscle_E", "muscle")
-        self.muscle_F = self.addpool(nMN*20, "muscle_F", "muscle")
+        self.muscle_E = self.addpool(nMN * 30, "muscle_E", "muscle")
+        self.muscle_F = self.addpool(nMN * 20, "muscle_F", "muscle")
 
         '''reflex arc'''
         self.Ia_E = self.addpool(nInt, "Ia_E", "int")
-        self.R_E = self.addpool(nInt, "R_E", "int") # Renshaw cells
+        self.R_E = self.addpool(nInt, "R_E", "int")  # Renshaw cells
         self.Ia_F = self.addpool(nInt, "Ia_F", "int")
-        self.R_F = self.addpool(nInt, "R_F", "int") # Renshaw cells
+        self.R_F = self.addpool(nInt, "R_F", "int")  # Renshaw cells
         # self.Iagener_E = []
         # self.Iagener_F = []
 
         '''BS'''
-        #periodic stimulation
+        # periodic stimulation
         self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 10)
 
         '''muscle afferents generators'''
         self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_E, 10, weight=20)
-        self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_F, speed*6, weight=20)
+        self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_F, speed * 6, weight=20)
         Iagener_E_1000 = self.addIagener(self.muscle_E, self.muscle_E, 1000, weight=20)
-        Iagener_F_1000 = self.addIagener(self.muscle_E, self.muscle_E, 1000 + (speed*6), weight=20)
-
+        Iagener_F_1000 = self.addIagener(self.muscle_E, self.muscle_E, 1000 + (speed * 6), weight=20)
 
         '''cutaneous inputs'''
         cfr = 200
@@ -141,7 +143,7 @@ class CPG:
             self.dict_C[layer] = []
             for i in range(step_number):
                 self.dict_C[layer].append(self.addgener(25 + speed * layer + i * (speed * CV_number + CV_0_len),
-                                                        random.gauss(cfr, cfr/10), (speed / c_int + 1)))
+                                                        random.gauss(cfr, cfr / 10), (speed / c_int + 1)))
 
         self.C_1 = []
         self.C_0 = []
@@ -149,9 +151,9 @@ class CPG:
 
         '''Generators'''
         for i in range(step_number):
-            self.C_0.append(self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, CV_0_len/c_int, False))
+            self.C_0.append(self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, CV_0_len / c_int, False))
             ## TODO possibly we don't need this
-            self.V0v.append(self.addgener(40 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, 100/c_int, False))
+            self.V0v.append(self.addgener(40 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, 100 / c_int, False))
 
         # self.C_0.append(self.addgener(0, cfr, (speed / c_int)))
 
@@ -180,8 +182,8 @@ class CPG:
         ## TODO fix Iagener
         genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 5)
         genconnect(self.Iagener_F, self.Ia_aff_F, 1.5, 1, False, 15)
-        #genconnect(Iagener_E_1000, self.Ia_aff_E, 5.0, 1, False, 5)
-        #genconnect(Iagener_F_1000, self.Ia_aff_F, 5.0, 1, False, 15)
+        # genconnect(Iagener_E_1000, self.Ia_aff_E, 5.0, 1, False, 5)
+        # genconnect(Iagener_F_1000, self.Ia_aff_F, 5.0, 1, False, 15)
 
         '''Ia2motor'''
         connectcells(self.Ia_aff_E, self.mns_E, 1.55, 1.5)
@@ -214,12 +216,11 @@ class CPG:
 
         '''cutaneous inputs'''
         for layer in range(CV_number):
-            connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15*k*speed, 2)
+            connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15 * k * speed, 2)
             connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 0.00035 * k * speed, 3)
 
         # connectcells(self.IP_F, self.Ia_aff_F, 0.0015, 2, True)
         # connectcells(self.IP_E, self.Ia_aff_E, 0.0015, 2, True)
-
 
         '''Rhythm generators'''
         for layer in range(CV_number):
@@ -267,7 +268,6 @@ class CPG:
         ## TODO check the inh connection
         connectcells(self.InE, self.InF, 0.04, 1, True)
         connectcells(self.InF, self.InE, 0.04, 1, True)
-
 
     def addpool(self, num, name="test", neurontype="int"):
         '''
@@ -373,7 +373,7 @@ class CPG:
         else:
             stim.start = start
         stim.interval = int(1000 / freq)
-        #skinstim.noise = 0.1
+        # skinstim.noise = 0.1
         self.stims.append(stim)
         while pc.gid_exists(gid) != 0:
             gid += 1
@@ -419,7 +419,8 @@ class CPG:
 
         return gid
 
-def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 15, stdptype = False, threshold = 10):
+
+def connectcells(pre, post, weight, delay=1, inhtype=False, N=50, stdptype=False, threshold=10):
     ''' Connects with excitatory synapses
       Parameters
       ----------
@@ -444,7 +445,7 @@ def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 15, stdptype
       threshold: int
             voltage thershold
     '''
-    nsyn = random.randint(N-10, N)
+    nsyn = random.randint(N - 15, N)
     for post_gid in post:
         if pc.gid_exists(post_gid):
             for j in range(nsyn):
@@ -513,8 +514,7 @@ def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 15, stdptype
                 nc.delay = random.gauss(delay, delay / 5)
 
 
-
-def genconnect(gen_gid, afferents_gids, weight, delay, inhtype = False, N = 50):
+def genconnect(gen_gid, afferents_gids, weight, delay, inhtype=False, N=50):
     ''' Connects with generator
       Parameters
       ----------
@@ -533,7 +533,7 @@ def genconnect(gen_gid, afferents_gids, weight, delay, inhtype = False, N = 50):
       inhtype: bool
           is this connection inhibitory?
     '''
-    nsyn = random.randint(N, N+5)
+    nsyn = random.randint(N, N + 5)
     for i in afferents_gids:
         if pc.gid_exists(i):
             for j in range(nsyn):
@@ -555,10 +555,12 @@ def genconnect(gen_gid, afferents_gids, weight, delay, inhtype = False, N = 50):
                 nc.delay = random.gauss(delay, delay / 5)
                 nc.weight[0] = random.gauss(weight, weight / 6)
 
+
 def connectinsidenucleus(nucleus):
     connectcells(nucleus, nucleus, 0.25, 0.5)
 
-def spike_record(pool, extra = False):
+
+def spike_record(pool, extra=False):
     ''' Records spikes from gids
       Parameters
       ----------
@@ -575,13 +577,14 @@ def spike_record(pool, extra = False):
 
     for i in pool:
         cell = pc.gid2cell(i)
-        vec = h.Vector(np.zeros(int(time_sim/0.025 + 1), dtype=np.float32))
+        vec = h.Vector(np.zeros(int(time_sim / 0.025 + 1), dtype=np.float32))
         if extra:
             vec.record(cell.soma(0.5)._ref_vext[0])
         else:
             vec.record(cell.soma(0.5)._ref_v)
         v_vec.append(vec)
     return v_vec
+
 
 def force_record(pool):
     ''' Records force from gids of motor neurons muscle unit
@@ -597,10 +600,11 @@ def force_record(pool):
     v_vec = []
     for i in pool:
         cell = pc.gid2cell(i)
-        vec = h.Vector(np.zeros(int(time_sim/0.025 + 1), dtype=np.float32))
+        vec = h.Vector(np.zeros(int(time_sim / 0.025 + 1), dtype=np.float32))
         vec.record(cell.muscle_unit(0.5)._ref_F_fHill)
         v_vec.append(vec)
     return v_vec
+
 
 def motodiams(number):
     nrn_number = number
@@ -614,9 +618,10 @@ def motodiams(number):
     loc_stanby, scale_stanby = 44, 4
 
     x2 = np.concatenate([np.random.normal(loc=loc_active, scale=scale_active, size=active_size),
-                     np.random.normal(loc=loc_stanby, scale=scale_stanby, size=standby_size)])
+                         np.random.normal(loc=loc_stanby, scale=scale_stanby, size=standby_size)])
 
     return x2
+
 
 def spikeout(pool, name, version, v_vec):
     ''' Reports simulation results
@@ -639,18 +644,20 @@ def spikeout(pool, name, version, v_vec):
             outavg = []
             for j in range(len(pool)):
                 outavg.append(list(v_vec[j]))
-            outavg = np.mean(np.array(outavg), axis = 0, dtype=np.float32)
+            outavg = np.mean(np.array(outavg), axis=0, dtype=np.float32)
             vec = vec.from_python(outavg)
         pc.barrier()
     pc.barrier()
     result = pc.py_gather(vec, 0)
     if rank == 0:
         logging.info("start recording")
-        result = np.mean(np.array(result), axis = 0, dtype=np.float32)
+        result = np.mean(np.array(result), axis=0, dtype=np.float32)
         with hdf5.File('./res/{}_sp_{}_CVs_{}_bs_{}.hdf5'.format(name, speed, CV_number, bs_fr), 'w') as file:
             for i in range(step_number):
-                sl = slice((int(1000 / bs_fr) * 40 + i * one_step_time * 40), (int(1000 / bs_fr) * 40 + (i + 1) * one_step_time * 40))
+                sl = slice((int(1000 / bs_fr) * 40 + i * one_step_time * 40),
+                           (int(1000 / bs_fr) * 40 + (i + 1) * one_step_time * 40))
                 file.create_dataset('#0_step_{}'.format(i), data=np.array(result)[sl], compression="gzip")
+        logging.info("done recording")
     else:
         logging.info(rank)
 
@@ -663,7 +670,7 @@ def prun(speed, step_number):
       duration of each layer
     '''
     pc.timeout(0)
-    tstop = time_sim#25 + (6 * speed + 125) * step_number
+    tstop = time_sim  # 25 + (6 * speed + 125) * step_number
     pc.set_maxstep(10)
     h.stdinit()
     pc.psolve(tstop)
@@ -675,6 +682,7 @@ def finish():
     pc.done()
     # print("hi after finish")
     h.quit()
+
 
 if __name__ == '__main__':
     '''
@@ -697,10 +705,10 @@ if __name__ == '__main__':
             motorecorders_mem.append(spike_record(group[k_nrns]))
         affrecorders = []
         for group in cpg_ex.affgroups:
-          affrecorders.append(spike_record(group[k_nrns], i))
+            affrecorders.append(spike_record(group[k_nrns]))
         recorders = []
         for group in cpg_ex.groups:
-          recorders.append(spike_record(group[k_nrns], i))
+            recorders.append(spike_record(group[k_nrns]))
         for group in cpg_ex.musclegroups:
             force_recorders.append(force_record(group[k_nrns]))
 
@@ -717,12 +725,12 @@ if __name__ == '__main__':
         for group, recorder in zip(cpg_ex.motogroups, motorecorders_mem):
             spikeout(group[k_nrns], 'mem_{}'.format(group[k_name]), i, recorder)
         for group, recorder in zip(cpg_ex.affgroups, affrecorders):
-          spikeout(group[k_nrns], group[k_name], i, recorder)
+            spikeout(group[k_nrns], group[k_name], i, recorder)
         for group, recorder in zip(cpg_ex.groups, recorders):
-          spikeout(group[k_nrns], group[k_name], i, recorder)
+            spikeout(group[k_nrns], group[k_name], i, recorder)
         for group, recorder in zip(cpg_ex.musclegroups, force_recorders):
             spikeout(group[k_nrns], 'force_{}'.format(group[k_name]), i, recorder)
 
-        logging.info("recorded")
+            logging.info("recorded")
 
     finish()
