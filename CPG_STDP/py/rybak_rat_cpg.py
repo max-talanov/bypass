@@ -23,7 +23,7 @@ speed = 50  # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
 bs_fr = 100  # 40 # frequency of brainstem inputs
 versions = 1
 
-step_number = 5  # number of steps
+# step_number = 5  # number of steps
 
 CV_number = 6
 nMN = 21  # 21 # 210 # Number of motor neurons
@@ -35,8 +35,12 @@ k = 0.017  # CV weights multiplier to take into account air and toe stepping
 CV_0_len = 12  # 125 # Duration of the CV generator with no sensory inputs
 extra_layers = 0  # 1 + layers
 
+
+step_number = 25
+
+
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
-time_sim = 25 + one_step_time * step_number
+time_sim = 2000 + one_step_time * step_number
 
 exnclist = []
 inhnclist = []
@@ -668,12 +672,19 @@ def prun(speed, step_number):
     ----------
     speed: int
       duration of each layer
+
+    Returns
+    -------
+    t: list of h.Vector()
+      recorded time
     '''
     pc.timeout(0)
+    t = h.Vector().record(h._ref_t)
     tstop = time_sim  # 25 + (6 * speed + 125) * step_number
     pc.set_maxstep(10)
     h.stdinit()
     pc.psolve(tstop)
+    return t
 
 
 def finish():
@@ -715,10 +726,14 @@ if __name__ == '__main__':
         logging.info("added recorders")
 
         print("- " * 10, "\nstart")
-        prun(speed, step_number)
+        t = prun(speed, step_number)
         print("- " * 10, "\nend")
 
         logging.info("simulation done")
+
+        with open('./res/time.txt', 'w') as time_file:
+            for time in t:
+                time_file.write(str(time) + "\n")
 
         for group, recorder in zip(cpg_ex.motogroups, motorecorders):
             spikeout(group[k_nrns], group[k_name], i, recorder)
