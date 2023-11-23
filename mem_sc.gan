@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="mem spinal cord project" company="" webLink="http://" view-date="2023-11-01" view-index="0" gantt-divider-location="465" resource-divider-location="300" version="3.3.3295" locale="en">
+<?xml version="1.0" encoding="UTF-8"?><project name="mem spinal cord project" company="" webLink="http://" view-date="2023-09-01" view-index="0" gantt-divider-location="449" resource-divider-location="300" version="3.3.3295" locale="en">
     <description/>
     <view zooming-state="default:9" id="gantt-chart">
-        <field id="tpd3" name="Name" width="224" order="0"/>
-        <field id="tpd4" name="Begin date" width="87" order="1"/>
-        <field id="tpd5" name="End date" width="89" order="2"/>
-        <field id="tpd6" name="Duration" width="49" order="3"/>
+        <field id="tpd3" name="Name" width="212" order="0"/>
+        <field id="tpd4" name="Begin date" width="89" order="1"/>
+        <field id="tpd5" name="End date" width="91" order="2"/>
+        <field id="tpd6" name="Duration" width="41" order="3"/>
         <option id="taskLabelUp" value=""/>
         <option id="taskLabelRight" value="length"/>
         <option id="filter.completedTasks" value="false"/>
@@ -115,7 +115,7 @@
             </task>
             <task id="20" uid="4adb5b6e800341b9951b8644c34aa3d4" name="40 mems (2 legs)" meeting="true" start="2024-02-13" duration="0" complete="0" thirdDate="2023-11-01" thirdDate-constraint="0" expand="true"/>
         </task>
-        <task id="21" uid="f35276a22d674a01b6846c84f6155d17" name="Mem neurons" meeting="false" start="2023-11-27" duration="35" complete="0" expand="true">
+        <task id="21" uid="f35276a22d674a01b6846c84f6155d17" name="Mem neurons" meeting="false" start="2023-11-27" duration="55" complete="0" expand="true">
             <task id="22" uid="0e165075104e44239e01d63cbfbaf4c6" name="Rework mem neuron sch" meeting="false" start="2023-11-27" duration="10" complete="0" expand="true">
                 <depend id="23" type="2" difference="0" hardness="Strong"/>
             </task>
@@ -128,7 +128,16 @@
             <task id="25" uid="557650f77a3e45798a4c5819869a56c9" name="Design InE, InF" meeting="false" start="2023-12-25" duration="5" complete="0" expand="true">
                 <depend id="26" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="26" uid="de8a169f6bef4829be1fc98d9c872073" name="Design 2nd leg" meeting="false" start="2024-01-03" duration="10" complete="0" expand="true"/>
+            <task id="26" uid="de8a169f6bef4829be1fc98d9c872073" name="Design 2nd leg" meeting="false" start="2024-01-03" duration="10" complete="0" expand="true">
+                <depend id="27" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="27" uid="7d3d321d030f4adf80fd7b319cf33afc" name="Order PCBs" meeting="false" start="2024-01-17" duration="5" complete="0" expand="true">
+                <depend id="28" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="28" uid="322827e2d1064c728ec5d01789eb97d9" name="Assemble PCBs" meeting="false" start="2024-01-24" duration="15" complete="0" thirdDate="2023-10-02" thirdDate-constraint="0" expand="true">
+                <depend id="29" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="29" uid="7fff8444fa4d4135b6e427ee5cc28359" name="Completed mem neurons" meeting="true" start="2024-02-14" duration="0" complete="0" thirdDate="2023-09-01" thirdDate-constraint="0" expand="true"/>
         </task>
     </tasks>
     <resources/>
