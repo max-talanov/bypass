@@ -1,6 +1,6 @@
 # The mem_cpg project ricks 
 
-|    Risk | Severeness	     | Comment                                                                                                         |
+|    Risk | Severeness	     | Comment                                                                                                          |
 |---------------:|:-----------------------|:----------------------------------------------------------------------------------------------------------------|
 | V_reset: -46.0 | NA                     | NA                                                                                                              |
 |    V_peak: 0.0 | g_K,g_Na               | g_K,g_Kv1,g_Kv3[nS] Potassium peak conductance; g_Na[nS] Sodium peak conductance                                |
