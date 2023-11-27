@@ -1,13 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="mem spinal cord project" company="" webLink="http://" view-date="2023-09-01" view-index="0" gantt-divider-location="434" resource-divider-location="300" version="3.2.3247" locale="en_GB">
+<?xml version="1.0" encoding="UTF-8"?><project name="mem spinal cord project" company="" webLink="http://" view-date="2023-10-01" view-index="0" gantt-divider-location="434" resource-divider-location="300" version="3.2.3247" locale="en_GB">
     <description/>
     <view zooming-state="default:8" id="gantt-chart">
         <field id="tpd3" name="Name" width="205" order="0"/>
         <field id="tpd4" name="Begin date" width="86" order="1"/>
         <field id="tpd5" name="End date" width="88" order="2"/>
         <field id="tpd6" name="Duration" width="40" order="3"/>
+        <option id="taskLabelLeft" value="advancement"/>
+        <option id="taskLabelRight" value="length"/>
         <option id="filter.completedTasks" value="false"/>
         <option id="color.recent">
-            <![CDATA[#009999 #999999]]>
+            <![CDATA[#1384cd #1c608c #009999 #999999]]>
         </option>
     </view>
     <view id="resource-table">
@@ -83,8 +85,8 @@
             <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
             <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
         </taskproperties>
-        <task id="0" name="B-model develpment" meeting="false" start="2023-11-22" duration="37" complete="0" expand="false">
-            <task id="1" name="Ia STDP fix" meeting="false" start="2023-11-22" duration="10" complete="0" thirdDate="2023-11-22" thirdDate-constraint="0" expand="true">
+        <task id="0" name="B-model develpment" meeting="false" start="2023-11-22" duration="37" complete="2" expand="true">
+            <task id="1" name="Ia STDP fix" color="#1384cd" meeting="false" start="2023-11-22" duration="10" complete="10" thirdDate="2023-11-22" thirdDate-constraint="0" expand="true">
                 <depend id="2" type="2" difference="0" hardness="Strong"/>
             </task>
             <task id="2" name="Cut STDP fix" meeting="false" start="2023-12-06" duration="5" complete="0" thirdDate="2023-11-22" thirdDate-constraint="0" expand="true">
@@ -115,7 +117,7 @@
             </task>
             <task id="10" name="Complete B-model" meeting="true" start="2024-01-16" duration="0" complete="0" thirdDate="2024-01-16" thirdDate-constraint="0" expand="true"/>
         </task>
-        <task id="11" name="Memristors" meeting="false" start="2023-11-22" duration="57" complete="0" expand="false">
+        <task id="11" name="Memristors" meeting="false" start="2023-11-22" duration="57" complete="0" expand="true">
             <task id="12" name="1 memristor" meeting="false" start="2023-11-22" duration="2" complete="0" thirdDate="2023-11-01" thirdDate-constraint="0" expand="true">
                 <depend id="13" type="2" difference="0" hardness="Strong"/>
             </task>
@@ -142,7 +144,7 @@
             </task>
             <task id="20" name="40 mems (2 legs)" meeting="true" start="2024-02-13" duration="0" complete="0" thirdDate="2023-11-01" thirdDate-constraint="0" expand="true"/>
         </task>
-        <task id="21" name="Mem neurons" meeting="false" start="2023-11-27" duration="55" complete="0" expand="false">
+        <task id="21" name="Mem neurons" meeting="false" start="2023-11-27" duration="55" complete="0" expand="true">
             <depend id="30" type="2" difference="0" hardness="Strong"/>
             <task id="22" name="Rework mem neuron sch" meeting="false" start="2023-11-27" duration="10" complete="0" expand="true">
                 <depend id="23" type="2" difference="0" hardness="Strong"/>
@@ -167,9 +169,9 @@
             </task>
             <task id="29" name="Completed mem neurons" meeting="true" start="2024-02-14" duration="0" complete="0" thirdDate="2023-09-01" thirdDate-constraint="0" expand="true"/>
         </task>
-        <task id="30" name="Neurons+mems integration" meeting="false" start="2024-02-14" duration="34" complete="0" expand="false">
+        <task id="30" name="Neurons+mems integration" meeting="false" start="2024-02-14" duration="34" complete="0" expand="true">
             <depend id="40" type="2" difference="0" hardness="Strong"/>
-            <task id="31" name="deliver mem neurons" color="#8cb6ce" meeting="false" start="2024-02-14" duration="10" complete="0" thirdDate="2023-08-01" thirdDate-constraint="0" expand="true">
+            <task id="31" name="deliver mem neurons" color="#1384cd" meeting="false" start="2024-02-14" duration="10" complete="0" thirdDate="2023-08-01" thirdDate-constraint="0" expand="true">
                 <depend id="32" type="2" difference="0" hardness="Strong"/>
             </task>
             <task id="32" name="integrate 1 neuron 1 mem" meeting="false" start="2024-03-01" duration="3" complete="0" expand="true">
@@ -187,19 +189,19 @@
             <task id="36" name="test 1 leg" meeting="false" start="2024-03-25" duration="2" complete="0" expand="true">
                 <depend id="37" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="37" name="integrate 2 legs" color="#8cb6ce" meeting="false" start="2024-03-27" duration="3" complete="0" thirdDate="2024-02-14" thirdDate-constraint="0" expand="true">
+            <task id="37" name="integrate 2 legs" color="#1384cd" meeting="false" start="2024-03-27" duration="3" complete="0" thirdDate="2024-02-14" thirdDate-constraint="0" expand="true">
                 <depend id="38" type="2" difference="0" hardness="Strong"/>
             </task>
             <task id="38" name="test 2 legs" meeting="false" start="2024-04-01" duration="3" complete="0" expand="true">
                 <depend id="39" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="39" name="integrated 2 legs" color="#8cb6ce" meeting="true" start="2024-04-04" duration="0" complete="0" thirdDate="2024-02-14" thirdDate-constraint="0" expand="true"/>
+            <task id="39" name="integrated 2 legs" color="#1384cd" meeting="true" start="2024-04-04" duration="0" complete="0" thirdDate="2024-02-14" thirdDate-constraint="0" expand="true"/>
         </task>
         <task id="40" name="Rat validation" meeting="false" start="2024-04-04" duration="16" complete="0" expand="true">
-            <task id="41" name="deliver mem cpg" color="#8cb6ce" meeting="false" start="2024-04-04" duration="10" complete="0" thirdDate="2024-02-14" thirdDate-constraint="0" expand="true">
+            <task id="41" name="deliver mem cpg" color="#1384cd" meeting="false" start="2024-04-04" duration="10" complete="0" thirdDate="2024-02-14" thirdDate-constraint="0" expand="true">
                 <depend id="42" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="42" name="test mem cpg" color="#8cb6ce" meeting="false" start="2024-04-18" duration="3" complete="0" thirdDate="2024-04-04" thirdDate-constraint="0" expand="true">
+            <task id="42" name="test mem cpg" color="#1384cd" meeting="false" start="2024-04-18" duration="3" complete="0" thirdDate="2024-04-04" thirdDate-constraint="0" expand="true">
                 <depend id="43" type="2" difference="0" hardness="Strong"/>
             </task>
             <task id="43" name="integrate outs (F+E)" meeting="false" start="2024-04-23" duration="1" complete="0" expand="true">
@@ -208,7 +210,7 @@
             <task id="44" name="validate outs on rat" meeting="false" start="2024-04-24" duration="2" complete="0" expand="true">
                 <depend id="45" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="45" name="validated mem cpg" color="#8cb6ce" meeting="true" start="2024-04-26" duration="0" complete="0" thirdDate="2024-04-26" thirdDate-constraint="0" expand="true"/>
+            <task id="45" name="validated mem cpg" color="#1384cd" meeting="true" start="2024-04-26" duration="0" complete="0" thirdDate="2024-04-26" thirdDate-constraint="0" expand="true"/>
         </task>
     </tasks>
     <resources/>
