@@ -36,11 +36,11 @@ CV_0_len = 12  # 125 # Duration of the CV generator with no sensory inputs
 extra_layers = 0  # 1 + layers
 
 
-step_number = 25
+step_number = 10
 
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
-time_sim = 2000 + one_step_time * step_number
+time_sim = 300 + one_step_time * step_number
 
 exnclist = []
 inhnclist = []
@@ -178,8 +178,8 @@ class CPG:
 
         connectcells(self.BS_aff_F, self.V3F, 1.5, 3)
         '''STDP synapse'''
-        connectcells(self.BS_aff_F, self.RG_F, 3.75, 3, stdptype=True)
-        connectcells(self.BS_aff_E, self.RG_E, 3.75, 3, stdptype=True)
+        connectcells(self.BS_aff_F, self.RG_F, 0.001, 3, stdptype=True)
+        connectcells(self.BS_aff_E, self.RG_E, 0.001, 3, stdptype=True)
 
         '''generators of Ia aff'''
         ## TODO originally: 00005 and 0001
@@ -235,7 +235,7 @@ class CPG:
         '''Ia2RG, RG2Motor'''
         connectcells(self.InE, self.RG_F, 0.5, 1, True)
         '''STDP synapse'''
-        connectcells(self.Ia_aff_F, self.RG_F, 0.5, 1, stdptype=True)
+        connectcells(self.Ia_aff_F, self.RG_F, 0.001, 1, stdptype=True)
 
         # TODO check this too many reciprocal inh connections
         connectcells(self.InE, self.Ia_aff_F, 1.2, 1, True)
@@ -243,7 +243,7 @@ class CPG:
 
         connectcells(self.InF, self.RG_E, 0.8, 1, True)
         '''STDP synapse'''
-        connectcells(self.Ia_aff_E, self.RG_E, 0.5, 1, stdptype=True)
+        connectcells(self.Ia_aff_E, self.RG_E, 0.001, 1, stdptype=True)
 
         # TODO check this too many reciprocal inh connections
         ## connectcells(self.InF, self.InE, 0.5, 1, True)
@@ -498,6 +498,7 @@ def connectcells(pre, post, weight, delay=1, inhtype=False, N=50, stdptype=False
                         h.setpointer(nc._ref_weight[0], 'synweight',
                                      stdpmech)  # Point the STDP mechanism to the connection weight
                         exstdpnclist.append(nc)
+                        logging.info(nc._ref_weight[0])
                         # nc.weight[0] = random.gauss(weight, weight / 6) # str
 
                 else:
