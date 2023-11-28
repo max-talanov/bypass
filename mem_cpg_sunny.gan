@@ -1,15 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="mem spinal cord project" company="" webLink="http://" view-date="2023-11-13" view-index="0" gantt-divider-location="423" resource-divider-location="300" version="3.2.3247" locale="en_GB">
+<?xml version="1.0" encoding="UTF-8"?><project name="mem spinal cord project" company="" webLink="http://" view-date="2023-11-13" view-index="0" gantt-divider-location="411" resource-divider-location="300" version="3.2.3247" locale="en_GB">
     <description/>
     <view zooming-state="default:7" id="gantt-chart">
-        <field id="tpd3" name="Name" width="205" order="0"/>
-        <field id="tpd4" name="Begin date" width="86" order="1"/>
-        <field id="tpd5" name="End date" width="88" order="2"/>
-        <field id="tpd6" name="Duration" width="44" order="3"/>
+        <field id="tpd3" name="Name" width="178" order="0"/>
+        <field id="tpd4" name="Begin date" width="89" order="1"/>
+        <field id="tpd5" name="End date" width="89" order="2"/>
+        <field id="tpd6" name="Duration" width="40" order="3"/>
         <option id="taskLabelLeft" value="advancement"/>
         <option id="taskLabelRight" value="length"/>
         <option id="filter.completedTasks" value="false"/>
         <option id="color.recent">
-            <![CDATA[#1384cd #1c608c #009999 #999999]]>
+            <![CDATA[#c2156f #007d99 #009999 #1384cd #1c608c #999999]]>
         </option>
     </view>
     <view id="resource-table">
@@ -85,9 +85,9 @@
             <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
             <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
         </taskproperties>
-        <task id="0" name="B-model develpment" meeting="false" start="2023-11-27" duration="37" complete="2" expand="true">
+        <task id="0" name="B-model develpment" meeting="false" start="2023-11-27" duration="37" complete="5" expand="true">
             <depend id="30" type="2" difference="0" hardness="Strong"/>
-            <task id="1" name="Ia STDP fix" color="#1384cd" meeting="false" start="2023-11-27" duration="10" complete="10" thirdDate="2023-11-22" thirdDate-constraint="0" expand="true">
+            <task id="1" name="Ia STDP fix" color="#1384cd" meeting="false" start="2023-11-27" duration="10" complete="20" thirdDate="2023-11-22" thirdDate-constraint="0" expand="true">
                 <depend id="2" type="2" difference="0" hardness="Strong"/>
             </task>
             <task id="2" name="Cut STDP fix" meeting="false" start="2023-12-11" duration="5" complete="0" thirdDate="2023-11-22" thirdDate-constraint="0" expand="true">
@@ -148,7 +148,7 @@
         </task>
         <task id="21" name="Mem neurons" meeting="false" start="2023-11-27" duration="67" complete="0" expand="true">
             <depend id="30" type="2" difference="0" hardness="Strong"/>
-            <task id="46" name="negotiate parameters of mem neurons" color="#1384cd" meeting="false" start="2023-11-27" duration="2" complete="0" thirdDate="2023-10-16" thirdDate-constraint="0" expand="true">
+            <task id="46" name="negotiate parameters of mem neurons" color="#1384cd" meeting="false" start="2023-11-27" duration="2" complete="30" thirdDate="2023-10-16" thirdDate-constraint="0" expand="true">
                 <depend id="22" type="2" difference="0" hardness="Strong"/>
             </task>
             <task id="22" name="Rework mem neuron sch" meeting="false" start="2023-11-29" duration="10" complete="0" expand="true">

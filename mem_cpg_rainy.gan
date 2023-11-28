@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="mem spinal cord project" company="" webLink="http://" view-date="2023-12-01" view-index="0" gantt-divider-location="450" resource-divider-location="300" version="3.2.3247" locale="en_GB">
+<?xml version="1.0" encoding="UTF-8"?><project name="mem spinal cord project" company="" webLink="http://" view-date="2023-11-01" view-index="0" gantt-divider-location="472" resource-divider-location="300" version="3.2.3247" locale="en_GB">
     <description/>
     <view zooming-state="default:8" id="gantt-chart">
-        <field id="tpd3" name="Name" width="191" order="0"/>
-        <field id="tpd4" name="Begin date" width="88" order="1"/>
-        <field id="tpd5" name="End date" width="94" order="2"/>
-        <field id="tpd6" name="Duration" width="62" order="3"/>
+        <field id="tpd3" name="Name" width="207" order="0"/>
+        <field id="tpd4" name="Begin date" width="87" order="1"/>
+        <field id="tpd5" name="End date" width="89" order="2"/>
+        <field id="tpd6" name="Duration" width="74" order="3"/>
         <option id="taskLabelLeft" value="advancement"/>
         <option id="taskLabelRight" value="length"/>
         <option id="filter.completedTasks" value="false"/>
@@ -85,20 +85,20 @@
             <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
             <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
         </taskproperties>
-        <task id="0" name="B-model develpment" meeting="false" start="2023-11-27" duration="53" complete="2" expand="true">
+        <task id="0" name="B-model develpment" meeting="false" start="2023-11-27" duration="53" complete="4" expand="true">
             <depend id="30" type="2" difference="0" hardness="Strong"/>
-            <task id="1" name="Ia STDP fix" color="#1384cd" meeting="false" start="2023-11-27" duration="15" complete="10" thirdDate="2023-11-22" thirdDate-constraint="0" expand="true">
+            <task id="1" name="Ia STDP fix" color="#1384cd" meeting="false" start="2023-11-27" duration="15" complete="15" thirdDate="2023-11-22" thirdDate-constraint="0" expand="true">
                 <depend id="2" type="2" difference="0" hardness="Strong"/>
             </task>
             <task id="2" name="Cut STDP fix" meeting="false" start="2023-12-18" duration="7" complete="0" thirdDate="2023-11-22" thirdDate-constraint="0" expand="true">
                 <depend id="3" type="2" difference="0" hardness="Strong"/>
                 <depend id="6" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="6" name="BS-&gt;F STDP" meeting="false" start="2023-12-27" duration="3" complete="0" expand="true">
+            <task id="6" name="Ia-&gt;F, E STDP" color="#1384cd" meeting="false" start="2023-12-27" duration="3" complete="0" thirdDate="2023-12-27" thirdDate-constraint="0" expand="true">
                 <depend id="3" type="2" difference="0" hardness="Strong"/>
                 <depend id="8" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="8" name="BS-&gt;E STDP" meeting="false" start="2024-01-03" duration="2" complete="0" expand="true">
+            <task id="8" name="BS-&gt;F, E STDP" meeting="false" start="2024-01-03" duration="2" complete="0" expand="true">
                 <depend id="3" type="2" difference="0" hardness="Strong"/>
             </task>
             <task id="3" name="Add 2nd leg" meeting="false" start="2024-01-05" duration="2" complete="0" thirdDate="2023-11-01" thirdDate-constraint="0" expand="true">
@@ -113,10 +113,10 @@
             <task id="7" name="Debug 2 legs" meeting="false" start="2024-01-15" duration="10" complete="0" expand="true">
                 <depend id="9" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="10" name="Complete B-model" color="#1384cd" meeting="true" start="2024-02-12" duration="0" complete="0" thirdDate="2024-01-16" thirdDate-constraint="0" expand="true"/>
             <task id="9" name="Debug STDP complete model" meeting="false" start="2024-01-29" duration="10" complete="0" expand="true">
                 <depend id="10" type="2" difference="0" hardness="Strong"/>
             </task>
+            <task id="10" name="Complete B-model" color="#1384cd" meeting="true" start="2024-02-12" duration="0" complete="0" thirdDate="2024-01-16" thirdDate-constraint="0" expand="true"/>
         </task>
         <task id="11" name="Memristors" meeting="false" start="2023-11-27" duration="80" complete="0" expand="true">
             <depend id="30" type="2" difference="0" hardness="Strong"/>
@@ -146,9 +146,9 @@
             </task>
             <task id="20" name="40 mems (2 legs)" color="#1384cd" meeting="true" start="2024-03-22" duration="0" complete="0" thirdDate="2023-11-01" thirdDate-constraint="0" expand="true"/>
         </task>
-        <task id="21" name="Mem neurons" meeting="false" start="2023-11-27" duration="82" complete="0" expand="true">
+        <task id="21" name="Mem neurons" meeting="false" start="2023-11-27" duration="107" complete="0" expand="true">
             <depend id="30" type="2" difference="0" hardness="Strong"/>
-            <task id="46" name="negotiate parameters of mem neurons" color="#1384cd" meeting="false" start="2023-11-27" duration="2" complete="0" thirdDate="2023-10-16" thirdDate-constraint="0" expand="true">
+            <task id="46" name="negotiate parameters of mem neurons" color="#1384cd" meeting="false" start="2023-11-27" duration="2" complete="20" thirdDate="2023-10-16" thirdDate-constraint="0" expand="true">
                 <depend id="22" type="2" difference="0" hardness="Strong"/>
             </task>
             <task id="22" name="Rework mem neuron sch" meeting="false" start="2023-11-29" duration="10" complete="0" expand="true">
@@ -166,7 +166,7 @@
             <task id="26" name="Design 2nd leg" meeting="false" start="2024-01-05" duration="10" complete="0" expand="true">
                 <depend id="27" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="27" name="Order PCBs" meeting="false" start="2024-01-19" duration="10" complete="0" expand="true">
+            <task id="27" name="Order 1st PCBs" meeting="false" start="2024-01-19" duration="10" complete="0" expand="true">
                 <depend id="28" type="2" difference="0" hardness="Strong"/>
                 <depend id="47" type="2" difference="0" hardness="Strong"/>
             </task>
@@ -175,51 +175,59 @@
             </task>
             <task id="28" name="Assemble PCBs" meeting="false" start="2024-02-27" duration="20" complete="0" thirdDate="2023-10-02" thirdDate-constraint="0" expand="true">
                 <depend id="29" type="2" difference="0" hardness="Strong"/>
+                <depend id="48" type="2" difference="0" hardness="Strong"/>
             </task>
+            <task id="48" name="Redesign PCBs" meeting="false" start="2024-03-26" duration="5" complete="0" expand="true">
+                <depend id="49" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="49" name="Order 2nd PCBs" meeting="false" start="2024-04-02" duration="10" complete="0" expand="true">
+                <depend id="50" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="50" name="Assemble PCBs" meeting="false" start="2024-04-16" duration="10" complete="0" expand="true"/>
             <task id="29" name="Completed mem neurons" color="#1384cd" meeting="true" start="2024-03-26" duration="0" complete="0" thirdDate="2023-09-01" thirdDate-constraint="0" expand="true"/>
         </task>
-        <task id="30" name="Neurons+mems integration" meeting="false" start="2024-03-26" duration="62" complete="0" expand="true">
+        <task id="30" name="Neurons+mems integration" meeting="false" start="2024-04-30" duration="62" complete="0" expand="true">
             <depend id="40" type="2" difference="0" hardness="Strong"/>
-            <task id="31" name="deliver mem neurons" color="#1384cd" meeting="false" start="2024-03-26" duration="20" complete="0" thirdDate="2023-08-01" thirdDate-constraint="0" expand="true">
+            <task id="31" name="deliver mem neurons" color="#1384cd" meeting="false" start="2024-04-30" duration="20" complete="0" thirdDate="2023-08-01" thirdDate-constraint="0" expand="true">
                 <depend id="32" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="32" name="integrate 1 neuron 1 mem" meeting="false" start="2024-04-23" duration="5" complete="0" expand="true">
+            <task id="32" name="integrate 1 neuron 1 mem" meeting="false" start="2024-05-30" duration="5" complete="0" expand="true">
                 <depend id="33" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="33" name="integrate 1 RG" meeting="false" start="2024-04-30" duration="10" complete="0" expand="true">
+            <task id="33" name="integrate 1 RG" meeting="false" start="2024-06-06" duration="10" complete="0" expand="true">
                 <depend id="34" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="34" name="test integrated RG" meeting="false" start="2024-05-16" duration="7" complete="0" expand="true">
+            <task id="34" name="test integrated RG" meeting="false" start="2024-06-20" duration="7" complete="0" expand="true">
                 <depend id="35" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="35" name="integrate 1 leg" meeting="false" start="2024-05-27" duration="5" complete="0" expand="true">
+            <task id="35" name="integrate 1 leg" meeting="false" start="2024-07-01" duration="5" complete="0" expand="true">
                 <depend id="36" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="36" name="test 1 leg" meeting="false" start="2024-06-03" duration="5" complete="0" expand="true">
+            <task id="36" name="test 1 leg" meeting="false" start="2024-07-08" duration="5" complete="0" expand="true">
                 <depend id="37" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="37" name="integrate 2 legs" color="#1384cd" meeting="false" start="2024-06-10" duration="5" complete="0" thirdDate="2024-02-14" thirdDate-constraint="0" expand="true">
+            <task id="37" name="integrate 2 legs" color="#1384cd" meeting="false" start="2024-07-15" duration="5" complete="0" thirdDate="2024-02-14" thirdDate-constraint="0" expand="true">
                 <depend id="38" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="38" name="test 2 legs" meeting="false" start="2024-06-17" duration="5" complete="0" expand="true">
+            <task id="38" name="test 2 legs" meeting="false" start="2024-07-22" duration="5" complete="0" expand="true">
                 <depend id="39" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="39" name="integrated 2 legs" color="#1384cd" meeting="true" start="2024-06-24" duration="0" complete="0" thirdDate="2024-02-14" thirdDate-constraint="0" expand="true"/>
+            <task id="39" name="integrated 2 legs" color="#1384cd" meeting="true" start="2024-07-29" duration="0" complete="0" thirdDate="2024-02-14" thirdDate-constraint="0" expand="true"/>
         </task>
-        <task id="40" name="Rat validation" meeting="false" start="2024-06-24" duration="31" complete="0" expand="true">
-            <task id="41" name="deliver mem cpg" color="#1384cd" meeting="false" start="2024-06-24" duration="20" complete="0" thirdDate="2024-02-14" thirdDate-constraint="0" expand="true">
+        <task id="40" name="Rat validation" meeting="false" start="2024-07-29" duration="33" complete="0" expand="true">
+            <task id="41" name="deliver mem cpg" color="#1384cd" meeting="false" start="2024-07-29" duration="20" complete="0" thirdDate="2024-02-14" thirdDate-constraint="0" expand="true">
                 <depend id="42" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="42" name="test mem cpg" color="#1384cd" meeting="false" start="2024-07-22" duration="5" complete="0" thirdDate="2024-04-04" thirdDate-constraint="0" expand="true">
+            <task id="42" name="test mem cpg" color="#1384cd" meeting="false" start="2024-08-26" duration="5" complete="0" thirdDate="2024-04-04" thirdDate-constraint="0" expand="true">
                 <depend id="43" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="43" name="integrate outs (F+E)" meeting="false" start="2024-07-29" duration="3" complete="0" expand="true">
+            <task id="43" name="integrate outs (F+E)" meeting="false" start="2024-09-02" duration="3" complete="0" expand="true">
                 <depend id="44" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="44" name="validate outs on rat" meeting="false" start="2024-08-01" duration="3" complete="0" expand="true">
+            <task id="44" name="validate outs on rat" meeting="false" start="2024-09-05" duration="5" complete="0" expand="true">
                 <depend id="45" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="45" name="validated mem cpg" color="#1384cd" meeting="true" start="2024-08-06" duration="0" complete="0" thirdDate="2024-04-26" thirdDate-constraint="0" expand="true"/>
+            <task id="45" name="validated mem cpg" color="#1384cd" meeting="true" start="2024-09-12" duration="0" complete="0" thirdDate="2024-04-26" thirdDate-constraint="0" expand="true"/>
         </task>
     </tasks>
     <resources/>
@@ -227,6 +235,56 @@
     <vacations/>
     <previous>
         <previous-tasks name="rainy">
+            <previous-task id="0" start="2023-11-27" duration="53" meeting="false" super="true"/>
+            <previous-task id="1" start="2023-11-27" duration="15" meeting="false" super="false"/>
+            <previous-task id="2" start="2023-12-18" duration="7" meeting="false" super="false"/>
+            <previous-task id="6" start="2023-12-27" duration="3" meeting="false" super="false"/>
+            <previous-task id="8" start="2024-01-03" duration="2" meeting="false" super="false"/>
+            <previous-task id="3" start="2024-01-05" duration="2" meeting="false" super="false"/>
+            <previous-task id="4" start="2024-01-09" duration="2" meeting="false" super="false"/>
+            <previous-task id="5" start="2024-01-11" duration="2" meeting="false" super="false"/>
+            <previous-task id="7" start="2024-01-15" duration="10" meeting="false" super="false"/>
+            <previous-task id="10" start="2024-02-12" duration="0" meeting="true" super="false"/>
+            <previous-task id="9" start="2024-01-29" duration="10" meeting="false" super="false"/>
+            <previous-task id="11" start="2023-11-27" duration="80" meeting="false" super="true"/>
+            <previous-task id="12" start="2023-11-27" duration="5" meeting="false" super="false"/>
+            <previous-task id="13" start="2023-12-04" duration="10" meeting="false" super="false"/>
+            <previous-task id="14" start="2023-12-18" duration="10" meeting="false" super="false"/>
+            <previous-task id="15" start="2024-01-03" duration="10" meeting="false" super="false"/>
+            <previous-task id="16" start="2024-01-17" duration="10" meeting="false" super="false"/>
+            <previous-task id="17" start="2024-01-31" duration="10" meeting="false" super="false"/>
+            <previous-task id="18" start="2024-02-14" duration="10" meeting="false" super="false"/>
+            <previous-task id="19" start="2024-03-01" duration="15" meeting="false" super="false"/>
+            <previous-task id="20" start="2024-03-22" duration="0" meeting="true" super="false"/>
+            <previous-task id="21" start="2023-11-27" duration="82" meeting="false" super="true"/>
+            <previous-task id="46" start="2023-11-27" duration="2" meeting="false" super="false"/>
+            <previous-task id="22" start="2023-11-29" duration="10" meeting="false" super="false"/>
+            <previous-task id="23" start="2023-12-13" duration="5" meeting="false" super="false"/>
+            <previous-task id="24" start="2023-12-20" duration="5" meeting="false" super="false"/>
+            <previous-task id="25" start="2023-12-27" duration="5" meeting="false" super="false"/>
+            <previous-task id="26" start="2024-01-05" duration="10" meeting="false" super="false"/>
+            <previous-task id="27" start="2024-01-19" duration="10" meeting="false" super="false"/>
+            <previous-task id="47" start="2024-02-02" duration="15" meeting="false" super="false"/>
+            <previous-task id="28" start="2024-02-27" duration="20" meeting="false" super="false"/>
+            <previous-task id="29" start="2024-03-26" duration="0" meeting="true" super="false"/>
+            <previous-task id="30" start="2024-03-26" duration="62" meeting="false" super="true"/>
+            <previous-task id="31" start="2024-03-26" duration="20" meeting="false" super="false"/>
+            <previous-task id="32" start="2024-04-23" duration="5" meeting="false" super="false"/>
+            <previous-task id="33" start="2024-04-30" duration="10" meeting="false" super="false"/>
+            <previous-task id="34" start="2024-05-16" duration="7" meeting="false" super="false"/>
+            <previous-task id="35" start="2024-05-27" duration="5" meeting="false" super="false"/>
+            <previous-task id="36" start="2024-06-03" duration="5" meeting="false" super="false"/>
+            <previous-task id="37" start="2024-06-10" duration="5" meeting="false" super="false"/>
+            <previous-task id="38" start="2024-06-17" duration="5" meeting="false" super="false"/>
+            <previous-task id="39" start="2024-06-24" duration="0" meeting="true" super="false"/>
+            <previous-task id="40" start="2024-06-24" duration="31" meeting="false" super="true"/>
+            <previous-task id="41" start="2024-06-24" duration="20" meeting="false" super="false"/>
+            <previous-task id="42" start="2024-07-22" duration="5" meeting="false" super="false"/>
+            <previous-task id="43" start="2024-07-29" duration="3" meeting="false" super="false"/>
+            <previous-task id="44" start="2024-08-01" duration="3" meeting="false" super="false"/>
+            <previous-task id="45" start="2024-08-06" duration="0" meeting="true" super="false"/>
+        </previous-tasks>
+        <previous-tasks name="current">
             <previous-task id="0" start="2023-11-27" duration="53" meeting="false" super="true"/>
             <previous-task id="1" start="2023-11-27" duration="15" meeting="false" super="false"/>
             <previous-task id="2" start="2023-12-18" duration="7" meeting="false" super="false"/>
