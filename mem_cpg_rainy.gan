@@ -1,15 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="mem spinal cord project" company="" webLink="http://" view-date="2023-11-01" view-index="0" gantt-divider-location="765" resource-divider-location="300" version="3.2.3247" locale="en_GB">
+<?xml version="1.0" encoding="UTF-8"?><project name="memristive CPG" company="" webLink="http://" view-date="2023-07-01" view-index="0" gantt-divider-location="589" resource-divider-location="300" version="3.2.3247" locale="en_GB">
     <description/>
-    <view zooming-state="default:8" id="gantt-chart">
-        <field id="tpd3" name="Name" width="315" order="0"/>
-        <field id="tpd4" name="Begin date" width="146" order="1"/>
-        <field id="tpd5" name="End date" width="142" order="2"/>
-        <field id="tpd6" name="Duration" width="147" order="3"/>
+    <view zooming-state="default:10" id="gantt-chart">
+        <field id="tpd3" name="Name" width="278" order="0"/>
+        <field id="tpd4" name="Begin date" width="94" order="1"/>
+        <field id="tpd5" name="End date" width="92" order="2"/>
+        <field id="tpd6" name="Duration" width="55" order="3"/>
+        <field id="tpd7" name="Completion" width="55" order="4"/>
         <option id="taskLabelLeft" value="advancement"/>
         <option id="taskLabelRight" value="length"/>
         <option id="filter.completedTasks" value="false"/>
         <option id="color.recent">
-            <![CDATA[#db0574 #0db287 #1384cd #1c608c #009999 #999999]]>
+            <![CDATA[#c3c53d #3b4252 #fa7921 #9bc53d]]>
         </option>
     </view>
     <view id="resource-table">
@@ -26,28 +27,28 @@
             <overriden-day-types/>
             <days/>
         </day-types>
-        <date year="" month="1" date="1" type="HOLIDAY" color="#999999">
+        <date year="" month="1" date="1" type="HOLIDAY" color="#c3c53d">
             <![CDATA[Нова година]]>
         </date>
-        <date year="" month="1" date="2" type="HOLIDAY" color="#999999">
+        <date year="" month="1" date="2" type="HOLIDAY" color="#c3c53d">
             <![CDATA[Нова година]]>
         </date>
-        <date year="" month="1" date="7" type="HOLIDAY" color="#999999">
+        <date year="" month="1" date="7" type="HOLIDAY" color="#c3c53d">
             <![CDATA[Божић]]>
         </date>
         <date year="" month="1" date="27" type="NEUTRAL" color="#808080">
             <![CDATA[св. Сава]]>
         </date>
-        <date year="" month="2" date="15" type="HOLIDAY" color="#999999">
+        <date year="" month="2" date="15" type="HOLIDAY" color="#c3c53d">
             <![CDATA[Сретење - дан државности]]>
         </date>
-        <date year="" month="2" date="16" type="HOLIDAY" color="#999999">
+        <date year="" month="2" date="16" type="HOLIDAY" color="#c3c53d">
             <![CDATA[Сретење - дан државности]]>
         </date>
-        <date year="" month="5" date="1" type="HOLIDAY" color="#999999">
+        <date year="" month="5" date="1" type="HOLIDAY" color="#c3c53d">
             <![CDATA[Празник рада]]>
         </date>
-        <date year="" month="5" date="2" type="HOLIDAY" color="#999999">
+        <date year="" month="5" date="2" type="HOLIDAY" color="#c3c53d">
             <![CDATA[Празник рада]]>
         </date>
         <date year="" month="5" date="9" type="NEUTRAL">
@@ -59,17 +60,20 @@
         <date year="" month="10" date="21" type="NEUTRAL">
             <![CDATA[Дан сећања на српске жртве у 2. светском рату]]>
         </date>
-        <date year="" month="11" date="11" type="HOLIDAY" color="#999999">
+        <date year="" month="11" date="11" type="HOLIDAY" color="#c3c53d">
             <![CDATA[Дан примирја у 1. светском рату]]>
         </date>
-        <date year="2015" month="4" date="10" type="HOLIDAY" color="#ff9999">
+        <date year="2015" month="4" date="10" type="HOLIDAY" color="#c3c53d">
             <![CDATA[Велики Петак]]>
         </date>
-        <date year="2015" month="4" date="12" type="HOLIDAY" color="#ff9999">
+        <date year="2015" month="4" date="12" type="HOLIDAY" color="#c3c53d">
             <![CDATA[Васкрс]]>
         </date>
-        <date year="2015" month="4" date="13" type="HOLIDAY" color="#ff9999">
+        <date year="2015" month="4" date="13" type="HOLIDAY" color="#c3c53d">
             <![CDATA[Васкршњи Понедељак]]>
+        </date>
+        <date year="2024" month="2" date="10" type="HOLIDAY" color="#c3c53d">
+            <![CDATA[Chinese NY]]>
         </date>
     </calendars>
     <tasks empty-milestones="true">
@@ -85,159 +89,165 @@
             <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
             <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
         </taskproperties>
-        <task id="0" name="B-model develpment" color="#1384cd" meeting="false" start="2023-11-27" duration="53" complete="4" thirdDate="2023-11-27" thirdDate-constraint="0" expand="true">
-            <depend id="30" type="2" difference="0" hardness="Strong"/>
-            <task id="1" name="Ia STDP fix" color="#1384cd" meeting="false" start="2023-11-27" duration="15" complete="15" thirdDate="2023-11-22" thirdDate-constraint="0" expand="true">
-                <depend id="2" type="2" difference="0" hardness="Strong"/>
-            </task>
-            <task id="2" name="Cut STDP fix" meeting="false" start="2023-12-18" duration="7" complete="0" thirdDate="2023-11-22" thirdDate-constraint="0" expand="true">
+        <task id="0" name="B-model" color="#fa7921" meeting="false" start="2023-12-01" duration="51" complete="6" thirdDate="2023-12-01" thirdDate-constraint="0" expand="true">
+            <depend id="39" type="2" difference="0" hardness="Strong"/>
+            <task id="1" name="Ia STDP fix" color="#fa7921" meeting="false" start="2023-12-01" duration="15" complete="20" thirdDate="2023-12-01" thirdDate-constraint="0" expand="true">
                 <depend id="3" type="2" difference="0" hardness="Strong"/>
-                <depend id="6" type="2" difference="0" hardness="Strong"/>
-            </task>
-            <task id="6" name="Ia-&gt;F, E STDP" color="#1384cd" meeting="false" start="2023-12-27" duration="3" complete="0" thirdDate="2023-12-27" thirdDate-constraint="0" expand="true">
-                <depend id="3" type="2" difference="0" hardness="Strong"/>
-                <depend id="8" type="2" difference="0" hardness="Strong"/>
-            </task>
-            <task id="8" name="BS-&gt;F, E STDP" meeting="false" start="2024-01-03" duration="2" complete="0" expand="true">
-                <depend id="3" type="2" difference="0" hardness="Strong"/>
-            </task>
-            <task id="3" name="Add 2nd leg" meeting="false" start="2024-01-05" duration="2" complete="0" thirdDate="2023-11-01" thirdDate-constraint="0" expand="true">
                 <depend id="4" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="4" name="Commisural projections" meeting="false" start="2024-01-09" duration="2" complete="0" expand="true">
+            <task id="3" name="Ia-&gt;F, E STDP" color="#fa7921" meeting="false" start="2023-12-22" duration="3" complete="10" thirdDate="2024-01-02" thirdDate-constraint="0" expand="false">
+                <depend id="2" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="4" name="BS-&gt;F, E STDP" color="#fa7921" meeting="false" start="2023-12-22" duration="2" complete="10" thirdDate="2024-01-05" thirdDate-constraint="0" expand="true">
+                <depend id="2" type="2" difference="0" hardness="Strong"/>
                 <depend id="5" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="5" name="Balance legs" meeting="false" start="2024-01-11" duration="2" complete="0" expand="true">
+            <task id="2" name="Cut STDP fix" color="#1384cd" meeting="false" start="2023-12-27" duration="7" complete="0" thirdDate="2023-12-22" thirdDate-constraint="0" expand="true">
+                <depend id="5" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="5" name="+ 2nd leg" meeting="false" start="2024-01-09" duration="2" complete="0" expand="true">
+                <depend id="6" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="6" name="Commisural Projections" meeting="false" start="2024-01-11" duration="2" complete="0" expand="true">
                 <depend id="7" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="7" name="Debug 2 legs" meeting="false" start="2024-01-15" duration="10" complete="0" expand="true">
+            <task id="7" name="Balance 2 legs" meeting="false" start="2024-01-15" duration="2" complete="0" expand="true">
+                <depend id="8" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="8" name="Debug 2 legs" meeting="false" start="2024-01-17" duration="10" complete="0" expand="true">
                 <depend id="9" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="9" name="Debug STDP complete model" meeting="false" start="2024-01-29" duration="10" complete="0" expand="true">
+            <task id="9" name="Debug STDP complete model" meeting="false" start="2024-01-31" duration="10" complete="0" expand="true">
                 <depend id="10" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="10" name="Complete B-model" color="#1384cd" meeting="true" start="2024-02-12" duration="0" complete="0" thirdDate="2024-01-16" thirdDate-constraint="0" expand="true"/>
+            <task id="10" name="Complete B-model" color="#1384cd" meeting="true" start="2024-02-14" duration="0" complete="0" thirdDate="2023-11-01" thirdDate-constraint="0" expand="true"/>
         </task>
-        <task id="11" name="Memristors" color="#1384cd" meeting="false" start="2023-11-27" duration="80" complete="0" thirdDate="2023-11-27" thirdDate-constraint="0" expand="true">
-            <depend id="30" type="2" difference="0" hardness="Strong"/>
-            <task id="12" name="1 memristor" meeting="false" start="2023-11-27" duration="5" complete="0" thirdDate="2023-11-01" thirdDate-constraint="0" expand="true">
-                <depend id="13" type="2" difference="0" hardness="Strong"/>
-            </task>
-            <task id="13" name="1 memristor test" meeting="false" start="2023-12-04" duration="10" complete="0" expand="true">
-                <depend id="14" type="2" difference="0" hardness="Strong"/>
-            </task>
-            <task id="14" name="8 mem fubrication (E)" meeting="false" start="2023-12-18" duration="10" complete="0" thirdDate="2023-12-01" thirdDate-constraint="0" expand="true">
+        <task id="14" name="Memristive devices" color="#1384cd" meeting="false" start="2023-12-06" duration="90" complete="0" thirdDate="2023-12-06" thirdDate-constraint="0" expand="true">
+            <depend id="39" type="2" difference="0" hardness="Strong"/>
+            <task id="16" name="buy silver" color="#1384cd" meeting="false" start="2023-12-06" duration="10" complete="0" thirdDate="2023-11-01" thirdDate-constraint="0" expand="true">
                 <depend id="15" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="15" name="8 mem test (E)" meeting="false" start="2024-01-03" duration="10" complete="0" expand="true">
-                <depend id="16" type="2" difference="0" hardness="Strong"/>
-            </task>
-            <task id="16" name="+ 12 mem fubrication" meeting="false" start="2024-01-17" duration="10" complete="0" expand="true">
+            <task id="15" name="fabricate 1 mem" meeting="false" start="2023-12-20" duration="5" complete="0" expand="true">
+                <depend id="13" type="2" difference="0" hardness="Strong"/>
                 <depend id="17" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="17" name="20 mem test (F+E)" meeting="false" start="2024-01-31" duration="10" complete="0" thirdDate="2023-12-29" thirdDate-constraint="0" expand="true">
+            <task id="17" name="test 1 mem" meeting="false" start="2023-12-27" duration="10" complete="0" expand="true">
                 <depend id="18" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="18" name="40 mems fubrication" meeting="false" start="2024-02-14" duration="10" complete="0" thirdDate="2023-11-01" thirdDate-constraint="0" expand="true">
+            <task id="18" name="fabricate 8 mem E" meeting="false" start="2024-01-12" duration="10" complete="0" expand="true">
                 <depend id="19" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="19" name="40 mems test" meeting="false" start="2024-03-01" duration="15" complete="0" thirdDate="2023-11-01" thirdDate-constraint="0" expand="true">
+            <task id="19" name="test 8 mem E" meeting="false" start="2024-01-26" duration="10" complete="0" expand="true">
                 <depend id="20" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="20" name="40 mems (2 legs)" color="#1384cd" meeting="true" start="2024-03-22" duration="0" complete="0" thirdDate="2023-11-01" thirdDate-constraint="0" expand="true"/>
-        </task>
-        <task id="21" name="Mem neurons" color="#1384cd" meeting="false" start="2023-12-04" duration="118" complete="0" thirdDate="2023-11-27" thirdDate-constraint="0" expand="true">
-            <depend id="30" type="2" difference="0" hardness="Strong"/>
-            <task id="46" name="negotiate parameters of mem neurons" color="#1384cd" meeting="false" start="2023-12-04" duration="2" complete="20" thirdDate="2023-10-16" thirdDate-constraint="0" expand="true">
+            <task id="20" name="fubricate + 12 mems" meeting="false" start="2024-02-09" duration="10" complete="0" expand="true">
+                <depend id="21" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="21" name="20 mems test  F+E" color="#1384cd" meeting="false" start="2024-02-27" duration="10" complete="0" thirdDate="2023-11-13" thirdDate-constraint="0" expand="false">
                 <depend id="22" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="22" name="Rework mem neuron sch" color="#1384cd" meeting="false" start="2023-12-06" duration="10" complete="0" thirdDate="2023-11-29" thirdDate-constraint="0" expand="true">
+            <task id="22" name="fubricate 40 mems" meeting="false" start="2024-03-12" duration="10" complete="0" expand="true">
                 <depend id="23" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="23" name="Design PCB  E neurons" meeting="false" start="2023-12-20" duration="7" complete="0" expand="true">
+            <task id="23" name="test 40 mems" meeting="false" start="2024-03-26" duration="15" complete="0" expand="true">
                 <depend id="24" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="24" name="Design PCB F neurons" meeting="false" start="2023-12-29" duration="7" complete="0" expand="true">
+            <task id="24" name="40 mems (2 legs)" color="#1384cd" meeting="true" start="2024-04-16" duration="0" complete="0" thirdDate="2023-12-01" thirdDate-constraint="0" expand="true"/>
+        </task>
+        <task id="11" name="Mem neurons" color="#fa7921" meeting="false" start="2023-12-01" duration="135" complete="0" thirdDate="2023-11-01" thirdDate-constraint="0" expand="true">
+            <depend id="39" type="2" difference="0" hardness="Strong"/>
+            <task id="12" name="negotiate mem 1 parameters" color="#9bc53d" meeting="false" start="2023-12-01" duration="1" complete="100" thirdDate="2023-11-01" thirdDate-constraint="0" expand="true">
+                <depend id="13" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="13" name="negotiate mem 2 parameters" meeting="false" start="2023-12-27" duration="1" complete="0" expand="true">
                 <depend id="25" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="25" name="Design InE, InF" meeting="false" start="2024-01-11" duration="5" complete="0" expand="true">
+            <task id="25" name="Rework mem neurons schematic" meeting="false" start="2023-12-28" duration="10" complete="0" expand="true">
                 <depend id="26" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="26" name="Design 2nd leg" meeting="false" start="2024-01-18" duration="10" complete="0" expand="true">
-                <depend id="27" type="2" difference="0" hardness="Strong"/>
-                <depend id="51" type="2" difference="0" hardness="Strong"/>
-            </task>
-            <task id="51" name="Simulation" meeting="false" start="2024-02-01" duration="2" complete="0" expand="true">
+            <task id="26" name="Design PCB E neurons" color="#1384cd" meeting="false" start="2024-01-15" duration="7" complete="0" thirdDate="2023-12-01" thirdDate-constraint="0" expand="false">
                 <depend id="27" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="27" name="Order 1st PCBs" meeting="false" start="2024-02-05" duration="10" complete="0" expand="true">
-                <depend id="28" type="2" difference="0" hardness="Strong"/>
-                <depend id="47" type="2" difference="0" hardness="Strong"/>
-            </task>
-            <task id="47" name="Deliver PCBs" meeting="false" start="2024-02-21" duration="15" complete="0" expand="true">
+            <task id="27" name="Design PCB F neurons" meeting="false" start="2024-01-24" duration="7" complete="0" expand="true">
                 <depend id="28" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="28" name="Assemble PCBs" meeting="false" start="2024-03-13" duration="20" complete="0" thirdDate="2023-10-02" thirdDate-constraint="0" expand="true">
-                <depend id="29" type="2" difference="0" hardness="Strong"/>
-                <depend id="48" type="2" difference="0" hardness="Strong"/>
-            </task>
-            <task id="48" name="Redesign PCBs" meeting="false" start="2024-04-10" duration="5" complete="0" expand="true">
-                <depend id="49" type="2" difference="0" hardness="Strong"/>
-            </task>
-            <task id="49" name="Order 2nd PCBs" meeting="false" start="2024-04-17" duration="10" complete="0" expand="true">
-                <depend id="50" type="2" difference="0" hardness="Strong"/>
-            </task>
-            <task id="50" name="Assemble 2nd PCBs" color="#1384cd" meeting="false" start="2024-05-03" duration="10" complete="0" thirdDate="2024-04-16" thirdDate-constraint="0" expand="true">
-                <depend id="29" type="2" difference="0" hardness="Strong"/>
-                <depend id="52" type="2" difference="0" hardness="Strong"/>
-            </task>
-            <task id="52" name="Test 2nd PCBs" meeting="false" start="2024-05-17" duration="5" complete="0" expand="true">
+            <task id="28" name="Design PCB InE, InF" meeting="false" start="2024-02-02" duration="5" complete="0" expand="true">
                 <depend id="29" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="29" name="Completed mem neurons" color="#1384cd" meeting="true" start="2024-05-24" duration="0" complete="0" thirdDate="2023-09-01" thirdDate-constraint="0" expand="true"/>
-        </task>
-        <task id="30" name="Neurons+mems integration" color="#1384cd" meeting="false" start="2024-05-24" duration="62" complete="0" thirdDate="2024-04-30" thirdDate-constraint="0" expand="true">
-            <depend id="40" type="2" difference="0" hardness="Strong"/>
-            <task id="31" name="deliver mem neurons" color="#1384cd" meeting="false" start="2024-05-24" duration="20" complete="0" thirdDate="2023-08-01" thirdDate-constraint="0" expand="true">
+            <task id="29" name="Design PCB 2nd leg" meeting="false" start="2024-02-09" duration="10" complete="0" expand="true">
+                <depend id="30" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="30" name="Simulation" meeting="false" start="2024-02-27" duration="2" complete="0" expand="true">
+                <depend id="31" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="31" name="Order 1st PCBs" color="#1384cd" meeting="false" start="2024-02-29" duration="10" complete="0" thirdDate="2023-12-01" thirdDate-constraint="0" expand="true">
                 <depend id="32" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="32" name="integrate 1 neuron 1 mem" meeting="false" start="2024-06-21" duration="5" complete="0" expand="true">
+            <task id="32" name="Delivery 1st PCBs" meeting="false" start="2024-03-14" duration="15" complete="0" expand="true">
                 <depend id="33" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="33" name="integrate 1 RG" meeting="false" start="2024-06-28" duration="10" complete="0" expand="true">
+            <task id="33" name="Solder 1st PCBs" meeting="false" start="2024-04-04" duration="20" complete="0" expand="true">
                 <depend id="34" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="34" name="test integrated RG" meeting="false" start="2024-07-12" duration="7" complete="0" expand="true">
+            <task id="34" name="Redesign PCBs" color="#1384cd" meeting="false" start="2024-05-06" duration="5" complete="0" thirdDate="2023-12-01" thirdDate-constraint="0" expand="false">
                 <depend id="35" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="35" name="integrate 1 leg" meeting="false" start="2024-07-23" duration="5" complete="0" expand="true">
+            <task id="35" name="Order 2nd PCBs" meeting="false" start="2024-05-13" duration="10" complete="0" expand="true">
                 <depend id="36" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="36" name="test 1 leg" meeting="false" start="2024-07-30" duration="5" complete="0" expand="true">
+            <task id="36" name="Solder 2nd PCBs" meeting="false" start="2024-05-27" duration="10" complete="0" expand="true">
                 <depend id="37" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="37" name="integrate 2 legs" color="#1384cd" meeting="false" start="2024-08-06" duration="5" complete="0" thirdDate="2024-02-14" thirdDate-constraint="0" expand="true">
+            <task id="37" name="Test 2nd PCBs" meeting="false" start="2024-06-10" duration="5" complete="0" expand="true">
                 <depend id="38" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="38" name="test 2 legs" meeting="false" start="2024-08-13" duration="5" complete="0" expand="true">
-                <depend id="39" type="2" difference="0" hardness="Strong"/>
-            </task>
-            <task id="39" name="integrated 2 legs" color="#1384cd" meeting="true" start="2024-08-20" duration="0" complete="0" thirdDate="2024-02-14" thirdDate-constraint="0" expand="true"/>
+            <task id="38" name="Mem neurons" color="#1384cd" meeting="true" start="2024-06-17" duration="0" complete="0" thirdDate="2023-12-01" thirdDate-constraint="0" expand="true"/>
         </task>
-        <task id="40" name="Rat validation" color="#1384cd" meeting="false" start="2024-08-20" duration="33" complete="0" thirdDate="2024-07-29" thirdDate-constraint="0" expand="true">
-            <task id="41" name="deliver mem cpg" color="#1384cd" meeting="false" start="2024-08-20" duration="20" complete="0" thirdDate="2024-02-14" thirdDate-constraint="0" expand="true">
+        <task id="39" name="Neurons+mems integration" color="#1384cd" meeting="false" start="2024-06-17" duration="65" complete="0" thirdDate="2024-06-07" thirdDate-constraint="0" expand="true">
+            <depend id="50" type="2" difference="0" hardness="Strong"/>
+            <task id="40" name="deliver mem neurons" color="#1384cd" meeting="false" start="2024-06-17" duration="20" complete="0" thirdDate="2023-11-01" thirdDate-constraint="0" expand="true">
+                <depend id="41" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="41" name="integrate 1 neuron + 1 mem" meeting="false" start="2024-07-15" duration="5" complete="0" expand="true">
                 <depend id="42" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="42" name="test mem cpg" color="#1384cd" meeting="false" start="2024-09-17" duration="5" complete="0" thirdDate="2024-04-04" thirdDate-constraint="0" expand="true">
+            <task id="42" name="test integration 1n + 1m" meeting="false" start="2024-07-22" duration="5" complete="0" expand="true">
                 <depend id="43" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="43" name="integrate outs (F+E)" meeting="false" start="2024-09-24" duration="3" complete="0" expand="true">
+            <task id="43" name="integrate 1 RG 4 neurons" meeting="false" start="2024-07-29" duration="5" complete="0" expand="true">
                 <depend id="44" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="44" name="validate outs on rat" meeting="false" start="2024-09-27" duration="5" complete="0" expand="true">
+            <task id="44" name="test integrated RG" meeting="false" start="2024-08-05" duration="10" complete="0" expand="true">
                 <depend id="45" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="45" name="validated mem cpg" color="#1384cd" meeting="true" start="2024-10-04" duration="0" complete="0" thirdDate="2024-04-26" thirdDate-constraint="0" expand="true"/>
+            <task id="45" name="integrate 1 leg" meeting="false" start="2024-08-19" duration="5" complete="0" expand="true">
+                <depend id="46" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="46" name="test 1 leg" meeting="false" start="2024-08-26" duration="5" complete="0" expand="true">
+                <depend id="47" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="47" name="integrate 2 legs" meeting="false" start="2024-09-02" duration="5" complete="0" expand="true">
+                <depend id="48" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="48" name="test 2 legs" meeting="false" start="2024-09-09" duration="5" complete="0" expand="true">
+                <depend id="49" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="49" name="integrated mem CPG" color="#1384cd" meeting="true" start="2024-09-16" duration="0" complete="0" thirdDate="2024-01-31" thirdDate-constraint="0" expand="true"/>
+        </task>
+        <task id="50" name="Rat validation" color="#1384cd" meeting="false" start="2024-09-16" duration="33" complete="0" thirdDate="2024-09-06" thirdDate-constraint="0" expand="true">
+            <task id="51" name="deliver mem CPG" meeting="false" start="2024-09-16" duration="20" complete="0" expand="true">
+                <depend id="52" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="52" name="test mem CPG" meeting="false" start="2024-10-14" duration="5" complete="0" expand="true">
+                <depend id="53" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="53" name="integrate outs F+E" meeting="false" start="2024-10-21" duration="3" complete="0" expand="true">
+                <depend id="54" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="54" name="validate outs on rat" meeting="false" start="2024-10-24" duration="5" complete="0" expand="true">
+                <depend id="55" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="55" name="validated mem CPG" color="#1384cd" meeting="true" start="2024-10-31" duration="0" complete="0" thirdDate="2024-09-06" thirdDate-constraint="0" expand="true"/>
         </task>
     </tasks>
     <resources/>
@@ -245,105 +255,19 @@
     <vacations/>
     <previous>
         <previous-tasks name="rainy">
-            <previous-task id="0" start="2023-11-27" duration="53" meeting="false" super="true"/>
-            <previous-task id="1" start="2023-11-27" duration="15" meeting="false" super="false"/>
-            <previous-task id="2" start="2023-12-18" duration="7" meeting="false" super="false"/>
-            <previous-task id="6" start="2023-12-27" duration="3" meeting="false" super="false"/>
-            <previous-task id="8" start="2024-01-03" duration="2" meeting="false" super="false"/>
-            <previous-task id="3" start="2024-01-05" duration="2" meeting="false" super="false"/>
-            <previous-task id="4" start="2024-01-09" duration="2" meeting="false" super="false"/>
-            <previous-task id="5" start="2024-01-11" duration="2" meeting="false" super="false"/>
-            <previous-task id="7" start="2024-01-15" duration="10" meeting="false" super="false"/>
-            <previous-task id="10" start="2024-02-12" duration="0" meeting="true" super="false"/>
-            <previous-task id="9" start="2024-01-29" duration="10" meeting="false" super="false"/>
-            <previous-task id="11" start="2023-11-27" duration="80" meeting="false" super="true"/>
-            <previous-task id="12" start="2023-11-27" duration="5" meeting="false" super="false"/>
-            <previous-task id="13" start="2023-12-04" duration="10" meeting="false" super="false"/>
-            <previous-task id="14" start="2023-12-18" duration="10" meeting="false" super="false"/>
-            <previous-task id="15" start="2024-01-03" duration="10" meeting="false" super="false"/>
-            <previous-task id="16" start="2024-01-17" duration="10" meeting="false" super="false"/>
-            <previous-task id="17" start="2024-01-31" duration="10" meeting="false" super="false"/>
-            <previous-task id="18" start="2024-02-14" duration="10" meeting="false" super="false"/>
-            <previous-task id="19" start="2024-03-01" duration="15" meeting="false" super="false"/>
-            <previous-task id="20" start="2024-03-22" duration="0" meeting="true" super="false"/>
-            <previous-task id="21" start="2023-11-27" duration="82" meeting="false" super="true"/>
-            <previous-task id="46" start="2023-11-27" duration="2" meeting="false" super="false"/>
-            <previous-task id="22" start="2023-11-29" duration="10" meeting="false" super="false"/>
-            <previous-task id="23" start="2023-12-13" duration="5" meeting="false" super="false"/>
-            <previous-task id="24" start="2023-12-20" duration="5" meeting="false" super="false"/>
-            <previous-task id="25" start="2023-12-27" duration="5" meeting="false" super="false"/>
-            <previous-task id="26" start="2024-01-05" duration="10" meeting="false" super="false"/>
-            <previous-task id="27" start="2024-01-19" duration="10" meeting="false" super="false"/>
-            <previous-task id="47" start="2024-02-02" duration="15" meeting="false" super="false"/>
-            <previous-task id="28" start="2024-02-27" duration="20" meeting="false" super="false"/>
-            <previous-task id="29" start="2024-03-26" duration="0" meeting="true" super="false"/>
-            <previous-task id="30" start="2024-03-26" duration="62" meeting="false" super="true"/>
-            <previous-task id="31" start="2024-03-26" duration="20" meeting="false" super="false"/>
-            <previous-task id="32" start="2024-04-23" duration="5" meeting="false" super="false"/>
-            <previous-task id="33" start="2024-04-30" duration="10" meeting="false" super="false"/>
-            <previous-task id="34" start="2024-05-16" duration="7" meeting="false" super="false"/>
-            <previous-task id="35" start="2024-05-27" duration="5" meeting="false" super="false"/>
-            <previous-task id="36" start="2024-06-03" duration="5" meeting="false" super="false"/>
-            <previous-task id="37" start="2024-06-10" duration="5" meeting="false" super="false"/>
-            <previous-task id="38" start="2024-06-17" duration="5" meeting="false" super="false"/>
-            <previous-task id="39" start="2024-06-24" duration="0" meeting="true" super="false"/>
-            <previous-task id="40" start="2024-06-24" duration="31" meeting="false" super="true"/>
-            <previous-task id="41" start="2024-06-24" duration="20" meeting="false" super="false"/>
-            <previous-task id="42" start="2024-07-22" duration="5" meeting="false" super="false"/>
-            <previous-task id="43" start="2024-07-29" duration="3" meeting="false" super="false"/>
-            <previous-task id="44" start="2024-08-01" duration="3" meeting="false" super="false"/>
-            <previous-task id="45" start="2024-08-06" duration="0" meeting="true" super="false"/>
-        </previous-tasks>
-        <previous-tasks name="current">
-            <previous-task id="0" start="2023-11-27" duration="53" meeting="false" super="true"/>
-            <previous-task id="1" start="2023-11-27" duration="15" meeting="false" super="false"/>
-            <previous-task id="2" start="2023-12-18" duration="7" meeting="false" super="false"/>
-            <previous-task id="6" start="2023-12-27" duration="3" meeting="false" super="false"/>
-            <previous-task id="8" start="2024-01-03" duration="2" meeting="false" super="false"/>
-            <previous-task id="3" start="2024-01-05" duration="2" meeting="false" super="false"/>
-            <previous-task id="4" start="2024-01-09" duration="2" meeting="false" super="false"/>
-            <previous-task id="5" start="2024-01-11" duration="2" meeting="false" super="false"/>
-            <previous-task id="7" start="2024-01-15" duration="10" meeting="false" super="false"/>
-            <previous-task id="10" start="2024-02-12" duration="0" meeting="true" super="false"/>
-            <previous-task id="9" start="2024-01-29" duration="10" meeting="false" super="false"/>
-            <previous-task id="11" start="2023-11-27" duration="80" meeting="false" super="true"/>
-            <previous-task id="12" start="2023-11-27" duration="5" meeting="false" super="false"/>
-            <previous-task id="13" start="2023-12-04" duration="10" meeting="false" super="false"/>
-            <previous-task id="14" start="2023-12-18" duration="10" meeting="false" super="false"/>
-            <previous-task id="15" start="2024-01-03" duration="10" meeting="false" super="false"/>
-            <previous-task id="16" start="2024-01-17" duration="10" meeting="false" super="false"/>
-            <previous-task id="17" start="2024-01-31" duration="10" meeting="false" super="false"/>
-            <previous-task id="18" start="2024-02-14" duration="10" meeting="false" super="false"/>
-            <previous-task id="19" start="2024-03-01" duration="15" meeting="false" super="false"/>
-            <previous-task id="20" start="2024-03-22" duration="0" meeting="true" super="false"/>
-            <previous-task id="21" start="2023-11-27" duration="82" meeting="false" super="true"/>
-            <previous-task id="46" start="2023-11-27" duration="2" meeting="false" super="false"/>
-            <previous-task id="22" start="2023-11-29" duration="10" meeting="false" super="false"/>
-            <previous-task id="23" start="2023-12-13" duration="5" meeting="false" super="false"/>
-            <previous-task id="24" start="2023-12-20" duration="5" meeting="false" super="false"/>
-            <previous-task id="25" start="2023-12-27" duration="5" meeting="false" super="false"/>
-            <previous-task id="26" start="2024-01-05" duration="10" meeting="false" super="false"/>
-            <previous-task id="27" start="2024-01-19" duration="10" meeting="false" super="false"/>
-            <previous-task id="47" start="2024-02-02" duration="15" meeting="false" super="false"/>
-            <previous-task id="28" start="2024-02-27" duration="20" meeting="false" super="false"/>
-            <previous-task id="29" start="2024-03-26" duration="0" meeting="true" super="false"/>
-            <previous-task id="30" start="2024-03-26" duration="62" meeting="false" super="true"/>
-            <previous-task id="31" start="2024-03-26" duration="20" meeting="false" super="false"/>
-            <previous-task id="32" start="2024-04-23" duration="5" meeting="false" super="false"/>
-            <previous-task id="33" start="2024-04-30" duration="10" meeting="false" super="false"/>
-            <previous-task id="34" start="2024-05-16" duration="7" meeting="false" super="false"/>
-            <previous-task id="35" start="2024-05-27" duration="5" meeting="false" super="false"/>
-            <previous-task id="36" start="2024-06-03" duration="5" meeting="false" super="false"/>
-            <previous-task id="37" start="2024-06-10" duration="5" meeting="false" super="false"/>
-            <previous-task id="38" start="2024-06-17" duration="5" meeting="false" super="false"/>
-            <previous-task id="39" start="2024-06-24" duration="0" meeting="true" super="false"/>
-            <previous-task id="40" start="2024-06-24" duration="31" meeting="false" super="true"/>
-            <previous-task id="41" start="2024-06-24" duration="20" meeting="false" super="false"/>
-            <previous-task id="42" start="2024-07-22" duration="5" meeting="false" super="false"/>
-            <previous-task id="43" start="2024-07-29" duration="3" meeting="false" super="false"/>
-            <previous-task id="44" start="2024-08-01" duration="3" meeting="false" super="false"/>
-            <previous-task id="45" start="2024-08-06" duration="0" meeting="true" super="false"/>
+            <previous-task id="0" start="2023-12-01" duration="53" meeting="false" super="true"/>
+            <previous-task id="1" start="2023-12-01" duration="15" meeting="false" super="false"/>
+            <previous-task id="2" start="2023-12-22" duration="7" meeting="false" super="false"/>
+            <previous-task id="3" start="2024-01-02" duration="3" meeting="false" super="false"/>
+            <previous-task id="4" start="2024-01-05" duration="2" meeting="false" super="false"/>
+            <previous-task id="5" start="2024-01-09" duration="2" meeting="false" super="false"/>
+            <previous-task id="6" start="2024-01-11" duration="2" meeting="false" super="false"/>
+            <previous-task id="7" start="2024-01-15" duration="2" meeting="false" super="false"/>
+            <previous-task id="8" start="2024-01-17" duration="10" meeting="false" super="false"/>
+            <previous-task id="9" start="2024-01-31" duration="10" meeting="false" super="false"/>
+            <previous-task id="10" start="2024-02-14" duration="0" meeting="true" super="false"/>
         </previous-tasks>
     </previous>
     <roles roleset-name="Default"/>
+    <roles roleset-name="SoftwareDevelopment"/>
 </project>
