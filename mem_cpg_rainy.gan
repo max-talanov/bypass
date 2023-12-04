@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="memristive CPG" company="" webLink="http://" view-date="2023-07-01" view-index="0" gantt-divider-location="589" resource-divider-location="300" version="3.2.3247" locale="en_GB">
+<?xml version="1.0" encoding="UTF-8"?><project name="memristive CPG" company="" webLink="http://" view-date="2023-10-01" view-index="0" gantt-divider-location="600" resource-divider-location="300" version="3.2.3247" locale="en_GB">
     <description/>
     <view zooming-state="default:10" id="gantt-chart">
-        <field id="tpd3" name="Name" width="278" order="0"/>
-        <field id="tpd4" name="Begin date" width="94" order="1"/>
-        <field id="tpd5" name="End date" width="92" order="2"/>
-        <field id="tpd6" name="Duration" width="55" order="3"/>
-        <field id="tpd7" name="Completion" width="55" order="4"/>
+        <field id="tpd3" name="Name" width="271" order="0"/>
+        <field id="tpd4" name="Begin date" width="92" order="1"/>
+        <field id="tpd5" name="End date" width="90" order="2"/>
+        <field id="tpd6" name="Duration" width="54" order="3"/>
+        <field id="tpd7" name="Completion" width="78" order="4"/>
         <option id="taskLabelLeft" value="advancement"/>
         <option id="taskLabelRight" value="length"/>
         <option id="filter.completedTasks" value="false"/>
         <option id="color.recent">
-            <![CDATA[#c3c53d #3b4252 #fa7921 #9bc53d]]>
+            <![CDATA[#fa7921 #c3c53d #3b4252 #9bc53d]]>
         </option>
     </view>
     <view id="resource-table">
@@ -89,20 +89,20 @@
             <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
             <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
         </taskproperties>
-        <task id="0" name="B-model" color="#fa7921" meeting="false" start="2023-12-01" duration="51" complete="6" thirdDate="2023-12-01" thirdDate-constraint="0" expand="true">
+        <task id="0" name="B-model" color="#fa7921" meeting="false" start="2023-12-01" duration="51" complete="9" thirdDate="2023-12-01" thirdDate-constraint="0" expand="true">
             <depend id="39" type="2" difference="0" hardness="Strong"/>
-            <task id="1" name="Ia STDP fix" color="#fa7921" meeting="false" start="2023-12-01" duration="15" complete="20" thirdDate="2023-12-01" thirdDate-constraint="0" expand="true">
+            <task id="1" name="Ia STDP fix" color="#fa7921" meeting="false" start="2023-12-01" duration="15" complete="30" thirdDate="2023-12-01" thirdDate-constraint="0" expand="true">
                 <depend id="3" type="2" difference="0" hardness="Strong"/>
                 <depend id="4" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="3" name="Ia-&gt;F, E STDP" color="#fa7921" meeting="false" start="2023-12-22" duration="3" complete="10" thirdDate="2024-01-02" thirdDate-constraint="0" expand="false">
+            <task id="3" name="Ia-&gt;F, E STDP" color="#fa7921" meeting="false" start="2023-12-22" duration="3" complete="10" thirdDate="2024-01-03" thirdDate-constraint="0" expand="false">
                 <depend id="2" type="2" difference="0" hardness="Strong"/>
             </task>
             <task id="4" name="BS-&gt;F, E STDP" color="#fa7921" meeting="false" start="2023-12-22" duration="2" complete="10" thirdDate="2024-01-05" thirdDate-constraint="0" expand="true">
                 <depend id="2" type="2" difference="0" hardness="Strong"/>
                 <depend id="5" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="2" name="Cut STDP fix" color="#1384cd" meeting="false" start="2023-12-27" duration="7" complete="0" thirdDate="2023-12-22" thirdDate-constraint="0" expand="true">
+            <task id="2" name="Cut STDP fix" color="#fa7921" meeting="false" start="2023-12-27" duration="7" complete="1" thirdDate="2023-12-22" thirdDate-constraint="0" expand="true">
                 <depend id="5" type="2" difference="0" hardness="Strong"/>
             </task>
             <task id="5" name="+ 2nd leg" meeting="false" start="2024-01-09" duration="2" complete="0" expand="true">
@@ -122,9 +122,9 @@
             </task>
             <task id="10" name="Complete B-model" color="#1384cd" meeting="true" start="2024-02-14" duration="0" complete="0" thirdDate="2023-11-01" thirdDate-constraint="0" expand="true"/>
         </task>
-        <task id="14" name="Memristive devices" color="#1384cd" meeting="false" start="2023-12-06" duration="90" complete="0" thirdDate="2023-12-06" thirdDate-constraint="0" expand="true">
+        <task id="14" name="Memristive devices" color="#fa7921" meeting="false" start="2023-12-06" duration="90" complete="0" thirdDate="2023-12-06" thirdDate-constraint="0" expand="true">
             <depend id="39" type="2" difference="0" hardness="Strong"/>
-            <task id="16" name="buy silver" color="#1384cd" meeting="false" start="2023-12-06" duration="10" complete="0" thirdDate="2023-11-01" thirdDate-constraint="0" expand="true">
+            <task id="16" name="buy silver" color="#fa7921" meeting="false" start="2023-12-06" duration="10" complete="1" thirdDate="2023-11-01" thirdDate-constraint="0" expand="true">
                 <depend id="15" type="2" difference="0" hardness="Strong"/>
             </task>
             <task id="15" name="fabricate 1 mem" meeting="false" start="2023-12-20" duration="5" complete="0" expand="true">
@@ -162,7 +162,7 @@
             <task id="13" name="negotiate mem 2 parameters" meeting="false" start="2023-12-27" duration="1" complete="0" expand="true">
                 <depend id="25" type="2" difference="0" hardness="Strong"/>
             </task>
-            <task id="25" name="Rework mem neurons schematic" meeting="false" start="2023-12-28" duration="10" complete="0" expand="true">
+            <task id="25" name="Rework mem neurons schematic" color="#fa7921" meeting="false" start="2023-12-28" duration="10" complete="1" thirdDate="2023-12-28" thirdDate-constraint="0" expand="true">
                 <depend id="26" type="2" difference="0" hardness="Strong"/>
             </task>
             <task id="26" name="Design PCB E neurons" color="#1384cd" meeting="false" start="2024-01-15" duration="7" complete="0" thirdDate="2023-12-01" thirdDate-constraint="0" expand="false">
