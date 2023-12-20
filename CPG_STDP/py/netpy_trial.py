@@ -8,6 +8,7 @@ logging.info("let's get it started")
 import numpy as np
 from neuron import h
 import h5py as hdf5
+from netpyne import sim
 h.load_file('nrngui.hoc')
 
 #paralleling NEURON stuff
@@ -15,9 +16,18 @@ pc = h.ParallelContext()
 rank = int(pc.id())
 nhost = int(pc.nhost())
 
+#have to create another file for params
+sim.net.createPops()                  # instantiate network populations
+sim.net.createCells()                 # instantiate network cells based on defined populations
+sim.net.connectCells()                # create connections between cells based on params
+sim.net.addStims()
+sim.setupRecording() 
 # modes = ['PLT', 'STR', 'AIR', 'TOE', 'QPZ', 'QUAD']
 # mode = 'PLT'
 # logging.info(mode)
+
+sim.allWeights = [] # list to store weights
+sim.weightsfilename = 'weights.txt'  # file to store weights
 
 #param
 speed = 50 # duration of layer 25 = 21 cm/s; 50 = 15 cm/s; 125 = 6 cm/s
@@ -65,7 +75,7 @@ from bioaffrat import bioaffrat
 from muscle import muscle
 
 import random
-
+'''
 class NC_holder:
     def __init__(self):
         self.excitatory_netcons_lists = []
@@ -104,8 +114,8 @@ class NC_holder:
         for i in range(nhost):
             if i == rank:
                 outavg = []
-                for j in range(len(self.excitatory_netcons_lists):  # len(self.inhibitory_netcons_lists)
-                    outavg.append(list(self.excitatory_weights_vec[j]))
+                for j in range(1):  # len(self.inhibitory_netcons_lists)
+                    outavg.append(list(self.inhibitory_weights_vec[j]))
                 outavg = np.mean(np.array(outavg), axis = 0, dtype=np.float32)
                 vec = vec.from_python(outavg)
             pc.barrier()
@@ -122,9 +132,10 @@ class NC_holder:
             logging.info(rank)
             
 ncholder = NC_holder()
-
+'''
 '''
 network topology https://github.com/max-talanov/bypass/blob/main/figs/CPG_feedback_loops.png
+netpy reference project: https://github.com/suny-downstate-medical-center/netpyne/blob/b9e104645f11fe6688496b22cd4183f463e11adc/examples/RL_arm/main.py#L118
 '''
 class CPG:
     def __init__(self, speed, bs_fr, inh_p, step_number, N):
@@ -528,7 +539,6 @@ def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 5, stdptype 
                         pc.threshold(post_gid, threshold)
                         h.setpointer(nc._ref_weight[0], 'synweight',
                                      stdpmech)  # Point the STDP mechanism to the connection weight
-                        stdpmech.hebbRL()
                         inhstdpnclist.append(nc)
                        # ncholder.add_inhibitory_netcons(nc)
                     else:
@@ -551,7 +561,6 @@ def connectcells(pre, post, weight, delay = 1, inhtype = False, N = 5, stdptype 
                         pc.threshold(post_gid, threshold)
                         h.setpointer(nc._ref_weight[0], 'synweight',
                                      stdpmech)  # Point the STDP mechanism to the connection weight
-                        stdpmech.hebbRL()
                         exstdpnclist.append(nc)
                         # nc.weight[0] = random.gauss(weight, weight / 6) # str
                         ncholder.add_excitatory_netcons(nc)
@@ -708,6 +717,12 @@ def prun(speed, step_number):
     tstop = time_sim#25 + (6 * speed + 125) * step_number
     pc.set_maxstep(10)
     h.stdinit()
+    sim.allWeights.append([]) # Save this time
+       for cell in sim.net.cells:
+            for conn in cell.conns:
+                if 'hSTDP' in conn:
+                    sim.allWeights[-1].append(float(conn['hObj'].weight[0])) # save weight only for STDP conns
+
     pc.psolve(tstop)
 
 
@@ -746,7 +761,7 @@ if __name__ == '__main__':
         print(exstdpnclist[1])
         print(np.shape(exstdpnclist[0].weight))
         print(np.shape(exstdpnclist[0].weight[0]))
-        ncholder.record_excitatory_netcons()
+        #ncholder.record_excitatory_netcons()
         #ncholder.record_inhibitory_netcons()
         
         logging.info("added recorders")
@@ -765,9 +780,9 @@ if __name__ == '__main__':
         for group, recorder in zip(cpg_ex.affgroups, affrecorders):
           spikeout(group[k_nrns], group[k_name], i, recorder)
         for group, recorder in zip(cpg_ex.groups, recorders):
-          spikeout(group[k_nrns], group[k_name], i, recorder)'''
-          
-        ncholder.get_weights()
+          spikeout(group[k_nrns], group[k_name], i, recorder)
+       '''   
+        #ncholder.get_weights()
         logging.info("recorded")
 
     finish()
