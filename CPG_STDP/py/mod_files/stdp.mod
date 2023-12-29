@@ -56,6 +56,26 @@ NEURON {
     RANGE skip : Flag to skip 2nd set of conditions
     RANGE gv : random gaussian
 }
+PARAMETER {
+    tauhebb  = 17  (ms)
+    tauanti  = 34  (ms)
+    hebbwt = 0.01
+    antiwt = -0.02
+    RLwindhebb = 20 (ms)
+    RLwindanti = 20 (ms)
+    useRLexp = 0   : default to using binary eligibility traces
+    RLlenhebb = 100 (ms)
+    RLlenanti = 100 (ms)
+    RLhebbwt = 1.0
+    RLantiwt = -1.0
+    wmax  = 15.0
+    softthresh = 1
+    STDPon = 1
+    RLon = 0
+    verbose = 2
+    skip = 0
+}
+
 
 ASSIGNED {
     synweight        
@@ -66,7 +86,7 @@ ASSIGNED {
     interval    (ms)    
     deltaw
     newweight
-    gv          
+    gv
 }
 
 INITIAL {
@@ -79,80 +99,6 @@ INITIAL {
     newweight = 0
 }
 
-PARAMETER {
-    tauhebb  = 17  (ms)   
-    tauanti  = 34  (ms)    
-    hebbwt = 0.01
-    antiwt = -0.003
-    RLwindhebb = 20 (ms)
-    RLwindanti = 20 (ms)
-    useRLexp = 0   : default to using binary eligibility traces
-    RLlenhebb = 100 (ms)
-    RLlenanti = 100 (ms)
-    RLhebbwt = 1.0
-    RLantiwt = -1.0
-    wmax  = 15.0
-    softthresh = 0
-    STDPon = 1
-    RLon = 0
-    verbose = 0
-    skip = 0
-}
-
-NET_RECEIVE (w) {
-    deltaw = 0.0 : Default the weight change to 0.
-    skip = 0
-    
-    if (verbose > 1)  { printf("t=%f (BEFORE) tlaspre=%f, tlastpost=%f, flag=%f, w=%f, deltaw=%f \n",t,tlastpre, tlastpost,flag,w,deltaw) }
-
-    : Hebbian weight update happens 1ms later to check for simultaneous spikes (otherwise bug when using mpi)
-    if ((flag == -1) && (tlastpre != t-1)) {   
-        skip = 1 : skip the 2nd set of conditions since this was artificial net event to update weights
-        deltaw = (hebbwt + gv*synweight) * exp(-interval / tauhebb) : Use the Hebbian decay to set the Hebbian weight adjustment. 
-        if (softthresh == 1) { deltaw = softthreshold(deltaw) } : If we have soft-thresholding on, apply it.
-        adjustweight(deltaw) : Adjust the weight.
-        if (verbose > 1) { printf("Hebbian STDP event: t = %f ms; tlastpre = %f; w = %f; deltaw = %f\n",t,tlastpre,w,deltaw) } : Show weight update information if debugging on.
-        }
-
-    : Ant-hebbian weight update happens 1ms later to check for simultaneous spikes (otherwise bug when using mpi)
-    else if ((flag == 1) && (tlastpost != t-1)) { :update weight 1ms later to check for simultaneous spikes (otherwise bug when using mpi)
-        skip = 1 : skip the 2nd set of conditions since this was artificial net event to update weights
-        deltaw = (antiwt*synweight + gv*synweight)* exp(interval / tauanti) : Use the anti-Hebbian decay to set the anti-Hebbian weight adjustment.
-        if (softthresh == 1) { deltaw = softthreshold(deltaw) } : If we have soft-thresholding on, apply it.
-        adjustweight(deltaw) : Adjust the weight.
-        if (verbose > 1) { printf("anti-Hebbian STDP event: t = %f ms; deltaw = %f\n",t,deltaw) } : Show weight update information if debugging on. 
-        }
-
-
-    : If we receive a non-negative weight value, we are receiving a pre-synaptic spike (and thus need to check for an anti-Hebbian event, since the post-synaptic weight must be earlier).
-    if (skip == 0) {
-        if (w >= 0) {           
-            interval = tlastpost - t  : Get the interval; interval is negative
-            if  ((tlastpost > -1) && (-interval > 1.0)) { : If we had a post-synaptic spike and a non-zero interval...
-                if (STDPon == 1) { : If STDP learning is turned on...
-                    if (verbose > 1) {printf("net_send(1,1)\n")}
-                    net_send(1,1) : instead of updating weight directly, use net_send to check if simultaneous spike occurred (otherwise bug when using mpi)
-                }
-                if ((RLon == 1) && (-interval <= RLwindanti)) { tlastantielig = t } : If RL and anti-Hebbian eligibility traces are turned on, and the interval falls within the maximum window for eligibility, remember the eligibilty trace start at the current time.
-            }
-            tlastpre = t : Remember the current spike time for next NET_RECEIVE.  
-        
-        : Else, if we receive a negative weight value, we are receiving a post-synaptic spike (and thus need to check for a Hebbian event, since the pre-synaptic weight must be earlier).    
-        } else {            
-            interval = t - tlastpre : Get the interval; interval is positive
-            if  ((tlastpre > -1) && (interval > 1.0)) { : If we had a pre-synaptic spike and a non-zero interval...
-                if (STDPon == 1) { : If STDP learning is turned on...
-                    if (verbose > 1) {printf("net_send(1,-1)\n")}
-                    net_send(1,-1) : instead of updating weight directly, use net_send to check if simultaneous spike occurred (otherwise bug when using mpi)
-                }
-                if ((RLon == 1) && (interval <= RLwindhebb)) { 
-                    tlasthebbelig = t} : If RL and Hebbian eligibility traces are turned on, and the interval falls within the maximum window for eligibility, remember the eligibilty trace start at the current time.
-            }
-            tlastpost = t : Remember the current spike time for next NET_RECEIVE.
-        }
-    }
-    if (verbose > 1)  { printf("t=%f (AFTER) tlaspre=%f, tlastpost=%f, flag=%f, w=%f, deltaw=%f \n",t,tlastpre, tlastpost,flag,w,deltaw) }
-}
 
 PROCEDURE reward_punish(reinf) {
     if (RLon == 1) { : If RL is turned on...
@@ -166,6 +112,7 @@ PROCEDURE reward_punish(reinf) {
 }
 
 FUNCTION hebbRL() {
+    printf("HebRl")
     if ((RLon == 0) || (tlasthebbelig < 0.0)) { hebbRL = 0.0  } : If RL is turned off or eligibility has not occurred yet, return 0.0.
     else if (useRLexp == 0) { : If we are using a binary (i.e. square-wave) eligibility traces...
         if (t - tlasthebbelig <= RLlenhebb) { hebbRL = RLhebbwt } : If we are within the length of the eligibility trace...
@@ -191,6 +138,69 @@ FUNCTION softthreshold(rawwc) {
 
 PROCEDURE adjustweight(wc) {
    synweight = synweight + wc : apply the synaptic modification, and then clip the weight if necessary to make sure it's between 0 and wmax.
+   printf("ajustweight synweight = %f", synweight)
+
    if (synweight > wmax) { synweight = wmax }
    if (synweight < 0) { synweight = 0 }
+}
+
+
+NET_RECEIVE (w) {
+    deltaw = 0.0 : Default the weight change to 0.
+    skip = 0
+
+    if (verbose > 1)  {
+        printf("t=%f (BEFORE) tlaspre=%f, tlastpost=%f, flag=%f, w=%f, deltaw=%f \n",t,tlastpre, tlastpost,flag,w,deltaw) }
+
+    : Hebbian weight update happens 1ms later to check for simultaneous spikes (otherwise bug when using mpi)
+    if ((flag == -1) && (tlastpre != t-1)) {
+        skip = 1 : skip the 2nd set of conditions since this was artificial net event to update weights
+        deltaw = (hebbwt + gv*synweight) * exp(-interval / tauhebb) : Use the Hebbian decay to set the Hebbian weight adjustment.
+        if (softthresh == 1) { deltaw = softthreshold(deltaw) } : If we have soft-thresholding on, apply it.
+        adjustweight(deltaw) : Adjust the weight.
+        if (verbose > 1) {
+            printf("Hebbian STDP event: t = %f ms; tlastpre = %f; w = %f; deltaw = %f\n",t,tlastpre,w,deltaw)
+            } : Show weight update information if debugging on.
+        }
+
+    : Ant-hebbian weight update happens 1ms later to check for simultaneous spikes (otherwise bug when using mpi)
+    else if ((flag == 1) && (tlastpost != t-1)) { :update weight 1ms later to check for simultaneous spikes (otherwise bug when using mpi)
+        skip = 1 : skip the 2nd set of conditions since this was artificial net event to update weights
+        deltaw = (antiwt*synweight + gv*synweight)* exp(interval / tauanti) : Use the anti-Hebbian decay to set the anti-Hebbian weight adjustment.
+        if (softthresh == 1) { deltaw = softthreshold(deltaw) } : If we have soft-thresholding on, apply it.
+        adjustweight(deltaw) : Adjust the weight.
+        if (verbose > 1) {
+        printf("anti-Hebbian STDP event: t = %f ms; deltaw = %f\n",t,deltaw) } : Show weight update information if debugging on.
+        }
+
+
+    : If we receive a non-negative weight value, we are receiving a pre-synaptic spike (and thus need to check for an anti-Hebbian event, since the post-synaptic weight must be earlier).
+    if (skip == 0) {
+        if (w >= 0) {
+            interval = tlastpost - t  : Get the interval; interval is negative
+            if  ((tlastpost > -1) && (-interval > 1.0)) { : If we had a post-synaptic spike and a non-zero interval...
+                if (STDPon == 1) { : If STDP learning is turned on...
+                    if (verbose > 1) {printf("net_send(1,1)\n")}
+                    net_send(1,1) : instead of updating weight directly, use net_send to check if simultaneous spike occurred (otherwise bug when using mpi)
+                }
+                if ((RLon == 1) && (-interval <= RLwindanti)) { tlastantielig = t } : If RL and anti-Hebbian eligibility traces are turned on, and the interval falls within the maximum window for eligibility, remember the eligibilty trace start at the current time.
+            }
+            tlastpre = t : Remember the current spike time for next NET_RECEIVE.
+
+        : Else, if we receive a negative weight value, we are receiving a post-synaptic spike (and thus need to check for a Hebbian event, since the pre-synaptic weight must be earlier).
+        } else {
+            interval = t - tlastpre : Get the interval; interval is positive
+            if  ((tlastpre > -1) && (interval > 1.0)) { : If we had a pre-synaptic spike and a non-zero interval...
+                if (STDPon == 1) { : If STDP learning is turned on...
+                    if (verbose > 1) {printf("net_send(1,-1)\n")}
+                    net_send(1,-1) : instead of updating weight directly, use net_send to check if simultaneous spike occurred (otherwise bug when using mpi)
+                }
+                if ((RLon == 1) && (interval <= RLwindhebb)) {
+                    tlasthebbelig = t} : If RL and Hebbian eligibility traces are turned on, and the interval falls within the maximum window for eligibility, remember the eligibilty trace start at the current time.
+            }
+            tlastpost = t : Remember the current spike time for next NET_RECEIVE.
+        }
+    }
+    if (verbose > 1)  {
+        printf("t=%f (AFTER) tlaspre=%f, tlastpost=%f, flag=%f, w=%f, deltaw=%f \n",t,tlastpre, tlastpost,flag,w,deltaw) }
 }
