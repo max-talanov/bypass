@@ -59,4 +59,4 @@ obj
 *.so
 **/res/*.*
 **/__pycache__/*.*
-
+*.slurm*
