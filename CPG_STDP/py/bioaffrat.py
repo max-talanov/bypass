@@ -93,17 +93,18 @@ class bioaffrat(object):
     #for sec in self.axonL.node:
     for i in range(2):
       for j in range(50):
-        s = h.ExpSyn(self.node[len(self.node)-i-1](0.5)) # Excitatory
-        s.tau = 0.1
-        s.e = 0
+        s = h.Exp2Syn(self.node[len(self.node)-i-1](0.5)) # Excitatory
+        s.tau1 = 1.5
+        s.tau2 = 3.5
+        s.e = -80
         self.synlistinh.append(s)
     for i in range(200):
       s = h.ExpSyn(self.soma(0.5)) # Excitatory
-      s.tau = 0.1
+      s.tau = 0.3
       s.e = 0
       self.synlistees.append(s)
       s = h.ExpSyn(self.soma(0.5)) # Excitatory
-      s.tau = 0.1
+      s.tau = 0.3
       s.e = 0
       self.synlistex.append(s)
 

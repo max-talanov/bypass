@@ -5,6 +5,10 @@ import bokeh
 from neuron import h, gui
 import matplotlib.pyplot as plt
 import numpy as np
+from interneuron import interneuron
+from motoneuron import motoneuron
+from bioaffrat import bioaffrat
+from muscle import muscle
 
 bokeh.sampledata.download()
 
@@ -78,6 +82,11 @@ def our_sim():
         cell.insert('hh')
         cells.append(cell)
 
+    # RG = interneuron(False)
+    # cells.append(RG)
+    #
+    # la = bioaffrat()
+    # cells.append(la)
     # Создание источника спайков
     netstim = h.NetStim()
     netstim.number = 25  # Количество спайков
@@ -87,7 +96,7 @@ def our_sim():
     synapses = []
     for cell in cells:
         syn = h.ExpSyn(cell(1))  # Создание синапса
-        syn.tau = 0.3  # Время константы синапса
+        syn.tau = 0.5  # Время константы синапса
         syn.e = 0  # Реверсивный потенциал
         synapses.append(syn)
 
