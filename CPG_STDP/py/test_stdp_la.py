@@ -27,6 +27,7 @@ weight_changes = h.Vector()
 time_t = h.Vector()
 
 
+
 class CPG:
     def __init__(self):
         self.interneurons = []
@@ -36,18 +37,16 @@ class CPG:
         self.RG_Es = []  # Rhythm generators of extensors
         self.RG_Fs = []  # Rhythm generators of flexor
 
-
-
         self.Ia_aff_E = self.addpool(1, neurontype="aff")
-        self.mns_E = self.addpool(nMn, neurontype="moto")
+        # self.mns_E = self.addpool(nMn, neurontype="moto")
         self.RG_E = self.addpool(1, neurontype="int")
-        self.R_E = self.addpool(nInt, neurontype="int")
-        self.Ia_E = self.addpool(nAff, neurontype="aff")
+        # self.R_E = self.addpool(nInt, neurontype="int")
+        # self.Ia_E = self.addpool(nAff, neurontype="aff")
 
         generator(self.Ia_aff_E)
 
         # connectcells(self.Ia_aff_E, self.mns_E, 1.5, 1)
-        connectcells(self.Ia_aff_E, self.RG_E, 0.03, 1, stdptype=True)
+        connectcells(self.Ia_aff_E, self.RG_E, 0.15, 1, stdptype=True)
         # connectcells(self.Ia_aff_E, self.Ia_E, 0.5, 1)
         # connectcells(self.RG_E, self.mns_E, 0.8, 1)
         # connectcells(self.mns_E, self.R_E, 0.5, 1)
@@ -77,7 +76,7 @@ class CPG:
                 cell = muscle()
                 self.muscles.append(cell)
             else:
-                cell = interneuron(delaytype)
+                cell = interneuron()
                 self.interneurons.append(cell)
             cells.append(cell)
 
@@ -92,7 +91,7 @@ class CPG:
 
 def connectcells(pre, post, weight, delay=1, threshold=10, inhtype=False, stdptype=False, N=30):
     # nsyn = random.randint(N - 15, N)
-    nsyn = 1
+    nsyn = 10
     for i in post:
         for j in range(nsyn):
             print('Я во втором цикле')
@@ -100,34 +99,33 @@ def connectcells(pre, post, weight, delay=1, threshold=10, inhtype=False, stdpty
             if stdptype:
                 id = random.randint(0, len(pre))
                 id = 0
-                nc = h.NetCon(pre[id].soma(0.5)._ref_v,
+                nc = h.NetCon(pre[id].axon(0.5)._ref_v,
                               i.synlistexstdp[j],
                               threshold,
                               delay,
                               weight,
-                              sec=pre[id].soma)
+                              sec=pre[id].axon)
                 dummy = h.Section()  # Create a dummy section to put the point processes in
                 stdpmech = h.STDP(0, dummy)
-                presyn = h.NetCon(pre[id].soma(0.5)._ref_v,
+
+                presyn = h.NetCon(pre[id].axon(0.5)._ref_v,
                                   stdpmech,
                                   threshold,
                                   delay,
                                   2,
-                                  sec=pre[id].soma
+                                  sec=pre[id].axon
                                   )
-                pstsyn = h.NetCon(i.soma(1)._ref_v,
+                pstsyn = h.NetCon(i.axon(1)._ref_v,
                                   stdpmech,
                                   threshold,
                                   delay,
                                   -2,
-                                  sec=i.soma
+                                  sec=i.axon
                                   )
                 h.setpointer(nc._ref_weight[0], 'synweight', stdpmech)
                 stdpmech.verbose = 2
                 # Create array to store weight changes
-                time.sleep(3)
                 weight_changes.record(stdpmech._ref_synweight)
-
                 time_t.record(h._ref_t)
             else:
                 id = random.randint(0, len(pre)-1)
@@ -147,17 +145,17 @@ def connectcells(pre, post, weight, delay=1, threshold=10, inhtype=False, stdpty
                                   sec=pre[id].soma)
 
 
-def generator(cell, weight=10, delay=1):
+def generator(cell, weight=0.3, delay=1):
     netstim = h.NetStim()
     netstim.number = 30  # Количество генерируемых спайков
     netstim.start = 0  # Время начала генерации спайков
     netstim.interval = 10  # Интервал между спайками (в мс)
 
-    nsyn = random.randint(15, 30)
+    nsyn = 10
     for i in cell:
         for j in range(nsyn):
             print('Я в первом цикле')
-            nc_es_stim = h.NetCon(netstim, i.synlistees[j])
+            nc_es_stim = h.NetCon(netstim, i.synlistex[j])
             nc_es_stim.delay = delay
             nc_es_stim.weight[0] = weight
             nc_in_stim = h.NetCon(netstim, i.synlistinh[j])
@@ -214,46 +212,46 @@ def our_stim():
     # ncstim = h.NetCon(netstim, synapses[0])
     # ncstim.weight[0] = 10
 
-    weight_changes = h.Vector()
-    time = h.Vector()
+    weight_changes_1 = h.Vector()
+    time_t = h.Vector()
 
     for i in range(nsyn):
         print('Я во втором цикле')
         # cell_la.node[len(cell_la.node) - 1](0.5)._ref_v
-        nc = h.NetCon(cell_la.axon(0.5)._ref_v,
+        nc = h.NetCon(cell_la.soma(0.5)._ref_v,
                       cell_RG.synlistexstdp[i],
                       threshold,
                       delay,
                       0.15,
-                      sec=cell_la.axon)
-        dummy = h.Section()  # Create a dummy section to put the point processes in
-        stdpmech = h.STDP(0, dummy)
-        presyn = h.NetCon(cell_la.axon(0.5)._ref_v,
+                      sec=cell_la.soma)
+        # dummy = h.Section()  # Create a dummy section to put the point processes in
+        # stdpmech = h.STDP(0, dummy)
+        presyn = h.NetCon(cell_la.soma(0.5)._ref_v,
                           stdpmech,
                           threshold,
                           delay,
                           2,
-                          sec=cell_la.axon
+                          sec=cell_la.soma
                           )
-        pstsyn = h.NetCon(cell_RG.axon(1)._ref_v,
+        pstsyn = h.NetCon(cell_RG.soma(1)._ref_v,
                           stdpmech,
                           threshold,
                           delay,
                           -2,
-                          sec=cell_RG.axon
+                          sec=cell_RG.soma
                           )
         h.setpointer(nc._ref_weight[0], 'synweight', stdpmech)
         stdpmech.verbose = 2
         # Create array to store weight changes
 
-        weight_changes.record(stdpmech._ref_synweight)
+        weight_changes_1.record(stdpmech._ref_synweight)
         print(weight_changes)
-        time.record(h._ref_t)
+        time_t.record(h._ref_t)
 
         # Run the simulation
     h.run()
 
-    return weight_changes, time
+    return weight_changes_1, time_t
 
 
 def motodiams(number):
@@ -276,7 +274,7 @@ def motodiams(number):
 if __name__ == '__main__':
     # pc = h.ParallelContext()
     #
-    # weight_changes, time = our_stim()
+    # weight_changes, time_t = our_stim()
     h.dt = 0.1
     h.tstop = 100
 
