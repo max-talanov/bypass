@@ -97,7 +97,7 @@ class bioaffrat(object):
     # return nc
 
     nc = h.NetCon(self.axon(1)._ref_v, target, sec=self.axon)
-    nc.threshold = -10
+    nc.threshold = 10
     return nc
 
   def synapses(self):

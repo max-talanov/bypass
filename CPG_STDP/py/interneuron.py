@@ -182,7 +182,7 @@ class interneuron(object):
         connection between neurons
     '''
     nc = h.NetCon(self.axon(1)._ref_v, target, sec = self.axon)
-    nc.threshold = -10
+    nc.threshold = 10
     return nc
 
   def synapses(self):
@@ -193,7 +193,7 @@ class interneuron(object):
       for i in range(50):
         '''Somatic'''
         s = h.ExpSyn(self.soma(0.8))  # Excitatory
-        s.tau = 1
+        s.tau = 0.1
         s.e = 0
         self.synlistex.append(s)
         s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
@@ -203,7 +203,7 @@ class interneuron(object):
         self.synlistinh.append(s)
         '''Dendritic'''
         s = h.ExpSyn(sec(0.5))  # Excitatory
-        s.tau = 1
+        s.tau = 0.1
         s.e = 0
         self.synlistex.append(s)
         s = h.Exp2Syn(sec(0.5))  # Inhibitory
@@ -214,8 +214,8 @@ class interneuron(object):
 
         '''STDP'''
         '''Somatic'''
-        s = h.ExpSyn(self.soma(0.8))  # Excitatory
-        s.tau = 0.5
+        s = h.ExpSyn(self.soma(0.5))  # Excitatory
+        s.tau = 0.1
         s.e = 0
         self.synlistexstdp.append(s)
         s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
@@ -225,7 +225,7 @@ class interneuron(object):
         self.synlistinhstdp.append(s)
         '''Dendritic'''
         s = h.ExpSyn(sec(0.5))  # Excitatory
-        s.tau = 1
+        s.tau = 0.1
         s.e = 0
         self.synlistexstdp.append(s)
         s = h.Exp2Syn(sec(0.5))  # Inhibitory
