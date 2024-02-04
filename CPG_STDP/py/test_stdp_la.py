@@ -24,23 +24,37 @@ nAff = 12
 nMn = 21
 N = 5
 
-weight_changes = h.Vector()
-time_t = h.Vector()
-
 
 class CPG:
 
     def __init__(self):
 
+        self.interneurons = []
+        self.motoneurons = []
+        self.muscles = []
+        self.afferents = []
+
         h.dt = 0.1
         h.tstop = 100
 
-        self.Ia_aff_E = bioaffrat()
-        self.RG_E = interneuron()
+        self.weight_changes = h.Vector()
+        self.time_t = h.Vector()
+
+        self.Ia_aff_E = self.addpool(nAff, neurontype="aff")
+        self.RG_E = self.addpool(nInt, neurontype="int")
+        self.mns_E = self.addpool(nMn, neurontype="moto")
+        self.R_E = self.addpool(nInt, neurontype="int")
+        self.Ia_E = self.addpool(nAff, neurontype="aff")
 
         self.generator(self.Ia_aff_E)
 
-        self.connectcells(self.Ia_aff_E, self.RG_E, weight=0.15, stdptype=True)
+        self.connectcells(self.Ia_aff_E, self.RG_E, weight=0.3, stdptype=True)
+        # self.connectcells(self.Ia_aff_E, self.mns_E, weight=0.1)
+        # self.connectcells(self.RG_E, self.mns_E, weight=0.1)
+        # self.connectcells(self.mns_E, self.R_E, weight=0.1)
+        # self.connectcells(self.R_E, self.mns_E, weight=0.1, inhtype=True)
+        # self.connectcells(self.R_E, self.Ia_E, weight=0.1, inhtype=True)
+        # self.connectcells(self.Ia_aff_E, self.Ia_E, weight=0.1)
 
         h.run()
 
@@ -80,76 +94,79 @@ class CPG:
             # pc.cell(gid, nc)
         return cells
 
-    def connectcells(self, pre, post, weight, delay=1, threshold=10, inhtype=False, stdptype=False, N=30):
+    def connectcells(self, pre, posts, weight, delay=1, threshold=10, inhtype=False, stdptype=False, N=30):
         # nsyn = random.randint(N - 15, N)
-        nsyn = 5
+        nsyn = 1
         # for i in post:
         #     id = random.randint(0, len(pre))
         #     id = 0
-        for j in range(nsyn):
-            if stdptype:
-                nc = h.NetCon(pre.soma(0.5)._ref_v,
-                              post.synlistexstdp[j],
-                              threshold,
-                              delay,
-                              weight,
-                              sec=pre.soma)
-                dummy = h.Section()  # Create a dummy section to put the point processes in
-                stdpmech = h.STDP(0, dummy)
 
-                presyn = h.NetCon(pre.soma(0.5)._ref_v,
-                                  stdpmech,
-                                  threshold,
-                                  delay,
-                                  2,
-                                  sec=pre.soma
-                                  )
-                pstsyn = h.NetCon(post.soma(1)._ref_v,
-                                  stdpmech,
-                                  threshold,
-                                  delay,
-                                  -2,
-                                  sec=post.soma
-                                  )
-                h.setpointer(nc._ref_weight[0], 'synweight', stdpmech)
-                stdpmech.verbose = 2
-                # Create array to store weight changes
+        for post in posts:
+            for j in range(nsyn):
+                pre_id = random.randint(0, len(pre)-1)
+                if stdptype:
+                    self.nc = h.NetCon(pre[pre_id].soma(0.5)._ref_v,
+                                       post.synlistexstdp[j],
+                                       threshold,
+                                       delay,
+                                       weight,
+                                       sec=pre[pre_id].soma)
+                    dummy = h.Section()  # Create a dummy section to put the point processes in
+                    self.stdpmech = h.STDP(0, dummy)
 
-                weight_changes.record(stdpmech._ref_synweight)
-                print(stdpmech._ref_synweight)
-                time_t.record(h._ref_t)
-            else:
-                if inhtype:
-                    nc = h.NetCon(pre[id].soma(0.5)._ref_v,
-                                  post.synlistinh[j],
-                                  threshold,
-                                  delay,
-                                  weight,
-                                  sec=pre[id].soma)
+                    self.presyn = h.NetCon(pre[pre_id].soma(0.5)._ref_v,
+                                           self.stdpmech,
+                                           threshold,
+                                           delay,
+                                           1,
+                                           sec=pre[pre_id].soma
+                                           )
+                    self.postsyn = h.NetCon(post.soma(0.5)._ref_v,
+                                            self.stdpmech,
+                                            threshold,
+                                            delay,
+                                            -1,
+                                            sec=post.soma
+                                            )
+
+                    h.setpointer(self.nc._ref_weight[0], 'synweight', self.stdpmech)
+
+                    self.stdpmech.verbose = 2
+                    # Create array to store weight changes
+
+                    self.weight_changes.record(self.stdpmech._ref_synweight)
+                    self.time_t.record(h._ref_t)
                 else:
-                    nc = h.NetCon(pre[id].soma(0.5)._ref_v,
-                                  post.synlistex[j],
-                                  threshold,
-                                  delay,
-                                  weight,
-                                  sec=pre[id].soma)
+                    if inhtype:
+                        self.nc = h.NetCon(pre[pre_id].soma(0.5)._ref_v,
+                                           post.synlistinh[j],
+                                           threshold,
+                                           delay,
+                                           weight,
+                                           sec=pre[pre_id].soma)
+                    else:
+                        self.nc = h.NetCon(pre[pre_id].soma(0.5)._ref_v,
+                                           post.synlistex[j],
+                                           threshold,
+                                           delay,
+                                           weight,
+                                           sec=pre[pre_id].soma)
 
-    def generator(self, cell, weight=0.3, delay=1):
-        netstim = h.NetStim()
-        netstim.number = 30  # Количество генерируемых спайков
-        netstim.start = 0  # Время начала генерации спайков
-        netstim.interval = 10  # Интервал между спайками (в мс)
+    def generator(self, cells, weight=0.3, delay=1):
+        self.netstim = h.NetStim()
+        self.netstim.number = 30  # Количество генерируемых спайков
+        self.netstim.start = 0  # Время начала генерации спайков
+        self.netstim.interval = 10  # Интервал между спайками (в мс)
 
         nsyn = 1
-        # for cell in cells:
-        for j in range(nsyn):
-            print('Я в первом цикле')
-            nc_es_stim = h.NetCon(netstim, cell.synlistees[j])
-            nc_es_stim.delay = delay
-            nc_es_stim.weight[0] = weight
-            nc_in_stim = h.NetCon(netstim, cell.synlistinh[j])
-            nc_in_stim.delay = delay
-            nc_in_stim.weight[0] = weight
+        for cell in cells:
+            for j in range(nsyn):
+                self.nc_es_stim = h.NetCon(self.netstim, cell.synlistees[j])
+                self.nc_es_stim.delay = delay
+                self.nc_es_stim.weight[0] = weight
+                self.nc_in_stim = h.NetCon(self.netstim, cell.synlistinh[j])
+                self.nc_in_stim.delay = delay
+                self.nc_in_stim.weight[0] = weight
 
 
 def our_stim():
@@ -210,6 +227,8 @@ def our_stim():
         stdpmech.verbose = 2
         # Create array to store weight changes
 
+        weight_changes = h.Vector()
+        time_t = h.Vector()
         weight_changes.record(stdpmech._ref_synweight)
         print(stdpmech._ref_synweight)
         time_t.record(h._ref_t)
@@ -235,7 +254,7 @@ def motodiams(number):
     return x2
 
 
-def draw():
+def draw(weight_changes, time_t):
     # Convert weight_changes to a NumPy array
     weight_changes_array = np.array(weight_changes.as_numpy())
     time_array = np.array(time_t.as_numpy())
@@ -248,9 +267,11 @@ def draw():
 
 
 if __name__ == '__main__':
-
     # our_stim()
 
     cpg = CPG()
 
-    draw()
+    w = cpg.weight_changes
+    t = cpg.time_t
+
+    draw(w, t)
