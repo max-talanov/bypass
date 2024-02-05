@@ -13,7 +13,6 @@ number of nodes of Ranvier
 
 
 def make_axon(self, number):
-    print('Я в make_axone')
     PI = 3.14
     # topological parameters
     self.number = number
