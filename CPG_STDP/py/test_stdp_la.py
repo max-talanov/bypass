@@ -48,11 +48,11 @@ class CPG:
 
         self.connectcells(self.Ia_aff_E, self.RG_E, weight=0.3, stdptype=True)
         self.connectcells(self.Ia_aff_E, self.mns_E, weight=0.01)
-        # self.connectcells(self.RG_E, self.mns_E, weight=0.1)
-        # self.connectcells(self.mns_E, self.R_E, weight=0.1)
-        # self.connectcells(self.R_E, self.mns_E, weight=0.1, inhtype=True)
-        # self.connectcells(self.R_E, self.Ia_E, weight=0.1, inhtype=True)
-        # self.connectcells(self.Ia_aff_E, self.Ia_E, weight=0.1)
+        self.connectcells(self.RG_E, self.mns_E, weight=0.02)
+        self.connectcells(self.mns_E, self.R_E, weight=0.02)
+        self.connectcells(self.R_E, self.mns_E, weight=0.05, inhtype=True)
+        self.connectcells(self.R_E, self.Ia_E, weight=0.03, inhtype=True)
+        self.connectcells(self.Ia_aff_E, self.Ia_E, weight=0.04)
 
     def addpool(self, num, name="test", neurontype="int"):
 
@@ -132,9 +132,11 @@ class CPG:
                     self.stdpmech.verbose = 2
                     # Create array to store weight changes
                     self.stdpmechs.append(self.stdpmech)
-                    self.weight_changes_vectors.append(self.weight_changes.record(self.stdpmech._ref_synweight))
+                    self.weight_changes.record(self.stdpmech._ref_synweight)
+                    self.weight_changes_vectors.append(self.weight_changes)
                     # self.weight_changes.record(self.stdpmech._ref_synweight)
-                    self.time_t_vectors.append(self.time_t.record(h._ref_t))
+                    self.time_t.record(h._ref_t)
+                    self.time_t_vectors.append(self.time_t)
                     # self.time_t.record(h._ref_t)
                 else:
                     if inhtype:
@@ -166,11 +168,6 @@ class CPG:
                                            )
                 self.nc_es_stim.delay = delay
                 self.nc_es_stim.weight[0] = weight
-                # self.nc_in_stim = h.NetCon(self.netstim._ref_v,
-                #                            cell.synlistinh[j],
-                #                            )
-                # self.nc_in_stim.delay = delay
-                # self.nc_in_stim.weight[0] = weight
 
 
 def our_stim():
@@ -275,7 +272,7 @@ def draw(weight_changes, time_t):
 if __name__ == '__main__':
     # our_stim()
 
-    h.dt = 0.1
+    h.dt = 0.01
     h.tstop = 100
 
     cpg = CPG()
