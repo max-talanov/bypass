@@ -1,6 +1,6 @@
-![](https://raw.githubusercontent.com/max-talanov/bypass/main/figs/bypass_logo_1s.jpg)
-# bypass
-the bypass project repository
+![](https://raw.githubusercontent.com/max-talanov/bypass/main/figs/memCPG_4_214x214.png)
+# memCPG
+the memCPG project repository
 1. Models in brian2
 1. Models in NEST
 1. Documentation including diagrams in mds
