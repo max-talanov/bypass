@@ -93,12 +93,12 @@ class afferent(object):
   def synapses(self):
     for i in range(200): 
       s = h.ExpSyn(self.dend(0.5)) # E0
-      s.tau = 0.1
-      s.e = 50
+      s.tau = 1
+      s.e = 0
       self.synlistex.append(s)
       s = h.ExpSyn(self.dend(0.5)) # E1
-      s.tau = 0.1
-      s.e = 50
+      s.tau = 1
+      s.e = 0
       self.synlistees.append(s)
       s = h.Exp2Syn(self.dend(0.5)) # I1
       s.tau1 = 1.5

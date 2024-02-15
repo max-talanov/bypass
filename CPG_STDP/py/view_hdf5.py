@@ -21,6 +21,7 @@ def show_all(path, file_names=None):
     rows = int(np.ceil(np.sqrt(num_files)))
     cols = int(np.ceil(num_files / rows))
 
+    # fig = plt.figure()
     fig, axs = plt.subplots(rows, cols, figsize=(12, 8))
     axs = axs.ravel()
 
@@ -34,5 +35,6 @@ def show_all(path, file_names=None):
     plt.show()
 
 
-show_all(r'./res/')
+show_all(r'./res_m/')
+# show_all(r'./res_m')
 #show_all(r'./res/', ['new_rat4_BS_aff_E_speed_50_layers_21_eeshz_100', 'new_rat4_BS_aff_F_speed_50_layers_21_eeshz_100'])

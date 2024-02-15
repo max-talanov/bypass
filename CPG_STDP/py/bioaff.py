@@ -95,11 +95,11 @@ class bioaff(object):
     for i in range(3):
       for j in range(50): 
         s = h.ExpSyn(self.axonL.node[len(self.axonL.node)-1-i](0.5)) # Excitatory
-        s.tau = 0.1
+        s.tau = 1
         s.e = 50
         self.synlistex.append(s)  
         s = h.ExpSyn(self.axonR.node[i+1](0.5)) # Excitatory
-        s.tau = 0.1
+        s.tau = 1
         s.e = 50
         self.synlistees.append(s)
     for i in range(200): 
