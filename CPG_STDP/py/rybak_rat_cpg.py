@@ -35,9 +35,7 @@ k = 0.017  # CV weights multiplier to take into account air and toe stepping
 CV_0_len = 12  # 125 # Duration of the CV generator with no sensory inputs
 extra_layers = 0  # 1 + layers
 
-
 step_number = 10
-
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = 300 + one_step_time * step_number
@@ -312,7 +310,6 @@ class CPG:
                 self.afferents.append(cell)
             elif neurontype.lower() == "muscle":
                 cell = muscle()
-                self.motoneurons.append(cell)
                 self.muscles.append(cell)
             elif neurontype.lower() == "bursting":
                 cell = interneuron(False, bursting_mode=True)
@@ -331,7 +328,6 @@ class CPG:
         # Groups
         if (neurontype.lower() == "muscle"):
             self.musclegroups.append((gids, name))
-            self.motogroups.append((gids, name))
         elif (neurontype.lower() == "moto"):
             self.motogroups.append((gids, name))
         elif neurontype.lower() == "aff":
@@ -478,27 +474,32 @@ def connectcells(pre, post, weight, delay=1, inhtype=False, N=50, stdptype=False
                                      stdpmech)  # Point the STDP mechanism to the connection weight
                         inhstdpnclist.append(nc)
                     else:
-                        syn = target.synlistex[j]
+                        syn = target.synlistexstdp[j]
                         nc = pc.gid_connect(src_gid, syn)
                         nc.delay = delay
+                        nc.weight[0] = weight
+                        nc.threshold = threshold
                         pc.threshold(src_gid, threshold)
                         """Create STDP synapses"""
                         dummy = h.Section()  # Create a dummy section to put the point processes in
                         stdpmech = h.STDP(0, sec=dummy)  # Create the STDP mechanism
+                        stdpmech.verbose = 2
                         # TODO check target, threshold,
                         presyn = pc.gid_connect(src_gid,
                                                 stdpmech)  # threshold, delay, 1)  # Feed presynaptic spikes to the STDP mechanism -- must have weight >0
                         presyn.delay = delay
                         presyn.weight[0] = 1
+                        presyn.threshold = threshold
                         pstsyn = pc.gid_connect(post_gid,
                                                 stdpmech)  # threshold, delay, -1)  # Feed postsynaptic spikes to the STDP mechanism -- must have weight <0
                         pstsyn.delay = delay
                         pstsyn.weight[0] = -1
+                        pstsyn.threshold = threshold
                         pc.threshold(post_gid, threshold)
                         h.setpointer(nc._ref_weight[0], 'synweight',
                                      stdpmech)  # Point the STDP mechanism to the connection weight
-                        exstdpnclist.append(nc)
                         logging.info(nc._ref_weight[0])
+                        exstdpnclist.append(nc)
                         # nc.weight[0] = random.gauss(weight, weight / 6) # str
 
                 else:

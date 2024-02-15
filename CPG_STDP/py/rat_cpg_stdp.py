@@ -547,7 +547,7 @@ def connectcells(pre, post, weight, delay, inhtype = False, N = 50):
       weight: float
           weight of synapse
           used with Gaussself.Ian distribution
-      delay: int
+      delay: float
           synaptic delay
           used with Gaussself.Ian distribution
       nsyn: int
@@ -617,7 +617,9 @@ def genconnect(gen_gid, afferents_gids, weight, delay, inhtype = False, N = 50):
                 nc = pc.gid_connect(gen_gid, syn)
                 stimnclist.append(nc)
                 nc.delay = random.gauss(delay, delay / 5)
-                nc.weight[0] = random.gauss(weight, weight / 6)
+                # nc.weight[0] = random.gauss(weight, weight / 6)
+                nc.weight[0] = random.gauss(weight, weight / 5)
+
 
 def createmotif(OM0, OM1, OM2, OM3):
     ''' Connects motif module
