@@ -172,10 +172,10 @@ class CPG:
 
         ''' BS '''
         for E_bs_gid in self.E_bs_gids:
-            genconnect(E_bs_gid, self.BS_aff_E, 3.5, 3)
+            self.genconnect(E_bs_gid, self.BS_aff_E, 3.5, 3)
 
         for F_bs_gid in self.F_bs_gids:
-            genconnect(F_bs_gid, self.BS_aff_F, 3.5, 3)
+            self.genconnect(F_bs_gid, self.BS_aff_F, 3.5, 3)
 
         self.connectcells(self.BS_aff_F, self.V3F, 1.5, 3)
         '''STDP synapse'''
@@ -185,10 +185,10 @@ class CPG:
         '''generators of Ia aff'''
         ## TODO originally: 00005 and 0001
         ## TODO fix Iagener
-        genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 5)
-        genconnect(self.Iagener_F, self.Ia_aff_F, 1.5, 1, False, 15)
-        # genconnect(Iagener_E_1000, self.Ia_aff_E, 5.0, 1, False, 5)
-        # genconnect(Iagener_F_1000, self.Ia_aff_F, 5.0, 1, False, 15)
+        self.genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 5)
+        self.genconnect(self.Iagener_F, self.Ia_aff_F, 1.5, 1, False, 15)
+        # self.genconnect(Iagener_E_1000, self.Ia_aff_E, 5.0, 1, False, 5)
+        # self.genconnect(Iagener_F_1000, self.Ia_aff_F, 5.0, 1, False, 15)
 
         '''Ia2motor'''
         self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 1.5)
@@ -199,20 +199,20 @@ class CPG:
 
         for layer in range(CV_number):
             '''Internal to RG topology'''
-            connectinsidenucleus(self.dict_RG_F[layer])
-            connectinsidenucleus(self.dict_RG_E[layer])
+            self.connectinsidenucleus(self.dict_RG_F[layer])
+            self.connectinsidenucleus(self.dict_RG_E[layer])
 
             '''RG2Motor'''
             self.connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
             self.connectcells(self.dict_RG_F[layer], self.mns_F, 2.75, 3)
 
-            '''Neg feedback RG -> Ia'''
-            ## TODO why do we have this neg feedback ?
-            if layer > 3:
-                self.connectcells(self.dict_RG_E[layer], self.Ia_aff_E, layer * 0.0002, 1, True)
-            else:
-                '''RG2Ia'''
-                self.connectcells(self.dict_RG_E[layer], self.Ia_aff_E, 0.0001, 1, True)
+            # '''Neg feedback RG -> Ia'''
+            # ## TODO why do we have this neg feedback ?
+            # if layer > 3:
+            #     self.connectcells(self.dict_RG_E[layer], self.Ia_aff_E, layer * 0.0002, 1, True)
+            # else:
+            #     '''RG2Ia'''
+            #     self.connectcells(self.dict_RG_E[layer], self.Ia_aff_E, 0.0001, 1, True)
 
             '''RG2Motor, RG2Ia'''
             self.connectcells(self.dict_RG_F[layer], self.mns_F, 3.75, 2)

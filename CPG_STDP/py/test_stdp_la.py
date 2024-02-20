@@ -19,6 +19,12 @@ my_path = os.path.abspath('')
 h.load_file('nrngui.hoc')
 h.load_file('stdrun.hoc')
 
+'''
+network topology https://github.com/max-talanov/bypass/blob/main/figs/CPG_feedback_loops.png
+'''
+
+speed = 50
+
 
 class CPG:
     def __init__(self):
@@ -33,9 +39,11 @@ class CPG:
         self.muscles = []
 
         self.netstims = []
+        self.stims = []
 
         self.stdpmechs = []
         self.netcons = []
+        self.stimnclist = []
 
         self.presyns = []
         self.postsyns = []
@@ -45,23 +53,44 @@ class CPG:
 
         '''Create neurons'''
         self.Ia_aff_E = self.addpool(self.nAff, neurontype="aff")
+        self.Ia_aff_F = self.addpool(self.nAff, neurontype="aff")
         self.RG_E = self.addpool(self.nInt, neurontype="int")
+        self.RG_F = self.addpool(self.nInt, neurontype="int")
         self.muscle_E = self.addpool(self.nMn * 30, "muscle")
+        self.muscle_F = self.addpool(self.nMn * 30, "muscle")
         self.mns_E = self.addpool(self.nMn, neurontype="moto")
+        self.mns_F = self.addpool(self.nMn, neurontype="moto")
         self.R_E = self.addpool(self.nInt, neurontype="int")
+        self.R_F = self.addpool(self.nInt, neurontype="int")
         self.Ia_E = self.addpool(self.nAff, neurontype="aff")
+        self.Ia_F = self.addpool(self.nAff, neurontype="aff")
 
         '''Create generator'''
-        self.generator(self.Ia_aff_E, weight=0.3)
+        # self.generator(self.Ia_aff_E, weight=0.3)
+        self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_E, 10, weight=20)
+        self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_F, speed * 6, weight=20)
 
         '''Create connectcells'''
-        self.connectcells(self.Ia_aff_E, self.RG_E, weight=0.13, stdptype=True)
-        self.connectcells(self.Ia_aff_E, self.mns_E, weight=0.01)
-        self.connectcells(self.RG_E, self.mns_E, weight=0.02)
-        self.connectcells(self.mns_E, self.R_E, weight=0.02)
-        self.connectcells(self.R_E, self.mns_E, weight=0.05, inhtype=True)
-        self.connectcells(self.R_E, self.Ia_E, weight=0.03, inhtype=True)
-        self.connectcells(self.Ia_aff_E, self.Ia_E, weight=0.04)
+        self.genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 5)
+        self.genconnect(self.Iagener_F, self.Ia_aff_F, 1.5, 1, False, 15)
+        self.connectcells(self.Ia_aff_E, self.RG_E, weight=0.001, stdptype=True)
+        self.connectcells(self.Ia_aff_F, self.RG_F, weight=0.001, stdptype=True)
+        '''Ia2motor'''
+        self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 1.5)
+        self.connectcells(self.Ia_aff_F, self.mns_F, 0.5, 1.5)
+
+        self.connectcells(self.RG_E, self.mns_E, 2.75, 3)
+        self.connectcells(self.RG_F, self.mns_F, 2.75, 3)
+        self.connectcells(self.mns_E, self.R_E, 0.00015, 1)
+        self.connectcells(self.mns_F, self.R_F, 0.00015, 1)
+        self.connectcells(self.R_E, self.mns_E, 0.00015, 1, inhtype=True)
+        self.connectcells(self.R_F, self.mns_F, 0.00015, 1, inhtype=True)
+        self.connectcells(self.R_E, self.Ia_E, 0.001, 1, inhtype=True)
+        self.connectcells(self.R_F, self.Ia_F, 0.001, 1, inhtype=True)
+        self.connectcells(self.Ia_aff_E, self.Ia_E, 0.008, 1)
+        self.connectcells(self.Ia_aff_F, self.Ia_F, 0.008, 1)
+        self.connectcells(self.mns_E, self.muscle_E, 15.5, 2, N=45)
+        self.connectcells(self.mns_F, self.muscle_F, 15.5, 2, N=45)
 
     def addpool(self, num, neurontype="int"):
         cells = []
@@ -95,20 +124,25 @@ class CPG:
         nsyn = 1
         for cell in cells:
             for i in range(nsyn):
-                print('Я в первом цикле')
                 nc_es_stim = h.NetCon(netstim, cell.synlistees[i])
                 nc_es_stim.delay = self.delay
                 nc_es_stim.weight[0] = weight
                 self.netcons.append(nc_es_stim)
 
-    def connectcells(self, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, inhtype=False, stdptype=False):
+    def connectcells(self, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, N=50, inhtype=False,
+                     stdptype=False):
         nsyn = 5
+        ids = set()
         for post in post_cells:
             for i in range(nsyn):
                 id = random.randint(0, len(pre_cells) - 1)
+                if len(ids) == 0:
+                    ids.add(id)
+                else:
+                    while id in ids:
+                        id = random.randint(0, len(pre_cells) - 1)
+                    ids.add(id)
                 if stdptype:
-                    print('Я во втором цикле')
-                    # cell_la.node[len(cell_la.node) - 1](0.5)._ref_v
                     nc = h.NetCon(pre_cells[id].soma(0.5)._ref_v,
                                   post.synlistexstdp[i],
                                   threshold,
@@ -137,8 +171,6 @@ class CPG:
                                       )
                     self.postsyns.append(pstsyn)
                     h.setpointer(nc._ref_weight[0], 'synweight', stdpmech)
-                    # stdpmech.verbose = 2
-                    # Create array to store weight changes
 
                     weight_changes = h.Vector()
                     time_t = h.Vector()
@@ -180,6 +212,54 @@ class CPG:
 
         return x2
 
+    def addIagener(self, mn, mn2, start, weight=1.0):
+        '''
+        Creates self.Ia generators and returns generator gids
+        Parameters
+        ----------
+        mn:
+            motor neurons of agonist muscle that contract spindle
+        mn2:
+            motor neurons of antagonist muscle that extend spindle
+        start: int
+            generator start up
+        num: int
+            number in pool
+        w_in: int
+            weight of the connection
+        Returns
+        -------
+        gids: list
+            generators gids
+        '''
+        id_moto = random.randint(0, len(mn) - 1)
+        id_moto2 = random.randint(0, len(mn2) - 1)
+        moto = self.muscles[id_moto]
+        moto2 = self.muscles[id_moto2]
+        stim = h.IaGenerator(0.5)
+        stim.start = start
+        h.setpointer(moto.muscle_unit(0.5)._ref_F_fHill, 'fhill', stim)
+        h.setpointer(moto2.muscle_unit(0.5)._ref_F_fHill, 'fhill2', stim)
+        self.stims.append(stim)
+        ncstim = h.NetCon(stim, None)
+        ncstim.weight[0] = weight
+        self.netcons.append(ncstim)
+
+        return stim
+
+    def genconnect(self, gen, afferents, weight, delay, inhtype=False, N=50):
+        nsyn = random.randint(N, N + 5)
+        for cell in afferents:
+            for j in range(nsyn):
+                if inhtype:
+                    syn = cell.synlistinh[j]
+                else:
+                    syn = cell.synlistees[j]
+                nc = h.NetCon(gen, syn)
+                self.stimnclist.append(nc)
+                nc.delay = random.gauss(delay, delay / 5)
+                nc.weight[0] = random.gauss(weight, weight / 6)
+
 
 def draw(weight_changes, time_t):
     i = 0
@@ -197,7 +277,7 @@ def draw(weight_changes, time_t):
 
 if __name__ == '__main__':
     h.dt = 0.1
-    h.tstop = 50
+    h.tstop = 25
     cpg = CPG()
 
     h.run()
