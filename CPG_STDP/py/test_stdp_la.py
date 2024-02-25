@@ -53,16 +53,17 @@ class CPG:
 
         '''Create neurons'''
         self.Ia_aff_E = self.addpool(self.nAff, neurontype="aff")
-        self.Ia_aff_F = self.addpool(self.nAff, neurontype="aff")
         self.RG_E = self.addpool(self.nInt, neurontype="int")
-        self.RG_F = self.addpool(self.nInt, neurontype="int")
         self.muscle_E = self.addpool(self.nMn * 30, "muscle")
-        self.muscle_F = self.addpool(self.nMn * 30, "muscle")
         self.mns_E = self.addpool(self.nMn, neurontype="moto")
-        self.mns_F = self.addpool(self.nMn, neurontype="moto")
         self.R_E = self.addpool(self.nInt, neurontype="int")
-        self.R_F = self.addpool(self.nInt, neurontype="int")
         self.Ia_E = self.addpool(self.nAff, neurontype="aff")
+
+        self.Ia_aff_F = self.addpool(self.nAff, neurontype="aff")
+        self.RG_F = self.addpool(self.nInt, neurontype="int")
+        self.muscle_F = self.addpool(self.nMn * 30, "muscle")
+        self.mns_F = self.addpool(self.nMn, neurontype="moto")
+        self.R_F = self.addpool(self.nInt, neurontype="int")
         self.Ia_F = self.addpool(self.nAff, neurontype="aff")
 
         '''Create generator'''
@@ -73,23 +74,23 @@ class CPG:
         '''Create connectcells'''
         self.genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 5)
         self.genconnect(self.Iagener_F, self.Ia_aff_F, 1.5, 1, False, 15)
-        self.connectcells(self.Ia_aff_E, self.RG_E, weight=0.001, stdptype=True)
-        self.connectcells(self.Ia_aff_F, self.RG_F, weight=0.001, stdptype=True)
+        self.connectcells(self.Ia_aff_E, self.RG_E, weight=0.1, stdptype=True)
+        self.connectcells(self.Ia_aff_F, self.RG_F, weight=0.1, stdptype=True)
         '''Ia2motor'''
         self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 1.5)
-        self.connectcells(self.Ia_aff_F, self.mns_F, 0.5, 1.5)
-
         self.connectcells(self.RG_E, self.mns_E, 2.75, 3)
-        self.connectcells(self.RG_F, self.mns_F, 2.75, 3)
         self.connectcells(self.mns_E, self.R_E, 0.00015, 1)
-        self.connectcells(self.mns_F, self.R_F, 0.00015, 1)
         self.connectcells(self.R_E, self.mns_E, 0.00015, 1, inhtype=True)
-        self.connectcells(self.R_F, self.mns_F, 0.00015, 1, inhtype=True)
         self.connectcells(self.R_E, self.Ia_E, 0.001, 1, inhtype=True)
-        self.connectcells(self.R_F, self.Ia_F, 0.001, 1, inhtype=True)
         self.connectcells(self.Ia_aff_E, self.Ia_E, 0.008, 1)
-        self.connectcells(self.Ia_aff_F, self.Ia_F, 0.008, 1)
         self.connectcells(self.mns_E, self.muscle_E, 15.5, 2, N=45)
+
+        self.connectcells(self.Ia_aff_F, self.mns_F, 0.5, 1.5)
+        self.connectcells(self.R_F, self.Ia_F, 0.001, 1, inhtype=True)
+        self.connectcells(self.R_F, self.mns_F, 0.00015, 1, inhtype=True)
+        self.connectcells(self.mns_F, self.R_F, 0.00015, 1)
+        self.connectcells(self.RG_F, self.mns_F, 2.75, 3)
+        self.connectcells(self.Ia_aff_F, self.Ia_F, 0.008, 1)
         self.connectcells(self.mns_F, self.muscle_F, 15.5, 2, N=45)
 
     def addpool(self, num, neurontype="int"):
@@ -136,12 +137,12 @@ class CPG:
         for post in post_cells:
             for i in range(nsyn):
                 id = random.randint(0, len(pre_cells) - 1)
-                if len(ids) == 0:
-                    ids.add(id)
-                else:
-                    while id in ids:
-                        id = random.randint(0, len(pre_cells) - 1)
-                    ids.add(id)
+                # if len(ids) == 0:
+                #     ids.add(id)
+                # else:
+                #     while id in ids:
+                #         id = random.randint(0, len(pre_cells) - 1)
+                #     ids.add(id)
                 if stdptype:
                     nc = h.NetCon(pre_cells[id].soma(0.5)._ref_v,
                                   post.synlistexstdp[i],
@@ -269,7 +270,7 @@ def draw(weight_changes, time_t):
         time_array = np.array(t.as_numpy())
 
         figur = figure(x_axis_label='time (ms)', y_axis_label='weight')
-        output_file(f'results_stdp/change_res_{i}.html')
+        output_file(f'results_stdp_1/change_res_1_{i}.html')
         i += 1
         figur.line(time_array, weight_changes_array, line_width=2)
         show(figur)
@@ -277,7 +278,7 @@ def draw(weight_changes, time_t):
 
 if __name__ == '__main__':
     h.dt = 0.1
-    h.tstop = 25
+    h.tstop = 50
     cpg = CPG()
 
     h.run()
