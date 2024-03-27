@@ -103,6 +103,8 @@ class muscle(object):
 
     self.soma.insert('extracellular')  #adds extracellular mechanism for recording extracellular potential
 
+    self.ina_vec = h.Vector().record(self.soma(0.5)._ref_ina)
+    self.ik_vec = h.Vector().record(self.soma(0.5)._ref_ik)
     rec = h.xm(self.muscle_unit(0.5))
 
     self.muscle_unit.insert('CaSP')

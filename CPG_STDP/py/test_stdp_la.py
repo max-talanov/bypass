@@ -1,3 +1,4 @@
+import csv
 import random
 import bokeh
 import sys, os
@@ -6,6 +7,7 @@ from CPG_STDP.py.bioaffrat import bioaffrat
 from CPG_STDP.py.interneuron import interneuron
 from neuron import h
 import numpy as np
+import h5py as hdf5
 
 from CPG_STDP.py.motoneuron import motoneuron
 from CPG_STDP.py.muscle import muscle
@@ -43,6 +45,7 @@ class CPG:
 
         self.stdpmechs = []
         self.netcons = []
+        self.net_connect = []
         self.stimnclist = []
 
         self.presyns = []
@@ -50,6 +53,9 @@ class CPG:
 
         self.weight_changes_vectors = []
         self.time_t_vectors = []
+
+        '''To calculate the spike power'''
+        self.calc_spike = []
 
         '''Create neurons'''
         self.Ia_aff_E = self.addpool(self.nAff, neurontype="aff")
@@ -73,25 +79,30 @@ class CPG:
 
         '''Create connectcells'''
         self.genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 5)
+        self.connectcells(self.Ia_aff_E, self.RG_E, weight=0.1, stdptype=True, name=('Ia_aff_E', 'RG_E'))
         self.genconnect(self.Iagener_F, self.Ia_aff_F, 1.5, 1, False, 15)
-        self.connectcells(self.Ia_aff_E, self.RG_E, weight=0.1, stdptype=True)
-        self.connectcells(self.Ia_aff_F, self.RG_F, weight=0.1, stdptype=True)
-        '''Ia2motor'''
-        self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 1.5)
-        self.connectcells(self.RG_E, self.mns_E, 2.75, 3)
-        self.connectcells(self.mns_E, self.R_E, 0.00015, 1)
-        self.connectcells(self.R_E, self.mns_E, 0.00015, 1, inhtype=True)
-        self.connectcells(self.R_E, self.Ia_E, 0.001, 1, inhtype=True)
-        self.connectcells(self.Ia_aff_E, self.Ia_E, 0.008, 1)
-        self.connectcells(self.mns_E, self.muscle_E, 15.5, 2, N=45)
+        self.connectcells(self.Ia_aff_F, self.RG_F, weight=0.1, stdptype=True, name=('Ia_aff_F', 'RG_F'))
 
-        self.connectcells(self.Ia_aff_F, self.mns_F, 0.5, 1.5)
-        self.connectcells(self.R_F, self.Ia_F, 0.001, 1, inhtype=True)
-        self.connectcells(self.R_F, self.mns_F, 0.00015, 1, inhtype=True)
-        self.connectcells(self.mns_F, self.R_F, 0.00015, 1)
-        self.connectcells(self.RG_F, self.mns_F, 2.75, 3)
-        self.connectcells(self.Ia_aff_F, self.Ia_F, 0.008, 1)
-        self.connectcells(self.mns_F, self.muscle_F, 15.5, 2, N=45)
+        '''Ia2motor'''
+        self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 1.5, name=('Ia_aff_E', 'mns_E'))
+        self.connectcells(self.RG_E, self.mns_E, 2.75, 3, name=('RG_E', 'mns_E'))
+        self.connectcells(self.mns_E, self.R_E, 0.015, 1, name=('mns_E', 'R_E'))
+        self.connectcells(self.R_E, self.mns_E, 0.015, 1, inhtype=True, name=('R_E', 'mns_E'))
+        self.connectcells(self.R_E, self.Ia_E, 0.001, 1, inhtype=True, name=('R_E', 'Ia_E'))
+        self.connectcells(self.Ia_aff_E, self.Ia_E, 0.008, 1, name=('Ia_aff_E', 'Ia_E'))
+        self.connectcells(self.mns_E, self.muscle_E, 15.5, 2, N=45, name=('mns_E', 'muscle_E'))
+
+
+
+        self.connectcells(self.Ia_aff_F, self.mns_F, 0.5, 1.5, name=('Ia_aff_F', 'mns_F'))
+        self.connectcells(self.R_F, self.Ia_F, 0.001, 1, inhtype=True, name=('R_F', 'Ia_F'))
+        self.connectcells(self.R_F, self.mns_F, 0.00015, 1, inhtype=True, name=('R_F', 'mns_F'))
+        self.connectcells(self.mns_F, self.R_F, 0.00015, 1, name=('mns_F', 'R_F'))
+        self.connectcells(self.RG_F, self.mns_F, 2.75, 3, name=('RG_F', 'mns_F'))
+        self.connectcells(self.Ia_aff_F, self.Ia_F, 0.008, 1, name=('Ia_aff_F', 'Ia_F'))
+        self.connectcells(self.mns_F, self.muscle_F, 15.5, 2, N=45, name=('mns_F', 'muscle_F'))
+
+        self.spike_rec = self.spike_record()
 
     def addpool(self, num, neurontype="int"):
         cells = []
@@ -114,24 +125,8 @@ class CPG:
 
         return cells
 
-    def generator(self, cells, weight=1.0):
-        netstim = h.NetStim()
-        netstim.number = 30  # Количество генерируемых спайков
-        netstim.start = 0  # Время начала генерации спайков
-        netstim.interval = 10
-
-        self.netstims.append(netstim)
-
-        nsyn = 1
-        for cell in cells:
-            for i in range(nsyn):
-                nc_es_stim = h.NetCon(netstim, cell.synlistees[i])
-                nc_es_stim.delay = self.delay
-                nc_es_stim.weight[0] = weight
-                self.netcons.append(nc_es_stim)
-
-    def connectcells(self, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, N=50, inhtype=False,
-                     stdptype=False):
+    def connectcells(self, pre_cells, post_cells, weight=1.0, delay=1, threshold=0, N=50, inhtype=False,
+                     stdptype=False, name=('int', 'int')):
         nsyn = 5
         ids = set()
         for post in post_cells:
@@ -150,7 +145,9 @@ class CPG:
                                   delay,
                                   weight,
                                   sec=pre_cells[id].soma)
-                    self.netcons.append(nc)
+                    self.net_connect.append(nc)
+
+                    e_syn = post.synlistexstdp[i].e
 
                     dummy = h.Section(name='i')  # Create a dummy section to put the point processes in
                     stdpmech = h.STDP(0, dummy)
@@ -177,7 +174,7 @@ class CPG:
                     time_t = h.Vector()
                     weight_changes.record(stdpmech._ref_synweight)
                     time_t.record(h._ref_t)
-                    self.weight_changes_vectors.append(weight_changes)
+                    self.weight_changes_vectors.append([name[0], name[1], weight_changes])
                     self.time_t_vectors.append(time_t)
                 else:
                     if inhtype:
@@ -187,7 +184,8 @@ class CPG:
                                       delay,
                                       weight,
                                       sec=pre_cells[id].soma)
-                        self.netcons.append(nc)
+                        self.net_connect.append(nc)
+                        e_syn = post.synlistinh[i].e
                     else:
                         nc = h.NetCon(pre_cells[id].soma(0.5)._ref_v,
                                       post.synlistex[i],
@@ -195,7 +193,35 @@ class CPG:
                                       delay,
                                       weight,
                                       sec=pre_cells[id].soma)
-                        self.netcons.append(nc)
+                        self.net_connect.append(nc)
+                        e_syn = post.synlistex[i].e
+
+                volt = h.Vector()
+                volt.record(post.soma(0.5)._ref_v)
+                ina = h.Vector()
+                ina.record(post.soma(0.5)._ref_ina)
+                ik = h.Vector()
+                ik.record(post.soma(0.5)._ref_ik)
+                il = h.Vector()
+                type_post_nrn = name[1].split('_')[0]
+                if type_post_nrn == 'R' or type_post_nrn == 'RG' or type_post_nrn == 'muscle':
+                    il.record(post.soma(0.5)._ref_il_fastchannels)
+                elif type_post_nrn == 'mns':
+                    il.record(post.soma(0.5)._ref_il_motoneuron)
+                elif type_post_nrn == 'Ia':
+                    il.record(post.soma(0.5)._ref_il_hh)
+                # ica = h.Vector()
+                # ica.record(post.soma(0.5)._ref_ica)
+
+                self.calc_spike.append([name[0], name[1], weight, e_syn, volt, ina, ik, il])
+
+    def spike_record(self):
+
+        spike_times = [h.Vector() for nc in self.net_connect]
+        for nc, spike_times_vec in zip(self.net_connect, spike_times):
+            nc.record(spike_times_vec)
+
+        return spike_times
 
     def motodiams(self, number):
         nrn_number = number
@@ -275,9 +301,47 @@ def draw(weight_changes, time_t):
         figur.line(time_array, weight_changes_array, line_width=2)
         show(figur)
 
+    with hdf5.File('./res_weight/time.hdf5', 'w') as file:
+        file.create_dataset('#0_step', data=np.array(time_t[0].as_numpy), compression="gzip")
+
+    for i, weight in enumerate(weight_changes):
+        with hdf5.File(f'./res_weight/weight_{weight[0]}_{weight[1]}_{i}.hdf5', 'w') as file:
+            file.create_dataset('#0_step', data=np.array(weight[2].as_numpy), compression="gzip")
+
+
+def write_calc_spike(calc_spike, spike_rec, time):
+    columns = ['pre', 'target', 'weight', 'e_syn', 'voltage', 'ina', 'ik', 'il', 'spike_times', 'time']
+
+    filename = 'res_calc_spike/res/data.csv'
+
+    with hdf5.File('./res_calc_spike/res/time.hdf5', 'w') as file:
+        file.create_dataset('#0_step', data=np.array(time[0].as_numpy), compression="gzip")
+
+    with open(filename, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(columns)
+
+        for row, spike_times in zip(calc_spike, spike_rec):
+            i = calc_spike.index(row)
+            spikes = list(spike_times)
+            if len(spikes) > 0:
+                with hdf5.File('./res_calc_spike/res/{}_{}_{}_voltage.hdf5'.format(row[0], row[1], i), 'w') as file:
+                    file.create_dataset('#0_step_{}'.format(i), data=np.array(row[4].as_numpy), compression="gzip")
+                with hdf5.File('./res_calc_spike/res/{}_{}_{}_ina.hdf5'.format(row[0], row[1], i), 'w') as file:
+                    file.create_dataset('#0_step_{}'.format(i), data=np.array(row[5].as_numpy), compression="gzip")
+                with hdf5.File('./res_calc_spike/res/{}_{}_{}_ik.hdf5'.format(row[0], row[1], i), 'w') as file:
+                    file.create_dataset('#0_step_{}'.format(i), data=np.array(row[6].as_numpy), compression="gzip")
+                with hdf5.File('./res_calc_spike/res/{}_{}_{}_il.hdf5'.format(row[0], row[1], i), 'w') as file:
+                    file.create_dataset('#0_step_{}'.format(i), data=np.array(row[7].as_numpy), compression="gzip")
+                with hdf5.File('./res_calc_spike/res/{}_{}_{}_ica.hdf5'.format(row[0], row[1], i), 'w') as file:
+                    file.create_dataset('#0_step_{}'.format(i), data=np.array(row[8].as_numpy), compression="gzip")
+                row.append(spikes)
+                row.append(i)
+                writer.writerow(row)
+
 
 if __name__ == '__main__':
-    h.dt = 0.1
+    h.dt = 0.01
     h.tstop = 50
     cpg = CPG()
 
@@ -285,5 +349,8 @@ if __name__ == '__main__':
 
     w = cpg.weight_changes_vectors
     t = cpg.time_t_vectors
+    calc_spike = cpg.calc_spike
+    spike_rec = cpg.spike_rec
 
-    draw(w, t)
+    # draw(w, t)
+    write_calc_spike(calc_spike, spike_rec, t)
