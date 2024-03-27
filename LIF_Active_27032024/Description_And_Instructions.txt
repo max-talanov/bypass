@@ -1,0 +1,12 @@
+Circuit description:
+
+This circuit goal is to try and mimic as best biological neural spike and functioning.
+Now capacitor is responsible for membrane potential and membrane potential behaves as in biological cell meaning that it increases rapidly
+after it reaches treshold value. Also output is scaled to match shape and voltage levels of bilogical neural spikes. 
+Relative refractory period behaves as in real cell (it can be shortend by incoming spikes). During absolute refractory period "cell" is "locked". 
+
+
+Simulation how to:
+
+In order for simulation to work AnalogMux subcircuit must be imported (there are analog multiplexer chips on market).
+V4 voltage generator simulates incoming presynaptic spikes, for one output spike set Ton = 0.5ms for more output spikes set to 1.5ms, this is just to test and see how LIF neuron will behave when there are constantly presynaptic neuron firings charging membrane potential above treshold (to see how refractory periods influence neuron behaviour).
