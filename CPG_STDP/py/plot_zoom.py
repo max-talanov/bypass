@@ -11,8 +11,8 @@ bokeh.sampledata.download()
 
 from bokeh.plotting import figure, output_file, show
 
-sys.path.append('last_r/')
-my_path = os.path.abspath('last_r/')
+sys.path.append('last_res/')
+my_path = os.path.abspath('last_res/')
 
 themes = 'light_minimal'
 
@@ -46,7 +46,7 @@ def read():
 def draw(volt_data, data_time):
 
     for v in volt_data:
-        figur = figure(x_axis_label='time (ms)', y_axis_label='weight')
+        figur = figure(x_axis_label='time (ms)', y_axis_label='V (mV)')
         output_file(my_path + '/results/' + v[0] + '.html')
         figur.line(data_time[:len(v[1])], v[1], line_width=2)
         show(figur)

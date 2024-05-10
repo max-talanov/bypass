@@ -133,9 +133,6 @@ class interneuron(object):
 
         self.axon.Ra = 50
         self.axon.insert('hh')
-        self.ina_vec = h.Vector().record(self.soma(0.5)._ref_ina)
-        self.ik_vec = h.Vector().record(self.soma(0.5)._ref_ik)
-        self.il_vec = h.Vector().record(self.soma(0.5)._ref_il_fastchannels)
 
     def add_5HTreceptors(self, compartment, time, g):
         '''
@@ -170,8 +167,8 @@ class interneuron(object):
         self.soma.push()
         for i in range(h.n3d()):
             h.pt3dchange(i, x - self.x + h.x3d(i), y - self.y + h.y3d(i), z - self.z + h.z3d(i), h.diam3d(i))
-        self.x = x;
-        self.y = y;
+        self.x = x
+        self.y = y
         self.z = z
         h.pop_section()
 
@@ -200,46 +197,47 @@ class interneuron(object):
             for i in range(50):
                 '''Somatic'''
                 s = h.ExpSyn(self.soma(0.8))  # Excitatory
-                s.tau = 0.5
+                s.tau = 0.3
                 s.e = 0
                 self.synlistex.append(s)
                 s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
-                s.tau1 = 1.2
+                s.tau1 = 0.5
                 s.tau2 = 3.5
-                s.e = -80
+                s.e = -70
                 self.synlistinh.append(s)
                 '''Dendritic'''
                 s = h.ExpSyn(sec(0.5))  # Excitatory
-                s.tau = 0.5
+                s.tau = 0.3
                 s.e = 0
                 self.synlistex.append(s)
                 s = h.Exp2Syn(sec(0.5))  # Inhibitory
-                s.tau1 = 1.2
-                s.tau2 = 2.5
-                s.e = -80
+                s.tau1 = 0.5
+                s.tau2 = 3.5
+                s.e = -70
                 self.synlistinh.append(s)
 
                 '''STDP'''
                 '''Somatic'''
                 s = h.ExpSyn(self.soma(0.5))  # Excitatory
-                s.tau = 0.5
+                s.tau = 0.3
                 s.e = 0
                 self.synlistexstdp.append(s)
                 s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
-                s.tau1 = 1.2
+                s.tau1 = 0.5
                 s.tau2 = 3.5
-                s.e = -80
+                s.e = -70
                 self.synlistinhstdp.append(s)
                 '''Dendritic'''
                 s = h.ExpSyn(sec(0.5))  # Excitatory
-                s.tau = 0.5
+                s.tau = 0.3
                 s.e = 0
                 self.synlistexstdp.append(s)
-                s = h.Exp2Syn(sec(0.5))  # Inhibitory
-                s.tau1 = 1.2
-                s.tau2 = 2.5
-                s.e = -80
+                s = h.Exp2Syn(sec(0.8))  # Inhibitory
+                s.tau1 = 0.5
+                s.tau2 = 3.5
+                s.e = -70
                 self.synlistinhstdp.append(s)
 
-    def is_art(self):
-        return 0
+
+def is_art(self):
+    return 0

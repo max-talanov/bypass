@@ -22,7 +22,7 @@ class bioaffrat(object):
 
     def __init__(self):
         # create axon
-        # self.make_axon(random.randint(5, 10))
+        self.make_axon(random.randint(5, 10))
         self.topol()
         self.subsets()
         self.geom()
@@ -41,9 +41,9 @@ class bioaffrat(object):
         Creates sections soma, dend, axon and connects them
         '''
         self.soma = h.Section(name='soma', cell=self)
-        self.axon = h.Section(name='axon', cell=self)
-        # self.node[0].connect(self.soma(1))
-        self.axon.connect(self.soma(1))
+        # self.axon = h.Section(name='axon', cell=self)
+        self.node[0].connect(self.soma(1))
+        # self.axon.connect(self.soma(1))
 
         # self.basic_shape()
 
@@ -61,8 +61,8 @@ class bioaffrat(object):
         Adds length and diameter to sections
         '''
         self.soma.L = self.soma.diam = random.uniform(15, 35)  # microns
-        self.axon.L = 150  # microns
-        self.axon.diam = 1  # microns
+        # self.axon.L = 150  # microns
+        # self.axon.diam = 1  # microns
         h.define_shape()
 
     def biophys(self):
@@ -78,11 +78,8 @@ class bioaffrat(object):
         self.soma.cm = 2
         self.soma.insert('extracellular')
 
-        self.axon.Ra = 50
-        self.axon.insert('hh')
-
-        self.ina_vec = h.Vector().record(self.soma(0.5)._ref_ina)
-        self.ik_vec = h.Vector().record(self.soma(0.5)._ref_ik)
+        # self.axon.Ra = 50
+        # self.axon.insert('hh')
 
     def connect2target(self, target):
         '''
@@ -97,23 +94,23 @@ class bioaffrat(object):
         nc: NEURON NetCon
             connection between neurons
         '''
-        # nc = h.NetCon(self.node[len(self.node)-1](0.5)._ref_v, target, sec=self.node[len(self.node)-1])
-        # nc.threshold = 10
-        # return nc
-
-        nc = h.NetCon(self.axon(1)._ref_v, target, sec=self.axon)
-        nc.threshold = 10
+        nc = h.NetCon(self.node[len(self.node) - 1](0.5)._ref_v, target, sec=self.node[len(self.node) - 1])
+        nc.threshold = -10
         return nc
+
+        # nc = h.NetCon(self.axon(1)._ref_v, target, sec=self.axon)
+        # nc.threshold = -10
+        # return nc
 
     def synapses(self):
         # for sec in self.axonL.node:
         for i in range(2):
             for j in range(50):
-                # s = h.Exp2Syn(self.node[len(self.node)-i-1](0.5)) # Excitatory
-                s = h.Exp2Syn(self.soma(0.8))
-                s.tau1 = 1.5
+                s = h.Exp2Syn(self.node[len(self.node) - i - 1](0.5))  # Inhibitory
+                # s = h.Exp2Syn(self.soma(0.8))
+                s.tau1 = 0.5
                 s.tau2 = 3.5
-                s.e = -80
+                s.e = -70
                 self.synlistinh.append(s)
         for i in range(200):
             s = h.ExpSyn(self.soma(0.5))  # Excitatory

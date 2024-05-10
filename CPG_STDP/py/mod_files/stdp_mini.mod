@@ -1,3 +1,39 @@
+COMMENT
+
+STDP + RL weight adjuster mechanism
+
+Original STDP code adapted from:
+http://senselab.med.yale.edu/modeldb/showmodel.asp?model=64261&file=\bfstdp\stdwa_songabbott.mod
+
+Adapted to implement a "nearest-neighbor spike-interaction" model (see
+Scholarpedia article on STDP) that just looks at the last-seen pre- and
+post-synaptic spikes, and implementing a reinforcement learning algorithm based
+on (Chadderdon et al., 2012):
+http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0047251
+
+Example Python usage:
+
+from neuron import h
+
+## Create cells
+dummy = h.Section() # Create a dummy section to put the point processes in
+ncells = 2
+cells = []
+for c in range(ncells): cells.append(h.IntFire4(0,sec=dummy)) # Create the cells
+
+## Create synapses
+threshold = 10 # Set voltage threshold
+delay = 1 # Set connection delay
+singlesyn = h.NetCon(cells[0],cells[1], threshold, delay, 0.5) # Create a connection between the cells
+stdpmech = h.STDP(0,sec=dummy) # Create the STDP mechanism
+presyn = h.NetCon(cells[0],stdpmech, threshold, delay, 1) # Feed presynaptic spikes to the STDP mechanism -- must have weight >0
+pstsyn = h.NetCon(cells[1],stdpmech, threshold, delay, -1) # Feed postsynaptic spikes to the STDP mechanism -- must have weight <0
+h.setpointer(singlesyn._ref_weight[0],'synweight',stdpmech) # Point the STDP mechanism to the connection weight
+
+Version: 2013oct24 by cliffk
+
+ENDCOMMENT
+
 NEURON {
     POINT_PROCESS STDP_mini : Definition of mechanism
     POINTER synweight : Pointer to the weight (in a NetCon object) to be adjusted.
@@ -41,10 +77,10 @@ ASSIGNED {
 }
 
 INITIAL {
-    tlastpre = 0            : no spike yet
-    tlastpost = 0           : no spike yet
-    tlasthebbelig = 0      : no eligibility yet
-    tlastantielig = 0  : no eligibility yet
+    tlastpre = -1            : no spike yet
+    tlastpost = -1           : no spike yet
+    tlasthebbelig = -1      : no eligibility yet
+    tlastantielig = -1  : no eligibility yet
     interval = 0
     deltaw = 0
     newweight = 0

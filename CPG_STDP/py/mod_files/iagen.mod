@@ -50,7 +50,7 @@ INITIAL {
 	if (start >= 0 && number > 0) {
 		: randomize the first spike so on average it occurs at start+interval
 	
-	    printf("initial inv \n")
+	    : printf("initial inv \n")
 		event = start + invl(t)
 		net_send(event, 3)
 	}
@@ -69,7 +69,7 @@ FUNCTION invl(t (ms)) (ms) {
 	:len2 is the length increase of the antagonist muscle
 	
  if (fhill > fhill0){
-    printf("INC \n")
+    :printf("INC \n")
     : vel = v0 + 0.005*fhill*(t-t0) + 0.00015*fhill*(t-t0)*(t-t0) 
     vel = v0 + 0.02*fhill*(t-t0) + 0.0004*fhill*(t-t0)*(t-t0)
     if (vel < 0){vel = 1}
@@ -79,12 +79,12 @@ FUNCTION invl(t (ms)) (ms) {
 	: vel = v0 - 0.005*fhill*(t-t0) - 0.00015*fhill*(t-t0)*(t-t0)
     if (vel < 0){vel = 1}
   }
-  printf("t: %g, t0: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g, vel: %g, ", t, t0 , len2, fhill2, fhill0, fhill, vel)
+  :printf("t: %g, t0: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g, vel: %g, ", t, t0 , len2, fhill2, fhill0, fhill, vel)
   :printf("IaGenerator v0: %g, vel: %g \n", v0, vel)
   v0 = vel
   fhill0 = fhill
   mean = 1000/vel
-  printf("v0: %g, mean: %g \n", v0, mean)
+  :printf("v0: %g, mean: %g \n", v0, mean)
   t0 = t
 	if (noise == 0) {
 		invl = mean
@@ -95,7 +95,7 @@ FUNCTION invl(t (ms)) (ms) {
 
 PROCEDURE event_time(t (ms)) {
 	if (number > 0) {
-	    printf("event_time inv \n")
+	    :printf("event_time inv \n")
 		event = event + invl(t)
 	}
 	if (event > end) {
@@ -121,7 +121,7 @@ NET_RECEIVE (w) {
 	if (flag == 1 && on == 1) {
 		y = 2
 		net_event(t)
-	    printf("net_receive event_time(t) \n")
+	    :printf("net_receive event_time(t) \n")
 		event_time(t)
 		if (on == 1) {
 			net_send(event - t, 1)

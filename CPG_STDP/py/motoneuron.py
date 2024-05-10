@@ -112,9 +112,6 @@ class motoneuron(object):
             self.soma.gl_motoneuron = 0.005
             self.soma.gkrect_motoneuron = 0.2
             self.soma.gcak_motoneuron = 0.2
-
-        self.ina_vec = h.Vector().record(self.soma(0.5)._ref_ina)
-        self.ik_vec = h.Vector().record(self.soma(0.5)._ref_ik)
         '''
         self.soma.insert('pas')
         self.soma.g_pas = 0.002
@@ -141,7 +138,7 @@ class motoneuron(object):
         NEURON staff
         Adds 3D position
         '''
-        self.soma.push()
+        soma.push()
         for i in range(h.n3d()):
             h.pt3dchange(i, x - self.x + h.x3d(i), y - self.y + h.y3d(i), z - self.z + h.z3d(i), h.diam3d(i))
         self.x = x
@@ -163,7 +160,7 @@ class motoneuron(object):
             connection between neurons
         '''
         nc = h.NetCon(self.node[len(self.node) - 1](0.5)._ref_v, target, sec=self.node[len(self.node) - 1])
-        nc.threshold = 10
+        nc.threshold = -10
         return nc
 
     def synapses(self):
@@ -172,13 +169,13 @@ class motoneuron(object):
         '''
         for i in range(200):
             s = h.ExpSyn(self.soma(0.5))  # Excitatory
-            s.tau = 0.5
+            s.tau = 0.3
             s.e = 0
             self.synlistex.append(s)
             s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
             s.tau1 = 1
-            s.tau2 = 1.5
-            s.e = -80
+            s.tau2 = 3.5
+            s.e = -70
             self.synlistinh.append(s)
 
     def is_art(self):

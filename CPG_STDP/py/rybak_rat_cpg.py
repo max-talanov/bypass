@@ -425,7 +425,7 @@ class CPG:
 
         return gid
 
-    def connectcells(self, pre, post, weight, delay=1, inhtype=False, N=50, stdptype=False, threshold=10):
+    def connectcells(self, pre, post, weight, delay=1, inhtype=False, N=50, stdptype=False, threshold=10, ):
         ''' Connects with excitatory synapses
           Parameters
           ----------
