@@ -2,6 +2,7 @@ import random
 import numpy as np
 import logging
 import h5py as hdf5
+import os
 
 from neuron import h
 from bioaffrat import bioaffrat
@@ -600,6 +601,8 @@ if __name__ == '__main__':
     '''
     k_nrns = 0
     k_name = 1
+    if not os.path.isdir('alina_res'):
+        os.mkdir('alina_res')
 
     for i in range(versions):
         cpg_ex = CPG(speed, bs_fr, 100, step_number, N)
