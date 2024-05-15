@@ -27,6 +27,8 @@ pc = h.ParallelContext()
 rank = int(pc.id())
 nhost = int(pc.nhost())
 
+file_name = 'res_alina'
+
 N = 50
 speed = 50
 bs_fr = 100  # 40 # frequency of brainstem inputs
@@ -542,7 +544,7 @@ def spikeout(pool, name, version, v_vec):
     if rank == 0:
         logging.info("start recording")
         result = np.mean(np.array(result), axis=0, dtype=np.float32)
-        with hdf5.File('./res_alina/{}_sp_{}_CVs_{}_bs_{}.hdf5'.format(name, speed, CV_number, bs_fr), 'w') as file:
+        with hdf5.File(f'./{file_name}/{name}_sp_{speed}_CVs_{CV_number}_bs_{bs_fr}.hdf5', 'w') as file:
             for i in range(step_number):
                 sl = slice((int(1000 / bs_fr) * 40 + i * one_step_time * 40),
                            (int(1000 / bs_fr) * 40 + (i + 1) * one_step_time * 40))
@@ -601,8 +603,8 @@ if __name__ == '__main__':
     '''
     k_nrns = 0
     k_name = 1
-    if not os.path.isdir('alina_res'):
-        os.mkdir('alina_res')
+    if not os.path.isdir(file_name):
+        os.mkdir(file_name)
 
     for i in range(versions):
         cpg_ex = CPG(speed, bs_fr, 100, step_number, N)
@@ -634,7 +636,7 @@ if __name__ == '__main__':
 
         logging.info("simulation done")
 
-        with open('./res_alina/time.txt', 'w') as time_file:
+        with open(f'./{file_name}/time.txt', 'w') as time_file:
             for time in t:
                 time_file.write(str(time) + "\n")
 
