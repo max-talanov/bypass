@@ -27,7 +27,7 @@ pc = h.ParallelContext()
 rank = int(pc.id())
 nhost = int(pc.nhost())
 
-file_name = 'res_alina_2'
+file_name = 'res_alina'
 
 N = 50
 speed = 50
