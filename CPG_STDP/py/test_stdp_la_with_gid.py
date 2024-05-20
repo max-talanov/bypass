@@ -83,8 +83,8 @@ class CPG:
         self.weight_changes_vectors = []
         self.time_t_vectors = []
 
-        # self.C_1 = []
-        # self.C_0 = []
+        self.C_1 = []
+        self.C_0 = []
         # self.V0v = []
 
         for layer in range(CV_number):
@@ -113,8 +113,8 @@ class CPG:
         '''sensory and muscle afferents and brainstem and V3F'''
         self.Ia_aff_E = self.addpool(self.nAff, "Ia_aff_E", "aff")
         self.Ia_aff_F = self.addpool(self.nAff, "Ia_aff_F", "aff")
-        # self.BS_aff_E = self.addpool(self.nAff, "BS_aff_E", "aff")
-        # self.BS_aff_F = self.addpool(self.nAff, "BS_aff_F", "aff")
+        self.BS_aff_E = self.addpool(self.nAff, "BS_aff_E", "aff")
+        self.BS_aff_F = self.addpool(self.nAff, "BS_aff_F", "aff")
         # self.V3F = self.addpool(self.nAff, "V3F", "int")
 
         '''moto neuron pools'''
@@ -133,7 +133,7 @@ class CPG:
 
         '''BS'''
         # periodic stimulation
-        # self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 10)
+        self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 10)
 
         '''muscle afferents generators'''
         self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_E, 10, weight=20)
@@ -152,31 +152,32 @@ class CPG:
             self.dict_C[layer] = []
             for i in range(step_number):
                 '''25 + 50*(0-6) + (0-10)*(50*6 + 12), '''
-                self.dict_C[layer].append(self.addgener(25 + speed * layer + i * (speed * CV_number + CV_0_len + one_step_time),
-                                                        int(random.gauss(cfr, cfr / 10)), (speed / c_int + 1)))
+                self.dict_C[layer].append(
+                    self.addgener(25 + speed * layer + i * (speed * CV_number + CV_0_len + one_step_time),
+                                  int(random.gauss(cfr, cfr / 10)), (speed / c_int + 1)))
 
         '''Generators'''
         '''TODO: need it?'''
-        # for i in range(step_number):
-        #     self.C_0.append(
-        #         self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, int(CV_0_len / c_int), False))
+        for i in range(step_number):
+            self.C_0.append(
+                self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, int(CV_0_len / c_int), False))
 
         '''TODO: need it?'''
-        # for layer in range(CV_number):
-        #     self.C_1.append(self.dict_CV_1[layer])
-        # self.C_1 = sum(self.C_1, [])
+        for layer in range(CV_number):
+            self.C_1.append(self.dict_CV_1[layer])
+        self.C_1 = sum(self.C_1, [])
 
         ''' BS '''
-        # for E_bs_gid in self.E_bs_gids:
-        #     self.genconnect(E_bs_gid, self.BS_aff_E, 3.5, 3)
-        #
-        # for F_bs_gid in self.F_bs_gids:
-        #     self.genconnect(F_bs_gid, self.BS_aff_F, 3.5, 3)
+        for E_bs_gid in self.E_bs_gids:
+            self.genconnect(E_bs_gid, self.BS_aff_E, 3.5, 3)
+
+        for F_bs_gid in self.F_bs_gids:
+            self.genconnect(F_bs_gid, self.BS_aff_F, 3.5, 3)
 
         # self.connectcells(self.BS_aff_F, self.V3F, 1.5, 3)
         '''STDP synapse'''
-        # self.connectcells(self.BS_aff_F, self.RG_F, 0.1, 3, stdptype=True)
-        # self.connectcells(self.BS_aff_E, self.RG_E, 0.1, 3, stdptype=True)
+        self.connectcells(self.BS_aff_F, self.RG_F, 0.1, 3, stdptype=False)
+        self.connectcells(self.BS_aff_E, self.RG_E, 0.1, 3, stdptype=False)
         '''cutaneous inputs'''
         for layer in range(CV_number):
             self.connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15 * k * speed, 2)
@@ -454,7 +455,7 @@ class CPG:
         F_bs_gids = []
         for step in range(step_number):
             F_bs_gids.append(self.addgener(int(one_step_time * (step + 0.5)), freq, spikes_per_step, False))
-            E_bs_gids.append(self.addgener(int(one_step_time * step)+10, freq, spikes_per_step, False))
+            E_bs_gids.append(self.addgener(int(one_step_time * step) + 10, freq, spikes_per_step, False))
         return E_bs_gids, F_bs_gids
 
 
