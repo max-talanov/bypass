@@ -137,11 +137,11 @@ class CPG:
 
         '''muscle afferents generators'''
         self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_E, 10, weight=20)
-        self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_F, speed * 6, weight=20)
+        self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_F, one_step_time, weight=20)
 
         '''Create connectcells'''
-        self.genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 25)
-        self.genconnect(self.Iagener_F, self.Ia_aff_F, 0.5, 1, False, 30)
+        self.genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 50)
+        self.genconnect(self.Iagener_F, self.Ia_aff_F, 0.5, 1, False, 60)
 
         '''cutaneous inputs'''
         cfr = 200
@@ -212,8 +212,8 @@ class CPG:
         self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
         self.connectcells(self.InF, self.RG_E, 0.8, 1, inhtype=True)
 
-        self.connectcells(self.Ia_aff_E, self.Ia_E, 0.008, 1)
-        self.connectcells(self.Ia_aff_F, self.Ia_F, 0.008, 1)
+        self.connectcells(self.Ia_aff_E, self.Ia_E, 0.08, 1)
+        self.connectcells(self.Ia_aff_F, self.Ia_F, 0.08, 1)
 
         self.connectcells(self.mns_E, self.R_E, 0.00015, 1)
         self.connectcells(self.mns_F, self.R_F, 0.00015, 1)
@@ -443,6 +443,7 @@ class CPG:
                     else:
                         syn = target.synlistees[j]
                     nc = pc.gid_connect(gen_gid, syn)
+                    nc.threshold = self.threshold
                     nc.delay = random.gauss(delay, delay / 5)
                     nc.weight[0] = random.gauss(weight, weight / 6)
                     self.stimnclist.append(nc)
@@ -457,6 +458,7 @@ class CPG:
             F_bs_gids.append(self.addgener(int(one_step_time * (step + 0.5)), freq, spikes_per_step, False))
             E_bs_gids.append(self.addgener(int(one_step_time * step) + 10, freq, spikes_per_step, False))
         return E_bs_gids, F_bs_gids
+
 
 
 # def draw(weight_changes, time_t):

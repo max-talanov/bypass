@@ -8,11 +8,11 @@ NEURON	{
 
 PARAMETER {
 	number	= 10 <0,1e9>	: number of spikes
-	start		= 50 (ms)	: start of first spike
-	noise		= 0 <0,1>	: amount of randomeaness (0.0 - 1.0)
+	start	= 50 (ms)	: start of first spike
+	noise	= 0 <0,1>	: amount of randomeaness (0.0 - 1.0)
 	freq
-  mean = 1
-	interval	= 10 (ms) <1e-9,1e9>: time between spikes (msec)
+    mean = 1
+	interval = 10 (ms) <1e-9,1e9>: time between spikes (msec)
 }
 
 ASSIGNED {
@@ -49,7 +49,7 @@ INITIAL {
 	}
 	if (start >= 0 && number > 0) {
 		: randomize the first spike so on average it occurs at start+interval
-	
+
 	    : printf("initial inv \n")
 		event = start + invl(t)
 		net_send(event, 3)
@@ -67,10 +67,10 @@ PROCEDURE init_sequence(t(ms)) {
 FUNCTION invl(t (ms)) (ms) {
 	:interspike interval
 	:len2 is the length increase of the antagonist muscle
-	
+
  if (fhill > fhill0){
     :printf("INC \n")
-    : vel = v0 + 0.005*fhill*(t-t0) + 0.00015*fhill*(t-t0)*(t-t0) 
+    : vel = v0 + 0.005*fhill*(t-t0) + 0.00015*fhill*(t-t0)*(t-t0)
     vel = v0 + 0.02*fhill*(t-t0) + 0.0004*fhill*(t-t0)*(t-t0)
     if (vel < 0){vel = 1}
   }else{
@@ -79,7 +79,7 @@ FUNCTION invl(t (ms)) (ms) {
 	: vel = v0 - 0.005*fhill*(t-t0) - 0.00015*fhill*(t-t0)*(t-t0)
     if (vel < 0){vel = 1}
   }
-  :printf("t: %g, t0: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g, vel: %g, ", t, t0 , len2, fhill2, fhill0, fhill, vel)
+  printf("t: %g, t0: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g, vel: %g, ", t, t0 , len2, fhill2, fhill0, fhill, vel)
   :printf("IaGenerator v0: %g, vel: %g \n", v0, vel)
   v0 = vel
   fhill0 = fhill

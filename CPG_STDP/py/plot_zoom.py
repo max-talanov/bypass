@@ -1,4 +1,5 @@
 import fnmatch
+import itertools
 import os
 
 import sys
@@ -6,6 +7,7 @@ import sys
 import bokeh
 
 import h5py
+import numpy as np
 
 bokeh.sampledata.download()
 
@@ -21,7 +23,7 @@ def read():
     volt_data = []
     data_time = []
 
-    for file in fnmatch.filter(os.listdir(my_path), '*.hdf5'):
+    for file in fnmatch.filter(os.listdir(my_path), 'muscle*.hdf5'):
         with h5py.File(my_path+f'\\{file}') as f:
             name = f.filename.split('\\')[-1]
             if name == 'time.hdf5':
@@ -29,9 +31,9 @@ def read():
                 data_y = list(f[time_group])
                 data_time.append(data_y)
             else:
-                vol_group = list(f.keys())[0]
-                data_y = list(f[vol_group])
-                volt_data.append((name, data_y))
+                vol_group = [list(val) for val in f.values()]
+                flat_list = list(itertools.chain.from_iterable(vol_group))
+                volt_data.append((name, flat_list))
 
 
     #
