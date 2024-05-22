@@ -30,7 +30,7 @@ nhost = int(pc.nhost())
 file_name = 'res_alina'
 
 N = 50
-speed = 50
+speed = 100
 bs_fr = 100  # 40 # frequency of brainstem inputs
 versions = 1
 CV_number = 6
@@ -158,9 +158,9 @@ class CPG:
 
         '''Generators'''
         '''TODO: need it?'''
-        for i in range(step_number):
-            self.C_0.append(
-                self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, int(CV_0_len / c_int), False))
+        # for i in range(step_number):
+        #     self.C_0.append(
+        #         self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, int(CV_0_len / c_int), False))
 
         '''TODO: need it?'''
         for layer in range(CV_number):
@@ -455,10 +455,9 @@ class CPG:
         E_bs_gids = []
         F_bs_gids = []
         for step in range(step_number):
-            F_bs_gids.append(self.addgener(int(one_step_time * (step + 0.5)), freq, spikes_per_step, False))
-            E_bs_gids.append(self.addgener(int(one_step_time * step) + 10, freq, spikes_per_step, False))
+            F_bs_gids.append(self.addgener(int(one_step_time * (2 * step + 1)), freq, spikes_per_step, False))
+            E_bs_gids.append(self.addgener(int(one_step_time * 2 * step) + 10, freq, spikes_per_step, False))
         return E_bs_gids, F_bs_gids
-
 
 
 # def draw(weight_changes, time_t):
