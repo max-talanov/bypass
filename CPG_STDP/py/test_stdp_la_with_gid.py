@@ -29,7 +29,7 @@ nhost = int(pc.nhost())
 
 file_name = 'res_alina'
 
-N = 50
+N = 25
 speed = 100
 bs_fr = 100  # 40 # frequency of brainstem inputs
 versions = 1
@@ -38,10 +38,10 @@ k = 0.017  # CV weights multiplier to take into account air and toe stepping
 CV_0_len = 12  # 125 # Duration of the CV generator with no sensory inputs
 extra_layers = 0  # 1 + layers
 
-step_number = 10
+step_number = 5
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
-time_sim = 1000 + one_step_time * step_number
+time_sim = 300 + one_step_time * step_number
 
 '''
 network topology https://github.com/max-talanov/bypass/blob/main/figs/CPG_feedback_loops.png
@@ -65,6 +65,7 @@ class CPG:
         self.intgroups = []
         self.motogroups = []
         self.musclegroups = []
+        self.gener_gids = []
         self.n_gid = 0
 
         self.RG_E = []  # Rhythm generators of extensors
@@ -140,8 +141,8 @@ class CPG:
         self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_F, one_step_time, weight=20)
 
         '''Create connectcells'''
-        self.genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 50)
-        self.genconnect(self.Iagener_F, self.Ia_aff_F, 0.5, 1, False, 60)
+        self.genconnect(self.Iagener_E, self.Ia_aff_E, 3.5, 1, False, 50)
+        self.genconnect(self.Iagener_F, self.Ia_aff_F, 3.5, 1, False, 60)
 
         '''cutaneous inputs'''
         cfr = 200
@@ -183,6 +184,13 @@ class CPG:
             self.connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15 * k * speed, 2)
             self.connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
 
+        self.connectcells(self.Ia_aff_E, self.RG_E, weight=1.3, stdptype=True)
+        self.connectcells(self.Ia_aff_F, self.RG_F, weight=1.3, stdptype=True)
+
+        '''Ia2motor'''
+        self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 2)
+        self.connectcells(self.Ia_aff_F, self.mns_F, 1.55, 2)
+
         for layer in range(CV_number):
             '''Internal to RG topology'''
             self.connectinsidenucleus(self.dict_RG_F[layer])
@@ -197,12 +205,7 @@ class CPG:
 
             # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
 
-        self.connectcells(self.Ia_aff_E, self.RG_E, weight=1.3, stdptype=True)
-        self.connectcells(self.Ia_aff_F, self.RG_F, weight=1.3, stdptype=True)
 
-        '''Ia2motor'''
-        self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 1.5)
-        self.connectcells(self.Ia_aff_F, self.mns_F, 1.55, 1.5)
 
         '''motor2muscles'''
         self.connectcells(self.mns_E, self.muscle_E, 15.5, 2, inhtype=False, N=45)
@@ -344,6 +347,22 @@ class CPG:
                         nc.delay = random.gauss(delay, delay / 5)
                         self.netcons.append(nc)
 
+    def genconnect(self, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50):
+        nsyn = random.randint(N - 5, N)
+        for i in afferents_gids:
+            if pc.gid_exists(i):
+                for j in range(nsyn):
+                    target = pc.gid2cell(i)
+                    if inhtype:
+                        syn = target.synlistinh[j]
+                    else:
+                        syn = target.synlistees[j]
+                    nc = pc.gid_connect(gen_gid, syn)
+                    nc.threshold = self.threshold
+                    nc.delay = random.gauss(delay, delay / 5)
+                    nc.weight[0] = random.gauss(weight, weight / 6)
+                    self.stimnclist.append(nc)
+
     def motodiams(self, number):
         nrn_number = number
         standby_percent = 70
@@ -394,6 +413,7 @@ class CPG:
         ncstim.weight[0] = weight
         pc.cell(gid, ncstim)
         self.netcons.append(ncstim)
+        self.gener_gids.append(gid)
         self.n_gid += 1
 
         return gid
@@ -428,25 +448,11 @@ class CPG:
         ncstim = h.NetCon(stim, None)
         self.netcons.append(ncstim)
         pc.cell(gid, ncstim)
+        self.gener_gids.append(gid)
         self.n_gid += 1
 
         return gid
 
-    def genconnect(self, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50):
-        nsyn = random.randint(N - 5, N)
-        for i in afferents_gids:
-            if pc.gid_exists(i):
-                for j in range(nsyn):
-                    target = pc.gid2cell(i)
-                    if inhtype:
-                        syn = target.synlistinh[j]
-                    else:
-                        syn = target.synlistees[j]
-                    nc = pc.gid_connect(gen_gid, syn)
-                    nc.threshold = self.threshold
-                    nc.delay = random.gauss(delay, delay / 5)
-                    nc.weight[0] = random.gauss(weight, weight / 6)
-                    self.stimnclist.append(nc)
 
     def connectinsidenucleus(self, nucleus):
         self.connectcells(nucleus, nucleus, 0.25, 0.5)
