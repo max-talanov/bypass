@@ -22,7 +22,7 @@ class bioaffrat(object):
 
     def __init__(self):
         # create axon
-        self.make_axon(random.randint(5, 10))
+        self.make_axon(random.randint(5, 11))
         self.topol()
         self.subsets()
         self.geom()
@@ -95,7 +95,7 @@ class bioaffrat(object):
             connection between neurons
         '''
         nc = h.NetCon(self.node[len(self.node) - 1](0.5)._ref_v, target, sec=self.node[len(self.node) - 1])
-        nc.threshold = -20
+        nc.threshold = 10
         return nc
 
         # nc = h.NetCon(self.axon(1)._ref_v, target, sec=self.axon)
@@ -108,12 +108,12 @@ class bioaffrat(object):
             for j in range(50):
                 s = h.Exp2Syn(self.node[len(self.node) - i - 1](0.5))  # Inhibitory
                 # s = h.Exp2Syn(self.soma(0.8))
-                s.tau1 = 0.5
+                s.tau1 = 1.5
                 s.tau2 = 3.5
                 s.e = -70
                 self.synlistinh.append(s)
         for i in range(200):
-            s = h.ExpSyn(self.soma(0.5))  # Excitatory
+            s = h.ExpSyn(self.soma(0.8))  # Excitatory
             s.tau = 0.3
             s.e = 0
             self.synlistees.append(s)

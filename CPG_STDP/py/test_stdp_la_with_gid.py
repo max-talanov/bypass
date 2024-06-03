@@ -29,7 +29,7 @@ nhost = int(pc.nhost())
 
 file_name = 'res_alina'
 
-N = 25
+N = 50
 speed = 100
 bs_fr = 100  # 40 # frequency of brainstem inputs
 versions = 1
@@ -38,10 +38,10 @@ k = 0.017  # CV weights multiplier to take into account air and toe stepping
 CV_0_len = 12  # 125 # Duration of the CV generator with no sensory inputs
 extra_layers = 0  # 1 + layers
 
-step_number = 5
+step_number = 3
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
-time_sim = 300 + one_step_time * step_number
+time_sim = one_step_time * step_number
 
 '''
 network topology https://github.com/max-talanov/bypass/blob/main/figs/CPG_feedback_loops.png
@@ -140,10 +140,6 @@ class CPG:
         self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_E, 10, weight=20)
         self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_F, one_step_time, weight=20)
 
-        '''Create connectcells'''
-        self.genconnect(self.Iagener_E, self.Ia_aff_E, 3.5, 1, False, 50)
-        self.genconnect(self.Iagener_F, self.Ia_aff_F, 3.5, 1, False, 60)
-
         '''cutaneous inputs'''
         cfr = 200
         c_int = 1000 / cfr
@@ -179,13 +175,18 @@ class CPG:
         '''STDP synapse'''
         self.connectcells(self.BS_aff_F, self.RG_F, 0.1, 3, stdptype=False)
         self.connectcells(self.BS_aff_E, self.RG_E, 0.1, 3, stdptype=False)
+        '''Create connectcells'''
+        self.genconnect(self.Iagener_E, self.Ia_aff_E, 3.5, 1, False, 50)
+        self.genconnect(self.Iagener_F, self.Ia_aff_F, 3.5, 1, False, 60)
+
+
+        self.connectcells(self.Ia_aff_E, self.RG_E, weight=3.3, stdptype=True)
+        self.connectcells(self.Ia_aff_F, self.RG_F, weight=3.3, stdptype=True)
+
         '''cutaneous inputs'''
         for layer in range(CV_number):
             self.connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15 * k * speed, 2)
             self.connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
-
-        self.connectcells(self.Ia_aff_E, self.RG_E, weight=1.3, stdptype=True)
-        self.connectcells(self.Ia_aff_F, self.RG_F, weight=1.3, stdptype=True)
 
         '''Ia2motor'''
         self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 2)
@@ -215,14 +216,14 @@ class CPG:
         self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
         self.connectcells(self.InF, self.RG_E, 0.8, 1, inhtype=True)
 
-        self.connectcells(self.Ia_aff_E, self.Ia_E, 0.08, 1)
-        self.connectcells(self.Ia_aff_F, self.Ia_F, 0.08, 1)
+        self.connectcells(self.Ia_aff_E, self.Ia_E, 0.08, 1, inhtype=False)
+        self.connectcells(self.Ia_aff_F, self.Ia_F, 0.08, 1, inhtype=False)
 
-        self.connectcells(self.mns_E, self.R_E, 0.00015, 1)
-        self.connectcells(self.mns_F, self.R_F, 0.00015, 1)
+        self.connectcells(self.mns_E, self.R_E, 0.0015, 1, inhtype=False)
+        self.connectcells(self.mns_F, self.R_F, 0.0015, 1, inhtype=False)
 
-        self.connectcells(self.R_E, self.mns_E, 0.00015, 1, inhtype=True)
-        self.connectcells(self.R_F, self.mns_F, 0.00015, 1, inhtype=True)
+        self.connectcells(self.R_E, self.mns_E, 0.0015, 1, inhtype=True)
+        self.connectcells(self.R_F, self.mns_F, 0.0015, 1, inhtype=True)
 
         self.connectcells(self.R_E, self.Ia_E, 0.001, 1, inhtype=True)
         self.connectcells(self.R_F, self.Ia_F, 0.001, 1, inhtype=True)
