@@ -137,8 +137,8 @@ class CPG:
         self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 10)
 
         '''muscle afferents generators'''
-        self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_E, 10, weight=20)
-        self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_F, one_step_time, weight=20)
+        self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 10, weight=20)
+        self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time, weight=20)
 
         '''cutaneous inputs'''
         cfr = 200

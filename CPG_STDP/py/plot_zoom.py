@@ -23,7 +23,7 @@ def read():
     volt_data = []
     data_time = []
 
-    for file in fnmatch.filter(os.listdir(my_path), 'muscle*.hdf5'):
+    for file in fnmatch.filter(os.listdir(my_path), '*.hdf5'):
         with h5py.File(my_path+f'\\{file}') as f:
             name = f.filename.split('\\')[-1]
             if name == 'time.hdf5':
