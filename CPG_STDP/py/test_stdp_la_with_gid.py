@@ -137,8 +137,15 @@ class CPG:
         self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 10)
 
         '''muscle afferents generators'''
-        self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 10, weight=20)
-        self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time, weight=20)
+        self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_E, 10, weight=20)
+        self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_F, one_step_time, weight=20)
+
+        '''Create connectcells'''
+        self.genconnect(self.Iagener_E, self.Ia_aff_E, 3.5, 1, False, 20)
+        self.genconnect(self.Iagener_F, self.Ia_aff_F, 3.5, 1, False, 30)
+
+        self.genconnect(self.muscle_E, self.Ia_aff_E, 3.5, 1, False, 20)
+        self.genconnect(self.muscle_F, self.Ia_aff_F, 3.5, 1, False, 30)
 
         '''cutaneous inputs'''
         cfr = 200
@@ -155,9 +162,9 @@ class CPG:
 
         '''Generators'''
         '''TODO: need it?'''
-        # for i in range(step_number):
-        #     self.C_0.append(
-        #         self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, int(CV_0_len / c_int), False))
+        for i in range(step_number):
+            self.C_0.append(
+                self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, int(CV_0_len / c_int), False))
 
         '''TODO: need it?'''
         for layer in range(CV_number):
@@ -175,13 +182,9 @@ class CPG:
         '''STDP synapse'''
         self.connectcells(self.BS_aff_F, self.RG_F, 0.1, 3, stdptype=False)
         self.connectcells(self.BS_aff_E, self.RG_E, 0.1, 3, stdptype=False)
-        '''Create connectcells'''
-        self.genconnect(self.Iagener_E, self.Ia_aff_E, 3.5, 1, False, 50)
-        self.genconnect(self.Iagener_F, self.Ia_aff_F, 3.5, 1, False, 60)
 
-
-        self.connectcells(self.Ia_aff_E, self.RG_E, weight=3.3, stdptype=True)
-        self.connectcells(self.Ia_aff_F, self.RG_F, weight=3.3, stdptype=True)
+        self.connectcells(self.Ia_aff_E, self.RG_E, weight=3.3, delay=3, stdptype=True)
+        self.connectcells(self.Ia_aff_F, self.RG_F, weight=3.3, delay=3, stdptype=True)
 
         '''cutaneous inputs'''
         for layer in range(CV_number):
