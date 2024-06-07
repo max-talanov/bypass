@@ -144,8 +144,8 @@ class CPG:
         self.genconnect(self.Iagener_E, self.Ia_aff_E, 3.5, 1, False, 20)
         self.genconnect(self.Iagener_F, self.Ia_aff_F, 3.5, 1, False, 30)
 
-        self.genconnect(self.muscle_E, self.Ia_aff_E, 3.5, 1, False, 20)
-        self.genconnect(self.muscle_F, self.Ia_aff_F, 3.5, 1, False, 30)
+        self.connectcells(self.muscle_E, self.Ia_aff_E, 3.5, 1, False, 20)
+        self.connectcells(self.muscle_F, self.Ia_aff_F, 3.5, 1, False, 30)
 
         '''cutaneous inputs'''
         cfr = 200
