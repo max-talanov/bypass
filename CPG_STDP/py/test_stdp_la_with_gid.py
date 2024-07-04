@@ -136,11 +136,11 @@ class CPG:
         self.Ia_F = self.addpool(self.nInt, "Ia_F", "int")
         self.R_F = self.addpool(self.nInt, "R_F", "int")  # Renshaw cells
 
-        # '''BS'''
-        # # periodic stimulation
-        # self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 10)
-        # self.E_ia_gids, self.F_ia_gids = self.add_ia_geners()
-        #
+        '''BS'''
+        # periodic stimulation
+        self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 10)
+        #self.E_ia_gids, self.F_ia_gids = self.add_ia_geners()
+
         # for E_ia_gids in self.E_ia_gids:
         #     self.genconnect(E_ia_gids, self.Ia_aff_E, 5.5, 1, False, 20)
         #
