@@ -95,7 +95,7 @@ class bioaffrat(object):
             connection between neurons
         '''
         nc = h.NetCon(self.node[len(self.node) - 1](0.5)._ref_v, target, sec=self.node[len(self.node) - 1])
-        nc.threshold = 10
+        nc.threshold = -10
         return nc
 
         # nc = h.NetCon(self.axon(1)._ref_v, target, sec=self.axon)
