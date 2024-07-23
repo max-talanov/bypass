@@ -113,9 +113,9 @@ class CPG:
 
         '''sensory and muscle afferents and brainstem and V3F'''
         self.Ia_aff_E = self.addpool(self.nAff, "Ia_aff_E", "aff")
-        # self.Ia_aff_F = self.addpool(self.nAff, "Ia_aff_F", "aff")
-        # self.BS_aff_E = self.addpool(self.nAff, "BS_aff_E", "aff")
-        # self.BS_aff_F = self.addpool(self.nAff, "BS_aff_F", "aff")
+        self.Ia_aff_F = self.addpool(self.nAff, "Ia_aff_F", "aff")
+        self.BS_aff_E = self.addpool(self.nAff, "BS_aff_E", "aff")
+        self.BS_aff_F = self.addpool(self.nAff, "BS_aff_F", "aff")
         # self.V3F = self.addpool(self.nAff, "V3F", "int")
 
         '''moto neuron pools'''
@@ -133,19 +133,19 @@ class CPG:
         # self.R_F = self.addpool(self.nInt, "R_F", "int")  # Renshaw cells
 
         '''BS'''
-        # # periodic stimulation
-        # self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 10)
+        # periodic stimulation
+        self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 10)
 
         '''muscle afferents generators'''
         self.Iagener_E = self.addIagener(self.muscle_F, self.muscle_E, 10, weight=20)
         self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time, weight=20)
 
         '''Create connectcells'''
-        self.genconnect(self.Iagener_E, self.Ia_aff_E, 3.5, 1, False, 20)
+        # self.genconnect(self.Iagener_E, self.Ia_aff_E, 3.5, 1, False, 20)
         # self.genconnect(self.Iagener_F, self.Ia_aff_F, 3.5, 1, False, 30)
 
-        # self.connectcells(self.muscle_E, self.Ia_aff_E, 3.5, 1, False, 20)
-        # self.connectcells(self.muscle_F, self.Ia_aff_F, 3.5, 1, False, 30)
+        self.connectcells(self.muscle_E, self.Ia_aff_E, 3.5, 1, 10, False)
+        self.connectcells(self.muscle_F, self.Ia_aff_F, 3.5, 1, 10, False)
 
         # '''cutaneous inputs'''
         # cfr = 200
@@ -171,20 +171,20 @@ class CPG:
         #     self.C_1.append(self.dict_CV_1[layer])
         # self.C_1 = sum(self.C_1, [])
 
-        # ''' BS '''
-        # for E_bs_gid in self.E_bs_gids:
-        #     self.genconnect(E_bs_gid, self.BS_aff_E, 3.5, 3)
-        #
-        # for F_bs_gid in self.F_bs_gids:
-        #     self.genconnect(F_bs_gid, self.BS_aff_F, 3.5, 3)
+        ''' BS '''
+        for E_bs_gid in self.E_bs_gids:
+            self.genconnect(E_bs_gid, self.BS_aff_E, 3.5, 3)
+
+        for F_bs_gid in self.F_bs_gids:
+            self.genconnect(F_bs_gid, self.BS_aff_F, 3.5, 3)
 
         # self.connectcells(self.BS_aff_F, self.V3F, 1.5, 3)
         '''STDP synapse'''
-        # self.connectcells(self.BS_aff_F, self.RG_F, 0.1, 3, stdptype=False)
-        # self.connectcells(self.BS_aff_E, self.RG_E, 0.1, 3, stdptype=False)
+        self.connectcells(self.BS_aff_F, self.RG_F, 0.1, 3, stdptype=True)
+        self.connectcells(self.BS_aff_E, self.RG_E, 0.1, 3, stdptype=True)
 
-        # self.connectcells(self.Ia_aff_E, self.RG_E, weight=3.3, delay=3, stdptype=True)
-        # self.connectcells(self.Ia_aff_F, self.RG_F, weight=3.3, delay=3, stdptype=True)
+        self.connectcells(self.Ia_aff_E, self.RG_E, weight=3.3, delay=3, stdptype=True)
+        self.connectcells(self.Ia_aff_F, self.RG_F, weight=3.3, delay=3, stdptype=True)
         #
         # '''cutaneous inputs'''
         # for layer in range(CV_number):
