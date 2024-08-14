@@ -95,7 +95,7 @@ PARAMETER {
     softthresh = 0
     STDPon = 1
     RLon = 0
-    verbose = 1.0
+    verbose = 3.0
     skip = 0
 }
 

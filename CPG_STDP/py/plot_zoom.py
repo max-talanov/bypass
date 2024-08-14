@@ -13,8 +13,9 @@ bokeh.sampledata.download()
 
 from bokeh.plotting import figure, output_file, show
 
-sys.path.append('last_res/')
-my_path = os.path.abspath('last_res/')
+paths = 'res_alina_3/'
+sys.path.append(paths)
+my_path = os.path.abspath(paths)
 
 themes = 'light_minimal'
 

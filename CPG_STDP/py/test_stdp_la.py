@@ -41,7 +41,7 @@ extra_layers = 0  # 1 + layers
 step_number = 3
 
 one_step_time = 20
-time_sim = 100
+time_sim = 80
 
 '''
 network topology https://github.com/max-talanov/bypass/blob/main/figs/CPG_feedback_loops.png

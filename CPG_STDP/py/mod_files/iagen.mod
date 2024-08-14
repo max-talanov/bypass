@@ -7,12 +7,12 @@ NEURON	{
 }
 
 PARAMETER {
-	number	= 10 <0,1e9>	: number of spikes
-	start	= 50 (ms)	: start of first spike
-	noise	= 0 <0,1>	: amount of randomeaness (0.0 - 1.0)
+	number	    = 20 <0,1e9>	: number of spikes
+	start		= 50 (ms)	: start of first spike
+	noise		= 0 <0,1>	: amount of randomeaness (0.0 - 1.0)
 	freq
-    mean = 1
-	interval = 10 (ms) <1e-9,1e9>: time between spikes (msec)
+    mean        = 1
+	interval	= 10 (ms) <1e-9,1e9>: time between spikes (msec)
 }
 
 ASSIGNED {
@@ -20,13 +20,13 @@ ASSIGNED {
 	event (ms)
 	on
 	end (ms)
-  t0
-  v0
-  fhill
-  vel
-  fhill0
-  fhill2
-  len2
+    t0
+    v0
+    fhill
+    vel
+    fhill0
+    fhill2
+    len2
 }
 
 PROCEDURE seed(x) {
@@ -34,13 +34,13 @@ PROCEDURE seed(x) {
 }
 
 INITIAL {
-	on = 0
+	on = 0 : off
 	y = 0
-  t0 = start
-  v0 = 50
-  freq = 80
-  fhill0 = 0
-	interval = 1000/freq
+    t0 = start
+    v0 = 50
+    freq = 80
+    fhill0 = 0
+	: interval = 1000/freq
 	if (noise < 0) {
 		noise = 0
 	}
@@ -50,8 +50,9 @@ INITIAL {
 	if (start >= 0 && number > 0) {
 		: randomize the first spike so on average it occurs at start+interval
 
-	    : printf("initial inv \n")
+		on = 1
 		event = start + invl(t)
+		printf("initial inv, number: %g, event: %g \n", number, event)
 		net_send(event, 3)
 	}
 }
@@ -61,6 +62,7 @@ PROCEDURE init_sequence(t(ms)) {
 		on = 1
 		event = t
 		end = t + 1e-6 + invl(t)*(number-1)
+		printf("init_sequence, number: %g, event: %g, end: %g \n", number, event, end)
 	}
 }
 
@@ -68,34 +70,34 @@ FUNCTION invl(t (ms)) (ms) {
 	:interspike interval
 	:len2 is the length increase of the antagonist muscle
 
- if (fhill > fhill0){
-    :printf("INC \n")
-    : vel = v0 + 0.005*fhill*(t-t0) + 0.00015*fhill*(t-t0)*(t-t0)
-    vel = v0 + 0.02*fhill*(t-t0) + 0.0004*fhill*(t-t0)*(t-t0)
-    if (vel < 0){vel = 1}
-  }else{
-	printf("DEC \n")
-    vel = v0 - 0.02*fhill*(t-t0) - 0.0004*fhill*(t-t0)*(t-t0)
-	: vel = v0 - 0.005*fhill*(t-t0) - 0.00015*fhill*(t-t0)*(t-t0)
-    if (vel < 0){vel = 1}
-  }
-  printf("t: %g, t0: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g, vel: %g, ", t, t0 , len2, fhill2, fhill0, fhill, vel)
-  :printf("IaGenerator v0: %g, vel: %g \n", v0, vel)
-  v0 = vel
-  fhill0 = fhill
-  mean = 1000/vel
-  :printf("v0: %g, mean: %g \n", v0, mean)
-  t0 = t
-	if (noise == 0) {
+	 if (fhill > fhill0){
+		printf("INC \n")
+		: vel = v0 + 0.005*fhill*(t-t0) + 0.00015*fhill*(t-t0)*(t-t0)
+		vel = v0 + 0.02*fhill*(t-t0) + 0.0004*fhill*(t-t0)*(t-t0)
+		if (vel < 0){vel = 1}
+     }else{
+	 	printf("DEC \n")
+     	vel = v0 - 0.02*fhill*(t-t0) - 0.0004*fhill*(t-t0)*(t-t0)
+	 	: vel = v0 - 0.005*fhill*(t-t0) - 0.00015*fhill*(t-t0)*(t-t0)
+     	if (vel < 0){vel = 1}
+     }
+     printf("t: %g, t0: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g, vel: %g, ", t, t0 , len2, fhill2, fhill0, fhill, vel)
+     printf("IaGenerator v0: %g, vel: %g \n", v0, vel)
+     v0 = vel
+     fhill0 = fhill
+     mean = 1000/vel
+     printf("v0: %g, mean: %g \n", v0, mean)
+     t0 = t
+	 if (noise == 0) {
 		invl = mean
-	}else{
+	 }else{
 		invl = (1. - noise)*mean + noise*mean*exprand(1)
-	}
+	 }
 }
 
 PROCEDURE event_time(t (ms)) {
 	if (number > 0) {
-	    :printf("event_time inv \n")
+	    printf("event_time inv \n")
 		event = event + invl(t)
 	}
 	if (event > end) {
@@ -113,7 +115,7 @@ NET_RECEIVE (w) {
 		}
 	}
 	if (flag == 3) { : from INITIAL
-		if (on == 0) {
+		if (on == 1) {
 			init_sequence(t)
 			net_send(0, 1)
 		}
@@ -121,7 +123,7 @@ NET_RECEIVE (w) {
 	if (flag == 1 && on == 1) {
 		y = 2
 		net_event(t)
-	    :printf("net_receive event_time(t) \n")
+	    printf("net_receive event_time(t) \n")
 		event_time(t)
 		if (on == 1) {
 			net_send(event - t, 1)
