@@ -40,7 +40,7 @@ extra_layers = 0  # 1 + layers
 
 step_number = 3
 
-one_step_time = 30 #int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
+one_step_time = 200 #int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = one_step_time * step_number + 20
 
 '''
@@ -53,9 +53,9 @@ class CPG:
     def __init__(self, speed, bs_fr, inh_p, step_number, n):
         self.threshold = 10
         self.delay = 1
-        self.nAff = 5 #12
+        self.nAff = 12
         self.nInt = 5
-        self.nMn = 5 #21
+        self.nMn = 21
         self.ncell = n
         self.affs = []
         self.ints = []
