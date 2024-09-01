@@ -64,7 +64,7 @@ data = [
     [32.65 * 10 ** (-15), 'VOLATILE']
 ]
 
-data_x_log = [d[2] for d in data]
+data_x_log = [d[1] for d in data]
 data_y_log = [d[0] for d in data]
 # Создаем фигуру
 figur = figure(width=900, x_range=sorted(set(data_x_log), key=data_x_log.index), height=400,
