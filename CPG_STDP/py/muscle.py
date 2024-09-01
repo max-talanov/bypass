@@ -133,7 +133,7 @@ class muscle(object):
         Adds synapses
         '''
         for i in range(100):
-            s = h.ExpSyn(self.soma(0.5))  # Exsitatory
+            s = h.ExpSyn(self.muscle_unit(0.8))  # Exsitatory
             s.tau = 0.3
             # s.tau2 = 0.5
             s.e = 0
