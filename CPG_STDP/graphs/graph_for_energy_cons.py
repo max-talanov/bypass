@@ -70,7 +70,10 @@ data_y_log = [d[0] for d in data]
 # Создаем фигуру
 figur = figure(width=900, x_range=sorted(set(data_x_log), key=data_x_log.index), height=400, y_axis_type="log") #x_range=data_x_log
 
-figur.xaxis.major_label_orientation = 'horizontal'
+figur.xaxis.axis_label_text_font_style = "bold"
+figur.yaxis.axis_label_text_font_style = "bold"
+figur.xaxis.major_label_text_font_style = "bold"
+figur.yaxis.major_label_text_font_style = "bold"
 # Добавление точек на график
 figur.scatter(data_x_log, data_y_log, size=15, color=None, line_color="black", line_width=2) #legend_field='label' color='colors',, line_color="black", line_width=2
 
