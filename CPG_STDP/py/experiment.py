@@ -38,9 +38,9 @@ k = 0.017  # CV weights multiplier to take into account air and toe stepping
 CV_0_len = 12  # 125 # Duration of the CV generator with no sensory inputs
 extra_layers = 0  # 1 + layers
 
-step_number = 3
+step_number = 5
 
-one_step_time = 200 #int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
+one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = one_step_time * step_number + 20
 
 '''
@@ -109,9 +109,9 @@ class CPG:
 
         '''RG'''
         self.RG_E = sum(self.RG_E, [])
-        # self.InE = self.addpool(self.nInt, "InE", "int")
+        self.InE = self.addpool(self.nInt, "InE", "int")
         self.RG_F = sum(self.RG_F, [])
-        # self.InF = self.addpool(self.nInt, "InF", "bursting")
+        self.InF = self.addpool(self.nInt, "InF", "bursting")
 
         # self.CV = sum(self.CV, [])
 
@@ -131,10 +131,10 @@ class CPG:
         self.muscle_F = self.addpool(self.nMn * 40, "muscle_F", "muscle")
 
         '''reflex arc'''
-        # self.Ia_E = self.addpool(self.nInt, "Ia_E", "int")
-        # self.R_E = self.addpool(self.nInt, "R_E", "int")  # Renshaw cells
-        # self.Ia_F = self.addpool(self.nInt, "Ia_F", "bursting")
-        # self.R_F = self.addpool(self.nInt, "R_F", "bursting")  # Renshaw cells
+        self.Ia_E = self.addpool(self.nInt, "Ia_E", "int")
+        self.R_E = self.addpool(self.nInt, "R_E", "int")  # Renshaw cells
+        self.Ia_F = self.addpool(self.nInt, "Ia_F", "bursting")
+        self.R_F = self.addpool(self.nInt, "R_F", "bursting")  # Renshaw cells
 
         logging.info("done addpool")
         '''BS'''
@@ -162,8 +162,8 @@ class CPG:
         self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time + 5, weight=30)
 
         '''Create connectcells'''
-        self.genconnect(self.Iagener_E, self.Ia_aff_E, 5.5, 1, False, 20)
-        self.genconnect(self.Iagener_F, self.Ia_aff_F, 5.5, 1, False, 30)
+        self.genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 20)
+        self.genconnect(self.Iagener_F, self.Ia_aff_F, 0.5, 1, False, 30)
 
         # self.connectcells(self.muscle_E, self.Ia_aff_E, 3.5, 1, 10, False)
         # self.connectcells(self.muscle_F, self.Ia_aff_F, 3.5, 1, 10, False)
@@ -201,9 +201,9 @@ class CPG:
         #     self.connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15 * k * speed, 2)
         #     self.connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
 
-        # '''Ia2motor'''
-        # self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 2)
-        # self.connectcells(self.Ia_aff_F, self.mns_F, 1.55, 2)
+        '''Ia2motor'''
+        self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 2)
+        self.connectcells(self.Ia_aff_F, self.mns_F, 1.55, 2)
 
         for layer in range(CV_number):
             '''Internal to RG topology'''
@@ -214,34 +214,34 @@ class CPG:
             self.connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
             self.connectcells(self.dict_RG_F[layer], self.mns_F, 2.75, 3)
 
-            # self.connectcells(self.dict_RG_E[layer], self.InE, 2.75, 3)
-            # self.connectcells(self.dict_RG_F[layer], self.InF, 2.75, 3)
+            self.connectcells(self.dict_RG_E[layer], self.InE, 2.75, 3)
+            self.connectcells(self.dict_RG_F[layer], self.InF, 2.75, 3)
 
-            # '''STDP synapse'''
-            # self.connectcells(self.Ia_aff_E, self.dict_RG_E[layer], weight=3.3, delay=3, stdptype=True)
-            # self.connectcells(self.Ia_aff_F, self.dict_RG_F[layer], weight=3.3, delay=3, stdptype=True)
+            '''STDP synapse'''
+            self.connectcells(self.Ia_aff_E, self.dict_RG_E[layer], weight=3.3, delay=3, stdptype=True)
+            self.connectcells(self.Ia_aff_F, self.dict_RG_F[layer], weight=3.3, delay=3, stdptype=True)
 
             # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
 
 
         '''Ia2RG, RG2Motor'''
-        # self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
-        # self.connectcells(self.InF, self.RG_E, 0.8, 1, inhtype=True)
+        self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
+        self.connectcells(self.InF, self.RG_E, 0.8, 1, inhtype=True)
+
+        self.connectcells(self.Ia_aff_E, self.Ia_E, 0.08, 1, inhtype=False)
+        self.connectcells(self.Ia_aff_F, self.Ia_F, 0.08, 1, inhtype=False)
+
+        self.connectcells(self.mns_E, self.R_E, 0.0015, 1, inhtype=False)
+        self.connectcells(self.mns_F, self.R_F, 0.0015, 1, inhtype=False)
+
+        self.connectcells(self.R_E, self.mns_E, 0.0015, 1, inhtype=True)
+        self.connectcells(self.R_F, self.mns_F, 0.0015, 1, inhtype=True)
+
+        self.connectcells(self.R_E, self.Ia_E, 0.001, 1, inhtype=True)
+        self.connectcells(self.R_F, self.Ia_F, 0.001, 1, inhtype=True)
         #
-        # self.connectcells(self.Ia_aff_E, self.Ia_E, 0.08, 1, inhtype=False)
-        # self.connectcells(self.Ia_aff_F, self.Ia_F, 0.08, 1, inhtype=False)
-        #
-        # self.connectcells(self.mns_E, self.R_E, 0.0015, 1, inhtype=False)
-        # self.connectcells(self.mns_F, self.R_F, 0.0015, 1, inhtype=False)
-        #
-        # self.connectcells(self.R_E, self.mns_E, 0.0015, 1, inhtype=True)
-        # self.connectcells(self.R_F, self.mns_F, 0.0015, 1, inhtype=True)
-        #
-        # self.connectcells(self.R_E, self.Ia_E, 0.001, 1, inhtype=True)
-        # self.connectcells(self.R_F, self.Ia_F, 0.001, 1, inhtype=True)
-        # #
-        # self.connectcells(self.Ia_E, self.mns_F, 0.08, 1, inhtype=True)
-        # self.connectcells(self.Ia_F, self.mns_E, 0.08, 1, inhtype=True)
+        self.connectcells(self.Ia_E, self.mns_F, 0.08, 1, inhtype=True)
+        self.connectcells(self.Ia_F, self.mns_E, 0.08, 1, inhtype=True)
 
         logging.info("done connectcells")
 
@@ -631,7 +631,7 @@ if __name__ == '__main__':
     '''
     k_nrns = 0
     k_name = 1
-    if not os.path.isdir(file_name):
+    if not os.path.exists(file_name):
         os.mkdir(file_name)
 
     for i in range(versions):

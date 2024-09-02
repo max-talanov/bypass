@@ -10,7 +10,7 @@ PARAMETER {
 	number	    = 20 <0,1e9>	: number of spikes
 	start		= 50 (ms)	: start of first spike
 	noise		= 0 <0,1>	: amount of randomeaness (0.0 - 1.0)
-	freq
+	freq        = 100
     mean        = 1
 	interval	= 10 (ms) <1e-9,1e9>: time between spikes (msec)
 }
@@ -38,9 +38,7 @@ INITIAL {
 	y = 0
     t0 = start
     v0 = 50
-    freq = 80
     fhill0 = 0
-	: interval = 1000/freq
 	if (noise < 0) {
 		noise = 0
 	}
@@ -51,7 +49,10 @@ INITIAL {
 		: randomize the first spike so on average it occurs at start+interval
 
 		on = 1
-		event = start + invl(t)
+		event = start + invl(t) - interval*(1. - noise)
+		if (event < 0) {
+            event = 0
+        }
 		printf("initial inv, number: %g, event: %g \n", number, event)
 		net_send(event, 3)
 	}

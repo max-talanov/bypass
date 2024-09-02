@@ -114,11 +114,11 @@ class bioaffrat(object):
                 self.synlistinh.append(s)
         for i in range(200):
             s = h.ExpSyn(self.soma(0.8))  # Excitatory
-            s.tau = 0.3
+            s.tau = 0.1
             s.e = 0
             self.synlistees.append(s)
             s = h.ExpSyn(self.soma(0.5))  # Excitatory
-            s.tau = 0.3
+            s.tau = 0.1
             s.e = 0
             self.synlistex.append(s)
 

@@ -197,21 +197,21 @@ class interneuron(object):
             for i in range(50):
                 '''Somatic'''
                 s = h.ExpSyn(self.soma(0.8))  # Excitatory
-                s.tau = 0.3
+                s.tau = 0.1
                 s.e = 0
                 self.synlistex.append(s)
                 s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
-                s.tau1 = 1.5
+                s.tau1 = 0.5
                 s.tau2 = 3.5
                 s.e = -70
                 self.synlistinh.append(s)
                 '''Dendritic'''
                 s = h.ExpSyn(sec(0.5))  # Excitatory
-                s.tau = 0.3
+                s.tau = 0.1
                 s.e = 0
                 self.synlistex.append(s)
                 s = h.Exp2Syn(sec(0.5))  # Inhibitory
-                s.tau1 = 1.5
+                s.tau1 = 0.5
                 s.tau2 = 3.5
                 s.e = -70
                 self.synlistinh.append(s)
@@ -219,21 +219,21 @@ class interneuron(object):
                 '''STDP'''
                 '''Somatic'''
                 s = h.ExpSyn(self.soma(0.5))  # Excitatory
-                s.tau = 0.3
+                s.tau = 0.1
                 s.e = 0
                 self.synlistexstdp.append(s)
                 s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
-                s.tau1 = 1.5
+                s.tau1 = 0.5
                 s.tau2 = 3.5
                 s.e = -70
                 self.synlistinhstdp.append(s)
                 '''Dendritic'''
                 s = h.ExpSyn(sec(0.5))  # Excitatory
-                s.tau = 0.3
+                s.tau = 0.1
                 s.e = 0
                 self.synlistexstdp.append(s)
                 s = h.Exp2Syn(sec(0.8))  # Inhibitory
-                s.tau1 = 1.5
+                s.tau1 = 0.5
                 s.tau2 = 3.5
                 s.e = -70
                 self.synlistinhstdp.append(s)
