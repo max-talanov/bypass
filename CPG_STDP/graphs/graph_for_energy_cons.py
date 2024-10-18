@@ -32,32 +32,32 @@ data = [
     [48 * 10 ** (-18), "FET"],
     [230 * 10 ** (-15), "FET"],
     [0.99 * 10 ** (-15), "FET"],
-    [0.215 * 10 ** (-18), "QUANTUM"],
-    [0.16 * 10 ** (-18), "QUANTUM"],
-    [0.036 * 10 ** (-15), "QUANTUM"],
-    [0.029 * 10 ** (-15), "QUANTUM"],
-    [250 * 10 ** (-18), "QUANTUM"],
-    [0.18 * 10 ** (-15), "QUANTUM"],
-    [75 * 10 ** (-18), "QUANTUM"],
+    # [0.215 * 10 ** (-18), "QUANTUM"],
+    # [0.16 * 10 ** (-18), "QUANTUM"],
+    # [0.036 * 10 ** (-15), "QUANTUM"],
+    # [0.029 * 10 ** (-15), "QUANTUM"],
+    # [250 * 10 ** (-18), "QUANTUM"],
+    # [0.18 * 10 ** (-15), "QUANTUM"],
+    # [75 * 10 ** (-18), "QUANTUM"],
     [15 * 10 ** (-15), "FET"],
     [1 * 10 ** (-15), "ST"],
     [0.0675 * 10 ** (-18), "ST"],
-    [1.37 * 10 ** (-12), "BJT"],
-    [2.4 * 10 ** (-15), "BJT"],
+    # [1.37 * 10 ** (-12), "BJT"],
+    # [2.4 * 10 ** (-15), "BJT"],
     [39.56 * 10 ** (-15), 'ORGANIC'],
-    [10.48 * 10 ** (-18), 'NON-VOLATILE'],
+    [10.48 * 10 ** (-18), 'VOLATILE'],
     [25 * 10 ** (-15), 'ORGANIC'],
     [0.7 * 10 ** (-15), 'ORGANIC'],
     [6 * 10 ** (-15), 'ORGANIC'],
     [4.05 * 10 ** (-12), 'ORGANIC'],
     [0.35 * 10 ** (-15), 'ORGANIC'],
-    [170 * 10 ** (-15), 'NON-VOLATILE'],
+    [170 * 10 ** (-15), 'VOLATILE'],
     [3.76 * 10 ** (-12), 'VOLATILE'],
-    [4.1 * 10 ** (-12), 'NON-VOLATILE'],
-    [8.5 * 10 ** (-15), 'NON-VOLATILE'],
-    [198 * 10 ** (-15), 'NON-VOLATILE'],
-    [1.8 * 10 ** (-12), 'NON-VOLATILE'],
-    [1.15 * 10 ** (-12), 'NON-VOLATILE'],
+    [4.1 * 10 ** (-12), 'VOLATILE'],
+    [8.5 * 10 ** (-15), 'VOLATILE'],
+    [198 * 10 ** (-15), 'VOLATILE'],
+    [1.8 * 10 ** (-12), 'VOLATILE'],
+    [1.15 * 10 ** (-12), 'VOLATILE'],
     [0.1 * 10 ** (-12), 'VOLATILE'],
     [1 * 10 ** (-15), 'VOLATILE'],
     [1.9 * 10 ** (-15), 'VOLATILE'],
@@ -68,8 +68,14 @@ data_x_log = [d[1] for d in data]
 data_y_log = [d[0] for d in data]
 # Создаем фигуру
 figur = figure(width=900, x_range=sorted(set(data_x_log), key=data_x_log.index), height=400,
-               y_axis_type="log")  # x_range=data_x_log
+               y_axis_type="log", y_axis_label='Energy [fJ]', x_axis_label='Technology')  # x_range=data_x_log
 
+figur.hspan(
+    y=[10 ** (-12), 10 ** (-15)],
+    line_width=[3, 3], line_color="green", alpha=0.5
+)
+# figur.rect(x=["ST", 'VOLATILE'], y=[10 ** (-12), 10 ** (-15)], width = 10,
+# height = 5)
 figur.xaxis.axis_label_text_font_style = "bold"
 figur.yaxis.axis_label_text_font_style = "bold"
 figur.xaxis.major_label_text_font_style = "bold"
