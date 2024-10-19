@@ -48,14 +48,9 @@ def gaussian_filter_data(arr, sigma=1.0):
 
 
 if __name__ == '__main__':
-    # Путь к вашему .mat файлу
     file_path = 'files/2024-07-11_16-58-25.analysis.mat'
-
-    # Чтение .mat файла
     mat_contents = scipy.io.loadmat(file_path)
-    # Инициализация panel для вывода в Jupyter Notebook
     pn.extension('plotly')
-    # Извлечение данных
     lfp_data = mat_contents['lfpAnalys']
     time_data = mat_contents['sounds']
 
@@ -74,17 +69,20 @@ if __name__ == '__main__':
     time = []
     start = 0
     end = 0
+    end_5s = 0
     for j, t in enumerate(time_data):
         if t[0] == 20.0 and start == 0:
             start = j
         if t[0] == 20000.0 and end == 0:
             end = j
+        if t[0] > 6000.0 and end_5s == 0:
+            end_5s = j
         time.append(t[0])
 
     for j in list_lfps:
-        list_smooth.append(gaussian_filter_data(j, 6))
+        list_smooth.append(gaussian_filter_data(j, 3))
 
     for k, expir in enumerate(all_list_lfps):
-        show_lines(expir[:16], time, start, end, f'{k}_expiriment')
+        show_lines(expir[:16], time, start, end_5s, f'{k}_expiriment')
     # show_lines(list_lfps[:16], time, start, end, "now_data")
-    # show_lines(list_smooth[:16], time, start, end, "smooth_data")
+    show_lines(list_smooth[:16], time, start, end_5s, "smooth_data")
