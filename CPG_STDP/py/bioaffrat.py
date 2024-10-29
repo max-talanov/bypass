@@ -22,7 +22,8 @@ class bioaffrat(object):
 
     def __init__(self):
         # create axon
-        self.make_axon(random.randint(5, 11))
+        self.nu = random.randint(5, 11)
+        self.make_axon(self.nu)
         self.topol()
         self.subsets()
         self.geom()

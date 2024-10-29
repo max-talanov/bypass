@@ -68,21 +68,35 @@ if __name__ == '__main__':
 
     time = []
     start = 0
-    end = 0
-    end_5s = 0
+    start_1 = 0
+    start_5 = 0
+    start_10 = 0
+    end_1 = 0
+    end_5 = 0
+    end_10 = 0
     for j, t in enumerate(time_data):
         if t[0] == 20.0 and start == 0:
             start = j
-        if t[0] == 20000.0 and end == 0:
-            end = j
-        if t[0] > 6000.0 and end_5s == 0:
-            end_5s = j
+        if t[0] > 800.0 and start != 0 and start_1 == 0:
+            start_1 = j
+        if t[0] > 1600.0 and start != 0 and end_1 == 0:
+            end_1 = j
+        if t[0] > 4800.0 and start != 0 and start_5 == 0:
+            start_5 = j
+        if t[0] > 5600.0 and end_5 == 0:
+            end_5 = j
+        if t[0] > 9800.0 and start_10 == 0:
+            start_10 = j
+        if t[0] > 10600.0 and end_10 == 0:
+            end_10 = j
         time.append(t[0])
 
     for j in list_lfps:
         list_smooth.append(gaussian_filter_data(j, 3))
 
     for k, expir in enumerate(all_list_lfps):
-        show_lines(expir[:16], time, start, end_5s, f'{k}_expiriment')
+        show_lines(expir[:16], time, start_1, end_1, f'{k}_expiriment_1s')
+        show_lines(expir[:16], time, start_5, end_5, f'{k}_expiriment_5s')
+        show_lines(expir[:16], time, start_10, end_10, f'{k}_expiriment_10s')
     # show_lines(list_lfps[:16], time, start, end, "now_data")
-    show_lines(list_smooth[:16], time, start, end_5s, "smooth_data")
+    # show_lines(list_smooth[:16], time, start, end_5s, "smooth_data")

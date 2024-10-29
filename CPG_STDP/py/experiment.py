@@ -27,7 +27,7 @@ pc = h.ParallelContext()
 rank = int(pc.id())
 nhost = int(pc.nhost())
 
-file_name = 'res_alina'
+file_name = 'res_alina_ex'
 
 N = 50
 speed = 100
@@ -91,21 +91,21 @@ class CPG:
 
         for layer in range(CV_number):
             '''cut and muscle feedback'''
-            # self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
+            self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
             self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
             self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
             # self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
-            # self.dict_C = {layer: 'C{}'.format(layer + 1)}
+            self.dict_C = {layer: 'C{}'.format(layer + 1)}
 
         for layer in range(CV_number):
             '''Cutaneous pools'''
-            # self.dict_CV_1[layer] = self.addpool(self.ncell, "CV" + str(layer + 1) + "_1", "aff")
+            self.dict_CV_1[layer] = self.addpool(self.ncell, "CV" + str(layer + 1) + "_1", "aff")
             '''Rhythm generator pools'''
             self.dict_RG_E[layer] = self.addpool(self.ncell, "RG" + str(layer + 1) + "_E", "int")
             self.dict_RG_F[layer] = self.addpool(self.ncell, "RG" + str(layer + 1) + "_F", "bursting")
             self.RG_E.append(self.dict_RG_E[layer])
             self.RG_F.append(self.dict_RG_F[layer])
-            # self.CV.append(self.dict_CV_1[layer])
+            self.CV.append(self.dict_CV_1[layer])
 
         '''RG'''
         self.RG_E = sum(self.RG_E, [])
@@ -113,7 +113,7 @@ class CPG:
         self.RG_F = sum(self.RG_F, [])
         self.InF = self.addpool(self.nInt, "InF", "bursting")
 
-        # self.CV = sum(self.CV, [])
+        self.CV = sum(self.CV, [])
 
         '''sensory and muscle afferents and brainstem and V3F'''
         self.Ia_aff_E = self.addpool(self.nAff, "Ia_aff_E", "aff")
@@ -156,10 +156,9 @@ class CPG:
         self.connectcells(self.mns_E, self.muscle_E, 10.5, 2, inhtype=False, N=45)
         self.connectcells(self.mns_F, self.muscle_F, 10.5, 2, inhtype=False, N=45)
 
-
         '''muscle afferents generators'''
-        self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 5, weight=20)
-        self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time + 5, weight=30)
+        self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 15, weight=20)
+        self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time + 15, weight=30)
 
         '''Create connectcells'''
         self.genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 20)
@@ -173,33 +172,31 @@ class CPG:
         c_int = 1000 / cfr
 
         # '''cutaneous inputs generators'''
-        # for layer in range(CV_number):
-        #     self.dict_C[layer] = []
-        #     for i in range(step_number):
-        #         '''25 + 50*(0-6) + (0-10)*(50*6 + 12), '''
-        #         self.dict_C[layer].append(
-        #             self.addgener(25 + speed * layer + i * (speed * CV_number + CV_0_len + one_step_time),
-        #                           int(random.gauss(cfr, cfr / 10)), (speed / c_int + 1)))
+        for layer in range(CV_number):
+            self.dict_C[layer] = []
+            for i in range(step_number):
+                '''25 + 50*(0-6) + (0-10)*(50*6 + 12), '''
+                self.dict_C[layer].append(
+                    self.addgener(20 + speed * layer + i * (speed * CV_number + CV_0_len + one_step_time),
+                                  int(random.gauss(cfr, cfr / 10)), (speed / c_int + 1)))
 
         '''Generators'''
         '''TODO: need it?'''
-        # for i in range(step_number):
-        #     self.C_0.append(
-        #         self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, int(CV_0_len / c_int), False))
+        for i in range(step_number):
+            self.C_0.append(
+                self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, int(CV_0_len / c_int), False))
 
         # '''TODO: need it?'''
-        # for layer in range(CV_number):
-        #     self.C_1.append(self.dict_CV_1[layer])
-        # self.C_1 = sum(self.C_1, [])
-
-
+        for layer in range(CV_number):
+            self.C_1.append(self.dict_CV_1[layer])
+        self.C_1 = sum(self.C_1, [])
 
         # self.connectcells(self.BS_aff_F, self.V3F, 1.5, 3)
 
         '''cutaneous inputs'''
-        # for layer in range(CV_number):
-        #     self.connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15 * k * speed, 2)
-        #     self.connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
+        for layer in range(CV_number):
+            self.connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15 * k * speed, 2)
+            self.connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
 
         '''Ia2motor'''
         self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 2)
@@ -222,7 +219,6 @@ class CPG:
             self.connectcells(self.Ia_aff_F, self.dict_RG_F[layer], weight=3.3, delay=3, stdptype=True)
 
             # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
-
 
         '''Ia2RG, RG2Motor'''
         self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
@@ -483,6 +479,7 @@ class CPG:
             E_bs_gids.append(self.addgener(int(one_step_time * 2 * step) + 10, freq, spikes_per_step, False))
         return E_bs_gids, F_bs_gids
 
+
 # def draw(weight_changes, time_t):
 #     i = 0
 #     # Convert weight_changes to a NumPy array
@@ -574,8 +571,8 @@ def spikeout(pool, name, version, v_vec):
         result = np.mean(np.array(result), axis=0, dtype=np.float32)
         with hdf5.File(f'./{file_name}/{name}_sp_{speed}_CVs_{CV_number}_bs_{bs_fr}.hdf5', 'w') as file:
             for i in range(step_number):
-                sl = slice((int(1000 / bs_fr) * 40 + i * one_step_time * 40),
-                           (int(1000 / bs_fr) * 40 + (i + 1) * one_step_time * 40))
+                sl = slice((int(1000 / bs_fr) * 40 * i + i * one_step_time * 40),
+                           (int(1000 / bs_fr) * 40 * (i + 1) + (i + 1) * one_step_time * 40))
                 file.create_dataset('#0_step_{}'.format(i), data=np.array(result)[sl], compression="gzip")
         logging.info("done recording")
     else:

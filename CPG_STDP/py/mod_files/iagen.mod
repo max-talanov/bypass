@@ -78,7 +78,7 @@ FUNCTION invl(t (ms)) (ms) {
 		if (vel < 0){vel = 1}
      }else{
 	 	printf("DEC \n")
-     	vel = v0 - 0.02*fhill*(t-t0) - 0.0004*fhill*(t-t0)*(t-t0)
+     	vel = v0 - 0.03*fhill*(t-t0) - 0.0005*fhill*(t-t0)*(t-t0)
 	 	: vel = v0 - 0.005*fhill*(t-t0) - 0.00015*fhill*(t-t0)*(t-t0)
      	if (vel < 0){vel = 1}
      }
@@ -102,17 +102,18 @@ PROCEDURE event_time(t (ms)) {
 		event = event + invl(t)
 	}
 	if (event > end) {
-		on = 0
+		: on = 0
 	}
 }
 
 NET_RECEIVE (w) {
 	if (flag == 0) { : external event
 		if (w > 0 && on == 0) { : turn on spike sequence
+			on = 1
 			init_sequence(t)
 			net_send(0, 1)
 		} else if (w < 0 && on == 1) { : turn off spiking
-			on = 0
+			: on = 0
 		}
 	}
 	if (flag == 3) { : from INITIAL

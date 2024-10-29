@@ -1,4 +1,6 @@
 import random
+from typing import Iterable
+
 import numpy as np
 import logging
 import h5py as hdf5
@@ -38,7 +40,7 @@ k = 0.017  # CV weights multiplier to take into account air and toe stepping
 CV_0_len = 12  # 125 # Duration of the CV generator with no sensory inputs
 extra_layers = 0  # 1 + layers
 
-step_number = 4
+step_number = 6
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = one_step_time * step_number
@@ -152,11 +154,11 @@ class CPG:
         self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time, weight=30)
 
         # '''Create connectcells'''
-        # self.genconnect(self.Iagener_E, self.Ia_aff_E, 5.5, 1, False, 20)
-        # self.genconnect(self.Iagener_F, self.Ia_aff_F, 5.5, 1, False, 30)
+        self.genconnect(self.Iagener_E, self.Ia_aff_E, 5.5, 1, False, 20)
+        self.genconnect(self.Iagener_F, self.Ia_aff_F, 5.5, 1, False, 30)
 
-        self.connectcells(self.muscle_E, self.Ia_aff_E, 3.5, 1, 10, False)
-        self.connectcells(self.muscle_F, self.Ia_aff_F, 3.5, 1, 10, False)
+        # self.connectcells(self.muscle_E, self.Ia_aff_E, 3.5, 1, 10, False)
+        # self.connectcells(self.muscle_F, self.Ia_aff_F, 3.5, 1, 10, False)
 
         '''cutaneous inputs'''
         cfr = 200
@@ -243,7 +245,7 @@ class CPG:
         self.connectcells(self.Ia_E, self.mns_F, 0.08, 1, inhtype=True)
         self.connectcells(self.Ia_F, self.mns_E, 0.08, 1, inhtype=True)
 
-    def addpool(self, num, name, neurontype="int") -> list:
+    def addpool(self, num, name, neurontype = "int") -> list:
         '''
         Creates pool of cells determined by the neurontype and returns gids of the pool
         Parameters
@@ -424,8 +426,8 @@ class CPG:
         pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)
         ncstim.weight[0] = weight
-        pc.cell(gid, ncstim)
         self.netcons.append(ncstim)
+        pc.cell(gid, ncstim)
         self.gener_gids.append(gid)
         self.n_gid += 1
 
