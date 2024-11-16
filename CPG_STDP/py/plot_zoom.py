@@ -13,7 +13,7 @@ bokeh.sampledata.download()
 
 from bokeh.plotting import figure, output_file, show
 
-paths = 'res_alina/'
+paths = 'res_alina_3/'
 sys.path.append(paths)
 my_path = os.path.abspath(paths)
 
@@ -34,7 +34,7 @@ def read():
             else:
                 vol_group = [list(val) for val in f.values()]
                 flat_list = list(itertools.chain.from_iterable(vol_group))
-                volt_data.append((name, flat_list))
+                volt_data.append((name, flat_list[1:]))
 
 
     #

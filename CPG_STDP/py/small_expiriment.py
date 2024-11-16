@@ -27,11 +27,11 @@ pc = h.ParallelContext()
 rank = int(pc.id())
 nhost = int(pc.nhost())
 
-file_name = 'res_alina_ex'
+file_name = 'res_alina'
 
 N = 50
 speed = 100
-bs_fr = 100  # 40 # frequency of brainstem inputs
+bs_fr = 200  # 40 # frequency of brainstem inputs
 versions = 1
 CV_number = 6
 k = 0.017  # CV weights multiplier to take into account air and toe stepping
@@ -40,8 +40,10 @@ extra_layers = 0  # 1 + layers
 
 step_number = 5
 
-one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
-time_sim = one_step_time * step_number + 20
+# one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
+# time_sim = one_step_time * step_number + 20
+one_step_time = 20
+time_sim = 150
 
 '''
 network topology https://github.com/max-talanov/bypass/blob/main/figs/CPG_feedback_loops.png
@@ -53,9 +55,9 @@ class CPG:
     def __init__(self, speed, bs_fr, inh_p, step_number, n):
         self.threshold = 10
         self.delay = 1
-        self.nAff = 12
-        self.nInt = 5
-        self.nMn = 21
+        self.nAff = 2
+        self.nInt = 2
+        self.nMn = 2
         self.ncell = n
         self.affs = []
         self.ints = []
@@ -85,36 +87,6 @@ class CPG:
         self.weight_changes_vectors = []
         self.time_t_vectors = []
 
-        self.C_1 = []
-        self.C_0 = []
-        # self.V0v = []
-
-        for layer in range(CV_number):
-            '''cut and muscle feedback'''
-            self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
-            self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
-            self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
-            # self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
-            self.dict_C = {layer: 'C{}'.format(layer + 1)}
-
-        for layer in range(CV_number):
-            '''Cutaneous pools'''
-            self.dict_CV_1[layer] = self.addpool(self.ncell, "CV" + str(layer + 1) + "_1", "aff")
-            '''Rhythm generator pools'''
-            self.dict_RG_E[layer] = self.addpool(self.ncell, "RG" + str(layer + 1) + "_E", "int")
-            self.dict_RG_F[layer] = self.addpool(self.ncell, "RG" + str(layer + 1) + "_F", "bursting")
-            self.RG_E.append(self.dict_RG_E[layer])
-            self.RG_F.append(self.dict_RG_F[layer])
-            self.CV.append(self.dict_CV_1[layer])
-
-        '''RG'''
-        self.RG_E = sum(self.RG_E, [])
-        self.InE = self.addpool(self.nInt, "InE", "int")
-        self.RG_F = sum(self.RG_F, [])
-        self.InF = self.addpool(self.nInt, "InF", "bursting")
-
-        self.CV = sum(self.CV, [])
-
         '''sensory and muscle afferents and brainstem and V3F'''
         self.Ia_aff_E = self.addpool(self.nAff, "Ia_aff_E", "aff")
         self.Ia_aff_F = self.addpool(self.nAff, "Ia_aff_F", "aff")
@@ -127,14 +99,8 @@ class CPG:
         self.mns_F = self.addpool(self.nMn, "mns_F", "moto")
 
         '''muscles'''
-        self.muscle_E = self.addpool(self.nMn * 30, "muscle_E", "muscle")
-        self.muscle_F = self.addpool(self.nMn * 40, "muscle_F", "muscle")
-
-        '''reflex arc'''
-        self.Ia_E = self.addpool(self.nInt, "Ia_E", "int")
-        self.R_E = self.addpool(self.nInt, "R_E", "int")  # Renshaw cells
-        self.Ia_F = self.addpool(self.nInt, "Ia_F", "bursting")
-        self.R_F = self.addpool(self.nInt, "R_F", "bursting")  # Renshaw cells
+        self.muscle_E = self.addpool(self.nMn * 10, "muscle_E", "muscle")
+        self.muscle_F = self.addpool(self.nMn * 10, "muscle_F", "muscle")
 
         logging.info("done addpool")
         '''BS'''
@@ -148,104 +114,28 @@ class CPG:
         for F_bs_gid in self.F_bs_gids:
             self.genconnect(F_bs_gid, self.BS_aff_F, 3.5, 3)
 
-        for layer in range(CV_number):
-            self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 10.1, 3, stdptype=False)
-            self.connectcells(self.BS_aff_E, self.dict_RG_E[layer], 10.1, 3, stdptype=False)
+        self.connectcells(self.BS_aff_F, self.mns_E, 10.1, 3)
+        self.connectcells(self.BS_aff_E, self.mns_F, 10.1, 3)
 
         '''motor2muscles'''
         self.connectcells(self.mns_E, self.muscle_E, 10.5, 2, inhtype=False, N=45)
         self.connectcells(self.mns_F, self.muscle_F, 10.5, 2, inhtype=False, N=45)
 
         '''muscle afferents generators'''
-        self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(self.muscle_E, self.muscle_F)
-        ''' BS '''
-        for E_ia_gid in self.E_ia_gids:
-            self.genconnect(E_ia_gid, self.Ia_aff_E, 1.5, 1, False, 20)
-
-        for F_ia_gid in self.F_ia_gids:
-            self.genconnect(F_ia_gid, self.Ia_aff_F, 1.5, 1, False, 30)
-        # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 15, weight=20)
-        # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time + 15, weight=30)
+        self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 13, weight=20)
+        self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, 23, weight=30)
 
         '''Create connectcells'''
-        # self.genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 20)
-        # self.genconnect(self.Iagener_F, self.Ia_aff_F, 0.5, 1, False, 30)
-
-        # self.connectcells(self.muscle_E, self.Ia_aff_E, 3.5, 1, 10, False)
-        # self.connectcells(self.muscle_F, self.Ia_aff_F, 3.5, 1, 10, False)
+        self.genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 20)
+        self.genconnect(self.Iagener_F, self.Ia_aff_F, 0.5, 1, False, 30)
 
         '''cutaneous inputs'''
         cfr = 200
         c_int = 1000 / cfr
 
-        # '''cutaneous inputs generators'''
-        for layer in range(CV_number):
-            self.dict_C[layer] = []
-            for i in range(step_number):
-                '''25 + 50*(0-6) + (0-10)*(50*6 + 12), '''
-                self.dict_C[layer].append(
-                    self.addgener(20 + speed * layer + i * (speed * CV_number + CV_0_len + one_step_time),
-                                  int(random.gauss(cfr, cfr / 10)), True,
-                                  int((one_step_time / CV_number - 0.3 * (one_step_time / CV_number))), cv=True))
-
-        '''Generators'''
-        '''TODO: need it?'''
-        for i in range(step_number):
-            self.C_0.append(
-                self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, False, 1, cv=True, r=False))
-
-        # '''TODO: need it?'''
-        for layer in range(CV_number):
-            self.C_1.append(self.dict_CV_1[layer])
-        self.C_1 = sum(self.C_1, [])
-
-        # self.connectcells(self.BS_aff_F, self.V3F, 1.5, 3)
-
-        '''cutaneous inputs'''
-        for layer in range(CV_number):
-            self.connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15 * k * speed, 2)
-            self.connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
-
         '''Ia2motor'''
         self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 2)
         self.connectcells(self.Ia_aff_F, self.mns_F, 1.55, 2)
-
-        for layer in range(CV_number):
-            '''Internal to RG topology'''
-            self.connectinsidenucleus(self.dict_RG_F[layer])
-            self.connectinsidenucleus(self.dict_RG_E[layer])
-
-            '''RG2Motor'''
-            self.connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
-            self.connectcells(self.dict_RG_F[layer], self.mns_F, 2.75, 3)
-
-            self.connectcells(self.dict_RG_E[layer], self.InE, 2.75, 3)
-            self.connectcells(self.dict_RG_F[layer], self.InF, 2.75, 3)
-
-            '''STDP synapse'''
-            self.connectcells(self.Ia_aff_E, self.dict_RG_E[layer], weight=3.3, delay=3, stdptype=True)
-            self.connectcells(self.Ia_aff_F, self.dict_RG_F[layer], weight=3.3, delay=3, stdptype=True)
-
-            # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
-
-        '''Ia2RG, RG2Motor'''
-        self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
-        self.connectcells(self.InF, self.RG_E, 0.8, 1, inhtype=True)
-
-        self.connectcells(self.Ia_aff_E, self.Ia_E, 0.08, 1, inhtype=False)
-        self.connectcells(self.Ia_aff_F, self.Ia_F, 0.08, 1, inhtype=False)
-
-        self.connectcells(self.mns_E, self.R_E, 0.0015, 1, inhtype=False)
-        self.connectcells(self.mns_F, self.R_F, 0.0015, 1, inhtype=False)
-
-        self.connectcells(self.R_E, self.mns_E, 0.0015, 1, inhtype=True)
-        self.connectcells(self.R_F, self.mns_F, 0.0015, 1, inhtype=True)
-
-        self.connectcells(self.R_E, self.Ia_E, 0.001, 1, inhtype=True)
-        self.connectcells(self.R_F, self.Ia_F, 0.001, 1, inhtype=True)
-        #
-        self.connectcells(self.Ia_E, self.mns_F, 0.08, 1, inhtype=True)
-        self.connectcells(self.Ia_F, self.mns_E, 0.08, 1, inhtype=True)
 
         logging.info("done connectcells")
 
@@ -424,9 +314,9 @@ class CPG:
         moto2 = pc.gid2cell(random.randint(mn2[0], mn2[-1]))
         stim = h.IaGenerator(0.5)
         stim.start = start
-        freq = 100
+        freq = 200
         stim.interval = int(1000 / freq)
-        stim.number = int(one_step_time / stim.interval)
+        stim.number = int(one_step_time / stim.interval) - 1
         self.stims.append(stim)
         h.setpointer(moto.muscle_unit(0.5)._ref_F_fHill, 'fhill', stim)
         h.setpointer(moto2.muscle_unit(0.5)._ref_F_fHill, 'fhill2', stim)
@@ -440,7 +330,7 @@ class CPG:
 
         return gid
 
-    def addgener(self, start, freq, flg_interval, interval, cv=False, r=True):
+    def addgener(self, start, freq, nums, r=True):
         '''
         Creates generator and returns generator gid
         Parameters
@@ -449,10 +339,8 @@ class CPG:
             generator start up
         freq: int
             generator frequency
-        flg_interval: bool
-            have interval_CV
-        interval: int
-            time interval_CV
+        nums: int
+            signals number
         Returns
         -------
         gid: int
@@ -466,11 +354,8 @@ class CPG:
             stim.noise = 0.05
         else:
             stim.start = start
-        if flg_interval:
-            stim.interval = interval
-        else:
-            stim.interval = int(1000 / freq)
-        stim.number = int(one_step_time / stim.interval)
+        stim.interval = int(1000 / freq)
+        stim.number = int(one_step_time / stim.interval) - 1
         self.stims.append(stim)
         pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)
@@ -488,17 +373,9 @@ class CPG:
         E_bs_gids = []
         F_bs_gids = []
         for step in range(step_number):
-            F_bs_gids.append(self.addgener(int(one_step_time * (2 * step + 1)), freq, False, 1))
-            E_bs_gids.append(self.addgener(int(one_step_time * 2 * step) + 10, freq, False, 1))
+            F_bs_gids.append(self.addgener(int(one_step_time * (2 * step + 1)), freq, spikes_per_step, False))
+            E_bs_gids.append(self.addgener(int(one_step_time * 2 * step) + 10, freq, spikes_per_step, False))
         return E_bs_gids, F_bs_gids
-
-    def add_ia_geners(self, mus_E, mus_F):
-        E_ia_gids = []
-        F_ia_gids = []
-        for step in range(step_number):
-            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=15))
-            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=20))
-        return E_ia_gids, F_ia_gids
 
 
 # def draw(weight_changes, time_t):
@@ -592,8 +469,8 @@ def spikeout(pool, name, version, v_vec):
         result = np.mean(np.array(result), axis=0, dtype=np.float32)
         with hdf5.File(f'./{file_name}/{name}_sp_{speed}_CVs_{CV_number}_bs_{bs_fr}.hdf5', 'w') as file:
             for i in range(step_number):
-                sl = slice((int(1000 / bs_fr) * 40 + i * one_step_time * 40),
-                           (int(1000 / bs_fr) * 40 + (i + 1) * one_step_time * 40))
+                sl = slice((int(1000 / bs_fr) * 40 * i + i * one_step_time * 40),
+                           (int(1000 / bs_fr) * 40 * (i + 1) + (i + 1) * one_step_time * 40))
                 file.create_dataset('#0_step_{}'.format(i), data=np.array(result)[sl], compression="gzip")
         logging.info("done recording")
     else:
