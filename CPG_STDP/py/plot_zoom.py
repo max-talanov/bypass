@@ -13,7 +13,7 @@ bokeh.sampledata.download()
 
 from bokeh.plotting import figure, output_file, show
 
-paths = 'res_alina_3/'
+paths = 'res_alina_4/'
 sys.path.append(paths)
 my_path = os.path.abspath(paths)
 

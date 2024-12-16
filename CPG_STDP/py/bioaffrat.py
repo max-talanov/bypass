@@ -109,9 +109,9 @@ class bioaffrat(object):
             for j in range(50):
                 s = h.Exp2Syn(self.node[len(self.node) - i - 1](0.5))  # Inhibitory
                 # s = h.Exp2Syn(self.soma(0.8))
-                s.tau1 = 1.5
+                s.tau1 = 0.5
                 s.tau2 = 3.5
-                s.e = -70
+                s.e = -80
                 self.synlistinh.append(s)
         for i in range(200):
             s = h.ExpSyn(self.soma(0.8))  # Excitatory
