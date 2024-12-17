@@ -53,9 +53,9 @@ class CPG:
     def __init__(self, speed, bs_fr, inh_p, step_number, n):
         self.threshold = 10
         self.delay = 1
-        self.nAff = 12
-        self.nInt = 5
-        self.nMn = 21
+        self.nAff = 24 #12
+        self.nInt = 10 #5
+        self.nMn = 42 #21
         self.ncell = n
         self.affs = []
         self.ints = []
@@ -149,12 +149,12 @@ class CPG:
             self.genconnect(F_bs_gid, self.BS_aff_F, 3.5, 3)
 
         for layer in range(CV_number):
-            self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 3, 3, stdptype=False)
-            self.connectcells(self.BS_aff_E, self.dict_RG_E[layer], 3, 3, stdptype=False)
+            self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 5, 3, stdptype=False)
+            self.connectcells(self.BS_aff_E, self.dict_RG_E[layer], 5, 3, stdptype=False)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 2.5, 2, inhtype=False, N=45)
-        self.connectcells(self.mns_F, self.muscle_F, 2.5, 2, inhtype=False, N=45)
+        self.connectcells(self.mns_E, self.muscle_E, 10, 2, inhtype=False, N=45)
+        self.connectcells(self.mns_F, self.muscle_F, 10, 2, inhtype=False, N=45)
 
         '''muscle afferents generators'''
         self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(self.muscle_E, self.muscle_F)
@@ -182,11 +182,10 @@ class CPG:
         for layer in range(CV_number):
             self.dict_C[layer] = []
             for i in range(step_number):
-                '''25 + 50*(0-6) + (0-10)*(50*6 + 12), '''
                 self.dict_C[layer].append(
-                    self.addgener(10 + speed * layer + i * (speed * CV_number + CV_0_len + one_step_time),
+                    self.addgener(10 + speed * layer + i * (speed * CV_number + CV_0_len + one_step_time) + 7 - layer*12,
                                   int(random.gauss(cfr, cfr / 10)), True,
-                                  int((one_step_time / CV_number - 0.3 * (one_step_time / CV_number))/6), cv=True))
+                                  int((one_step_time / CV_number)*0.15), cv=True))
 
         '''Generators'''
         '''TODO: need it?'''
@@ -424,7 +423,7 @@ class CPG:
         moto2 = pc.gid2cell(random.randint(mn2[0], mn2[-1]))
         stim = h.IaGenerator(0.5)
         stim.start = start
-        freq = 20
+        freq = 100
         stim.interval = int(1000 / freq)
         stim.number = int(one_step_time / stim.interval)
         self.stims.append(stim)
@@ -468,7 +467,7 @@ class CPG:
             stim.start = start
         if flg_interval:
             stim.interval = interval
-            stim.number = 6
+            stim.number = 10
         else:
             stim.interval = int(1000 / freq)
             stim.number = int(one_step_time / stim.interval)
@@ -497,8 +496,8 @@ class CPG:
         E_ia_gids = []
         F_ia_gids = []
         for step in range(step_number):
-            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=10))
-            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=15))
+            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=20))
+            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=30))
         return E_ia_gids, F_ia_gids
 
 
