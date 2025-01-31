@@ -34,6 +34,7 @@ PROCEDURE seed(x) {
 }
 
 INITIAL {
+	seed(0)
 	on = 0 : off
 	y = 0
     t0 = start
@@ -49,7 +50,8 @@ INITIAL {
 		: randomize the first spike so on average it occurs at start+interval
 
 		on = 1
-		event = start + invl(t) - interval*(1. - noise)
+		event = start + invl(interval) - interval*(1. - noise)
+		: but not earlier than 0
 		if (event < 0) {
             event = 0
         }
@@ -111,7 +113,9 @@ NET_RECEIVE (w) {
 		if (w > 0 && on == 0) { : turn on spike sequence
 			on = 1
 			init_sequence(t)
-			net_send(0, 1)
+			net_event(t)
+			event = event - interval*(1. - noise)
+			net_send(event, 1)
 		} else if (w < 0 && on == 1) { : turn off spiking
 			on = 0
 		}
@@ -130,7 +134,7 @@ NET_RECEIVE (w) {
 		if (on == 1) {
 			net_send(event - t, 1)
 		}
-		net_send(.1, 2)
+		: net_send(.1, 2)
 	}
 	if (flag == 2) {
 		y = 0
