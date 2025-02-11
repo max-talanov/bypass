@@ -29,7 +29,7 @@ nhost = int(pc.nhost())
 
 file_name = 'res_alina_new_new'
 
-N = 50
+N = 5  # 50
 speed = 100
 bs_fr = 100  # 40 # frequency of brainstem inputs
 versions = 1
@@ -38,7 +38,7 @@ k = 0.017  # CV weights multiplier to take into account air and toe stepping
 CV_0_len = 12  # 125 # Duration of the CV generator with no sensory inputs
 extra_layers = 0  # 1 + layers
 
-step_number = 6
+step_number = 4
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = one_step_time * step_number + 20
@@ -53,9 +53,9 @@ class CPG:
     def __init__(self, speed, bs_fr, inh_p, step_number, n):
         self.threshold = 10
         self.delay = 1
-        self.nAff = 12  # 12
+        self.nAff = 5  # 12  # 12
         self.nInt = 5  # 5
-        self.nMn = 21  # 21
+        self.nMn = 5  # 21  # 21
         self.ncell = n
         self.affs = []
         self.ints = []
@@ -66,6 +66,7 @@ class CPG:
         self.motogroups = []
         self.musclegroups = []
         self.gener_gids = []
+        self.recorded_spikes = []
         self.n_gid = 0
 
         self.RG_E = []  # Rhythm generators of extensors
@@ -320,7 +321,7 @@ class CPG:
         return gids
 
     def connectcells(self, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, inhtype=False,
-                     stdptype=False, N=50):
+                     stdptype=False, N=5):
         nsyn = random.randint(N, N + 15)
         for post_gid in post_cells:
             if pc.gid_exists(post_gid):
@@ -368,7 +369,7 @@ class CPG:
                         nc.delay = random.gauss(delay, delay / 5)
                         self.netcons.append(nc)
 
-    def genconnect(self, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50):
+    def genconnect(self, gen_gid, afferents_gids, weight, delay, inhtype=False, N=10):
         nsyn = random.randint(N - 5, N)
         for i in afferents_gids:
             if pc.gid_exists(i):
@@ -437,6 +438,17 @@ class CPG:
         ncstim.weight[0] = weight
         self.netcons.append(ncstim)
         pc.cell(gid, ncstim)
+
+        # Запись моментов срабатывания генератора
+        spike_times = h.Vector()
+        ncstim.record(spike_times)
+        self.recorded_spikes.append(spike_times)
+
+        # # Запись параметра invl
+        # invl_record = h.Vector()
+        # invl_record.record(stim._ref_invl)
+        # self.recorded_invl.append(invl_record)
+
         self.gener_gids.append(gid)
         self.n_gid += 1
 
@@ -617,29 +629,58 @@ def spikeout_individual_files(pool, name, version, v_vec):
           recorded voltage
     '''
     global rank
+
+    if len(pool) > 5:
+        pool = pool[:5]
+        v_vec = v_vec[:5]
+
+        # Синхронизация всех процессов перед началом работы
     pc.barrier()
 
-    for i in range(nhost):
-        if i == rank:
-            selected_neurons = pool[:5]  # Берём первые 5 нейронов
-            results = {gid: np.array(v_vec[gid], dtype=np.float32) for gid in selected_neurons}
-        pc.barrier()
+    # Создаем для каждого нейрона из списка свой объект h.Vector для локального хранения данных
+    neuron_vecs = {}
+    for neuron in pool:
+        neuron_vecs[neuron] = h.Vector()
 
-    pc.barrier()
+    # Каждый процесс по очереди передаёт свои данные для каждого нейрона.
+    # Важно, чтобы в каждый момент времени только один процесс занимался передачей данных.
+    for proc in range(nhost):
+        if proc == rank:
+            for idx, neuron in enumerate(pool):
+                # Преобразуем данные из v_vec в список и записываем в h.Vector
+                data = list(v_vec[idx])
+                neuron_vecs[neuron].from_python(data)
+        pc.barrier()  # синхронизация между процессами
+    pc.barrier()  # дополнительная синхронизация после заполнения данных
 
+    # Собираем данные с каждого процесса для каждого нейрона с помощью py_gather
+    gathered_neuron_data = {}
+    for neuron in pool:
+        gathered_neuron_data[neuron] = pc.py_gather(neuron_vecs[neuron], 0)
+
+    # На процессе с rank == 0 производится запись данных в отдельные файлы
     if rank == 0:
-        logging.info("start recording individual neurons")
-        for idx, (gid, result) in enumerate(results.items()):
-            file_path = f'./{file_name}/{name}_neuron_{gid}.hdf5'
+        logging.info("Начало записи индивидуальных файлов для 5 нейронов.")
+        for neuron in pool:
+            # Объединяем данные, например, усредняя полученные векторы с разных процессов
+            vectors_list = [list(vec) for vec in gathered_neuron_data[neuron]]
+            combined = np.mean(np.array(vectors_list), axis=0, dtype=np.float32)
+
+            # Формируем имя файла для данного нейрона, например:
+            # "./{file_name}/{name}_neuron_{neuron}_v{version}.hdf5"
+            file_path = f"./{file_name}/{name}_neuron_{neuron}_v{version}.hdf5"
             with hdf5.File(file_path, 'w') as file:
+                # Разбиваем объединённый вектор на срезы и записываем каждый срез в отдельный датасет.
                 for i in range(step_number):
-                    sl = slice((int(1000 / bs_fr) * 40 + i * one_step_time * 40),
-                               (int(1000 / bs_fr) * 40 + (i + 1) * one_step_time * 40))
-                    file.create_dataset(f'step_{i}', data=result[sl], compression="gzip")
-            logging.info(f"Saved neuron {gid} to {file_path}")
-        logging.info("done recording individual neurons")
+                    # Расчёт начала и конца среза. Формулу можно корректировать под ваши данные.
+                    start = int(1000 / bs_fr) * 40 + i * one_step_time * 40
+                    end = int(1000 / bs_fr) * 40 + (i + 1) * one_step_time * 40
+                    dataset_name = f"step_{i}"
+                    file.create_dataset(dataset_name, data=combined[start:end], compression="gzip")
+        logging.info("Запись индивидуальных файлов для 5 нейронов завершена.")
     else:
-        logging.info(rank)
+        logging.info(f"Процесс с rank {rank} завершил сбор данных для индивидуальных файлов.")
+
 
 def prun(speed, step_number):
     ''' simulation control
@@ -743,12 +784,17 @@ if __name__ == '__main__':
             spikeout(group[k_nrns], 'mem_{}'.format(group[k_name]), i, recorder)
         for group, recorder in zip(cpg_ex.affgroups, affrecorders):
             spikeout(group[k_nrns], group[k_name], i, recorder)
-            spikeout_individual_files(group[k_nrns], group[k_name], i, recorder)
         for group, recorder in zip(cpg_ex.intgroups, recorders):
             spikeout(group[k_nrns], group[k_name], i, recorder)
         for group, recorder in zip(cpg_ex.musclegroups, force_recorders):
             spikeout(group[k_nrns], 'force_{}'.format(group[k_name]), i, recorder)
+        for group, recorder in zip(cpg_ex.affgroups, affrecorders):
+            spikeout_individual_files(group[k_nrns], group[k_name], i, recorder)
 
+        for idx, spike_vec in enumerate(cpg_ex.recorded_spikes):
+            with open(f'spike_times_{idx}.txt', 'w') as f:
+                for t in spike_vec:
+                    f.write(f"{t}\n")
         logging.info("recorded")
 
     finish()

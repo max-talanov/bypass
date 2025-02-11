@@ -55,7 +55,7 @@ INITIAL {
 		if (event < 0) {
             event = 0
         }
-		printf("initial inv, number: %g, event: %g \n", number, event)
+		: printf("initial inv, number: %g, event: %g \n", number, event)
 		net_send(event, 3)
 	}
 }
@@ -65,7 +65,7 @@ PROCEDURE init_sequence(t(ms)) {
 		on = 1
 		event = t
 		end = t + 1e-6 + invl(t)*(number-1)
-		printf("init_sequence, number: %g, event: %g, end: %g \n", number, event, end)
+		: printf("init_sequence, number: %g, event: %g, end: %g \n", number, event, end)
 	}
 }
 
@@ -73,23 +73,23 @@ FUNCTION invl(t (ms)) (ms) {
 	:interspike interval
 	:len2 is the length increase of the antagonist muscle
 
-	 if (fhill > fhill0){
-		printf("INC \n")
-		: vel = v0 + 0.005*fhill*(t-t0) + 0.00015*fhill*(t-t0)*(t-t0)
-		vel = v0 + 0.02*fhill*(t-t0) + 0.0004*fhill*(t-t0)*(t-t0)
-		if (vel < 0){vel = 1}
-     }else{
-	 	printf("DEC \n")
-     	vel = v0 - 0.02*fhill*(t-t0) - 0.0004*fhill*(t-t0)*(t-t0)
-	 	: vel = v0 - 0.005*fhill*(t-t0) - 0.00015*fhill*(t-t0)*(t-t0)
-     	if (vel < 0){vel = 1}
+	 if (fhill > fhill0) {
+		: printf("INC \n")
+		vel = v0 + 0.005*fhill*(t-t0) + 0.00015*fhill*(t-t0)*(t-t0)
+		: vel = v0 + 0.02*fhill*(t-t0) + 0.0004*fhill*(t-t0)*(t-t0)
+		if (vel < 0) {vel = 1}
+     } else {
+	 	: printf("DEC \n")
+     	: vel = v0 - 0.02*fhill*(t-t0) - 0.0004*fhill*(t-t0)*(t-t0)
+	 	vel = v0 - 0.005*fhill*(t-t0) - 0.00015*fhill*(t-t0)*(t-t0)
+     	if (vel < 0) {vel = 1}
      }
-     printf("t: %g, t0: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g, vel: %g, ", t, t0 , len2, fhill2, fhill0, fhill, vel)
-     printf("IaGenerator v0: %g, vel: %g \n", v0, vel)
+     : printf("t: %g, t0: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g, vel: %g, ", t, t0 , len2, fhill2, fhill0, fhill, vel)
+     : printf("IaGenerator v0: %g, vel: %g \n", v0, vel)
      v0 = vel
      fhill0 = fhill
      mean = 1000/vel
-     printf("v0: %g, mean: %g \n", v0, mean)
+     : printf("v0: %g, mean: %g \n", v0, mean)
      t0 = t
 	 if (noise == 0) {
 		invl = mean
@@ -129,7 +129,7 @@ NET_RECEIVE (w) {
 	if (flag == 1 && on == 1) {
 		y = 2
 		net_event(t)
-	    printf("net_receive event_time(t) \n")
+	    : printf("net_receive event_time(t) \n")
 		event_time(t)
 		if (on == 1) {
 			net_send(event - t, 1)

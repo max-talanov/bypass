@@ -9,7 +9,7 @@ import bokeh
 import h5py
 import numpy as np
 
-bokeh.sampledata.download()
+# bokeh.sampledata.download()
 
 from bokeh.plotting import figure, output_file, show
 
