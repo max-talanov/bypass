@@ -38,7 +38,7 @@ INITIAL {
 	on = 0 : off
 	y = 0
     t0 = start
-    v0 = 50
+    v0 = 25 : 50
     fhill0 = 0
 	if (noise < 0) {
 		noise = 0

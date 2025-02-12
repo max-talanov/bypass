@@ -10,7 +10,7 @@ from interneuron import interneuron
 from motoneuron import motoneuron
 from muscle import muscle
 
-logging.basicConfig(filename='logs_new_new_2.log',
+logging.basicConfig(filename='logs_new_new_3.log',
                     filemode='a',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S',
@@ -31,7 +31,7 @@ file_name = 'res_alina_new_new'
 
 N = 5  # 50
 speed = 100
-bs_fr = 100  # 40 # frequency of brainstem inputs
+bs_fr = 250 #100  # 40 # frequency of brainstem inputs
 versions = 1
 CV_number = 6
 k = 0.017  # CV weights multiplier to take into account air and toe stepping
@@ -144,14 +144,14 @@ class CPG:
 
         ''' BS '''
         for E_bs_gid in self.E_bs_gids:
-            self.genconnect(E_bs_gid, self.BS_aff_E, 5, 3)
+            self.genconnect(E_bs_gid, self.BS_aff_E, 3, 3)
 
         for F_bs_gid in self.F_bs_gids:
-            self.genconnect(F_bs_gid, self.BS_aff_F, 5, 3)
+            self.genconnect(F_bs_gid, self.BS_aff_F, 3, 3)
 
         for layer in range(CV_number):
-            self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 5, 3, stdptype=False)
-            self.connectcells(self.BS_aff_E, self.dict_RG_E[layer], 5, 3, stdptype=False)
+            self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 3, 3, stdptype=False)
+            self.connectcells(self.BS_aff_E, self.dict_RG_E[layer], 3, 3, stdptype=False)
 
         for layer in range(CV_number):
             '''Internal to RG topology'''
@@ -163,11 +163,11 @@ class CPG:
             self.connectcells(self.dict_RG_F[layer], self.mns_F, 2.75, 3)
 
             # self.connectcells(self.dict_RG_E[layer], self.InE, 4, 1)
-            self.connectcells(self.dict_RG_F[layer], self.InF, 4, 1)
+            self.connectcells(self.dict_RG_F[layer], self.InF, 3, 1)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 10, 2, inhtype=False, N=45)
-        self.connectcells(self.mns_F, self.muscle_F, 10, 2, inhtype=False, N=45)
+        self.connectcells(self.mns_E, self.muscle_E, 1, 2, inhtype=False, N=45)
+        self.connectcells(self.mns_F, self.muscle_F, 1, 2, inhtype=False, N=45)
 
         '''muscle afferents generators'''
 
@@ -177,7 +177,7 @@ class CPG:
         #     self.genconnect(E_ia_gid, self.Ia_aff_E, 10, 3)
 
         for F_ia_gid in self.F_ia_gids:
-            self.genconnect(F_ia_gid, self.Ia_aff_F, 10, 1)
+            self.genconnect(F_ia_gid, self.Ia_aff_F, 1, 1)
         # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 15, weight=20)
         # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time + 15, weight=30)
 
@@ -427,9 +427,9 @@ class CPG:
         moto2 = pc.gid2cell(random.randint(mn2[0], mn2[-1]))
         stim = h.IaGenerator(0.5)
         stim.start = start
-        freq = 100
+        freq = 250 #100
         stim.interval = int(1000 / freq)
-        stim.number = int(one_step_time / stim.interval)
+        stim.number = int(one_step_time / stim.interval) - 10
         self.stims.append(stim)
         h.setpointer(moto.muscle_unit(0.5)._ref_F_fHill, 'fhill', stim)
         h.setpointer(moto2.muscle_unit(0.5)._ref_F_fHill, 'fhill2', stim)
@@ -485,7 +485,7 @@ class CPG:
             stim.number = 10
         else:
             stim.interval = int(1000 / freq)
-            stim.number = int(one_step_time / stim.interval)
+            stim.number = int(one_step_time / stim.interval) - 10
         self.stims.append(stim)
         pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)
@@ -511,8 +511,8 @@ class CPG:
         E_ia_gids = []
         F_ia_gids = []
         for step in range(step_number):
-            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=20))
-            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=30))
+            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=2))
+            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=3))
         return E_ia_gids, F_ia_gids
 
 
@@ -792,7 +792,7 @@ if __name__ == '__main__':
             spikeout_individual_files(group[k_nrns], group[k_name], i, recorder)
 
         for idx, spike_vec in enumerate(cpg_ex.recorded_spikes):
-            with open(f'spike_times_{idx}.txt', 'w') as f:
+            with open(f'./{file_name}/spike_times_{idx}.txt', 'w') as f:
                 for t in spike_vec:
                     f.write(f"{t}\n")
         logging.info("recorded")
