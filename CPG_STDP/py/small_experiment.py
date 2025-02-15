@@ -166,8 +166,8 @@ class CPG:
             self.connectcells(self.dict_RG_F[layer], self.InF, 3, 1)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 10, 2, inhtype=False, N=45)
-        self.connectcells(self.mns_F, self.muscle_F, 10, 2, inhtype=False, N=45)
+        self.connectcells(self.mns_E, self.muscle_E, 7, 2, inhtype=False, N=45)
+        self.connectcells(self.mns_F, self.muscle_F, 7, 2, inhtype=False, N=45)
 
         '''muscle afferents generators'''
 
@@ -177,7 +177,7 @@ class CPG:
         #     self.genconnect(E_ia_gid, self.Ia_aff_E, 10, 3)
 
         for F_ia_gid in self.F_ia_gids:
-            self.genconnect(F_ia_gid, self.Ia_aff_F, 1, 1)
+            self.genconnect(F_ia_gid, self.Ia_aff_F, 0.5, 1)
         # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 15, weight=20)
         # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time + 15, weight=30)
 
@@ -429,7 +429,7 @@ class CPG:
         stim.start = start
         freq = 150 #100
         stim.interval = int(1000 / freq)
-        stim.number = int(one_step_time / stim.interval) - 10
+        stim.number = int(one_step_time / stim.interval) - 30
         self.stims.append(stim)
         h.setpointer(moto.muscle_unit(0.5)._ref_F_fHill, 'fhill', stim)
         h.setpointer(moto2.muscle_unit(0.5)._ref_F_fHill, 'fhill2', stim)
@@ -511,8 +511,8 @@ class CPG:
         E_ia_gids = []
         F_ia_gids = []
         for step in range(step_number):
-            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=2))
-            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=3))
+            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=1))
+            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=1))
         return E_ia_gids, F_ia_gids
 
 

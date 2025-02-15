@@ -85,7 +85,7 @@ FUNCTION invl(t (ms)) (ms) {
      	if (vel < 0) {vel = 1}
      }
      : printf("t: %g, t0: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g, vel: %g, ", t, t0 , len2, fhill2, fhill0, fhill, vel)
-     : printf("IaGenerator v0: %g, vel: %g \n", v0, vel)
+     printf("IaGenerator v0: %g, vel: %g \n", v0, vel)
      v0 = vel
      fhill0 = fhill
      mean = 1000/vel
