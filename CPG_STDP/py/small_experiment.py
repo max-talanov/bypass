@@ -11,7 +11,7 @@ from motoneuron import motoneuron
 from muscle import muscle
 
 logging.basicConfig(filename='logs_new_new_3.log',
-                    filemode='a',
+                    filemode='w',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S',
                     level=logging.DEBUG)
@@ -31,7 +31,7 @@ file_name = 'res_alina_new_new'
 
 N = 5  # 50
 speed = 100
-bs_fr = 250 #100  # 40 # frequency of brainstem inputs
+bs_fr = 100  # 40 # frequency of brainstem inputs
 versions = 1
 CV_number = 6
 k = 0.017  # CV weights multiplier to take into account air and toe stepping
@@ -166,8 +166,8 @@ class CPG:
             self.connectcells(self.dict_RG_F[layer], self.InF, 3, 1)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 1, 2, inhtype=False, N=45)
-        self.connectcells(self.mns_F, self.muscle_F, 1, 2, inhtype=False, N=45)
+        self.connectcells(self.mns_E, self.muscle_E, 10, 2, inhtype=False, N=45)
+        self.connectcells(self.mns_F, self.muscle_F, 10, 2, inhtype=False, N=45)
 
         '''muscle afferents generators'''
 
@@ -427,7 +427,7 @@ class CPG:
         moto2 = pc.gid2cell(random.randint(mn2[0], mn2[-1]))
         stim = h.IaGenerator(0.5)
         stim.start = start
-        freq = 250 #100
+        freq = 150 #100
         stim.interval = int(1000 / freq)
         stim.number = int(one_step_time / stim.interval) - 10
         self.stims.append(stim)
