@@ -134,7 +134,7 @@ NET_RECEIVE (w) {
 		if (on == 1) {
 			net_send(event - t, 1)
 		}
-		: net_send(.1, 2)
+		net_send(.1, 2)
 	}
 	if (flag == 2) {
 		y = 0
