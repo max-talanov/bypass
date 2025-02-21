@@ -159,15 +159,15 @@ class CPG:
             self.connectinsidenucleus(self.dict_RG_E[layer])
 
             '''RG2Motor'''
-            self.connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
-            self.connectcells(self.dict_RG_F[layer], self.mns_F, 2.75, 3)
+            self.connectcells(self.dict_RG_E[layer], self.mns_E, 3.75, 3)
+            self.connectcells(self.dict_RG_F[layer], self.mns_F, 3.75, 3)
 
             # self.connectcells(self.dict_RG_E[layer], self.InE, 4, 1)
             self.connectcells(self.dict_RG_F[layer], self.InF, 3, 1)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 9, 2, inhtype=False, N=45)
-        self.connectcells(self.mns_F, self.muscle_F, 9, 2, inhtype=False, N=45)
+        self.connectcells(self.mns_E, self.muscle_E, 10, 2, inhtype=False, N=45)
+        self.connectcells(self.mns_F, self.muscle_F, 10, 2, inhtype=False, N=45)
 
         '''muscle afferents generators'''
 
@@ -177,7 +177,7 @@ class CPG:
         #     self.genconnect(E_ia_gid, self.Ia_aff_E, 10, 3)
 
         for F_ia_gid in self.F_ia_gids:
-            self.genconnect(F_ia_gid, self.Ia_aff_F, 0.5, 1)
+            self.genconnect(F_ia_gid, self.Ia_aff_F, 0.7, 1)
         # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 15, weight=20)
         # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time + 15, weight=30)
 
