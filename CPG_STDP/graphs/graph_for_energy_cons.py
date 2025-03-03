@@ -26,6 +26,7 @@ data = [
     [6 * 10 ** (-15), 'ORGANIC'],
     [4.05 * 10 ** (-12), 'ORGANIC'],
     [0.35 * 10 ** (-15), 'ORGANIC'],
+    [5 * 10 ** (-15), 'ORGANIC'], #POLY
     [170 * 10 ** (-15), 'VOLATILE'],
     [3.76 * 10 ** (-12), 'VOLATILE'],
     [4.1 * 10 ** (-12), 'VOLATILE'],
@@ -51,31 +52,34 @@ new_values = [
 ]
 
 new_known_values = [
-    680000 * 10 ** (-15),
-    780000 * 10 ** (-15)
+    680000 * 10 ** (-15)
 ]
 
-poly_values = [
-    5 * 10 ** (-15)
-]
 
 # Добавляем новые значения в data с метками
 for value in new_values:
-    data.append([value, "NN"])
+    data.append([value, "ANN"])
 for value in new_known_values:
     data.append([value, "KNOWN"])
-for value in poly_values:
-    data.append([value, "POLY"])
 
+# Цвета для каждой категории
+category_colors = {
+    "ANN": "#fb580d",
+    "KNOWN": "#fb580d",
+    "VOLATILE": "#76ae0a",
+    "ORGANIC": "#76ae0a",
+    "FET": "#76ae0a",
+    "ST": "#76ae0a"
+}
 # Группируем значения по категориям
 categories = defaultdict(list)
 for value, category in data:
-    categories[category].append(value)
+    categories[category].append({"value":value, "color":category_colors[category]})
 
 # Сортируем категории: KNOWN и NN идут первыми, остальные по убыванию максимального значения
 sorted_categories = sorted(
     categories.keys(),
-    key=lambda cat: (float('-inf') if cat in ['KNOWN', 'NN'] else -max(categories[cat]))
+    key=lambda cat: float('-inf') if cat in ['KNOWN', 'ANN'] else -max(v["value"] for v in categories[cat])
 )
 
 # Создаем фигуру
@@ -84,10 +88,22 @@ fig = figure(width=900, x_range=sorted_categories, height=400,
 
 # Добавляем столбцы
 for category in sorted_categories:
-    fig.vbar(x=[category] * len(categories[category]),
-             top=categories[category], width=0.4, bottom=[v / 2 for v in categories[category]],
-             alpha=0.6, color="purple")
+    values = [v["value"] for v in categories[category]]
+    colors = [v["color"] for v in categories[category]]
 
+    fig.vbar(
+        x=[category] * len(values),
+        top=values,
+        width=0.5,
+        bottom=[v / 2 for v in values],
+        alpha=0.8,
+        color=colors
+    )
+# Добавляем горизонтальные линии
+fig.hspan(
+    y=[10 ** (-12), 10 ** (-15)],
+    line_width=[3, 3], line_color="green", alpha=0.6
+)
 # Настройка шрифтов
 fig.xaxis.axis_label_text_font_style = "bold"
 fig.yaxis.axis_label_text_font_style = "bold"
