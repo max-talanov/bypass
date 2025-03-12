@@ -401,54 +401,72 @@ class CPG:
 
         return x2
 
-    def addIagener(self, mn: list, mn2: list, start, weight=1.0):
-        '''
-        Creates self.Ia generators and returns generator gid
+    def add_Ia_generator(self, mn: list, mn2: list, start: int, weight: float = 1.0) -> int:
+        """
+        Creates an Ia generator and returns its gid.
+
         Parameters
         ----------
-        mn: list
-            motor neurons of agonist muscle that contract spindle
-        mn2: list
-            motor neurons of antagonist muscle that extend spindle
-        start: int
-            generator start up
-        num: int
-            number in pool
-        w_in: int
-            weight of the connection
+        mn : list
+            of motor neuron gids for the agonist muscle.
+        mn2 : list
+            of motor neuron gids for the antagonist muscle.
+        start : int
+            Start time for the generator (in ms).
+        weight : float, optional
+            Connection weight, default is 1.0.
+
         Returns
         -------
-        gid: int
-            generators gid
-        '''
+        int
+            The gid of the created generator.
+        """
 
-        gid = self.n_gid
-        moto = pc.gid2cell(random.randint(mn[0], mn[-1]))
-        moto2 = pc.gid2cell(random.randint(mn2[0], mn2[-1]))
+        # Choose a random motor neuron cell from the provided lists using random.choice.
+        moto = pc.gid2cell(random.choice(mn))
+        moto2 = pc.gid2cell(random.choice(mn2))
+
+        # Create the Ia generator with an initial value of 0.5.
         stim = h.IaGenerator(0.5)
         stim.start = start
-        freq = 100
-        stim.interval = int(1000 / freq)
+
+        # Set generator parameters:
+        freq = 100  # frequency in Hz
+        stim.interval = int(1000 / freq)  # interval between stimuli in ms
+        # 'one_step_time' is assumed to be a global variable representing the simulation step duration (in ms).
         stim.number = int(one_step_time / stim.interval) - 5
+
+        # Append the generator to the list of stimulations.
         self.stims.append(stim)
-        h.setpointer(moto.muscle_unit(0.5)._ref_F_fHill, 'fhill', stim)
-        h.setpointer(moto2.muscle_unit(0.5)._ref_F_fHill, 'fhill2', stim)
+
+        # Set pointers for the muscle units associated with the motor neurons.
+        muscle_unit1 = moto.muscle_unit(0.5)
+        muscle_unit2 = moto2.muscle_unit(0.5)
+        h.setpointer(muscle_unit1._ref_F_fHill, 'fhill', stim)
+        h.setpointer(muscle_unit2._ref_F_fHill, 'fhill2', stim)
+
+        # Assign a unique gid to the generator.
+        gid = self.n_gid
+        # 'rank' is assumed to be a global variable responsible for distributing gids across nodes.
         pc.set_gid2node(gid, rank)
+
+        # Create a NetCon for the generator and configure its parameters.
         ncstim = h.NetCon(stim, None)
         ncstim.weight[0] = weight
         self.netcons.append(ncstim)
         pc.cell(gid, ncstim)
 
-        # Запись моментов срабатывания генератора
+        # Record the spike times of the generator.
         spike_times = h.Vector()
         ncstim.record(spike_times)
         self.recorded_spikes.append(spike_times)
 
-        # # Запись параметра invl
+        # If needed, record the 'invl' parameter by uncommenting the following block:
         # invl_record = h.Vector()
         # invl_record.record(stim._ref_invl)
         # self.recorded_invl.append(invl_record)
 
+        # Append the generator gid to the list and increment the gid counter.
         self.gener_gids.append(gid)
         self.n_gid += 1
 
