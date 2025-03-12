@@ -140,14 +140,14 @@ class CPG:
         logging.info("done addpool")
         '''BS'''
         # periodic stimulation
-        self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 20)
+        self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 15)
 
         ''' BS '''
         for E_bs_gid in self.E_bs_gids:
-            self.genconnect(E_bs_gid, self.BS_aff_E, 5, 3)
+            self.genconnect(E_bs_gid, self.BS_aff_E, 3, 3)
 
         for F_bs_gid in self.F_bs_gids:
-            self.genconnect(F_bs_gid, self.BS_aff_F, 5, 3)
+            self.genconnect(F_bs_gid, self.BS_aff_F, 3, 3)
 
         for layer in range(CV_number):
             self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 5, 3, stdptype=False)
@@ -166,18 +166,18 @@ class CPG:
             self.connectcells(self.dict_RG_F[layer], self.InF, 3, 1)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 3, 2, inhtype=False, N=5)
-        self.connectcells(self.mns_F, self.muscle_F, 3, 2, inhtype=False, N=5)
+        self.connectcells(self.mns_E, self.muscle_E, 6, 2, inhtype=False, N=5)
+        self.connectcells(self.mns_F, self.muscle_F, 6, 2, inhtype=False, N=5)
 
         '''muscle afferents generators'''
 
         self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(self.muscle_E, self.muscle_F)
         ''' BS '''
         for E_ia_gid in self.E_ia_gids:
-            self.genconnect(E_ia_gid, self.Ia_aff_E, 1, 3)
+            self.genconnect(E_ia_gid, self.Ia_aff_E, 0.5, 3)
 
         for F_ia_gid in self.F_ia_gids:
-            self.genconnect(F_ia_gid, self.Ia_aff_F, 1, 3)
+            self.genconnect(F_ia_gid, self.Ia_aff_F, 0.5, 3)
         # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 15, weight=20)
         # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time + 15, weight=30)
 
@@ -221,12 +221,12 @@ class CPG:
         #     self.connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 2 * k * speed, 3)  # 0.0035
 
         '''Ia2motor'''
-        # self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 2)
+        self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 2)
         self.connectcells(self.Ia_aff_F, self.mns_F, 1.55, 2)
 
         for layer in range(CV_number):
             '''STDP synapse'''
-            # self.connectcells(self.Ia_aff_E, self.dict_RG_E[layer], weight=3.3, delay=3, stdptype=True)
+            self.connectcells(self.Ia_aff_E, self.dict_RG_E[layer], weight=3.3, delay=3, stdptype=True)
             self.connectcells(self.Ia_aff_F, self.dict_RG_F[layer], weight=3.3, delay=3, stdptype=True)
 
             # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
