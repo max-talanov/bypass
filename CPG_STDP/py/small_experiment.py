@@ -31,7 +31,7 @@ file_name = 'res_alina_new_new'
 
 N = 5  # 50
 speed = 100
-bs_fr = 100  # 40 # frequency of brainstem inputs
+bs_fr = 150 #100  # 40 # frequency of brainstem inputs
 versions = 1
 CV_number = 6
 k = 0.017  # CV weights multiplier to take into account air and toe stepping
@@ -166,8 +166,8 @@ class CPG:
             self.connectcells(self.dict_RG_F[layer], self.InF, 3, 1)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 6, 2, inhtype=False, N=5)
-        self.connectcells(self.mns_F, self.muscle_F, 6, 2, inhtype=False, N=5)
+        self.connectcells(self.mns_E, self.muscle_E, 7, 2, inhtype=False, N=5)
+        self.connectcells(self.mns_F, self.muscle_F, 7, 2, inhtype=False, N=5)
 
         '''muscle afferents generators'''
 
@@ -454,11 +454,13 @@ class CPG:
 
         return gid
 
-    def addgener(self, start, freq, flg_interval, interval, cv=False, r=True):
+    def addgener(self, start, freq, flg_interval, interval, weight = 3, cv=False, r=True):
         '''
         Creates generator and returns generator gid
         Parameters
         ----------
+        weight: int
+            weight of the connection
         start: int
             generator start up
         freq: int
@@ -489,6 +491,7 @@ class CPG:
         self.stims.append(stim)
         pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)
+        ncstim.weight[0] = weight
         self.netcons.append(ncstim)
         pc.cell(gid, ncstim)
         self.gener_gids.append(gid)
