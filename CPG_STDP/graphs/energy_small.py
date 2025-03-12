@@ -36,7 +36,7 @@ data = [
     (1 * 10 ** (-15), 'OXID'),
     (1.9 * 10 ** (-15), 'OXID'),
     (32.65 * 10 ** (-15), 'OXID'),
-    (5 * 10 ** (-15), "ORGANIC") #POLY
+    (5 * 10 ** (-15), "ORGANIC")#POLY
 ]
 
 # Группируем значения по категориям
@@ -72,6 +72,24 @@ fig = figure(width=900, height=500,
              y_axis_type="log", y_axis_label='Energy [J]', x_axis_label='Technology',
              x_range=[0, len(sorted_categories) + 1], y_range=(y_min, y_max))
 
+fig.quad(
+    left=-0.5,  # По x-оси прямоугольник будет занимать всё пространство
+    right=len(sorted_categories) + 1,
+    top=10**(-12),
+    bottom=10**(-15),
+    color="blue",
+    alpha=0.15
+)
+
+fig.quad(
+    left=-0.5,  # По x-оси прямоугольник будет занимать всё пространство
+    right=len(sorted_categories) + 1,
+    top=10**(-13),
+    bottom=10**(-14),
+    color="red",
+    alpha=0.1
+)
+
 # Добавляем точки для каждой категории с обводкой
 for category in sorted_categories:
     values = categories[category]
@@ -81,10 +99,10 @@ for category in sorted_categories:
     fig.scatter(x="x", y="y", size=25, color=category_colors.get(category, "gray"),
                 line_color="black", line_width=1.5, alpha=0.8, source=source)
 
-fig.hspan(
-    y=[10 ** (-12), 10 ** (-15)],
-    line_width=[3, 3], line_color="green", alpha=0.5
-)
+# fig.hspan(
+#     y=[10 ** (-12), 10 ** (-15)],
+#     line_width=[3, 3], line_color="green", alpha=0.5
+# )
 # Настраиваем подписи для категорий
 fig.xaxis.ticker = list(category_mapping.values())
 fig.xaxis.major_label_overrides = {v: k for k, v in category_mapping.items()}

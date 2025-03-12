@@ -18,7 +18,7 @@ new_values = [
 ]
 
 new_known_values = [
-    (680000 * 10 ** (-15), "KNOWN", "Siemens")
+    (680000 * 10 ** (-15), "KNOWM", "KNOWM")
 ]
 
 # Добавляем новые значения в data с метками
@@ -45,7 +45,7 @@ category_colors = {
     "TRANSFORMER_IMDB": "#c73601",
     "RESNET_18_MNIST": "#fb580d",
     "LSTM_IMDB": "#ffa602",
-    "KNOWN": "#f9d692"
+    "KNOWM": "#f9d692"
 }
 
 # Оптимизированная шкала

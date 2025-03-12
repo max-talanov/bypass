@@ -37,7 +37,8 @@ data = [
     [0.1 * 10 ** (-12), 'VOLATILE'],
     [1 * 10 ** (-15), 'VOLATILE'],
     [1.9 * 10 ** (-15), 'VOLATILE'],
-    [32.65 * 10 ** (-15), 'VOLATILE']
+    [32.65 * 10 ** (-15), 'VOLATILE'],
+    [0.13 * 10 ** (-3), 'FPGA']
 ]
 
 # Новые значения
@@ -51,7 +52,7 @@ new_values = [
     17140769.132  * 10 ** (-15)
 ]
 
-new_known_values = [
+new_knowm_values = [
     680000 * 10 ** (-15)
 ]
 
@@ -59,13 +60,14 @@ new_known_values = [
 # Добавляем новые значения в data с метками
 for value in new_values:
     data.append([value, "ANN"])
-for value in new_known_values:
-    data.append([value, "KNOWN"])
+for value in new_knowm_values:
+    data.append([value, "KNOWM"])
 
 # Цвета для каждой категории
 category_colors = {
     "ANN": "#fb580d",
-    "KNOWN": "#fb580d",
+    "FPGA": "#fb580d",
+    "KNOWM": "#fb580d",
     "VOLATILE": "#76ae0a",
     "ORGANIC": "#76ae0a",
     "FET": "#76ae0a",
@@ -76,15 +78,32 @@ categories = defaultdict(list)
 for value, category in data:
     categories[category].append({"value":value, "color":category_colors[category]})
 
-# Сортируем категории: KNOWN и NN идут первыми, остальные по убыванию максимального значения
+# Сортируем категории: KNOWM и NN идут первыми, остальные по убыванию максимального значения
 sorted_categories = sorted(
     categories.keys(),
-    key=lambda cat: float('-inf') if cat in ['KNOWN', 'ANN'] else -max(v["value"] for v in categories[cat])
+    key=lambda cat: float('-inf') if cat in ['FPGA', 'KNOWM', 'ANN'] else -max(v["value"] for v in categories[cat])
 )
 
 # Создаем фигуру
 fig = figure(width=900, x_range=sorted_categories, height=400,
              y_axis_type="log", y_axis_label='Energy [J]', x_axis_label='Technology')
+fig.quad(
+    left=-0.5,  # По x-оси прямоугольник будет занимать всё пространство
+    right=len(sorted_categories),
+    top=10**(-12),
+    bottom=10**(-15),
+    color="blue",
+    alpha=0.15
+)
+
+fig.quad(
+    left=-0.5,  # По x-оси прямоугольник будет занимать всё пространство
+    right=len(sorted_categories),
+    top=10**(-13),
+    bottom=10**(-14),
+    color="red",
+    alpha=0.1
+)
 
 # Добавляем столбцы
 for category in sorted_categories:
@@ -99,11 +118,12 @@ for category in sorted_categories:
         alpha=0.8,
         color=colors
     )
-# Добавляем горизонтальные линии
-fig.hspan(
-    y=[10 ** (-12), 10 ** (-15)],
-    line_width=[3, 3], line_color="green", alpha=0.6
-)
+# # Добавляем горизонтальные линии
+# fig.hspan(
+#     y=[10 ** (-12), 10 ** (-15)],
+#     line_width=[3, 3], line_color="blue", alpha=0.6
+# )
+
 # Настройка шрифтов
 fig.xaxis.axis_label_text_font_style = "bold"
 fig.yaxis.axis_label_text_font_style = "bold"
