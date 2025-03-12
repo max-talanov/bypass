@@ -53,12 +53,12 @@ DERIVATIVE state_hill {
 }
 
 FUNCTION xse (x, y) { LOCAL d_xm, d_xce, d_se
-	d_xm = xm - xm_init
-	d_xce = xce - xce_init
-	d_se = d_xm - d_xce
-
-	if (d_se <= 0) {xse = 0}
-	else {xse = d_se}
+	d_se = (x - xm_init) - (y - xce_init)
+    if (d_se <= 0) {
+        xse = 0
+    } else {
+        xse = d_se
+    }
 }
 
 FUNCTION g (x) {

@@ -159,15 +159,15 @@ class CPG:
             self.connectinsidenucleus(self.dict_RG_E[layer])
 
             '''RG2Motor'''
-            self.connectcells(self.dict_RG_E[layer], self.mns_E, 3.75, 3)
-            self.connectcells(self.dict_RG_F[layer], self.mns_F, 3.75, 3)
+            self.connectcells(self.dict_RG_E[layer], self.mns_E, 0.75, 2)
+            self.connectcells(self.dict_RG_F[layer], self.mns_F, 0.75, 2)
 
-            self.connectcells(self.dict_RG_E[layer], self.InE, 4, 1)
-            self.connectcells(self.dict_RG_F[layer], self.InF, 3, 1)
+            self.connectcells(self.dict_RG_E[layer], self.InE, 2, 1)
+            self.connectcells(self.dict_RG_F[layer], self.InF, 1, 1)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 25, 1, inhtype=False, N=5)
-        self.connectcells(self.mns_F, self.muscle_F, 25, 1, inhtype=False, N=5)
+        self.connectcells(self.mns_E, self.muscle_E, 20, 3, inhtype=False, N=5)
+        self.connectcells(self.mns_F, self.muscle_F, 20, 3, inhtype=False, N=5)
 
         '''muscle afferents generators'''
 
@@ -431,7 +431,7 @@ class CPG:
         stim.start = start
 
         # Set generator parameters:
-        freq = 100  # frequency in Hz
+        freq = 70 #100  # frequency in Hz
         stim.interval = int(1000 / freq)  # interval between stimuli in ms
         # 'one_step_time' is assumed to be a global variable representing the simulation step duration (in ms).
         stim.number = int(one_step_time / stim.interval) - 5
@@ -532,8 +532,8 @@ class CPG:
         E_ia_gids = []
         F_ia_gids = []
         for step in range(step_number):
-            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=10))
-            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=15))
+            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=20))
+            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=30))
         return E_ia_gids, F_ia_gids
 
 
