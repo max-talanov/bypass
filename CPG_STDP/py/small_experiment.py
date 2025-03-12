@@ -31,7 +31,7 @@ file_name = 'res_alina_new_new'
 
 N = 5  # 50
 speed = 100
-bs_fr = 150 #100  # 40 # frequency of brainstem inputs
+bs_fr = 50 #150 #100  # 40 # frequency of brainstem inputs
 versions = 1
 CV_number = 6
 k = 0.017  # CV weights multiplier to take into account air and toe stepping
@@ -51,7 +51,7 @@ network topology https://github.com/max-talanov/bypass/blob/main/figs/CPG_feedba
 class CPG:
 
     def __init__(self, speed, bs_fr, inh_p, step_number, n):
-        self.threshold = 10
+        self.threshold = 0
         self.delay = 1
         self.nAff = 5  # 12  # 12
         self.nInt = 5  # 5
@@ -128,8 +128,8 @@ class CPG:
         self.mns_F = self.addpool(self.nMn, "mns_F", "moto")
 
         '''muscles'''
-        self.muscle_E = self.addpool(self.nMn * 30, "muscle_E", "muscle")
-        self.muscle_F = self.addpool(self.nMn * 40, "muscle_F", "muscle")
+        self.muscle_E = self.addpool(self.nMn * 6, "muscle_E", "muscle")
+        self.muscle_F = self.addpool(self.nMn * 5, "muscle_F", "muscle")
 
         '''reflex arc'''
         # self.Ia_E = self.addpool(self.nInt, "Ia_E", "int")
@@ -144,10 +144,10 @@ class CPG:
 
         ''' BS '''
         for E_bs_gid in self.E_bs_gids:
-            self.genconnect(E_bs_gid, self.BS_aff_E, 3, 3)
+            self.genconnect(E_bs_gid, self.BS_aff_E, 1, 3)
 
         for F_bs_gid in self.F_bs_gids:
-            self.genconnect(F_bs_gid, self.BS_aff_F, 3, 3)
+            self.genconnect(F_bs_gid, self.BS_aff_F, 1, 3)
 
         for layer in range(CV_number):
             self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 5, 3, stdptype=False)
@@ -166,8 +166,8 @@ class CPG:
             self.connectcells(self.dict_RG_F[layer], self.InF, 3, 1)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 7, 2, inhtype=False, N=5)
-        self.connectcells(self.mns_F, self.muscle_F, 7, 2, inhtype=False, N=5)
+        self.connectcells(self.mns_E, self.muscle_E, 25, 1, inhtype=False, N=5)
+        self.connectcells(self.mns_F, self.muscle_F, 25, 1, inhtype=False, N=5)
 
         '''muscle afferents generators'''
 
@@ -401,7 +401,7 @@ class CPG:
 
         return x2
 
-    def add_Ia_generator(self, mn: list, mn2: list, start: int, weight: float = 1.0) -> int:
+    def addIagener(self, mn: list, mn2: list, start: int, weight: float = 1.0) -> int:
         """
         Creates an Ia generator and returns its gid.
 
@@ -518,7 +518,7 @@ class CPG:
         return gid
 
     def connectinsidenucleus(self, nucleus):
-        self.connectcells(nucleus, nucleus, 0.25, 0.5)
+        self.connectcells(nucleus, nucleus, 0.5, 0.5)
 
     def add_bs_geners(self, freq, spikes_per_step):
         E_bs_gids = []
@@ -532,8 +532,8 @@ class CPG:
         E_ia_gids = []
         F_ia_gids = []
         for step in range(step_number):
-            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=2))
-            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=3))
+            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=10))
+            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=15))
         return E_ia_gids, F_ia_gids
 
 
