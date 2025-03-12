@@ -110,14 +110,14 @@ class CPG:
 
         '''RG'''
         self.RG_E = sum(self.RG_E, [])
-        # self.InE = self.addpool(self.nInt, "InE", "int")
+        self.InE = self.addpool(self.nInt, "InE", "int")
         self.RG_F = sum(self.RG_F, [])
         self.InF = self.addpool(self.nInt, "InF", "bursting")
 
         self.CV = sum(self.CV, [])
 
         '''sensory and muscle afferents and brainstem and V3F'''
-        # self.Ia_aff_E = self.addpool(self.nAff, "Ia_aff_E", "aff")
+        self.Ia_aff_E = self.addpool(self.nAff, "Ia_aff_E", "aff")
         self.Ia_aff_F = self.addpool(self.nAff, "Ia_aff_F", "aff")
         self.BS_aff_E = self.addpool(self.nAff, "BS_aff_E", "aff")
         self.BS_aff_F = self.addpool(self.nAff, "BS_aff_F", "aff")
@@ -162,22 +162,22 @@ class CPG:
             self.connectcells(self.dict_RG_E[layer], self.mns_E, 3.75, 3)
             self.connectcells(self.dict_RG_F[layer], self.mns_F, 3.75, 3)
 
-            # self.connectcells(self.dict_RG_E[layer], self.InE, 4, 1)
+            self.connectcells(self.dict_RG_E[layer], self.InE, 4, 1)
             self.connectcells(self.dict_RG_F[layer], self.InF, 3, 1)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 8, 2, inhtype=False, N=45)
-        self.connectcells(self.mns_F, self.muscle_F, 8, 2, inhtype=False, N=45)
+        self.connectcells(self.mns_E, self.muscle_E, 3, 2, inhtype=False, N=5)
+        self.connectcells(self.mns_F, self.muscle_F, 3, 2, inhtype=False, N=5)
 
         '''muscle afferents generators'''
 
         self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(self.muscle_E, self.muscle_F)
         ''' BS '''
-        # for E_ia_gid in self.E_ia_gids:
-        #     self.genconnect(E_ia_gid, self.Ia_aff_E, 10, 3)
+        for E_ia_gid in self.E_ia_gids:
+            self.genconnect(E_ia_gid, self.Ia_aff_E, 1, 3)
 
         for F_ia_gid in self.F_ia_gids:
-            self.genconnect(F_ia_gid, self.Ia_aff_F, 1, 1)
+            self.genconnect(F_ia_gid, self.Ia_aff_F, 1, 3)
         # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 15, weight=20)
         # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time + 15, weight=30)
 
@@ -232,7 +232,7 @@ class CPG:
             # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
 
         '''Ia2RG, RG2Motor'''
-        # self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
+        self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
         self.connectcells(self.InF, self.RG_E, 0.8, 1, inhtype=True)
 
         # self.connectcells(self.Ia_aff_E, self.Ia_E, 0.8, 1, inhtype=False)
