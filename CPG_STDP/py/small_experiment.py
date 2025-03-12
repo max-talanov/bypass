@@ -51,7 +51,7 @@ network topology https://github.com/max-talanov/bypass/blob/main/figs/CPG_feedba
 class CPG:
 
     def __init__(self, speed, bs_fr, inh_p, step_number, n):
-        self.threshold = 0
+        self.threshold = -10
         self.delay = 1
         self.nAff = 5  # 12  # 12
         self.nInt = 5  # 5
@@ -166,8 +166,8 @@ class CPG:
             self.connectcells(self.dict_RG_F[layer], self.InF, 1, 1)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 10, 3, inhtype=False, N=5)
-        self.connectcells(self.mns_F, self.muscle_F, 10, 3, inhtype=False, N=5)
+        self.connectcells(self.mns_E, self.muscle_E, 1, 3, inhtype=False, N=10)
+        self.connectcells(self.mns_F, self.muscle_F, 1, 3, inhtype=False, N=10)
 
         '''muscle afferents generators'''
 
@@ -431,7 +431,7 @@ class CPG:
         stim.start = start
 
         # Set generator parameters:
-        freq = 70 #100  # frequency in Hz
+        freq = 50 #70 #100  # frequency in Hz
         stim.interval = int(1000 / freq)  # interval between stimuli in ms
         # 'one_step_time' is assumed to be a global variable representing the simulation step duration (in ms).
         stim.number = int(one_step_time / stim.interval) - 5
@@ -532,8 +532,8 @@ class CPG:
         E_ia_gids = []
         F_ia_gids = []
         for step in range(step_number):
-            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=20))
-            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=30))
+            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=5))
+            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=8))
         return E_ia_gids, F_ia_gids
 
 
