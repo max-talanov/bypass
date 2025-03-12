@@ -150,8 +150,8 @@ class CPG:
             self.genconnect(F_bs_gid, self.BS_aff_F, 1, 3)
 
         for layer in range(CV_number):
-            self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 5, 3, stdptype=False)
-            self.connectcells(self.BS_aff_E, self.dict_RG_E[layer], 5, 3, stdptype=False)
+            self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 0.5, 3, stdptype=False)
+            self.connectcells(self.BS_aff_E, self.dict_RG_E[layer], 0.5, 3, stdptype=False)
 
         for layer in range(CV_number):
             '''Internal to RG topology'''
@@ -166,8 +166,8 @@ class CPG:
             self.connectcells(self.dict_RG_F[layer], self.InF, 1, 1)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 20, 3, inhtype=False, N=5)
-        self.connectcells(self.mns_F, self.muscle_F, 20, 3, inhtype=False, N=5)
+        self.connectcells(self.mns_E, self.muscle_E, 10, 3, inhtype=False, N=5)
+        self.connectcells(self.mns_F, self.muscle_F, 10, 3, inhtype=False, N=5)
 
         '''muscle afferents generators'''
 
