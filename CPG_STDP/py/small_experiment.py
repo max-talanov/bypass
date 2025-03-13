@@ -144,14 +144,14 @@ class CPG:
 
         ''' BS '''
         for E_bs_gid in self.E_bs_gids:
-            self.genconnect(E_bs_gid, self.BS_aff_E, 0.7, 3)
+            self.genconnect(E_bs_gid, self.BS_aff_E, 5, 3)
 
         for F_bs_gid in self.F_bs_gids:
-            self.genconnect(F_bs_gid, self.BS_aff_F, 0.7, 3)
+            self.genconnect(F_bs_gid, self.BS_aff_F, 5, 3)
 
         for layer in range(CV_number):
-            self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 0.5, 3, stdptype=False)
-            self.connectcells(self.BS_aff_E, self.dict_RG_E[layer], 0.5, 3, stdptype=False)
+            self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 5, 3, stdptype=False)
+            self.connectcells(self.BS_aff_E, self.dict_RG_E[layer], 5, 3, stdptype=False)
 
         for layer in range(CV_number):
             '''Internal to RG topology'''
@@ -159,25 +159,25 @@ class CPG:
             self.connectinsidenucleus(self.dict_RG_E[layer])
 
             '''RG2Motor'''
-            self.connectcells(self.dict_RG_E[layer], self.mns_E, 0.1, 2)
-            self.connectcells(self.dict_RG_F[layer], self.mns_F, 0.1, 2)
+            self.connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
+            self.connectcells(self.dict_RG_F[layer], self.mns_F, 2.75, 3)
 
-            self.connectcells(self.dict_RG_E[layer], self.InE, 0.5, 1)
-            self.connectcells(self.dict_RG_F[layer], self.InF, 0.5, 1)
+            self.connectcells(self.dict_RG_E[layer], self.InE, 4, 1)
+            self.connectcells(self.dict_RG_F[layer], self.InF, 4, 1)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 2, 3, inhtype=False, N=10)
-        self.connectcells(self.mns_F, self.muscle_F, 3, 3, inhtype=False, N=10)
+        self.connectcells(self.mns_E, self.muscle_E, 10, 2, inhtype=False, N=10)
+        self.connectcells(self.mns_F, self.muscle_F, 10, 2, inhtype=False, N=10)
 
         '''muscle afferents generators'''
 
         self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(self.muscle_E, self.muscle_F)
         ''' BS '''
         for E_ia_gid in self.E_ia_gids:
-            self.genconnect(E_ia_gid, self.Ia_aff_E, 0.5, 3)
+            self.genconnect(E_ia_gid, self.Ia_aff_E, 10, 3)
 
         for F_ia_gid in self.F_ia_gids:
-            self.genconnect(F_ia_gid, self.Ia_aff_F, 0.5, 3)
+            self.genconnect(F_ia_gid, self.Ia_aff_F, 10, 3)
         # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 15, weight=20)
         # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time + 15, weight=30)
 
@@ -221,13 +221,13 @@ class CPG:
         #     self.connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 2 * k * speed, 3)  # 0.0035
 
         '''Ia2motor'''
-        self.connectcells(self.Ia_aff_E, self.mns_E, 0.55, 2)
-        self.connectcells(self.Ia_aff_F, self.mns_F, 0.55, 2)
+        self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 2)
+        self.connectcells(self.Ia_aff_F, self.mns_F, 1.55, 2)
 
         for layer in range(CV_number):
             '''STDP synapse'''
-            self.connectcells(self.Ia_aff_E, self.dict_RG_E[layer], weight=0.3, delay=3, stdptype=True)
-            self.connectcells(self.Ia_aff_F, self.dict_RG_F[layer], weight=0.3, delay=3, stdptype=True)
+            self.connectcells(self.Ia_aff_E, self.dict_RG_E[layer], weight=3.3, delay=3, stdptype=True)
+            self.connectcells(self.Ia_aff_F, self.dict_RG_F[layer], weight=3.3, delay=3, stdptype=True)
 
             # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
 
@@ -364,9 +364,9 @@ class CPG:
                         else:
                             syn = target.synlistex[i]
                         nc = pc.gid_connect(src_gid, syn)
-                        nc.weight[0] = random.gauss(weight, weight / 6)
+                        nc.weight[0] = random.gauss(weight, weight / 5)
                         nc.threshold = threshold
-                        nc.delay = random.gauss(delay, delay / 6)
+                        nc.delay = random.gauss(delay, delay / 5)
                         self.netcons.append(nc)
 
     def genconnect(self, gen_gid, afferents_gids, weight, delay, inhtype=False, N=15):
@@ -518,7 +518,7 @@ class CPG:
         return gid
 
     def connectinsidenucleus(self, nucleus):
-        self.connectcells(nucleus, nucleus, 0.5, 0.5)
+        self.connectcells(nucleus, nucleus, 0.25, 0.5)
 
     def add_bs_geners(self, freq, spikes_per_step):
         E_bs_gids = []
@@ -532,8 +532,8 @@ class CPG:
         E_ia_gids = []
         F_ia_gids = []
         for step in range(step_number):
-            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=2))
-            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=3))
+            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=20))
+            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=30))
         return E_ia_gids, F_ia_gids
 
 
