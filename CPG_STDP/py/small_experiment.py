@@ -159,8 +159,8 @@ class CPG:
             self.connectinsidenucleus(self.dict_RG_E[layer])
 
             '''RG2Motor'''
-            self.connectcells(self.dict_RG_E[layer], self.mns_E, 0.75, 2)
-            self.connectcells(self.dict_RG_F[layer], self.mns_F, 0.75, 2)
+            self.connectcells(self.dict_RG_E[layer], self.mns_E, 0.1, 2)
+            self.connectcells(self.dict_RG_F[layer], self.mns_F, 0.1, 2)
 
             self.connectcells(self.dict_RG_E[layer], self.InE, 0.5, 1)
             self.connectcells(self.dict_RG_F[layer], self.InF, 0.5, 1)
@@ -226,8 +226,8 @@ class CPG:
 
         for layer in range(CV_number):
             '''STDP synapse'''
-            self.connectcells(self.Ia_aff_E, self.dict_RG_E[layer], weight=1.3, delay=3, stdptype=True)
-            self.connectcells(self.Ia_aff_F, self.dict_RG_F[layer], weight=1.3, delay=3, stdptype=True)
+            self.connectcells(self.Ia_aff_E, self.dict_RG_E[layer], weight=0.3, delay=3, stdptype=True)
+            self.connectcells(self.Ia_aff_F, self.dict_RG_F[layer], weight=0.3, delay=3, stdptype=True)
 
             # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
 
@@ -472,7 +472,7 @@ class CPG:
 
         return gid
 
-    def addgener(self, start, freq, flg_interval, interval, weight = 3, cv=False, r=True):
+    def addgener(self, start, freq, flg_interval, interval, weight = 0.5, cv=False, r=True):
         '''
         Creates generator and returns generator gid
         Parameters
