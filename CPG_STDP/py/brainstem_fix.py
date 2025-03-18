@@ -37,7 +37,7 @@ k = 0.017  # CV weights multiplier to take into account air and toe stepping
 CV_0_len = 12  # 125 # Duration of the CV generator with no sensory inputs
 extra_layers = 0  # 1 + layers
 
-step_number = 4
+step_number = 6
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = one_step_time * step_number + 20
@@ -143,10 +143,10 @@ class CPG:
 
         ''' BS '''
         for E_bs_gid in self.E_bs_gids:
-            self.genconnect(E_bs_gid, self.BS_aff_E, 0.004, 3)
+            self.genconnect(E_bs_gid, self.BS_aff_E, 0.003, 3)
 
         for F_bs_gid in self.F_bs_gids:
-            self.genconnect(F_bs_gid, self.BS_aff_F, 0.003, 3)
+            self.genconnect(F_bs_gid, self.BS_aff_F, 0.001, 3)
 
         # for layer in range(CV_number):
         #     self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 5, 3, stdptype=False)
@@ -504,7 +504,7 @@ class CPG:
             stim.number = 10
         else:
             stim.interval = int(1000 / freq)
-            stim.number = int(one_step_time / stim.interval) - 5
+            stim.number = int(one_step_time / stim.interval)
         self.stims.append(stim)
         pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)

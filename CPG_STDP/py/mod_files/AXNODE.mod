@@ -35,12 +35,12 @@ UNITS {
 PARAMETER {
 
 	gnapbar = 0.01	(mho/cm2)
-	gnabar	= 7.0	(mho/cm2)
-	gkbar   = 0.12 	(mho/cm2)
+	gnabar	= 7.4	(mho/cm2)
+	gkbar   = 0.13 	(mho/cm2)
 	gl	= 0.007 (mho/cm2)
 	ena     = 50.0  (mV)
 	ek      = -90.0 (mV)
-	el	= -90.0 (mV)
+	el	= -70.0 (mV)
 	celsius		(degC)
 	dt              (ms)
 	v               (mV)

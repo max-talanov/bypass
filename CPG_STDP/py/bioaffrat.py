@@ -72,7 +72,7 @@ class bioaffrat(object):
         '''
         self.soma.insert('hh')
         self.soma.gnabar_hh = 0.3
-        self.soma.gkbar_hh = 0.08
+        self.soma.gkbar_hh = 0.1
         self.soma.gl_hh = 0.0003
         self.soma.el_hh = -65
         self.soma.Ra = 150
@@ -114,12 +114,12 @@ class bioaffrat(object):
                 s.e = -80
                 self.synlistinh.append(s)
         for i in range(50):
-            s = h.ExpSyn(self.soma(0.8))  # Excitatory
-            s.tau = 0.5
+            s = h.ExpSyn(self.node[len(self.node) - i - 1](0.8))  # Excitatory
+            s.tau = 0.6
             s.e = 0
             self.synlistees.append(s)
-            s = h.ExpSyn(self.soma(0.5))  # Excitatory
-            s.tau = 0.5
+            s = h.ExpSyn(self.node[len(self.node) - i - 1](0.8))  # Excitatory
+            s.tau = 0.6
             s.e = 0
             self.synlistex.append(s)
 
