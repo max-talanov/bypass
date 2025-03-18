@@ -113,8 +113,8 @@ def biophys_axon(self):
         sec.xg[1] = 1e10
         sec.xc[1] = 0
         sec.insert('hh')
-        sec.gnabar_hh = 0.3    # высокая плотность Na⁺ каналов
-        sec.gkbar_hh = 0.1    # стандартный K⁺-ток, отлично реполяризует
+        sec.gnabar_hh = 0.3   # высокая плотность Na⁺ каналов
+        sec.gkbar_hh = 0.1   # стандартный K⁺-ток, отлично реполяризует
         sec.gl_hh = 0.0003
         sec.el_hh = -65
 
