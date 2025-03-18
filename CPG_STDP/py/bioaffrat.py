@@ -61,7 +61,7 @@ class bioaffrat(object):
         '''
         Adds length and diameter to sections
         '''
-        self.soma.L = self.soma.diam = random.uniform(15, 35)  # microns
+        self.soma.L = self.soma.diam = random.uniform(15, 20)  # microns
         # self.axon.L = 150  # microns
         # self.axon.diam = 1  # microns
         h.define_shape()
@@ -71,12 +71,12 @@ class bioaffrat(object):
         Adds channels and their parameters
         '''
         self.soma.insert('hh')
-        self.soma.gnabar_hh = 0.5
-        self.soma.gkbar_hh = 0.04
-        self.soma.gl_hh = 0.0002
-        self.soma.el_hh = -70
-        self.soma.Ra = 200
-        self.soma.cm = 2
+        self.soma.gnabar_hh = 0.3
+        self.soma.gkbar_hh = 0.08
+        self.soma.gl_hh = 0.0003
+        self.soma.el_hh = -65
+        self.soma.Ra = 150
+        self.soma.cm = 1
         self.soma.insert('extracellular')
 
         # self.axon.Ra = 50
@@ -96,7 +96,7 @@ class bioaffrat(object):
             connection between neurons
         '''
         nc = h.NetCon(self.node[len(self.node) - 1](0.5)._ref_v, target, sec=self.node[len(self.node) - 1])
-        nc.threshold = -10
+        nc.threshold = -20
         return nc
 
         # nc = h.NetCon(self.axon(1)._ref_v, target, sec=self.axon)
@@ -110,16 +110,16 @@ class bioaffrat(object):
                 s = h.Exp2Syn(self.node[len(self.node) - i - 1](0.5))  # Inhibitory
                 # s = h.Exp2Syn(self.soma(0.8))
                 s.tau1 = 0.5
-                s.tau2 = 3.5
+                s.tau2 = 5
                 s.e = -80
                 self.synlistinh.append(s)
-        for i in range(200):
+        for i in range(50):
             s = h.ExpSyn(self.soma(0.8))  # Excitatory
-            s.tau = 0.1
+            s.tau = 0.5
             s.e = 0
             self.synlistees.append(s)
             s = h.ExpSyn(self.soma(0.5))  # Excitatory
-            s.tau = 0.1
+            s.tau = 0.5
             s.e = 0
             self.synlistex.append(s)
 

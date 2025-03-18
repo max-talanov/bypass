@@ -31,7 +31,7 @@ file_name = 'res_alina_new_new'
 
 N = 5  # 50
 speed = 100
-bs_fr = 50 #150 #100  # 40 # frequency of brainstem inputs
+bs_fr = 100 #50 #150 #100  # 40 # frequency of brainstem inputs
 versions = 1
 CV_number = 6
 k = 0.017  # CV weights multiplier to take into account air and toe stepping
@@ -51,7 +51,7 @@ network topology https://github.com/max-talanov/bypass/blob/main/figs/CPG_feedba
 class CPG:
 
     def __init__(self, speed, bs_fr, inh_p, step_number, n):
-        self.threshold = -10
+        self.threshold = 0
         self.delay = 1
         self.nAff = 5  # 12  # 12
         self.nInt = 5  # 5
@@ -144,10 +144,10 @@ class CPG:
 
         ''' BS '''
         for E_bs_gid in self.E_bs_gids:
-            self.genconnect(E_bs_gid, self.BS_aff_E, 5, 3)
+            self.genconnect(E_bs_gid, self.BS_aff_E, 0.5, 3)
 
         for F_bs_gid in self.F_bs_gids:
-            self.genconnect(F_bs_gid, self.BS_aff_F, 5, 3)
+            self.genconnect(F_bs_gid, self.BS_aff_F, 0.5, 3)
 
         for layer in range(CV_number):
             self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 5, 3, stdptype=False)
@@ -166,18 +166,18 @@ class CPG:
             self.connectcells(self.dict_RG_F[layer], self.InF, 4, 1)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 10, 2, inhtype=False, N=10)
-        self.connectcells(self.mns_F, self.muscle_F, 10, 2, inhtype=False, N=10)
+        self.connectcells(self.mns_E, self.muscle_E, 8, 2, inhtype=False, N=15)
+        self.connectcells(self.mns_F, self.muscle_F, 8, 2, inhtype=False, N=10)
 
         '''muscle afferents generators'''
 
         self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(self.muscle_E, self.muscle_F)
         ''' BS '''
         for E_ia_gid in self.E_ia_gids:
-            self.genconnect(E_ia_gid, self.Ia_aff_E, 10, 3)
+            self.genconnect(E_ia_gid, self.Ia_aff_E, 7, 3)
 
         for F_ia_gid in self.F_ia_gids:
-            self.genconnect(F_ia_gid, self.Ia_aff_F, 10, 3)
+            self.genconnect(F_ia_gid, self.Ia_aff_F, 7, 3)
         # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 15, weight=20)
         # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time + 15, weight=30)
 
@@ -509,7 +509,7 @@ class CPG:
         self.stims.append(stim)
         pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)
-        ncstim.weight[0] = weight
+        # ncstim.weight[0] = weight
         self.netcons.append(ncstim)
         pc.cell(gid, ncstim)
         self.gener_gids.append(gid)
