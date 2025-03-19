@@ -106,14 +106,14 @@ def biophys_axon(self):
     '''
     for sec in self.node:
         sec.Ra = self.rhoa / 10000
-        sec.cm = 1
+        sec.cm = 2
         # sec.insert('axnode')
         sec.insert('extracellular')
         sec.xraxial[1] = self.Rpn0
         sec.xg[1] = 1e10
         sec.xc[1] = 0
         sec.insert('hh')
-        sec.gnabar_hh = 0.3   # высокая плотность Na⁺ каналов
+        sec.gnabar_hh = 0.4   # высокая плотность Na⁺ каналов
         sec.gkbar_hh = 0.1   # стандартный K⁺-ток, отлично реполяризует
         sec.gl_hh = 0.0003
         sec.el_hh = -65

@@ -143,10 +143,10 @@ class CPG:
 
         ''' BS '''
         for E_bs_gid in self.E_bs_gids:
-            self.genconnect(E_bs_gid, self.BS_aff_E, 0.0035, 3)
+            self.genconnect(E_bs_gid, self.BS_aff_E, 0.0055, 2)
 
         for F_bs_gid in self.F_bs_gids:
-            self.genconnect(F_bs_gid, self.BS_aff_F, 0.0035, 3)
+            self.genconnect(F_bs_gid, self.BS_aff_F, 0.0055, 2)
 
         # for layer in range(CV_number):
         #     self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 5, 3, stdptype=False)
@@ -381,7 +381,7 @@ class CPG:
                     nc = pc.gid_connect(gen_gid, syn)
                     nc.threshold = self.threshold
                     nc.delay = random.gauss(delay, delay / 5)
-                    nc.weight[0] = random.gauss(weight, weight / 6)
+                    nc.weight[0] = random.gauss(weight, weight / 5)
                     self.stimnclist.append(nc)
 
     def motodiams(self, number):
@@ -576,7 +576,7 @@ def spike_record(pool, extra=False, location='soma'):
         else:
             if location == 'axon':
                 # Изменение на запись из первого узла аксона (здесь будут нормальные спайки)
-                vec.record(cell.node[0](0.5)._ref_v)
+                vec.record(cell.node[0](1.0)._ref_v)
             else:
                 # Запись из сомы (как было раньше)
                 vec.record(cell.soma(0.5)._ref_v)

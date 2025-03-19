@@ -71,8 +71,8 @@ class bioaffrat(object):
         Adds channels and their parameters
         '''
         self.soma.insert('hh')
-        self.soma.gnabar_hh = 0.3
-        self.soma.gkbar_hh = 0.1
+        self.soma.gnabar_hh = 0.25
+        self.soma.gkbar_hh = 0.08
         self.soma.gl_hh = 0.0003
         self.soma.el_hh = -65
         self.soma.Ra = 150
@@ -104,26 +104,25 @@ class bioaffrat(object):
         # return nc
 
     def synapses(self):
-        # Ингибирующие синапсы на сому (важно!)
-        for i in range(50):
-            s = h.Exp2Syn(self.soma(0.3))  # ингибирование ближе к соме
+        # Ингибирующие (на соме!)
+        for i in range(30):
+            s = h.Exp2Syn(self.soma(0.3))
             s.tau1 = 0.5
-            s.tau2 = 5
+            s.tau2 = 4.0
             s.e = -80
             self.synlistinh.append(s)
 
-        # Возбуждающие синапсы (часть на соме, часть на первом узле аксона)
-        for i in range(30):
-            s = h.ExpSyn(self.soma(0.8))  # soma excitation
-            s.tau = 0.5
+        # Возбуждающие (ТОЛЬКО node[0], т.к. генераторы используют synlistees)
+        for i in range(50):
+            s = h.ExpSyn(self.node[0](0.5))
+            s.tau = 0.3
             s.e = 0
             self.synlistees.append(s)
 
-        for i in range(20):
-            s = h.ExpSyn(self.node[0](0.5))  # excitation ближе к аксональному холмику (четкие спайки!)
-            s.tau = 0.5
-            s.e = 0
-            self.synlistex.append(s)
+            s_extra = h.ExpSyn(self.node[0](0.5))
+            s_extra.tau = 0.3
+            s_extra.e = 0
+            self.synlistex.append(s_extra)
 
     def is_art(self):
         return 0
