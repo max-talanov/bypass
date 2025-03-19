@@ -143,10 +143,10 @@ class CPG:
 
         ''' BS '''
         for E_bs_gid in self.E_bs_gids:
-            self.genconnect(E_bs_gid, self.BS_aff_E, 0.03, 2)
+            self.genconnect(E_bs_gid, self.BS_aff_E, 0.04, 2)
 
         for F_bs_gid in self.F_bs_gids:
-            self.genconnect(F_bs_gid, self.BS_aff_F, 0.04, 2)
+            self.genconnect(F_bs_gid, self.BS_aff_F, 0.05, 2)
 
         # for layer in range(CV_number):
         #     self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 5, 3, stdptype=False)

@@ -113,29 +113,29 @@ class bioaffrat(object):
             s.e = -80
             self.synlistinh.append(s)
         # Then in synapses() method, add logic based on type:
-        if self.neuron_type == "flexor":
+        if hasattr(self, 'neuron_type') and self.neuron_type == "flexor":
             # Flexor-specific parameters
             for i in range(50):
                 s = h.ExpSyn(self.node[0](0.5))
-                s.tau = 0.18
-                s.e = 55  # Higher reversal potential for flexors
+                s.tau = 0.15
+                s.e = 65  # Higher reversal potential for flexors
                 self.synlistees.append(s)
 
                 s_extra = h.ExpSyn(self.node[0](0.5))
-                s_extra.tau = 0.18
-                s_extra.e = 55
+                s_extra.tau = 0.15
+                s_extra.e = 65
                 self.synlistex.append(s_extra)
         else:
             # Extensor parameters (default)
             for i in range(50):
                 s = h.ExpSyn(self.node[0](0.5))
-                s.tau = 0.2
-                s.e = 50
+                s.tau = 0.17
+                s.e = 60
                 self.synlistees.append(s)
 
                 s_extra = h.ExpSyn(self.node[0](0.5))
-                s_extra.tau = 0.2
-                s_extra.e = 50
+                s_extra.tau = 0.17
+                s_extra.e = 60
                 self.synlistex.append(s_extra)
 
     def is_art(self):
