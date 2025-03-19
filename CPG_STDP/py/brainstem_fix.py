@@ -143,10 +143,10 @@ class CPG:
 
         ''' BS '''
         for E_bs_gid in self.E_bs_gids:
-            self.genconnect(E_bs_gid, self.BS_aff_E, 0.0055, 2)
+            self.genconnect(E_bs_gid, self.BS_aff_E, 0.03, 2)
 
         for F_bs_gid in self.F_bs_gids:
-            self.genconnect(F_bs_gid, self.BS_aff_F, 0.0055, 2)
+            self.genconnect(F_bs_gid, self.BS_aff_F, 0.04, 2)
 
         # for layer in range(CV_number):
         #     self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 5, 3, stdptype=False)
@@ -287,6 +287,9 @@ class CPG:
                 self.motos.append(cell)
             elif neurontype.lower() == "aff":
                 cell = bioaffrat()
+                if "_F" in name:
+                    cell.neuron_type = "flexor"
+                else: cell.neuron_type = "extensor"
                 self.affs.append(cell)
             elif neurontype.lower() == "muscle":
                 cell = muscle()
@@ -368,7 +371,7 @@ class CPG:
                         nc.delay = random.gauss(delay, delay / 5)
                         self.netcons.append(nc)
 
-    def genconnect(self, gen_gid, afferents_gids, weight, delay, inhtype=False, N=15):
+    def genconnect(self, gen_gid, afferents_gids, weight, delay, inhtype=False, N=25):
         nsyn = random.randint(N - 5, N)
         for i in afferents_gids:
             if pc.gid_exists(i):
@@ -496,7 +499,7 @@ class CPG:
         # stim.number = nums
         if r:
             stim.start = random.uniform(start - 3, start + 3)
-            stim.noise = 0.05
+            stim.noise = 0.01
         else:
             stim.start = start
         if flg_interval:

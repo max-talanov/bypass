@@ -20,10 +20,11 @@ class bioaffrat(object):
     '''
     from axon import make_axon, topol_axon, geom_axon, biophys_axon
 
-    def __init__(self):
+    def __init__(self, neuron_type="extensor"):
         # create axon
         self.nu = random.randint(5, 11)
         self.make_axon(self.nu)
+        self.neuron_type = neuron_type
         self.topol()
         self.subsets()
         self.geom()
@@ -71,9 +72,9 @@ class bioaffrat(object):
         Adds channels and their parameters
         '''
         self.soma.insert('hh')
-        self.soma.gnabar_hh = 0.25
-        self.soma.gkbar_hh = 0.08
-        self.soma.gl_hh = 0.0003
+        self.soma.gnabar_hh = 0.65
+        self.soma.gkbar_hh = 0.09
+        self.soma.gl_hh = 0.0001
         self.soma.el_hh = -65
         self.soma.Ra = 150
         self.soma.cm = 1
@@ -111,18 +112,31 @@ class bioaffrat(object):
             s.tau2 = 4.0
             s.e = -80
             self.synlistinh.append(s)
+        # Then in synapses() method, add logic based on type:
+        if self.neuron_type == "flexor":
+            # Flexor-specific parameters
+            for i in range(50):
+                s = h.ExpSyn(self.node[0](0.5))
+                s.tau = 0.18
+                s.e = 55  # Higher reversal potential for flexors
+                self.synlistees.append(s)
 
-        # Возбуждающие (ТОЛЬКО node[0], т.к. генераторы используют synlistees)
-        for i in range(50):
-            s = h.ExpSyn(self.node[0](0.5))
-            s.tau = 0.3
-            s.e = 0
-            self.synlistees.append(s)
+                s_extra = h.ExpSyn(self.node[0](0.5))
+                s_extra.tau = 0.18
+                s_extra.e = 55
+                self.synlistex.append(s_extra)
+        else:
+            # Extensor parameters (default)
+            for i in range(50):
+                s = h.ExpSyn(self.node[0](0.5))
+                s.tau = 0.2
+                s.e = 50
+                self.synlistees.append(s)
 
-            s_extra = h.ExpSyn(self.node[0](0.5))
-            s_extra.tau = 0.3
-            s_extra.e = 0
-            self.synlistex.append(s_extra)
+                s_extra = h.ExpSyn(self.node[0](0.5))
+                s_extra.tau = 0.2
+                s_extra.e = 50
+                self.synlistex.append(s_extra)
 
     def is_art(self):
         return 0

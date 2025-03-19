@@ -113,9 +113,15 @@ def biophys_axon(self):
         sec.xg[1] = 1e10
         sec.xc[1] = 0
         sec.insert('hh')
-        sec.gnabar_hh = 0.4   # высокая плотность Na⁺ каналов
-        sec.gkbar_hh = 0.1   # стандартный K⁺-ток, отлично реполяризует
-        sec.gl_hh = 0.0003
+        if hasattr(self, 'neuron_type') and self.neuron_type == "flexor":
+            sec.gnabar_hh = 3.2  # Higher Na+ conductance for flexor
+            sec.gkbar_hh = 0.16  # Specific K+ value for flexor
+            sec.gl_hh = 0.0003
+        else:  # extensor (default)
+            sec.gnabar_hh = 3.0  # Original value for more consistency
+            sec.gkbar_hh = 0.17  # Fine-tuned for extensor
+            sec.gl_hh = 0.0003
+
         sec.el_hh = -65
 
     for sec in self.MYSA:
