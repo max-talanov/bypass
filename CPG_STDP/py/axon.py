@@ -106,7 +106,7 @@ def biophys_axon(self):
     '''
     for sec in self.node:
         sec.Ra = self.rhoa / 10000
-        sec.cm = 2
+        sec.cm = 1.8
         # sec.insert('axnode')
         sec.insert('extracellular')
         sec.xraxial[1] = self.Rpn0
@@ -114,16 +114,15 @@ def biophys_axon(self):
         sec.xc[1] = 0
         sec.insert('hh')
         if hasattr(self, 'neuron_type') and self.neuron_type == "flexor":
-            sec.gnabar_hh = 4.2  # Higher Na+ conductance for flexor
-            sec.gkbar_hh = 0.10  # Specific K+ value for flexor
-            sec.gl_hh = 0.00015
-        else:  # extensor (default)
-            sec.gnabar_hh = 3.48 # Original value for more consistency
-            sec.gkbar_hh = 0.12  # Fine-tuned for extensor
+            sec.gnabar_hh = 3.5 # Higher Na+ conductance for flexor
+            sec.gkbar_hh = 0.25  # Specific K+ value for flexor
             sec.gl_hh = 0.0003
-            h.celsius = 36
+        else:  # extensor (default)
+            sec.gnabar_hh = 3.5 # Original value for more consistency
+            sec.gkbar_hh = 0.25  # Fine-tuned for extensor
+            sec.gl_hh = 0.0003
 
-        sec.el_hh = -65
+        sec.el_hh = -75
 
     for sec in self.MYSA:
         sec.Ra = self.rhoa * (1 / ((self.paraD1 / self.fiberD) ** 2)) / 10000

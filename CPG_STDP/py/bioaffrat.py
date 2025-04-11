@@ -22,7 +22,7 @@ class bioaffrat(object):
 
     def __init__(self, neuron_type="extensor"):
         # create axon
-        self.nu = random.randint(5, 11)
+        self.nu = random.randint(8, 11)
         self.make_axon(self.nu)
         self.neuron_type = neuron_type
         self.topol()
@@ -117,25 +117,25 @@ class bioaffrat(object):
             # Flexor-specific parameters
             for i in range(50):
                 s = h.ExpSyn(self.node[0](0.5))
-                s.tau = 0.15
-                s.e = 65  # Higher reversal potential for flexors
+                s.tau = 0.18
+                s.e = 55  # Higher reversal potential for flexors
                 self.synlistees.append(s)
 
                 s_extra = h.ExpSyn(self.node[0](0.5))
-                s_extra.tau = 0.15
-                s_extra.e = 65
+                s_extra.tau = 0.18
+                s_extra.e = 55
                 self.synlistex.append(s_extra)
         else:
             # Extensor parameters (default)
             for i in range(50):
                 s = h.ExpSyn(self.node[0](0.5))
-                s.tau = 0.17
-                s.e = 60
+                s.tau = 0.18
+                s.e = 55
                 self.synlistees.append(s)
 
                 s_extra = h.ExpSyn(self.node[0](0.5))
-                s_extra.tau = 0.17
-                s_extra.e = 60
+                s_extra.tau = 0.18
+                s_extra.e = 55
                 self.synlistex.append(s_extra)
 
     def is_art(self):

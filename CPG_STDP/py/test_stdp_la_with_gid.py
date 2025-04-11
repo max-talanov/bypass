@@ -484,8 +484,8 @@ class CPG:
         E_ia_gids = []
         F_ia_gids = []
         for step in range(step_number):
-            E_ia_gids.append(self.addIagener(self.muscle_E, self.muscle_F, 10, weight=20))
-            F_ia_gids.append(self.addIagener(self.muscle_F, self.muscle_E, one_step_time, weight=30))
+            E_ia_gids.append(self.addIagener(self.muscle_E, self.muscle_F, 10, weight=5))
+            F_ia_gids.append(self.addIagener(self.muscle_F, self.muscle_E, one_step_time, weight=8))
         return E_ia_gids, F_ia_gids
 
 
