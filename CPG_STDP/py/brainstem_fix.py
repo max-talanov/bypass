@@ -50,7 +50,7 @@ network topology https://github.com/max-talanov/bypass/blob/main/figs/CPG_feedba
 class CPG:
 
     def __init__(self, speed, bs_fr, inh_p, step_number, n):
-        self.threshold = -20
+        self.threshold = -10
         self.delay = 1
         self.nAff = 5  # 12  # 12
         self.nInt = 5  # 5
@@ -91,11 +91,11 @@ class CPG:
 
         # for layer in range(CV_number):
         #     '''cut and muscle feedback'''
-        #     # self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
-        #     self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
-        #     self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
-        #     # self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
-        #     # self.dict_C = {layer: 'C{}'.format(layer + 1)}
+            # self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
+            # self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
+            # self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
+            # self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
+            # self.dict_C = {layer: 'C{}'.format(layer + 1)}
 
         # for layer in range(CV_number):
         #     '''Cutaneous pools'''
@@ -107,7 +107,7 @@ class CPG:
         #     self.RG_F.append(self.dict_RG_F[layer])
         #     # self.CV.append(self.dict_CV_1[layer])
 
-        '''RG'''
+        # '''RG'''
         # self.RG_E = sum(self.RG_E, [])
         # self.InE = self.addpool(self.nInt, "InE", "int")
         # self.RG_F = sum(self.RG_F, [])
@@ -129,8 +129,8 @@ class CPG:
         # '''muscles'''
         # self.muscle_E = self.addpool(self.nMn * 6, "muscle_E", "muscle")
         # self.muscle_F = self.addpool(self.nMn * 5, "muscle_F", "muscle")
-
-        '''reflex arc'''
+        #
+        # '''reflex arc'''
         # self.Ia_E = self.addpool(self.nInt, "Ia_E", "int")
         # self.R_E = self.addpool(self.nInt, "R_E", "int")  # Renshaw cells
         # self.Ia_F = self.addpool(self.nInt, "Ia_F", "bursting")
@@ -139,42 +139,42 @@ class CPG:
         logging.info("done addpool")
         '''BS'''
         # periodic stimulation
-        self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 15)
+        self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 5, 5.3)
 
         ''' BS '''
         for E_bs_gid in self.E_bs_gids:
-            self.genconnect(E_bs_gid, self.BS_aff_E, 0.04, 2)
+            self.genconnect(E_bs_gid, self.BS_aff_E, 4, 1)
 
         for F_bs_gid in self.F_bs_gids:
-            self.genconnect(F_bs_gid, self.BS_aff_F, 0.05, 2)
+            self.genconnect(F_bs_gid, self.BS_aff_F, 4, 1)
 
         # for layer in range(CV_number):
-        #     self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 5, 3, stdptype=False)
-        #     self.connectcells(self.BS_aff_E, self.dict_RG_E[layer], 5, 3, stdptype=False)
-        #
+        #     self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 0.035, 3, stdptype=False)
+        #     self.connectcells(self.BS_aff_E, self.dict_RG_E[layer], 0.045, 3, stdptype=False)
+        # #
         # for layer in range(CV_number):
         #     '''Internal to RG topology'''
         #     self.connectinsidenucleus(self.dict_RG_F[layer])
         #     self.connectinsidenucleus(self.dict_RG_E[layer])
         #
-        #     '''RG2Motor'''
+        #     # '''RG2Motor'''
         #     self.connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
         #     self.connectcells(self.dict_RG_F[layer], self.mns_F, 2.75, 3)
         #
         #     self.connectcells(self.dict_RG_E[layer], self.InE, 4, 1)
         #     self.connectcells(self.dict_RG_F[layer], self.InF, 4, 1)
-        #
-        # '''motor2muscles'''
+        # #
+        # # '''motor2muscles'''
         # self.connectcells(self.mns_E, self.muscle_E, 8, 2, inhtype=False, N=15)
         # self.connectcells(self.mns_F, self.muscle_F, 8, 2, inhtype=False, N=10)
         #
         # '''muscle afferents generators'''
         #
         # self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(self.muscle_E, self.muscle_F)
-        # ''' BS '''
+        # # ''' BS '''
         # for E_ia_gid in self.E_ia_gids:
         #     self.genconnect(E_ia_gid, self.Ia_aff_E, 7, 3)
-        #
+        # #
         # for F_ia_gid in self.F_ia_gids:
         #     self.genconnect(F_ia_gid, self.Ia_aff_F, 7, 3)
         # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 15, weight=20)
@@ -219,30 +219,30 @@ class CPG:
         #     self.genconnect(self.dict_C[layer], self.dict_CV_1[layer], 3 * k * speed, 2)  # 0.15
         #     self.connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 2 * k * speed, 3)  # 0.0035
 
-        # '''Ia2motor'''
+        # # '''Ia2motor'''
         # self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 2)
         # self.connectcells(self.Ia_aff_F, self.mns_F, 1.55, 2)
-        #
+        # #
         # for layer in range(CV_number):
         #     '''STDP synapse'''
         #     self.connectcells(self.Ia_aff_E, self.dict_RG_E[layer], weight=3.3, delay=3, stdptype=True)
         #     self.connectcells(self.Ia_aff_F, self.dict_RG_F[layer], weight=3.3, delay=3, stdptype=True)
         #
-        #     # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
-        #
-        # '''Ia2RG, RG2Motor'''
+        # #     # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
+        # #
+        # # '''Ia2RG, RG2Motor'''
         # self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
         # self.connectcells(self.InF, self.RG_E, 0.8, 1, inhtype=True)
-
+        #
         # self.connectcells(self.Ia_aff_E, self.Ia_E, 0.8, 1, inhtype=False)
         # self.connectcells(self.Ia_aff_F, self.Ia_F, 0.8, 1, inhtype=False)
-
+        #
         # self.connectcells(self.mns_E, self.R_E, 0.015, 1, inhtype=False)
         # self.connectcells(self.mns_F, self.R_F, 0.015, 1, inhtype=False)
-
+        #
         # self.connectcells(self.R_E, self.mns_E, 0.015, 1, inhtype=True)
         # self.connectcells(self.R_F, self.mns_F, 0.015, 1, inhtype=True)
-
+        #
         # self.connectcells(self.R_E, self.Ia_E, 0.01, 1, inhtype=True)
         # self.connectcells(self.R_F, self.Ia_F, 0.01, 1, inhtype=True)
         #
@@ -371,7 +371,7 @@ class CPG:
                         nc.delay = random.gauss(delay, delay / 5)
                         self.netcons.append(nc)
 
-    def genconnect(self, gen_gid, afferents_gids, weight, delay, inhtype=False, N=25):
+    def genconnect(self, gen_gid, afferents_gids, weight, delay, inhtype=False, N=15):
         nsyn = random.randint(N - 5, N)
         for i in afferents_gids:
             if pc.gid_exists(i):
@@ -384,7 +384,7 @@ class CPG:
                     nc = pc.gid_connect(gen_gid, syn)
                     nc.threshold = self.threshold
                     nc.delay = random.gauss(delay, delay / 5)
-                    nc.weight[0] = random.gauss(weight, weight / 5)
+                    nc.weight[0] = weight #random.gauss(weight, weight / 5)
                     self.stimnclist.append(nc)
 
     def motodiams(self, number):
@@ -479,7 +479,7 @@ class CPG:
         Creates generator and returns generator gid
         Parameters
         ----------
-        weight: int
+        weight: float
             weight of the connection
         start: int
             generator start up
@@ -499,7 +499,7 @@ class CPG:
         # stim.number = nums
         if r:
             stim.start = random.uniform(start - 3, start + 3)
-            stim.noise = 0.01
+            # stim.noise = 0.01
         else:
             stim.start = start
         if flg_interval:
@@ -511,7 +511,7 @@ class CPG:
         self.stims.append(stim)
         pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)
-        # ncstim.weight[0] = weight
+        ncstim.weight[0] = weight
         self.netcons.append(ncstim)
         pc.cell(gid, ncstim)
         self.gener_gids.append(gid)
@@ -522,12 +522,12 @@ class CPG:
     def connectinsidenucleus(self, nucleus):
         self.connectcells(nucleus, nucleus, 0.25, 0.5)
 
-    def add_bs_geners(self, freq, spikes_per_step):
+    def add_bs_geners(self, freq, weight_E, weight_F):
         E_bs_gids = []
         F_bs_gids = []
         for step in range(step_number):
-            F_bs_gids.append(self.addgener(int(one_step_time * (2 * step + 1)), freq, False, 1))
-            E_bs_gids.append(self.addgener(int(one_step_time * 2 * step) + 10, freq, False, 1))
+            F_bs_gids.append(self.addgener(int(one_step_time * (2 * step + 1)), freq, False, 1, weight_E))
+            E_bs_gids.append(self.addgener(int(one_step_time * 2 * step) + 10, freq, False, 1, weight_F))
         return E_bs_gids, F_bs_gids
 
     def add_ia_geners(self, mus_E, mus_F):
@@ -772,6 +772,7 @@ if __name__ == '__main__':
         motorecorders = []
         motorecorders_mem = []
         musclerecorders = []
+        musclerecorders_extra = []
         force_recorders = []
         for group in cpg_ex.motogroups:
             motorecorders.append(spike_record(group[k_nrns], True))
@@ -779,16 +780,20 @@ if __name__ == '__main__':
         for group in cpg_ex.motogroups:
             motorecorders_mem.append(spike_record(group[k_nrns]))
         affrecorders = []
+        affrecorders_extra = []
         affrecorders_axon = []
         for group in cpg_ex.affgroups:
             affrecorders.append(spike_record(group[k_nrns]))
-        for group in cpg_ex.affgroups:
+            affrecorders_extra.append(spike_record(group[k_nrns], True))
             affrecorders_axon.append(spike_record(group[k_nrns], False, 'axon'))
         recorders = []
+        recorders_extra = []
         for group in cpg_ex.intgroups:
+            recorders_extra.append(spike_record(group[k_nrns], True))
             recorders.append(spike_record(group[k_nrns]))
         for group in cpg_ex.musclegroups:
             musclerecorders.append(spike_record(group[k_nrns]))
+            musclerecorders_extra.append(spike_record(group[k_nrns], True))
             force_recorders.append(force_record(group[k_nrns]))
 
         logging.info("added recorders")
@@ -815,13 +820,19 @@ if __name__ == '__main__':
         #     spikeout(group[k_nrns], group[k_name], i, recorder)
         # for group, recorder in zip(cpg_ex.musclegroups, musclerecorders):
         #     spikeout(group[k_nrns], group[k_name], i, recorder)
+        # for group, recorder in zip(cpg_ex.musclegroups, musclerecorders_extra):
+        #     spikeout(group[k_nrns], group[k_name], i, recorder)
         # for group, recorder in zip(cpg_ex.motogroups, motorecorders_mem):
         #     spikeout(group[k_nrns], 'mem_{}'.format(group[k_name]), i, recorder)
         for group, recorder in zip(cpg_ex.affgroups, affrecorders):
             spikeout(group[k_nrns], group[k_name], i, recorder)
+        # for group, recorder in zip(cpg_ex.affgroups, affrecorders_extra):
+        #     spikeout(group[k_nrns], group[k_name], i, recorder)
         for group, recorder in zip(cpg_ex.affgroups, affrecorders_axon):
             spikeout(group[k_nrns], group[k_name] + "axon", i, recorder)
         # for group, recorder in zip(cpg_ex.intgroups, recorders):
+        #     spikeout(group[k_nrns], group[k_name], i, recorder)
+        # for group, recorder in zip(cpg_ex.intgroups, recorders_extra):
         #     spikeout(group[k_nrns], group[k_name], i, recorder)
         # for group, recorder in zip(cpg_ex.musclegroups, force_recorders):
         #     spikeout(group[k_nrns], 'force_{}'.format(group[k_name]), i, recorder)
