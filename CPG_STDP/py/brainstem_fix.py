@@ -50,7 +50,7 @@ network topology https://github.com/max-talanov/bypass/blob/main/figs/CPG_feedba
 class CPG:
 
     def __init__(self, speed, bs_fr, inh_p, step_number, n):
-        self.threshold = -10
+        self.threshold = -20
         self.delay = 1
         self.nAff = 5  # 12  # 12
         self.nInt = 5  # 5
@@ -89,94 +89,94 @@ class CPG:
         self.C_0 = []
         # self.V0v = []
 
-        # for layer in range(CV_number):
-        #     '''cut and muscle feedback'''
+        for layer in range(CV_number):
+            '''cut and muscle feedback'''
             # self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
-            # self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
-            # self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
+            self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
+            self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
             # self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
             # self.dict_C = {layer: 'C{}'.format(layer + 1)}
 
-        # for layer in range(CV_number):
-        #     '''Cutaneous pools'''
-        #     # self.dict_CV_1[layer] = self.addpool(self.ncell, "CV" + str(layer + 1) + "_1", "aff")
-        #     '''Rhythm generator pools'''
-        #     self.dict_RG_E[layer] = self.addpool(self.ncell, "RG" + str(layer + 1) + "_E", "int")
-        #     self.dict_RG_F[layer] = self.addpool(self.ncell, "RG" + str(layer + 1) + "_F", "bursting")
-        #     self.RG_E.append(self.dict_RG_E[layer])
-        #     self.RG_F.append(self.dict_RG_F[layer])
-        #     # self.CV.append(self.dict_CV_1[layer])
+        for layer in range(CV_number):
+            '''Cutaneous pools'''
+            # self.dict_CV_1[layer] = self.addpool(self.ncell, "CV" + str(layer + 1) + "_1", "aff")
+            '''Rhythm generator pools'''
+            self.dict_RG_E[layer] = self.addpool(self.ncell, "RG" + str(layer + 1) + "_E", "int")
+            self.dict_RG_F[layer] = self.addpool(self.ncell, "RG" + str(layer + 1) + "_F", "bursting")
+            self.RG_E.append(self.dict_RG_E[layer])
+            self.RG_F.append(self.dict_RG_F[layer])
+            # self.CV.append(self.dict_CV_1[layer])
 
-        # '''RG'''
-        # self.RG_E = sum(self.RG_E, [])
-        # self.InE = self.addpool(self.nInt, "InE", "int")
-        # self.RG_F = sum(self.RG_F, [])
-        # self.InF = self.addpool(self.nInt, "InF", "bursting")
-        #
+        '''RG'''
+        self.RG_E = sum(self.RG_E, [])
+        self.InE = self.addpool(self.nInt, "InE", "int")
+        self.RG_F = sum(self.RG_F, [])
+        self.InF = self.addpool(self.nInt, "InF", "bursting")
+
         # self.CV = sum(self.CV, [])
         #
         # '''sensory and muscle afferents and brainstem and V3F'''
-        # self.Ia_aff_E = self.addpool(self.nAff, "Ia_aff_E", "aff")
-        # self.Ia_aff_F = self.addpool(self.nAff, "Ia_aff_F", "aff")
+        self.Ia_aff_E = self.addpool(self.nAff, "Ia_aff_E", "aff")
+        self.Ia_aff_F = self.addpool(self.nAff, "Ia_aff_F", "aff")
         self.BS_aff_E = self.addpool(self.nAff, "BS_aff_E", "aff")
         self.BS_aff_F = self.addpool(self.nAff, "BS_aff_F", "aff")
         # self.V3F = self.addpool(self.nAff, "V3F", "int")
 
-        # '''moto neuron pools'''
-        # self.mns_E = self.addpool(self.nMn, "mns_E", "moto")
-        # self.mns_F = self.addpool(self.nMn, "mns_F", "moto")
+        '''moto neuron pools'''
+        self.mns_E = self.addpool(self.nMn, "mns_E", "moto")
+        self.mns_F = self.addpool(self.nMn, "mns_F", "moto")
+
+        '''muscles'''
+        self.muscle_E = self.addpool(self.nMn * 6, "muscle_E", "muscle")
+        self.muscle_F = self.addpool(self.nMn * 5, "muscle_F", "muscle")
         #
-        # '''muscles'''
-        # self.muscle_E = self.addpool(self.nMn * 6, "muscle_E", "muscle")
-        # self.muscle_F = self.addpool(self.nMn * 5, "muscle_F", "muscle")
-        #
-        # '''reflex arc'''
-        # self.Ia_E = self.addpool(self.nInt, "Ia_E", "int")
-        # self.R_E = self.addpool(self.nInt, "R_E", "int")  # Renshaw cells
-        # self.Ia_F = self.addpool(self.nInt, "Ia_F", "bursting")
-        # self.R_F = self.addpool(self.nInt, "R_F", "bursting")  # Renshaw cells
+        '''reflex arc'''
+        self.Ia_E = self.addpool(self.nInt, "Ia_E", "int")
+        self.R_E = self.addpool(self.nInt, "R_E", "int")  # Renshaw cells
+        self.Ia_F = self.addpool(self.nInt, "Ia_F", "bursting")
+        self.R_F = self.addpool(self.nInt, "R_F", "bursting")  # Renshaw cells
 
         logging.info("done addpool")
         '''BS'''
         # periodic stimulation
-        self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 5, 5.3)
+        self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 4.9, 5.2)
 
         ''' BS '''
         for E_bs_gid in self.E_bs_gids:
-            self.genconnect(E_bs_gid, self.BS_aff_E, 4, 1)
+            self.genconnect(E_bs_gid, self.BS_aff_E, 3.9, 1)
 
         for F_bs_gid in self.F_bs_gids:
-            self.genconnect(F_bs_gid, self.BS_aff_F, 4, 1)
+            self.genconnect(F_bs_gid, self.BS_aff_F, 3.9, 1)
 
-        # for layer in range(CV_number):
-        #     self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 0.035, 3, stdptype=False)
-        #     self.connectcells(self.BS_aff_E, self.dict_RG_E[layer], 0.045, 3, stdptype=False)
+        for layer in range(CV_number):
+            self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 0.035, 3, stdptype=False)
+            self.connectcells(self.BS_aff_E, self.dict_RG_E[layer], 0.045, 3, stdptype=False)
         # #
-        # for layer in range(CV_number):
-        #     '''Internal to RG topology'''
-        #     self.connectinsidenucleus(self.dict_RG_F[layer])
-        #     self.connectinsidenucleus(self.dict_RG_E[layer])
-        #
-        #     # '''RG2Motor'''
-        #     self.connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
-        #     self.connectcells(self.dict_RG_F[layer], self.mns_F, 2.75, 3)
-        #
-        #     self.connectcells(self.dict_RG_E[layer], self.InE, 4, 1)
-        #     self.connectcells(self.dict_RG_F[layer], self.InF, 4, 1)
+        for layer in range(CV_number):
+            '''Internal to RG topology'''
+            self.connectinsidenucleus(self.dict_RG_F[layer])
+            self.connectinsidenucleus(self.dict_RG_E[layer])
+
+            # '''RG2Motor'''
+            self.connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
+            self.connectcells(self.dict_RG_F[layer], self.mns_F, 2.75, 3)
+
+            self.connectcells(self.dict_RG_E[layer], self.InE, 4, 1)
+            self.connectcells(self.dict_RG_F[layer], self.InF, 4, 1)
         # #
-        # # '''motor2muscles'''
-        # self.connectcells(self.mns_E, self.muscle_E, 8, 2, inhtype=False, N=15)
-        # self.connectcells(self.mns_F, self.muscle_F, 8, 2, inhtype=False, N=10)
+        # '''motor2muscles'''
+        self.connectcells(self.mns_E, self.muscle_E, 8, 2, inhtype=False, N=15)
+        self.connectcells(self.mns_F, self.muscle_F, 8, 2, inhtype=False, N=10)
         #
         # '''muscle afferents generators'''
+
+        self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(self.muscle_E, self.muscle_F)
+        # ''' BS '''
+        for E_ia_gid in self.E_ia_gids:
+            self.genconnect(E_ia_gid, self.Ia_aff_E, 7, 3)
         #
-        # self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(self.muscle_E, self.muscle_F)
-        # # ''' BS '''
-        # for E_ia_gid in self.E_ia_gids:
-        #     self.genconnect(E_ia_gid, self.Ia_aff_E, 7, 3)
-        # #
-        # for F_ia_gid in self.F_ia_gids:
-        #     self.genconnect(F_ia_gid, self.Ia_aff_F, 7, 3)
+        for F_ia_gid in self.F_ia_gids:
+            self.genconnect(F_ia_gid, self.Ia_aff_F, 7, 3)
         # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 15, weight=20)
         # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time + 15, weight=30)
 
@@ -184,8 +184,8 @@ class CPG:
         # self.genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 20)
         # self.genconnect(self.Iagener_F, self.Ia_aff_F, 0.5, 1, False, 30)
 
-        # self.connectcells(self.muscle_E, self.Ia_aff_E, 3.5, 1, 10, False)
-        # self.connectcells(self.muscle_F, self.Ia_aff_F, 3.5, 1, 10, False)
+        self.connectcells(self.muscle_E, self.Ia_aff_E, 3.5, 1, 10, False)
+        self.connectcells(self.muscle_F, self.Ia_aff_F, 3.5, 1, 10, False)
 
         '''cutaneous inputs'''
         cfr = 200
@@ -219,35 +219,35 @@ class CPG:
         #     self.genconnect(self.dict_C[layer], self.dict_CV_1[layer], 3 * k * speed, 2)  # 0.15
         #     self.connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 2 * k * speed, 3)  # 0.0035
 
-        # # '''Ia2motor'''
-        # self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 2)
-        # self.connectcells(self.Ia_aff_F, self.mns_F, 1.55, 2)
+        # '''Ia2motor'''
+        self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 2)
+        self.connectcells(self.Ia_aff_F, self.mns_F, 1.55, 2)
         # #
-        # for layer in range(CV_number):
-        #     '''STDP synapse'''
-        #     self.connectcells(self.Ia_aff_E, self.dict_RG_E[layer], weight=3.3, delay=3, stdptype=True)
-        #     self.connectcells(self.Ia_aff_F, self.dict_RG_F[layer], weight=3.3, delay=3, stdptype=True)
+        for layer in range(CV_number):
+            '''STDP synapse'''
+            self.connectcells(self.Ia_aff_E, self.dict_RG_E[layer], weight=3.3, delay=3, stdptype=True)
+            self.connectcells(self.Ia_aff_F, self.dict_RG_F[layer], weight=3.3, delay=3, stdptype=True)
         #
         # #     # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
         # #
-        # # '''Ia2RG, RG2Motor'''
-        # self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
-        # self.connectcells(self.InF, self.RG_E, 0.8, 1, inhtype=True)
-        #
-        # self.connectcells(self.Ia_aff_E, self.Ia_E, 0.8, 1, inhtype=False)
-        # self.connectcells(self.Ia_aff_F, self.Ia_F, 0.8, 1, inhtype=False)
-        #
-        # self.connectcells(self.mns_E, self.R_E, 0.015, 1, inhtype=False)
-        # self.connectcells(self.mns_F, self.R_F, 0.015, 1, inhtype=False)
-        #
-        # self.connectcells(self.R_E, self.mns_E, 0.015, 1, inhtype=True)
-        # self.connectcells(self.R_F, self.mns_F, 0.015, 1, inhtype=True)
-        #
-        # self.connectcells(self.R_E, self.Ia_E, 0.01, 1, inhtype=True)
-        # self.connectcells(self.R_F, self.Ia_F, 0.01, 1, inhtype=True)
-        #
-        # self.connectcells(self.Ia_E, self.mns_F, 0.8, 1, inhtype=True)
-        # self.connectcells(self.Ia_F, self.mns_E, 0.8, 1, inhtype=True)
+        # '''Ia2RG, RG2Motor'''
+        self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
+        self.connectcells(self.InF, self.RG_E, 0.8, 1, inhtype=True)
+
+        self.connectcells(self.Ia_aff_E, self.Ia_E, 0.8, 1, inhtype=False)
+        self.connectcells(self.Ia_aff_F, self.Ia_F, 0.8, 1, inhtype=False)
+
+        self.connectcells(self.mns_E, self.R_E, 0.015, 1, inhtype=False)
+        self.connectcells(self.mns_F, self.R_F, 0.015, 1, inhtype=False)
+
+        self.connectcells(self.R_E, self.mns_E, 0.015, 1, inhtype=True)
+        self.connectcells(self.R_F, self.mns_F, 0.015, 1, inhtype=True)
+
+        self.connectcells(self.R_E, self.Ia_E, 0.01, 1, inhtype=True)
+        self.connectcells(self.R_F, self.Ia_F, 0.01, 1, inhtype=True)
+
+        self.connectcells(self.Ia_E, self.mns_F, 0.8, 1, inhtype=True)
+        self.connectcells(self.Ia_F, self.mns_E, 0.8, 1, inhtype=True)
 
         logging.info("done connectcells")
 
@@ -384,7 +384,7 @@ class CPG:
                     nc = pc.gid_connect(gen_gid, syn)
                     nc.threshold = self.threshold
                     nc.delay = random.gauss(delay, delay / 5)
-                    nc.weight[0] = weight #random.gauss(weight, weight / 5)
+                    nc.weight[0] = random.gauss(weight, weight / 5)
                     self.stimnclist.append(nc)
 
     def motodiams(self, number):
@@ -816,26 +816,26 @@ if __name__ == '__main__':
         #                    'w') as file:
         #         file.create_dataset('#0_step_{}'.format(i), data=cpg_weight[2], compression="gzip")
 
-        # for group, recorder in zip(cpg_ex.motogroups, motorecorders):
-        #     spikeout(group[k_nrns], group[k_name], i, recorder)
-        # for group, recorder in zip(cpg_ex.musclegroups, musclerecorders):
-        #     spikeout(group[k_nrns], group[k_name], i, recorder)
+        for group, recorder in zip(cpg_ex.motogroups, motorecorders):
+            spikeout(group[k_nrns], group[k_name], i, recorder)
+        for group, recorder in zip(cpg_ex.musclegroups, musclerecorders):
+            spikeout(group[k_nrns], group[k_name], i, recorder)
         # for group, recorder in zip(cpg_ex.musclegroups, musclerecorders_extra):
         #     spikeout(group[k_nrns], group[k_name], i, recorder)
-        # for group, recorder in zip(cpg_ex.motogroups, motorecorders_mem):
-        #     spikeout(group[k_nrns], 'mem_{}'.format(group[k_name]), i, recorder)
+        for group, recorder in zip(cpg_ex.motogroups, motorecorders_mem):
+            spikeout(group[k_nrns], 'mem_{}'.format(group[k_name]), i, recorder)
         for group, recorder in zip(cpg_ex.affgroups, affrecorders):
             spikeout(group[k_nrns], group[k_name], i, recorder)
         # for group, recorder in zip(cpg_ex.affgroups, affrecorders_extra):
         #     spikeout(group[k_nrns], group[k_name], i, recorder)
         for group, recorder in zip(cpg_ex.affgroups, affrecorders_axon):
             spikeout(group[k_nrns], group[k_name] + "axon", i, recorder)
-        # for group, recorder in zip(cpg_ex.intgroups, recorders):
-        #     spikeout(group[k_nrns], group[k_name], i, recorder)
+        for group, recorder in zip(cpg_ex.intgroups, recorders):
+            spikeout(group[k_nrns], group[k_name], i, recorder)
         # for group, recorder in zip(cpg_ex.intgroups, recorders_extra):
         #     spikeout(group[k_nrns], group[k_name], i, recorder)
-        # for group, recorder in zip(cpg_ex.musclegroups, force_recorders):
-        #     spikeout(group[k_nrns], 'force_{}'.format(group[k_name]), i, recorder)
+        for group, recorder in zip(cpg_ex.musclegroups, force_recorders):
+            spikeout(group[k_nrns], 'force_{}'.format(group[k_name]), i, recorder)
         for group, recorder in zip(cpg_ex.affgroups, affrecorders):
             spikeout_individual_files(group[k_nrns], group[k_name], i, recorder)
 
