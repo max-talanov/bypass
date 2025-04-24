@@ -114,12 +114,12 @@ def biophys_axon(self):
         sec.xc[1] = 0
         sec.insert('hh')
         if hasattr(self, 'neuron_type') and self.neuron_type == "flexor":
-            sec.gnabar_hh = 3.5 # Higher Na+ conductance for flexor
-            sec.gkbar_hh = 0.25  # Specific K+ value for flexor
+            sec.gnabar_hh = 0.6 # Higher Na+ conductance for flexor
+            sec.gkbar_hh = 0.09 # Specific K+ value for flexor
             sec.gl_hh = 0.0003
         else:  # extensor (default)
-            sec.gnabar_hh = 3.5 # Original value for more consistency
-            sec.gkbar_hh = 0.25  # Fine-tuned for extensor
+            sec.gnabar_hh = 0.6 # Original value for more consistency
+            sec.gkbar_hh = 0.09  # Fine-tuned for extensor
             sec.gl_hh = 0.0003
 
         sec.el_hh = -75

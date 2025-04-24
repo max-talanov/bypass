@@ -101,17 +101,20 @@ class interneuron(object):
 
         self.soma.Ra = 100  # Ra ohm cm - membrane resistance
         self.soma.insert('fastchannels')
-        self.soma.gnabar_fastchannels = 0.25
+        self.soma.gnabar_fastchannels = 0.3
         self.soma.gkbar_fastchannels = 0.06
         self.soma.gl_fastchannels = 0.002
-        self.soma.el_fastchannels = -72
+        self.soma.el_fastchannels = -60
         self.soma.insert('extracellular')  # adds extracellular mechanism for recording extracellular potential
         if self.bursting:
             # Bursting properties of RG-F0 and RG-FE ph A4 interneurons were provided by INaP
             # add slow NaP channels
             # TODO g_NaP = 0.75(±0.0375) mS/cm2
             self.soma.insert('nap')
-            self.soma.gbar_nap = 0.75e-3
+            self.soma.gbar_nap = 3.0e-3
+        # else:
+        #     self.soma.insert('nap')
+        #     self.soma.gbar_nap = 1.0e-3
 
         for sec in self.dend:
             sec.Ra = 100  # Ra ohm cm - membrane resistance
@@ -119,14 +122,14 @@ class interneuron(object):
         for sec in self.dend:
             if self.serotonin:
                 sec.insert('fastchannels')
-                sec.gnabar_fastchannels = 0.25
-                sec.gkbar_fastchannels = 0.04
+                sec.gnabar_fastchannels = 0.35
+                sec.gkbar_fastchannels = 0.09
                 sec.gl_fastchannels = 0.001
                 self.add_5HTreceptors(sec, 10, 5)
             else:
                 sec.insert('pas')
                 sec.g_pas = 0.0002
-                sec.e_pas = -70
+                sec.e_pas = -60
 
         if self.serotonin:
             self.add_5HTreceptors(self.soma, 10, 5)
@@ -186,7 +189,7 @@ class interneuron(object):
             connection between neurons
         '''
         nc = h.NetCon(self.axon(1)._ref_v, target, sec=self.axon)
-        nc.threshold = -10
+        nc.threshold = -20
         return nc
 
     def synapses(self):
@@ -196,45 +199,45 @@ class interneuron(object):
         for sec in self.dend:
             for i in range(50):
                 '''Somatic'''
-                s = h.ExpSyn(self.soma(0.8))  # Excitatory
-                s.tau = 0.1
-                s.e = 0
+                s = h.ExpSyn(self.soma(0.5))  # Excitatory
+                s.tau = 0.5
+                s.e = 55
                 self.synlistex.append(s)
                 s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
                 s.tau1 = 0.5
-                s.tau2 = 3.5
-                s.e = -70
+                s.tau2 = 2.8
+                s.e = -65
                 self.synlistinh.append(s)
                 '''Dendritic'''
                 s = h.ExpSyn(sec(0.5))  # Excitatory
-                s.tau = 0.1
-                s.e = 0
+                s.tau = 0.5
+                s.e = 55
                 self.synlistex.append(s)
                 s = h.Exp2Syn(sec(0.5))  # Inhibitory
                 s.tau1 = 0.5
-                s.tau2 = 3.5
+                s.tau2 = 2.8
                 s.e = -70
                 self.synlistinh.append(s)
 
                 '''STDP'''
                 '''Somatic'''
                 s = h.ExpSyn(self.soma(0.5))  # Excitatory
-                s.tau = 0.1
-                s.e = 0
+                s.tau = 1.3
+                s.e = 55
                 self.synlistexstdp.append(s)
                 s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
                 s.tau1 = 0.5
-                s.tau2 = 3.5
+                s.tau2 = 2.8
                 s.e = -70
                 self.synlistinhstdp.append(s)
                 '''Dendritic'''
                 s = h.ExpSyn(sec(0.5))  # Excitatory
-                s.tau = 0.1
-                s.e = 0
+                s.tau = 1.3
+                s.e = 55
                 self.synlistexstdp.append(s)
                 s = h.Exp2Syn(sec(0.8))  # Inhibitory
                 s.tau1 = 0.5
-                s.tau2 = 3.5
+                s.tau2 = 2.8
                 s.e = -70
                 self.synlistinhstdp.append(s)
 

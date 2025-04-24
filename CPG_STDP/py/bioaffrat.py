@@ -73,7 +73,7 @@ class bioaffrat(object):
         '''
         self.soma.insert('hh')
         self.soma.gnabar_hh = 0.65
-        self.soma.gkbar_hh = 0.09
+        self.soma.gkbar_hh = 0.15
         self.soma.gl_hh = 0.0001
         self.soma.el_hh = -65
         self.soma.Ra = 150
@@ -106,37 +106,37 @@ class bioaffrat(object):
 
     def synapses(self):
         # Ингибирующие (на соме!)
-        for i in range(30):
+        for i in range(100):
             s = h.Exp2Syn(self.soma(0.3))
             s.tau1 = 0.5
-            s.tau2 = 4.0
+            s.tau2 = 2.8
             s.e = -80
             self.synlistinh.append(s)
         # Then in synapses() method, add logic based on type:
-        if hasattr(self, 'neuron_type') and self.neuron_type == "flexor":
-            # Flexor-specific parameters
-            for i in range(50):
-                s = h.ExpSyn(self.node[0](0.5))
-                s.tau = 0.18
-                s.e = 55  # Higher reversal potential for flexors
-                self.synlistees.append(s)
+        # if hasattr(self, 'neuron_type') and self.neuron_type == "flexor":
+        #     # Flexor-specific parameters
+        for i in range(100):
+            s = h.ExpSyn(self.soma(0.5))
+            s.tau = 0.7
+            s.e = 50  # Higher reversal potential for flexors
+            self.synlistees.append(s)
 
-                s_extra = h.ExpSyn(self.node[0](0.5))
-                s_extra.tau = 0.18
-                s_extra.e = 55
-                self.synlistex.append(s_extra)
-        else:
-            # Extensor parameters (default)
-            for i in range(50):
-                s = h.ExpSyn(self.node[0](0.5))
-                s.tau = 0.18
-                s.e = 55
-                self.synlistees.append(s)
-
-                s_extra = h.ExpSyn(self.node[0](0.5))
-                s_extra.tau = 0.18
-                s_extra.e = 55
-                self.synlistex.append(s_extra)
+            s_extra = h.ExpSyn(self.soma(0.5))
+            s_extra.tau = 0.7
+            s_extra.e = 50
+            self.synlistex.append(s_extra)
+        # else:
+        #     # Extensor parameters (default)
+        #     for i in range(50):
+        #         s = h.ExpSyn(self.soma(0.5))
+        #         s.tau = 2.0
+        #         s.e = 55
+        #         self.synlistees.append(s)
+        #
+        #         s_extra = h.ExpSyn(self.soma(0.5))
+        #         s_extra.tau = 2.0
+        #         s_extra.e = 55
+        #         self.synlistex.append(s_extra)
 
     def is_art(self):
         return 0
