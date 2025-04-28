@@ -7,8 +7,9 @@ import random
 
 # from axon import axon
 # from muscle import muscle
+from axon import Axon
 
-class motoneuron(object):
+class motoneuron(Axon):
     '''
     Motoneuron class with parameters:
       soma: NEURON Section (creates by topol())
@@ -21,11 +22,13 @@ class motoneuron(object):
       x, y, z: int
         3D coordinates
     '''
-    from axon import make_axon, topol_axon, geom_axon, biophys_axon
 
     def __init__(self, diam):
         # print 'construct ', self
         # create axon
+        self.all = None
+        self.dend = None
+        self.soma = None
         self.diam = diam
         self.make_axon(10)
         self.topol()
@@ -138,7 +141,7 @@ class motoneuron(object):
         NEURON staff
         Adds 3D position
         '''
-        soma.push()
+        self.soma.push()
         for i in range(h.n3d()):
             h.pt3dchange(i, x - self.x + h.x3d(i), y - self.y + h.y3d(i), z - self.z + h.z3d(i), h.diam3d(i))
         self.x = x
@@ -160,7 +163,7 @@ class motoneuron(object):
             connection between neurons
         '''
         nc = h.NetCon(self.node[len(self.node) - 1](0.5)._ref_v, target, sec=self.node[len(self.node) - 1])
-        nc.threshold = -10
+        nc.threshold = -20
         return nc
 
     def synapses(self):
@@ -169,12 +172,12 @@ class motoneuron(object):
         '''
         for i in range(200):
             s = h.ExpSyn(self.soma(0.5))  # Excitatory
-            s.tau = 0.1
-            s.e = 0
+            s.tau = 0.7
+            s.e = 55
             self.synlistex.append(s)
             s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
-            s.tau1 = 1
-            s.tau2 = 3.5
+            s.tau1 = 0.5
+            s.tau2 = 2.8
             s.e = -70
             self.synlistinh.append(s)
 

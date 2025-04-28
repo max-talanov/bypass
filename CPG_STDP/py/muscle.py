@@ -13,6 +13,9 @@ class muscle(object):
     '''
 
     def __init__(self):
+        self.all = None
+        self.soma = None
+        self.muscle_unit = None
         self.topol()
         self.subsets()
         self.geom()
@@ -125,7 +128,7 @@ class muscle(object):
             connection between neurons
         '''
         nc = h.NetCon(self.muscle_unit(0.5)._ref_v, target, sec=self.muscle_unit)
-        nc.threshold = -10
+        nc.threshold = -20
         return nc
 
     def synapses(self):
@@ -133,11 +136,11 @@ class muscle(object):
         Adds synapses
         '''
         for i in range(200):
-            s = h.ExpSyn(self.muscle_unit(0.5))  # Exsitatory
-            s.tau = 0.1
-            s.e = 0
+            s = h.ExpSyn(self.soma(0.5))  # Exsitatory
+            s.tau = 0.7
+            s.e = 50
             self.synlistex.append(s)
-            s = h.Exp2Syn(self.muscle_unit(0.5))  # Inhibitory
+            s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
             s.tau1 = 0.5
             s.tau2 = 3.5
             s.e = -70

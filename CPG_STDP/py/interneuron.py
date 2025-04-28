@@ -29,6 +29,10 @@ class interneuron(object):
     '''
 
     def __init__(self, serotonin_mode=False, bursting_mode=False):
+        self.all = None
+        self.dend = None
+        self.axon = None
+        self.soma = None
         self.serotonin = serotonin_mode
         self.bursting = bursting_mode
         self.diffs = []
@@ -129,7 +133,7 @@ class interneuron(object):
             else:
                 sec.insert('pas')
                 sec.g_pas = 0.0002
-                sec.e_pas = -60
+                sec.e_pas = -70
 
         if self.serotonin:
             self.add_5HTreceptors(self.soma, 10, 5)
@@ -200,21 +204,21 @@ class interneuron(object):
             for i in range(50):
                 '''Somatic'''
                 s = h.ExpSyn(self.soma(0.5))  # Excitatory
-                s.tau = 0.5
+                s.tau = 0.7
                 s.e = 55
                 self.synlistex.append(s)
                 s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
                 s.tau1 = 0.5
                 s.tau2 = 2.8
-                s.e = -65
+                s.e = -70
                 self.synlistinh.append(s)
                 '''Dendritic'''
                 s = h.ExpSyn(sec(0.5))  # Excitatory
-                s.tau = 0.5
+                s.tau = 0.7
                 s.e = 55
                 self.synlistex.append(s)
                 s = h.Exp2Syn(sec(0.5))  # Inhibitory
-                s.tau1 = 0.5
+                s.tau1 = 0.7
                 s.tau2 = 2.8
                 s.e = -70
                 self.synlistinh.append(s)

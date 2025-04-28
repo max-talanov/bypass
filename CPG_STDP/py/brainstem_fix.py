@@ -53,8 +53,8 @@ class CPG:
         self.threshold = -20
         self.delay = 1
         self.nAff = 7  # 12  # 12
-        self.nInt = 7  # 5
-        self.nMn = 5  # 21  # 21
+        self.nInt = 7 # 5
+        self.nMn = 7  # 21  # 21
         self.ncell = n
         self.affs = []
         self.ints = []
@@ -139,7 +139,7 @@ class CPG:
         logging.info("done addpool")
         '''BS'''
         # periodic stimulation
-        self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 3, 3)
+        self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 1, 1)
 
         # ''' BS '''
         # for E_bs_gid in self.E_bs_gids:
@@ -168,25 +168,25 @@ class CPG:
             self.connectinsidenucleus(self.dict_RG_E[layer])
 
             # '''RG2Motor'''
-            self.connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
-            self.connectcells(self.dict_RG_F[layer], self.mns_F, 2.75, 3)
+            self.connectcells(self.dict_RG_E[layer], self.mns_E, 1, 1)
+            self.connectcells(self.dict_RG_F[layer], self.mns_F, 1, 1)
 
-            self.connectcells(self.dict_RG_E[layer], self.InE, 4, 1)
-            self.connectcells(self.dict_RG_F[layer], self.InF, 4, 1)
+            self.connectcells(self.dict_RG_E[layer], self.InE, 1, 1)
+            self.connectcells(self.dict_RG_F[layer], self.InF, 1, 1)
         #
         # # '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 8, 2, inhtype=False, N=15)
-        self.connectcells(self.mns_F, self.muscle_F, 8, 2, inhtype=False, N=10)
+        self.connectcells(self.mns_E, self.muscle_E, 1, 2, inhtype=False)
+        self.connectcells(self.mns_F, self.muscle_F, 1, 2, inhtype=False)
         #
         # # '''muscle afferents generators'''
         #
         self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(self.muscle_E, self.muscle_F)
         # ''' BS '''
         for E_ia_gid in self.E_ia_gids:
-            self.genconnect(E_ia_gid, self.Ia_aff_E, 7, 3)
+            self.genconnect(E_ia_gid, self.Ia_aff_E, 1, 3)
         #
         for F_ia_gid in self.F_ia_gids:
-            self.genconnect(F_ia_gid, self.Ia_aff_F, 7, 3)
+            self.genconnect(F_ia_gid, self.Ia_aff_F, 1, 3)
         # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 15, weight=20)
         # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time + 15, weight=30)
         #
@@ -230,13 +230,13 @@ class CPG:
         # #     self.connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 2 * k * speed, 3)  # 0.0035
         #
         # # '''Ia2motor'''
-        self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 2)
-        self.connectcells(self.Ia_aff_F, self.mns_F, 1.55, 2)
+        self.connectcells(self.Ia_aff_E, self.mns_E, 1, 2)
+        self.connectcells(self.Ia_aff_F, self.mns_F, 1, 2)
         # #
         for layer in range(CV_number):
             '''STDP synapse'''
-            self.connectcells(self.Ia_aff_E, self.dict_RG_E[layer], weight=3.3, delay=3, stdptype=True)
-            self.connectcells(self.Ia_aff_F, self.dict_RG_F[layer], weight=3.3, delay=3, stdptype=True)
+            self.connectcells(self.Ia_aff_E, self.dict_RG_E[layer], weight=1, delay=3, stdptype=True)
+            self.connectcells(self.Ia_aff_F, self.dict_RG_F[layer], weight=1, delay=3, stdptype=True)
         #
         # #     # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
         # # #
@@ -445,7 +445,7 @@ class CPG:
         stim.start = start
 
         # Set generator parameters:
-        freq = 50 #70 #100  # frequency in Hz
+        freq = 70 #70 #100  # frequency in Hz
         stim.interval = int(1000 / freq)  # interval between stimuli in ms
         # 'one_step_time' is assumed to be a global variable representing the simulation step duration (in ms).
         stim.number = int(one_step_time / stim.interval) - 5
@@ -533,7 +533,7 @@ class CPG:
         return gid
 
     def connectinsidenucleus(self, nucleus):
-        self.connectcells(nucleus, nucleus, 3, delay=0.3, threshold=-20, inhtype=False, stdptype=False, N=60)
+        self.connectcells(nucleus, nucleus, 3, delay=0.5, threshold=-20, inhtype=False, stdptype=False, N=60)
 
     def add_bs_geners(self, freq, weight_E, weight_F):
         E_bs_gids = []
@@ -547,8 +547,8 @@ class CPG:
         E_ia_gids = []
         F_ia_gids = []
         for step in range(step_number):
-            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=20))
-            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=30))
+            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=2))
+            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=3))
         return E_ia_gids, F_ia_gids
 
 
@@ -835,8 +835,8 @@ if __name__ == '__main__':
             spikeout(group[k_nrns], group[k_name], i, recorder)
         # for group, recorder in zip(cpg_ex.musclegroups, musclerecorders_extra):
         #     spikeout(group[k_nrns], group[k_name], i, recorder)
-        # for group, recorder in zip(cpg_ex.motogroups, motorecorders_mem):
-        #     spikeout(group[k_nrns], 'mem_{}'.format(group[k_name]), i, recorder)
+        for group, recorder in zip(cpg_ex.motogroups, motorecorders_mem):
+            spikeout(group[k_nrns], 'mem_{}'.format(group[k_name]), i, recorder)
         for group, recorder in zip(cpg_ex.affgroups, affrecorders):
             spikeout(group[k_nrns], group[k_name], i, recorder)
         # for group, recorder in zip(cpg_ex.affgroups, affrecorders_extra):

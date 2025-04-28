@@ -3,9 +3,10 @@ from neuron import h
 h.load_file('stdlib.hoc')  # for h.lambda_f
 
 import random
+from axon import Axon
 
 
-class bioaffrat(object):
+class bioaffrat(Axon):
     '''
     Afferent with bio-axon class with parameters:
       soma: NEURON Section (creates by topol())
@@ -18,12 +19,15 @@ class bioaffrat(object):
       synlistees: list (creates by synapses())
         list of excitatory synapses for connection with generators
     '''
-    from axon import make_axon, topol_axon, geom_axon, biophys_axon
+    # from axon import make_axon, topol_axon, geom_axon, biophys_axon
 
     def __init__(self, neuron_type="extensor"):
-        # create axon
+        self.nc = None
+        self.soma = None
+        self.all = None
         self.nu = random.randint(8, 11)
         self.make_axon(self.nu)
+        # self.make_axon(self, self.nu)
         self.neuron_type = neuron_type
         self.topol()
         self.subsets()
@@ -96,9 +100,9 @@ class bioaffrat(object):
         nc: NEURON NetCon
             connection between neurons
         '''
-        nc = h.NetCon(self.node[len(self.node) - 1](0.5)._ref_v, target, sec=self.node[len(self.node) - 1])
-        nc.threshold = -20
-        return nc
+        self.nc = h.NetCon(self.node[len(self.node) - 1](0.5)._ref_v, target, sec=self.node[len(self.node) - 1])
+        self.nc.threshold = -20
+        return self.nc
 
         # nc = h.NetCon(self.axon(1)._ref_v, target, sec=self.axon)
         # nc.threshold = -10
