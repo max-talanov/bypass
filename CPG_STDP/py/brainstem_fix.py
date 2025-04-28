@@ -127,8 +127,8 @@ class CPG:
         self.mns_F = self.addpool(self.nMn, "mns_F", "moto")
 
         '''muscles'''
-        self.muscle_E = self.addpool(self.nMn * 6, "muscle_E", "muscle")
-        self.muscle_F = self.addpool(self.nMn * 5, "muscle_F", "muscle")
+        self.muscle_E = self.addpool(self.nMn, "muscle_E", "muscle")
+        self.muscle_F = self.addpool(self.nMn, "muscle_F", "muscle")
         #
         '''reflex arc'''
         self.Ia_E = self.addpool(self.nInt, "Ia_E", "int")
@@ -168,8 +168,8 @@ class CPG:
             self.connectinsidenucleus(self.dict_RG_E[layer])
 
             # '''RG2Motor'''
-            self.connectcells(self.dict_RG_E[layer], self.mns_E, 1, 1)
-            self.connectcells(self.dict_RG_F[layer], self.mns_F, 1, 1)
+            self.connectcells(self.dict_RG_E[layer], self.mns_E, 1.2, 1)
+            self.connectcells(self.dict_RG_F[layer], self.mns_F, 1.2, 1)
 
             self.connectcells(self.dict_RG_E[layer], self.InE, 1, 1)
             self.connectcells(self.dict_RG_F[layer], self.InF, 1, 1)
@@ -247,8 +247,8 @@ class CPG:
         self.connectcells(self.Ia_aff_E, self.Ia_E, 0.8, 1, inhtype=False)
         self.connectcells(self.Ia_aff_F, self.Ia_F, 0.8, 1, inhtype=False)
 
-        self.connectcells(self.mns_E, self.R_E, 0.015, 1, inhtype=False)
-        self.connectcells(self.mns_F, self.R_F, 0.015, 1, inhtype=False)
+        self.connectcells(self.mns_E, self.R_E, 0.5, 1, inhtype=False)
+        self.connectcells(self.mns_F, self.R_F, 0.5, 1, inhtype=False)
 
         self.connectcells(self.R_E, self.mns_E, 0.015, 1, inhtype=True)
         self.connectcells(self.R_F, self.mns_F, 0.015, 1, inhtype=True)
