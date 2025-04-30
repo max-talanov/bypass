@@ -247,8 +247,8 @@ class CPG:
         self.connectcells(self.Ia_aff_E, self.Ia_E, 1, 1, inhtype=False)
         self.connectcells(self.Ia_aff_F, self.Ia_F, 1, 1, inhtype=False)
 
-        self.connectcells(self.mns_E, self.R_E, 0.5, 1, inhtype=False)
-        self.connectcells(self.mns_F, self.R_F, 0.5, 1, inhtype=False)
+        self.connectcells(self.mns_E, self.R_E, 1, 1, inhtype=False)
+        self.connectcells(self.mns_F, self.R_F, 1, 1, inhtype=False)
 
         self.connectcells(self.R_E, self.mns_E, 0.5, 1, inhtype=True)
         self.connectcells(self.R_F, self.mns_F, 0.5, 1, inhtype=True)
@@ -311,11 +311,13 @@ class CPG:
                 cell = interneuron(delaytype)
                 self.ints.append(cell)
 
-            gids.append(gid)
             pc.set_gid2node(gid, rank)
             nc = cell.connect2target(None)
             pc.cell(gid, nc)
+            nc.threshold = self.threshold
+            pc.threshold(gid, nc.threshold)
             self.netcons.append(nc)
+            gids.append(gid)
             gid += 1
 
         # Groups
@@ -379,7 +381,7 @@ class CPG:
                         nc.weight[0] = random.gauss(weight, weight / 5)
                         nc.threshold = threshold
                         nc.delay = random.gauss(delay, delay / 5)
-                        pc.threshold(src_gid, threshold)
+                        pc.threshold(src_gid, nc.threshold)
                         self.netcons.append(nc)
 
     def genconnect(self, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50):

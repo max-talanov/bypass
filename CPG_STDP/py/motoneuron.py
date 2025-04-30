@@ -35,7 +35,7 @@ class motoneuron(Axon):
         self.subsets()
         self.geom()
         self.biophys()
-        # self.geom_nseg()
+        self.geom_nseg()
         self.synlistinh = []
         self.synlistex = []
         self.synapses()
@@ -98,7 +98,7 @@ class motoneuron(Axon):
         Calculates numder of segments in section
         '''
         for sec in self.all:
-            sec.nseg = int((sec.L / (0.1 * h.lambda_f(100)) + .9) / 2.) * 2 + 1
+            sec.nseg = 2 #int((sec.L / (0.1 * h.lambda_f(100)) + .9) / 2.) * 2 + 1
 
     def biophys(self):
         '''
@@ -162,7 +162,7 @@ class motoneuron(Axon):
         nc: NEURON NetCon
             connection between neurons
         '''
-        nc = h.NetCon(self.node[len(self.node) - 1](0.5)._ref_v, target, sec=self.node[len(self.node) - 1])
+        nc = h.NetCon(self.node[-1](0.5)._ref_v, target, sec=self.node[-1])
         nc.threshold = -20
         return nc
 

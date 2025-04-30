@@ -27,7 +27,6 @@ class bioaffrat(Axon):
         self.all = None
         self.nu = random.randint(8, 11)
         self.make_axon(self.nu)
-        # self.make_axon(self, self.nu)
         self.neuron_type = neuron_type
         self.topol()
         self.subsets()
