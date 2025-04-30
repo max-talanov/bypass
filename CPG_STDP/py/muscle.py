@@ -135,14 +135,14 @@ class muscle(object):
         '''
         Adds synapses
         '''
-        for i in range(200):
-            s = h.ExpSyn(self.soma(0.5))  # Exsitatory
+        for i in range(100):
+            s = h.ExpSyn(self.muscle_unit(0.5))  # Exsitatory
             s.tau = 1
             s.e = 50
             self.synlistex.append(s)
-            s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
-            s.tau1 = 0.5
-            s.tau2 = 3.5
+            s = h.Exp2Syn(self.muscle_unit(0.5))  # Inhibitory
+            s.tau1 = 0.7
+            s.tau2 = 2.8
             s.e = -70
             self.synlistinh.append(s)
 

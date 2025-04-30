@@ -175,8 +175,8 @@ class CPG:
             self.connectcells(self.dict_RG_F[layer], self.InF, 1, 1)
         #
         # # '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 1, 2, inhtype=False)
-        self.connectcells(self.mns_F, self.muscle_F, 1, 2, inhtype=False)
+        self.connectcells(self.mns_E, self.muscle_E, 5, 1, inhtype=False)
+        self.connectcells(self.mns_F, self.muscle_F, 5, 1, inhtype=False)
         #
         # # '''muscle afferents generators'''
         #
@@ -244,17 +244,17 @@ class CPG:
         self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
         self.connectcells(self.InF, self.RG_E, 0.8, 1, inhtype=True)
 
-        self.connectcells(self.Ia_aff_E, self.Ia_E, 0.8, 1, inhtype=False)
-        self.connectcells(self.Ia_aff_F, self.Ia_F, 0.8, 1, inhtype=False)
+        self.connectcells(self.Ia_aff_E, self.Ia_E, 1, 1, inhtype=False)
+        self.connectcells(self.Ia_aff_F, self.Ia_F, 1, 1, inhtype=False)
 
         self.connectcells(self.mns_E, self.R_E, 0.5, 1, inhtype=False)
         self.connectcells(self.mns_F, self.R_F, 0.5, 1, inhtype=False)
 
-        self.connectcells(self.R_E, self.mns_E, 0.015, 1, inhtype=True)
-        self.connectcells(self.R_F, self.mns_F, 0.015, 1, inhtype=True)
+        self.connectcells(self.R_E, self.mns_E, 0.5, 1, inhtype=True)
+        self.connectcells(self.R_F, self.mns_F, 0.5, 1, inhtype=True)
 
-        self.connectcells(self.R_E, self.Ia_E, 0.01, 1, inhtype=True)
-        self.connectcells(self.R_F, self.Ia_F, 0.01, 1, inhtype=True)
+        self.connectcells(self.R_E, self.Ia_E, 0.7, 1, inhtype=True)
+        self.connectcells(self.R_F, self.Ia_F, 0.7, 1, inhtype=True)
 
         self.connectcells(self.Ia_E, self.mns_F, 0.8, 1, inhtype=True)
         self.connectcells(self.Ia_F, self.mns_E, 0.8, 1, inhtype=True)
