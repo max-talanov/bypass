@@ -99,7 +99,7 @@ class bioaffrat(Axon):
         nc: NEURON NetCon
             connection between neurons
         '''
-        self.nc = h.NetCon(self.node[len(self.node) - 1](0.5)._ref_v, target, sec=self.node[len(self.node) - 1])
+        self.nc = h.NetCon(self.node[-1](0.5)._ref_v, target, sec=self.node[-1])
         self.nc.threshold = -20
         return self.nc
 
@@ -110,7 +110,7 @@ class bioaffrat(Axon):
     def synapses(self):
         # Ингибирующие (на соме!)
         for i in range(100):
-            s = h.Exp2Syn(self.soma(0.3))
+            s = h.Exp2Syn(self.soma(0.5))
             s.tau1 = 0.5
             s.tau2 = 2.8
             s.e = -80

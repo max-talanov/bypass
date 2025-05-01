@@ -178,7 +178,7 @@ class motoneuron(Axon):
             s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
             s.tau1 = 0.7
             s.tau2 = 2.8
-            s.e = -70
+            s.e = -80
             self.synlistinh.append(s)
 
     def is_art(self):

@@ -116,8 +116,8 @@ class CPG:
         # self.CV = sum(self.CV, [])
         #
         # '''sensory and muscle afferents and brainstem and V3F'''
-        self.Ia_aff_E = self.addpool(self.nAff, "Ia_aff_E", "aff")
-        self.Ia_aff_F = self.addpool(self.nAff, "Ia_aff_F", "aff")
+        # self.Ia_aff_E = self.addpool(self.nAff, "Ia_aff_E", "aff")
+        # self.Ia_aff_F = self.addpool(self.nAff, "Ia_aff_F", "aff")
         # self.BS_aff_E = self.addpool(self.nAff, "BS_aff_E", "aff")
         # self.BS_aff_F = self.addpool(self.nAff, "BS_aff_F", "aff")
         # self.V3F = self.addpool(self.nAff, "V3F", "int")
@@ -131,9 +131,9 @@ class CPG:
         self.muscle_F = self.addpool(self.nMn, "muscle_F", "muscle")
         #
         '''reflex arc'''
-        self.Ia_E = self.addpool(self.nInt, "Ia_E", "int")
+        # self.Ia_E = self.addpool(self.nInt, "Ia_E", "int")
         self.R_E = self.addpool(self.nInt, "R_E", "int")  # Renshaw cells
-        self.Ia_F = self.addpool(self.nInt, "Ia_F", "bursting")
+        # self.Ia_F = self.addpool(self.nInt, "Ia_F", "bursting")
         self.R_F = self.addpool(self.nInt, "R_F", "bursting")  # Renshaw cells
 
         logging.info("done addpool")
@@ -175,18 +175,18 @@ class CPG:
             self.connectcells(self.dict_RG_F[layer], self.InF, 1, 1)
         #
         # # '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 5, 1, inhtype=False)
-        self.connectcells(self.mns_F, self.muscle_F, 5, 1, inhtype=False)
+        self.connectcells(self.mns_E, self.muscle_E, 1, 1, inhtype=False)
+        self.connectcells(self.mns_F, self.muscle_F, 1, 1, inhtype=False)
         #
         # # '''muscle afferents generators'''
         #
-        self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(self.muscle_E, self.muscle_F)
+        # self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(self.muscle_E, self.muscle_F)
         # ''' BS '''
-        for E_ia_gid in self.E_ia_gids:
-            self.genconnect(E_ia_gid, self.Ia_aff_E, 1, 3)
-        #
-        for F_ia_gid in self.F_ia_gids:
-            self.genconnect(F_ia_gid, self.Ia_aff_F, 1, 3)
+        # for E_ia_gid in self.E_ia_gids:
+        #     self.genconnect(E_ia_gid, self.Ia_aff_E, 1, 3)
+        # #
+        # for F_ia_gid in self.F_ia_gids:
+        #     self.genconnect(F_ia_gid, self.Ia_aff_F, 1, 3)
         # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 15, weight=20)
         # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time + 15, weight=30)
         #
@@ -230,34 +230,34 @@ class CPG:
         # #     self.connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 2 * k * speed, 3)  # 0.0035
         #
         # # '''Ia2motor'''
-        self.connectcells(self.Ia_aff_E, self.mns_E, 1, 2)
-        self.connectcells(self.Ia_aff_F, self.mns_F, 1, 2)
+        # self.connectcells(self.Ia_aff_E, self.mns_E, 1, 2)
+        # self.connectcells(self.Ia_aff_F, self.mns_F, 1, 2)
         # #
-        for layer in range(CV_number):
-            '''STDP synapse'''
-            self.connectcells(self.Ia_aff_E, self.dict_RG_E[layer], weight=1, delay=3, stdptype=True)
-            self.connectcells(self.Ia_aff_F, self.dict_RG_F[layer], weight=1, delay=3, stdptype=True)
+        # for layer in range(CV_number):
+        #     '''STDP synapse'''
+        #     self.connectcells(self.Ia_aff_E, self.dict_RG_E[layer], weight=1, delay=3, stdptype=True)
+        #     self.connectcells(self.Ia_aff_F, self.dict_RG_F[layer], weight=1, delay=3, stdptype=True)
         #
         # #     # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
         # # #
         '''Ia2RG, RG2Motor'''
-        self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
-        self.connectcells(self.InF, self.RG_E, 0.8, 1, inhtype=True)
+        self.connectcells(self.InE, self.RG_F, 1, 1, inhtype=True)
+        self.connectcells(self.InF, self.RG_E, 1, 1, inhtype=True)
 
-        self.connectcells(self.Ia_aff_E, self.Ia_E, 1, 1, inhtype=False)
-        self.connectcells(self.Ia_aff_F, self.Ia_F, 1, 1, inhtype=False)
+        # self.connectcells(self.Ia_aff_E, self.Ia_E, 1, 1, inhtype=False)
+        # self.connectcells(self.Ia_aff_F, self.Ia_F, 1, 1, inhtype=False)
 
         self.connectcells(self.mns_E, self.R_E, 1, 1, inhtype=False)
         self.connectcells(self.mns_F, self.R_F, 1, 1, inhtype=False)
 
-        self.connectcells(self.R_E, self.mns_E, 0.5, 1, inhtype=True)
-        self.connectcells(self.R_F, self.mns_F, 0.5, 1, inhtype=True)
+        self.connectcells(self.R_E, self.mns_E, 1, 1, inhtype=True)
+        self.connectcells(self.R_F, self.mns_F, 1, 1, inhtype=True)
 
-        self.connectcells(self.R_E, self.Ia_E, 0.7, 1, inhtype=True)
-        self.connectcells(self.R_F, self.Ia_F, 0.7, 1, inhtype=True)
+        # self.connectcells(self.R_E, self.Ia_E, 0.7, 1, inhtype=True)
+        # self.connectcells(self.R_F, self.Ia_F, 0.7, 1, inhtype=True)
 
-        self.connectcells(self.Ia_E, self.mns_F, 0.8, 1, inhtype=True)
-        self.connectcells(self.Ia_F, self.mns_E, 0.8, 1, inhtype=True)
+        # self.connectcells(self.Ia_E, self.mns_F, 0.8, 1, inhtype=True)
+        # self.connectcells(self.Ia_F, self.mns_E, 0.8, 1, inhtype=True)
 
         logging.info("done connectcells")
 
@@ -313,8 +313,8 @@ class CPG:
 
             pc.set_gid2node(gid, rank)
             nc = cell.connect2target(None)
-            pc.cell(gid, nc)
             nc.threshold = self.threshold
+            pc.cell(gid, nc)
             pc.threshold(gid, nc.threshold)
             self.netcons.append(nc)
             gids.append(gid)
@@ -335,7 +335,7 @@ class CPG:
         return gids
 
     def connectcells(self, pre_cells, post_cells, weight=1.0, delay=1, threshold=-20, inhtype=False,
-                     stdptype=False, N=45):
+                     stdptype=False, N=80):
         nsyn = random.randint(N, N + 15)
         for post_gid in post_cells:
             if pc.gid_exists(post_gid):
@@ -399,6 +399,7 @@ class CPG:
                     nc.threshold = self.threshold
                     nc.delay = random.gauss(delay, delay / 5)
                     nc.weight[0] = weight #random.gauss(weight, weight / 5)
+                    pc.threshold(gen_gid, nc.threshold)
                     self.stimnclist.append(nc)
 
     def motodiams(self, number):
