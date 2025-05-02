@@ -116,8 +116,8 @@ class CPG:
         # self.CV = sum(self.CV, [])
         #
         # '''sensory and muscle afferents and brainstem and V3F'''
-        # self.Ia_aff_E = self.addpool(self.nAff, "Ia_aff_E", "aff")
-        # self.Ia_aff_F = self.addpool(self.nAff, "Ia_aff_F", "aff")
+        self.Ia_aff_E = self.addpool(self.nAff, "Ia_aff_E", "aff")
+        self.Ia_aff_F = self.addpool(self.nAff, "Ia_aff_F", "aff")
         # self.BS_aff_E = self.addpool(self.nAff, "BS_aff_E", "aff")
         # self.BS_aff_F = self.addpool(self.nAff, "BS_aff_F", "aff")
         # self.V3F = self.addpool(self.nAff, "V3F", "int")
@@ -180,13 +180,13 @@ class CPG:
         #
         # # '''muscle afferents generators'''
         #
-        # self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(self.muscle_E, self.muscle_F)
+        self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(self.muscle_E, self.muscle_F)
         # ''' BS '''
-        # for E_ia_gid in self.E_ia_gids:
-        #     self.genconnect(E_ia_gid, self.Ia_aff_E, 1, 3)
-        # #
-        # for F_ia_gid in self.F_ia_gids:
-        #     self.genconnect(F_ia_gid, self.Ia_aff_F, 1, 3)
+        for E_ia_gid in self.E_ia_gids:
+            self.genconnect(E_ia_gid, self.Ia_aff_E, 1, 3)
+        #
+        for F_ia_gid in self.F_ia_gids:
+            self.genconnect(F_ia_gid, self.Ia_aff_F, 1, 3)
         # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 15, weight=20)
         # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time + 15, weight=30)
         #
