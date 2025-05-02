@@ -26,7 +26,7 @@ class bioaffrat(Axon):
         self.soma = None
         self.all = None
         self.nu = random.randint(8, 11)
-        self.make_axon(self.nu)
+        super().__init__(self.nu)
         self.neuron_type = neuron_type
         self.topol()
         self.subsets()
@@ -48,6 +48,7 @@ class bioaffrat(Axon):
         self.soma = h.Section(name='soma', cell=self)
         # self.axon = h.Section(name='axon', cell=self)
         self.node[0].connect(self.soma(1))
+        self.node[-1].connect(self.soma(1))
         # self.axon.connect(self.soma(1))
 
         # self.basic_shape()

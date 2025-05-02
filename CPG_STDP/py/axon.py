@@ -13,7 +13,12 @@ number of nodes of Ranvier
 
 class Axon:
 
-    def make_axon(self, number):
+    # def __init__(self):
+    #     self.paranodes1 = None
+    #     self.axonnodes = None
+    #     self.number = None
+
+    def __init__(self, number):
         PI = 3.14
         # topological parameters
         self.number = number

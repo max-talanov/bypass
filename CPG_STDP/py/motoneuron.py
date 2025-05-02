@@ -30,7 +30,7 @@ class motoneuron(Axon):
         self.dend = None
         self.soma = None
         self.diam = diam
-        self.make_axon(10)
+        super().__init__(10)
         self.topol()
         self.subsets()
         self.geom()
@@ -52,6 +52,7 @@ class motoneuron(Axon):
         self.soma = h.Section(name='soma', cell=self)
         self.dend = h.Section(name='dend', cell=self)
         self.node[0].connect(self.soma(1))
+        self.node[-1].connect(self.soma(1))
         self.dend.connect(self.soma(0))
         # self.muscle.muscle_unit.connect(self.axon.node[self.axon.axonnodes-1](1))
         # self.basic_shape()
@@ -172,7 +173,7 @@ class motoneuron(Axon):
         '''
         for i in range(200):
             s = h.ExpSyn(self.soma(0.5))  # Excitatory
-            s.tau = 1
+            s.tau = 0.6
             s.e = 55
             self.synlistex.append(s)
             s = h.Exp2Syn(self.soma(0.5))  # Inhibitory

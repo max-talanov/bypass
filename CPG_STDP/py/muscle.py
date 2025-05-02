@@ -70,7 +70,7 @@ class muscle(object):
         self.muscle_unit.insert('Ca_conc')
         self.muscle_unit.insert('pas')
         self.muscle_unit.g_pas = 0.004
-        self.muscle_unit.e_pas = -70
+        self.muscle_unit.e_pas = -80
         self.muscle_unit.Ra = 1.1
 
         self.soma.cm = 3.6  # cm uf/cm2
@@ -113,6 +113,7 @@ class muscle(object):
 
         self.muscle_unit.insert('CaSP')
         self.muscle_unit.insert('fHill')
+        self.muscle_unit.insert('extracellular')
 
     def connect2target(self, target):
         '''
@@ -137,7 +138,7 @@ class muscle(object):
         '''
         for i in range(100):
             s = h.ExpSyn(self.soma(0.5))  # Exsitatory
-            s.tau = 2
+            s.tau = 0.6
             s.e = 55
             self.synlistex.append(s)
             s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
