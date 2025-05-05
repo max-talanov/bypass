@@ -453,14 +453,14 @@ class CPG:
         # 'one_step_time' is assumed to be a global variable representing the simulation step duration (in ms).
         stim.number = int(one_step_time / stim.interval) - 5
 
-        # Append the generator to the list of stimulations.
-        self.stims.append(stim)
-
         # Set pointers for the muscle units associated with the motor neurons.
         muscle_unit1 = moto.muscle_unit(0.5)
         muscle_unit2 = moto2.muscle_unit(0.5)
         h.setpointer(muscle_unit1._ref_F_fHill, 'fhill', stim)
         h.setpointer(muscle_unit2._ref_F_fHill, 'fhill2', stim)
+
+        # Append the generator to the list of stimulations.
+        self.stims.append(stim)
 
         # Assign a unique gid to the generator.
         gid = self.n_gid

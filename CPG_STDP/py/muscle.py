@@ -112,6 +112,8 @@ class muscle(object):
         rec = h.xm(self.muscle_unit(0.5))
 
         self.muscle_unit.insert('CaSP')
+        self.muscle_unit.mgi = 1.0
+        self.muscle_unit.cli = -7.5
         self.muscle_unit.insert('fHill')
         self.muscle_unit.insert('extracellular')
 
@@ -138,7 +140,7 @@ class muscle(object):
         '''
         for i in range(100):
             s = h.ExpSyn(self.soma(0.5))  # Exsitatory
-            s.tau = 1.1
+            s.tau = 1.3
             s.e = 55
             self.synlistex.append(s)
             s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
