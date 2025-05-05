@@ -155,7 +155,7 @@ class CPG:
 
         for F_bs_gid in self.F_bs_gids:
             for layer in range(CV_number):
-                self.genconnect(F_bs_gid, self.dict_RG_F[layer], 1, 1)
+                self.genconnect(F_bs_gid, self.dict_RG_F[layer], 0.5, 0.5)
 
 
         # for layer in range(CV_number):
@@ -168,25 +168,25 @@ class CPG:
             self.connectinsidenucleus(self.dict_RG_E[layer])
 
             # '''RG2Motor'''
-            self.connectcells(self.dict_RG_E[layer], self.mns_E, 1.2, 1)
-            self.connectcells(self.dict_RG_F[layer], self.mns_F, 1.2, 1)
+            self.connectcells(self.dict_RG_E[layer], self.mns_E, 0.5, 1)
+            self.connectcells(self.dict_RG_F[layer], self.mns_F, 0.5, 1)
 
-            self.connectcells(self.dict_RG_E[layer], self.InE, 1, 1)
-            self.connectcells(self.dict_RG_F[layer], self.InF, 1, 1)
+            self.connectcells(self.dict_RG_E[layer], self.InE, 0.5, 1)
+            self.connectcells(self.dict_RG_F[layer], self.InF, 0.5, 1)
         #
         # # '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 1.2, 1, inhtype=False)
-        self.connectcells(self.mns_F, self.muscle_F, 1.2, 1, inhtype=False)
+        self.connectcells(self.mns_E, self.muscle_E, 0.5, 1, inhtype=False)
+        self.connectcells(self.mns_F, self.muscle_F, 0.5, 1, inhtype=False)
         #
         # # '''muscle afferents generators'''
         #
         self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(self.muscle_E, self.muscle_F)
         # ''' BS '''
         for E_ia_gid in self.E_ia_gids:
-            self.genconnect(E_ia_gid, self.Ia_aff_E, 1, 3)
+            self.genconnect(E_ia_gid, self.Ia_aff_E, 0.5, 3)
         #
         for F_ia_gid in self.F_ia_gids:
-            self.genconnect(F_ia_gid, self.Ia_aff_F, 1, 3)
+            self.genconnect(F_ia_gid, self.Ia_aff_F, 0.5, 3)
         # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 15, weight=20)
         # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time + 15, weight=30)
         #
@@ -550,8 +550,8 @@ class CPG:
         E_ia_gids = []
         F_ia_gids = []
         for step in range(step_number):
-            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=2))
-            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=3))
+            E_ia_gids.append(self.addIagener(mus_E, mus_F, 15 + one_step_time * 2 * step, weight=1))
+            F_ia_gids.append(self.addIagener(mus_F, mus_E, 15 + one_step_time * (1 + 2 * step), weight=2))
         return E_ia_gids, F_ia_gids
 
 

@@ -38,7 +38,7 @@ INITIAL {
 	on = 0 : off
 	y = 0
     t0 = start
-    v0 = 40 : 50
+    v0 = 50
     fhill0 = 0
 	if (noise < 0) {
 		noise = 0
@@ -75,15 +75,15 @@ FUNCTION invl(t (ms)) (ms) {
 
 	 if (fhill > fhill0) {
 		: printf("INC \n")
-		vel = v0 + 0.005*fhill*(t-t0) + 0.00015*fhill*(t-t0)*(t-t0)
-		: vel = v0 + 0.1*fhill*(t-t0) + 0.0009*fhill*(t-t0)*(t-t0)
+		: vel = v0 + 0.005*fhill*(t-t0) + 0.00015*fhill*(t-t0)*(t-t0)
+		vel = v0 + 0.1*fhill*(t-t0) + 0.0009*fhill*(t-t0)*(t-t0)
 		if (fhill2 > 0) {
             vel = vel - 0.0025*fhill2*(t-t0)
         }
      } else {
 	 	: printf("DEC \n")
-     	: vel = v0 - 0.1*fhill*(t-t0) - 0.0009*fhill*(t-t0)*(t-t0)
-	 	vel = v0 - 0.005*fhill*(t-t0) - 0.00015*fhill*(t-t0)*(t-t0)
+     	vel = v0 - 0.1*fhill*(t-t0) - 0.0009*fhill*(t-t0)*(t-t0)
+	 	: vel = v0 - 0.005*fhill*(t-t0) - 0.00015*fhill*(t-t0)*(t-t0)
 		if (fhill2 > 0) {
             vel = vel - 0.0025*fhill2*(t-t0)
         }
@@ -138,7 +138,8 @@ NET_RECEIVE (w) {
 	    : printf("net_receive event_time(t) \n")
 		event_time(t)
 		if (on == 1) {
-			net_send(event - t, 1)
+			net_send(event, 1)
+			: net_send(event - t, 1)
 		}
 		net_send(.1, 2)
 	}
