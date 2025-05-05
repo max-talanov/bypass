@@ -45,7 +45,7 @@ BREAKPOINT { LOCAL d_xm, d_xce, d_se
 	SOLVE state_hill METHOD cnexp
 
 	F = p0*Kse*xse(xm, xce)
-    printf("t=%g ms, xse=%g, F=%g\n", t, xse(xm, xce), F)
+    : printf("t=%g ms, xse=%g, F=%g\n", t, xse(xm, xce), F)
 }
 
 DERIVATIVE state_hill {

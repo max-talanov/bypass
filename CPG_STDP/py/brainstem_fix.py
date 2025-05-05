@@ -30,7 +30,7 @@ file_name = 'res_alina_new_new'
 
 N = 7  # 50
 speed = 100
-bs_fr = 70 #50 #150 #100  # 40 # frequency of brainstem inputs
+bs_fr = 50 #50 #150 #100  # 40 # frequency of brainstem inputs
 versions = 1
 CV_number = 6
 k = 0.017  # CV weights multiplier to take into account air and toe stepping
@@ -151,11 +151,11 @@ class CPG:
         ''' BS '''
         for E_bs_gid in self.E_bs_gids:
             for layer in range(CV_number):
-                self.genconnect(E_bs_gid, self.dict_RG_E[layer], 0.5, 0.5)
+                self.genconnect(E_bs_gid, self.dict_RG_E[layer], 0.002, 0.5)
 
         for F_bs_gid in self.F_bs_gids:
             for layer in range(CV_number):
-                self.genconnect(F_bs_gid, self.dict_RG_F[layer], 0.5, 0.5)
+                self.genconnect(F_bs_gid, self.dict_RG_F[layer], 0.002, 0.5)
 
 
         # for layer in range(CV_number):
@@ -168,25 +168,25 @@ class CPG:
             self.connectinsidenucleus(self.dict_RG_E[layer])
 
             # '''RG2Motor'''
-            self.connectcells(self.dict_RG_E[layer], self.mns_E, 0.5, 1)
-            self.connectcells(self.dict_RG_F[layer], self.mns_F, 0.5, 1)
+            self.connectcells(self.dict_RG_E[layer], self.mns_E, 0.01, 1)
+            self.connectcells(self.dict_RG_F[layer], self.mns_F, 0.01, 1)
 
-            self.connectcells(self.dict_RG_E[layer], self.InE, 0.5, 1)
-            self.connectcells(self.dict_RG_F[layer], self.InF, 0.5, 1)
+            self.connectcells(self.dict_RG_E[layer], self.InE, 0.005, 1)
+            self.connectcells(self.dict_RG_F[layer], self.InF, 0.005, 1)
         #
         # # '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 0.5, 1, inhtype=False)
-        self.connectcells(self.mns_F, self.muscle_F, 0.5, 1, inhtype=False)
+        self.connectcells(self.mns_E, self.muscle_E, 0.01, 1, inhtype=False)
+        self.connectcells(self.mns_F, self.muscle_F, 0.01, 1, inhtype=False)
         #
         # # '''muscle afferents generators'''
         #
         self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(self.muscle_E, self.muscle_F)
         # ''' BS '''
         for E_ia_gid in self.E_ia_gids:
-            self.genconnect(E_ia_gid, self.Ia_aff_E, 0.5, 3)
+            self.genconnect(E_ia_gid, self.Ia_aff_E, 0.002, 3)
         #
         for F_ia_gid in self.F_ia_gids:
-            self.genconnect(F_ia_gid, self.Ia_aff_F, 0.5, 3)
+            self.genconnect(F_ia_gid, self.Ia_aff_F, 0.002, 3)
         # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 15, weight=20)
         # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time + 15, weight=30)
         #
@@ -241,17 +241,17 @@ class CPG:
         # #     # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
         # # #
         '''Ia2RG, RG2Motor'''
-        self.connectcells(self.InE, self.RG_F, 1, 1, inhtype=True)
-        self.connectcells(self.InF, self.RG_E, 1, 1, inhtype=True)
+        self.connectcells(self.InE, self.RG_F, 0.009, 1, inhtype=True)
+        self.connectcells(self.InF, self.RG_E, 0.009, 1, inhtype=True)
 
         # self.connectcells(self.Ia_aff_E, self.Ia_E, 1, 1, inhtype=False)
         # self.connectcells(self.Ia_aff_F, self.Ia_F, 1, 1, inhtype=False)
 
-        self.connectcells(self.mns_E, self.R_E, 1, 1, inhtype=False)
-        self.connectcells(self.mns_F, self.R_F, 1, 1, inhtype=False)
+        self.connectcells(self.mns_E, self.R_E, 0.005, 1, inhtype=False)
+        self.connectcells(self.mns_F, self.R_F, 0.005, 1, inhtype=False)
 
-        self.connectcells(self.R_E, self.mns_E, 1, 1, inhtype=True)
-        self.connectcells(self.R_F, self.mns_F, 1, 1, inhtype=True)
+        self.connectcells(self.R_E, self.mns_E, 0.009, 1, inhtype=True)
+        self.connectcells(self.R_F, self.mns_F, 0.009, 1, inhtype=True)
 
         # self.connectcells(self.R_E, self.Ia_E, 0.7, 1, inhtype=True)
         # self.connectcells(self.R_F, self.Ia_F, 0.7, 1, inhtype=True)
@@ -477,11 +477,6 @@ class CPG:
         spike_times = h.Vector()
         ncstim.record(spike_times)
         self.recorded_spikes.append(spike_times)
-
-        # If needed, record the 'invl' parameter by uncommenting the following block:
-        # invl_record = h.Vector()
-        # invl_record.record(stim._ref_invl)
-        # self.recorded_invl.append(invl_record)
 
         # Append the generator gid to the list and increment the gid counter.
         self.gener_gids.append(gid)
@@ -800,8 +795,8 @@ if __name__ == '__main__':
         affrecorders_axon = []
         for group in cpg_ex.affgroups:
             affrecorders.append(spike_record(group[k_nrns]))
-            affrecorders_extra.append(spike_record(group[k_nrns], True))
-            affrecorders_axon.append(spike_record(group[k_nrns], False, 'axon'))
+            # affrecorders_extra.append(spike_record(group[k_nrns], True))
+            # affrecorders_axon.append(spike_record(group[k_nrns], False, 'axon'))
         recorders = []
         recorders_extra = []
         for group in cpg_ex.intgroups:
@@ -809,7 +804,7 @@ if __name__ == '__main__':
             recorders.append(spike_record(group[k_nrns]))
         for group in cpg_ex.musclegroups:
             musclerecorders.append(spike_record(group[k_nrns]))
-            musclerecorders_extra.append(spike_record(group[k_nrns], True))
+            # musclerecorders_extra.append(spike_record(group[k_nrns], True))
             force_recorders.append(force_record(group[k_nrns]))
 
         logging.info("added recorders")

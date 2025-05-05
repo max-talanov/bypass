@@ -138,8 +138,8 @@ NET_RECEIVE (w) {
 	    : printf("net_receive event_time(t) \n")
 		event_time(t)
 		if (on == 1) {
-			net_send(event, 1)
-			: net_send(event - t, 1)
+			: net_send(event, 1)
+			net_send(event - t, 1)
 		}
 		net_send(.1, 2)
 	}

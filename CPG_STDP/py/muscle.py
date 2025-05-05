@@ -112,8 +112,8 @@ class muscle(object):
         rec = h.xm(self.muscle_unit(0.5))
 
         self.muscle_unit.insert('CaSP')
-        self.muscle_unit.mgi = 1.0
-        self.muscle_unit.cli = -7.5
+        # self.muscle_unit.mgi = 1.0
+        # self.muscle_unit.cli = -7.5
         self.muscle_unit.insert('fHill')
         self.muscle_unit.insert('extracellular')
 
