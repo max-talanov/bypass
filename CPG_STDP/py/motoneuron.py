@@ -173,7 +173,7 @@ class motoneuron(Axon):
         '''
         for i in range(200):
             s = h.ExpSyn(self.soma(0.5))  # Excitatory
-            s.tau = 1
+            s.tau = 0.6
             s.e = 55
             self.synlistex.append(s)
             s = h.Exp2Syn(self.soma(0.5))  # Inhibitory

@@ -139,7 +139,7 @@ class CPG:
         logging.info("done addpool")
         '''BS'''
         # periodic stimulation
-        self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 1, 1)
+        self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 0.5, 0.5)
 
         # ''' BS '''
         # for E_bs_gid in self.E_bs_gids:
@@ -151,7 +151,7 @@ class CPG:
         ''' BS '''
         for E_bs_gid in self.E_bs_gids:
             for layer in range(CV_number):
-                self.genconnect(E_bs_gid, self.dict_RG_E[layer], 1, 1)
+                self.genconnect(E_bs_gid, self.dict_RG_E[layer], 0.5, 0.5)
 
         for F_bs_gid in self.F_bs_gids:
             for layer in range(CV_number):
@@ -175,8 +175,8 @@ class CPG:
             self.connectcells(self.dict_RG_F[layer], self.InF, 1, 1)
         #
         # # '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 1, 1, inhtype=False)
-        self.connectcells(self.mns_F, self.muscle_F, 1, 1, inhtype=False)
+        self.connectcells(self.mns_E, self.muscle_E, 1.2, 1, inhtype=False)
+        self.connectcells(self.mns_F, self.muscle_F, 1.2, 1, inhtype=False)
         #
         # # '''muscle afferents generators'''
         #

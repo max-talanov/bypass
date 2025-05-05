@@ -138,11 +138,11 @@ class muscle(object):
         '''
         for i in range(100):
             s = h.ExpSyn(self.soma(0.5))  # Exsitatory
-            s.tau = 1
+            s.tau = 1.1
             s.e = 55
             self.synlistex.append(s)
             s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
-            s.tau1 = 0.7
+            s.tau1 = 0.8
             s.tau2 = 2.8
             s.e = -70
             self.synlistinh.append(s)
