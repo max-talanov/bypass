@@ -30,7 +30,7 @@ file_name = 'res_alina_new_new'
 
 N = 7  # 50
 speed = 100
-bs_fr = 50 #50 #150 #100  # 40 # frequency of brainstem inputs
+bs_fr = 70 #50 #150 #100  # 40 # frequency of brainstem inputs
 versions = 1
 CV_number = 6
 k = 0.017  # CV weights multiplier to take into account air and toe stepping
@@ -168,25 +168,25 @@ class CPG:
             self.connectinsidenucleus(self.dict_RG_E[layer])
 
             # '''RG2Motor'''
-            self.connectcells(self.dict_RG_E[layer], self.mns_E, 0.01, 1)
-            self.connectcells(self.dict_RG_F[layer], self.mns_F, 0.01, 1)
+            self.connectcells(self.dict_RG_E[layer], self.mns_E, 0.5, 1)
+            self.connectcells(self.dict_RG_F[layer], self.mns_F, 0.5, 1)
 
-            self.connectcells(self.dict_RG_E[layer], self.InE, 0.005, 1)
-            self.connectcells(self.dict_RG_F[layer], self.InF, 0.005, 1)
+            self.connectcells(self.dict_RG_E[layer], self.InE, 0.01, 1)
+            self.connectcells(self.dict_RG_F[layer], self.InF, 0.01, 1)
         #
         # # '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 0.01, 1, inhtype=False)
-        self.connectcells(self.mns_F, self.muscle_F, 0.01, 1, inhtype=False)
+        self.connectcells(self.mns_E, self.muscle_E, 0.1, 1, inhtype=False)
+        self.connectcells(self.mns_F, self.muscle_F, 0.1, 1, inhtype=False)
         #
         # # '''muscle afferents generators'''
         #
         self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(self.muscle_E, self.muscle_F)
         # ''' BS '''
         for E_ia_gid in self.E_ia_gids:
-            self.genconnect(E_ia_gid, self.Ia_aff_E, 0.002, 3)
+            self.genconnect(E_ia_gid, self.Ia_aff_E, 0.05, 3)
         #
         for F_ia_gid in self.F_ia_gids:
-            self.genconnect(F_ia_gid, self.Ia_aff_F, 0.002, 3)
+            self.genconnect(F_ia_gid, self.Ia_aff_F, 0.05, 3)
         # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 15, weight=20)
         # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time + 15, weight=30)
         #

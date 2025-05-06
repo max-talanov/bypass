@@ -140,14 +140,20 @@ class muscle(object):
         '''
         for i in range(100):
             s = h.ExpSyn(self.soma(0.5))  # Exsitatory
-            s.tau = 1.3
+            s.tau = 2
             s.e = 55
             self.synlistex.append(s)
             s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
-            s.tau1 = 0.8
-            s.tau2 = 2.8
+            s.tau1 = 2.2
+            s.tau2 = 4
             s.e = -70
             self.synlistinh.append(s)
+
+        # for i in range(100):
+        #     syn = h.MGISyn(self.muscle_unit(0.5))
+        #     syn.mg_increase = 0.05  # или подберите
+        #     h.setpointer(self.muscle_unit(0.5)._ref_mgi, 'mgi', syn)
+        #     self.synlistex.append(syn)
 
     def is_art(self):
         return 0

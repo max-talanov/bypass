@@ -112,8 +112,8 @@ class bioaffrat(Axon):
         # Ингибирующие (на соме!)
         for i in range(100):
             s = h.Exp2Syn(self.soma(0.5))
-            s.tau1 = 0.5
-            s.tau2 = 2.8
+            s.tau1 = 2.2
+            s.tau2 = 4
             s.e = -80
             self.synlistinh.append(s)
         # Then in synapses() method, add logic based on type:
@@ -121,12 +121,12 @@ class bioaffrat(Axon):
         #     # Flexor-specific parameters
         for i in range(100):
             s = h.ExpSyn(self.soma(0.5))
-            s.tau = 0.7
+            s.tau = 2
             s.e = 50  # Higher reversal potential for flexors
             self.synlistees.append(s)
 
             s_extra = h.ExpSyn(self.soma(0.5))
-            s_extra.tau = 0.7
+            s_extra.tau = 2
             s_extra.e = 50
             self.synlistex.append(s_extra)
         # else:
