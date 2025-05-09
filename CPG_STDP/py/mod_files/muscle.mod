@@ -31,10 +31,10 @@ PARAMETER {
 	k6i = 150		: ms-1
 	k = 850			: M-1
 	SF_AM = 5
-	Rmax = 10		: ms-1
-	Umax = 2000		: M-1*ms-1
-	t1 = 3			: ms
-	t2 = 25			: ms
+	Rmax = 100 : 10		: ms-1
+	Umax = 8000 : 2000		: M-1*ms-1
+	t1 = 2 : 3			: ms
+	t2 = 15 : 25			: ms
 	phi1 = 0.03
 	phi2 = 1.23
 	phi3 = 0.01
@@ -103,6 +103,9 @@ BREAKPOINT { LOCAL i, tempR
 
 	::isometric and isokinetic condition::
 	mgi = AM^alpha
+	if (t > 100 && t < 200) {
+		printf("t=%g ms, v=%g mV (muscle_unit)\n", t, v)
+	}
 }
 
 DERIVATIVE state {
@@ -121,12 +124,15 @@ DERIVATIVE state {
 
 PROCEDURE SPK_DETECT (v (mv), t (ms)) {
 	if (Spike_On == 0 && v > vth) {
-	Spike_On = 1
-	spk[spk_index] = t + t_axon
-	spk_index = spk_index + 1
-	R_On = 1
+		Spike_On = 1
+		spk[spk_index] = t + t_axon
+		spk_index = spk_index + 1
+		R_On = 1
+		if (spk_index < 20) {
+			printf("CaSP: Spike detected at t = %g ms, v = %g mV\n", t, v)
+		}
 	} else if (v < vth) {
-	Spike_On = 0
+		Spike_On = 0
 	}
 }
 
@@ -143,10 +149,10 @@ FUNCTION phi (x) {
 PROCEDURE CaR (CaSR (M), t (ms)) { LOCAL i, tempR  ::Ca_Release::
 	if (R_On == 1) {
     if (spk_index > 0){
-      tempR = tempR + CaSR*Rmax*(1-exp(-(t-spk[spk_index-1])/t1))*exp(-(t-spk[spk_index-1])/t2)
-    }
-    R = tempR
-    tempR = 0
+		  tempR = tempR + CaSR*Rmax*(1-exp(-(t-spk[spk_index-1])/t1))*exp(-(t-spk[spk_index-1])/t2)
+		}
+		R = tempR
+		tempR = 0
 	}
 	else {R = 0}
 }

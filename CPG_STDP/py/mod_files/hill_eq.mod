@@ -18,11 +18,11 @@ PARAMETER {
 	c0 = -7.4		:[N]
 	d0 = 30.3		:[mm*s-1]
 	p0 = 23			:[N]
-	g1 = -8			:[mm]
-	g2 = 21.4		:[mm]
+	g1 = -10 :-8			:[mm]
+	g2 = 10 :21.4		:[mm]
 	xm_init = -8	:[mm]
 	xce_init = -8	:[mm]
-	Kse = 0.4		:[mm-1]
+	Kse = 1.0 : 0.4		:[mm-1]
 }
 
 STATE {
@@ -45,7 +45,6 @@ BREAKPOINT { LOCAL d_xm, d_xce, d_se
 	SOLVE state_hill METHOD cnexp
 
 	F = p0*Kse*xse(xm, xce)
-    : printf("t=%g ms, xse=%g, F=%g\n", t, xse(xm, xce), F)
 }
 
 DERIVATIVE state_hill {
@@ -54,7 +53,9 @@ DERIVATIVE state_hill {
 }
 
 FUNCTION xse (x, y) { LOCAL d_xm, d_xce, d_se
-	d_se = (x - xm_init) - (y - xce_init)
+	d_xm = xm - xm_init
+	d_xce = xce - xce_init
+	d_se = d_xm - d_xce
     if (d_se <= 0) {
         xse = 0
     } else {
