@@ -128,11 +128,11 @@ class CPG:
         ''' BS '''
         for E_bs_gid in self.E_bs_gids:
             for layer in range(CV_number):
-                self.genconnect(E_bs_gid, self.dict_RG_E[layer], 0.002, 0.5)
+                self.genconnect(E_bs_gid, self.dict_RG_E[layer], 0.02, 1)
 
         for F_bs_gid in self.F_bs_gids:
             for layer in range(CV_number):
-                self.genconnect(F_bs_gid, self.dict_RG_F[layer], 0.002, 0.5)
+                self.genconnect(F_bs_gid, self.dict_RG_F[layer], 0.02, 1)
 
 
         # for layer in range(CV_number):

@@ -60,7 +60,7 @@ class muscle(object):
         Calculates numder of segments in section
         '''
         for sec in self.all:
-            sec.nseg = 3  # int((sec.L/(0.1*h.lambda_f(100)) + .9)/2.)*2 + 1
+            sec.nseg = 3 #int((sec.L/(0.1*h.lambda_f(100)) + .9)/2.)*2 + 1
 
     def biophys(self):
         '''
@@ -134,8 +134,17 @@ class muscle(object):
         Adds synapses
         '''
         for i in range(100):
+            s = h.ExpSyn(self.muscle_unit(0.5))  # Exsitatory
+            s.tau = 0.2
+            s.e = 55
+            self.synlistex.append(s)
+            s = h.Exp2Syn(self.muscle_unit(0.5))  # Inhibitory
+            s.tau1 = 0.6
+            s.tau2 = 2.2
+            s.e = -70
+            self.synlistinh.append(s)
             s = h.ExpSyn(self.soma(0.5))  # Exsitatory
-            s.tau = 0.5
+            s.tau = 0.2
             s.e = 55
             self.synlistex.append(s)
             s = h.Exp2Syn(self.soma(0.5))  # Inhibitory

@@ -105,10 +105,10 @@ class interneuron(object):
 
         self.soma.Ra = 100  # Ra ohm cm - membrane resistance
         self.soma.insert('fastchannels')
-        self.soma.gnabar_fastchannels = 0.3
+        self.soma.gnabar_fastchannels = 0.25
         self.soma.gkbar_fastchannels = 0.06
         self.soma.gl_fastchannels = 0.002
-        self.soma.el_fastchannels = -60
+        self.soma.el_fastchannels = -72
         self.soma.insert('extracellular')  # adds extracellular mechanism for recording extracellular potential
         if self.bursting:
             # Bursting properties of RG-F0 and RG-FE ph A4 interneurons were provided by INaP
@@ -126,8 +126,8 @@ class interneuron(object):
         for sec in self.dend:
             if self.serotonin:
                 sec.insert('fastchannels')
-                sec.gnabar_fastchannels = 0.35
-                sec.gkbar_fastchannels = 0.09
+                sec.gnabar_fastchannels = 0.25
+                sec.gkbar_fastchannels = 0.04
                 sec.gl_fastchannels = 0.001
                 self.add_5HTreceptors(sec, 10, 5)
             else:
@@ -205,7 +205,7 @@ class interneuron(object):
             for i in range(50):
                 '''Somatic'''
                 s = h.ExpSyn(self.soma(0.5))  # Excitatory
-                s.tau = 0.5
+                s.tau = 0.2
                 s.e = 50
                 self.synlistex.append(s)
                 s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
@@ -215,7 +215,7 @@ class interneuron(object):
                 self.synlistinh.append(s)
                 '''Dendritic'''
                 s = h.ExpSyn(sec(0.5))  # Excitatory
-                s.tau = 0.5
+                s.tau = 0.2
                 s.e = 50
                 self.synlistex.append(s)
                 s = h.Exp2Syn(sec(0.5))  # Inhibitory
