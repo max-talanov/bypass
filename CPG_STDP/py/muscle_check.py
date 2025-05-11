@@ -30,7 +30,7 @@ file_name = 'res_alina_new_new1'
 
 N = 7  # 50
 speed = 100
-bs_fr = 100 #50 #150 #100  # 40 # frequency of brainstem inputs
+bs_fr = 150 #50 #150 #100  # 40 # frequency of brainstem inputs
 versions = 1
 CV_number = 6
 k = 0.017  # CV weights multiplier to take into account air and toe stepping

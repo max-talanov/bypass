@@ -35,7 +35,7 @@ class muscle(object):
         '''
         self.muscle_unit = h.Section(name='muscle_unit', cell=self)
         self.soma = h.Section(name='soma', cell=self)
-        self.muscle_unit.connect(self.soma(0), 0)
+        self.muscle_unit.connect(self.soma(0.5))
 
     def subsets(self):
         '''
@@ -50,8 +50,8 @@ class muscle(object):
         '''
         Adds length and diameter to sections
         '''
-        self.muscle_unit.L = 500  # microns
-        self.muscle_unit.diam = 100  # microns
+        self.muscle_unit.L = 3000  # microns
+        self.muscle_unit.diam = 40  # microns
         self.soma.L = 3000  # microns
         self.soma.diam = 40  # microns
 
@@ -66,6 +66,8 @@ class muscle(object):
         '''
         Adds channels and their parameters
         '''
+        for sec in self.all:
+            sec.cm = random.gauss(1, 0.01)  # cm uf/cm2 - membrane capacitance
         # muscle_unit параметры:
         self.muscle_unit.cm = 3.6
         self.muscle_unit.insert('Ca_conc')
@@ -82,6 +84,7 @@ class muscle(object):
         # CaSP и fHill в muscle_unit:
         self.muscle_unit.insert('CaSP')
         self.muscle_unit.insert('fHill')
+        self.muscle_unit.insert('extracellular')
 
         # soma параметры:
         self.soma.cm = 3.6
@@ -131,11 +134,11 @@ class muscle(object):
         Adds synapses
         '''
         for i in range(100):
-            s = h.ExpSyn(self.muscle_unit(0.5))  # Exsitatory
+            s = h.ExpSyn(self.soma(0.5))  # Exsitatory
             s.tau = 0.5
             s.e = 55
             self.synlistex.append(s)
-            s = h.Exp2Syn(self.muscle_unit(0.5))  # Inhibitory
+            s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
             s.tau1 = 0.6
             s.tau2 = 2.2
             s.e = -70

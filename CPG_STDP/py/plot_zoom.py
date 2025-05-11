@@ -13,7 +13,7 @@ import numpy as np
 
 from bokeh.plotting import figure, output_file, show
 
-paths = 'res_alina_new_new1/'
+paths = 'res_alina_units/'
 sys.path.append(paths)
 my_path = os.path.abspath(paths)
 
