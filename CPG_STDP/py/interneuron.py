@@ -92,7 +92,7 @@ class interneuron(object):
         Calculates numder of segments in section
         '''
         for sec in self.all:
-            sec.nseg = 3 #int((sec.L / (0.1 * h.lambda_f(100)) + .9) / 2.) * 2 + 1
+            sec.nseg = int((sec.L / (0.1 * h.lambda_f(100)) + .9) / 2.) * 2 + 1
 
     def biophys(self):
         '''

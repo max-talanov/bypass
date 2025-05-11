@@ -54,7 +54,7 @@ class CPG:
         self.delay = 1
         self.nAff = 7  # 12  # 12
         self.nInt = 7 # 5
-        self.nMn = 7  # 21  # 21
+        self.nMn = 21  # 21  # 21
         self.ncell = n
         self.affs = []
         self.ints = []
@@ -145,8 +145,8 @@ class CPG:
             self.connectinsidenucleus(self.dict_RG_E[layer])
 
             # '''RG2Motor'''
-            self.connectcells(self.dict_RG_E[layer], self.muscle_E, 7, 1)
-            self.connectcells(self.dict_RG_F[layer], self.muscle_F, 7, 1)
+            self.connectcells(self.dict_RG_E[layer], self.muscle_E, 2, 1)
+            self.connectcells(self.dict_RG_F[layer], self.muscle_F, 2, 1)
         #
         # # '''muscle afferents generators'''
         #
