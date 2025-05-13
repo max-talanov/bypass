@@ -74,7 +74,8 @@ class interneuron(object):
         '''
         self.all = h.SectionList()
         for sec in h.allsec():
-            self.all.append(sec=sec)
+            if sec.cell() == self:  # проверяем, принадлежит ли секция текущему объекту
+                self.all.append(sec)
 
     def geom(self):
         '''
@@ -214,11 +215,11 @@ class interneuron(object):
                 s.e = -70
                 self.synlistinh.append(s)
                 '''Dendritic'''
-                s = h.ExpSyn(sec(0.5))  # Excitatory
+                s = h.ExpSyn(sec(0.1))  # Excitatory
                 s.tau = 0.2
                 s.e = 50
                 self.synlistex.append(s)
-                s = h.Exp2Syn(sec(0.5))  # Inhibitory
+                s = h.Exp2Syn(sec(0.1))  # Inhibitory
                 s.tau1 = 0.6
                 s.tau2 = 2.2
                 s.e = -70

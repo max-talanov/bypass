@@ -35,7 +35,7 @@ class muscle(object):
         '''
         self.muscle_unit = h.Section(name='muscle_unit', cell=self)
         self.soma = h.Section(name='soma', cell=self)
-        self.muscle_unit.connect(self.soma(0.5))
+        self.muscle_unit.connect(self.soma(1))
 
     def subsets(self):
         '''
@@ -44,7 +44,8 @@ class muscle(object):
         '''
         self.all = h.SectionList()
         for sec in h.allsec():
-            self.all.append(sec=sec)
+            if sec.cell() == self:  # проверяем, принадлежит ли секция текущему объекту
+                self.all.append(sec)
 
     def geom(self):
         '''
@@ -69,22 +70,30 @@ class muscle(object):
         for sec in self.all:
             sec.cm = random.gauss(1, 0.01)  # cm uf/cm2 - membrane capacitance
         # muscle_unit параметры:
-        self.muscle_unit.cm = 3.6
+        self.muscle_unit.cm = 1.0 #3.6
         self.muscle_unit.insert('Ca_conc')
         self.muscle_unit.insert('pas')
-        self.muscle_unit.g_pas = 0.001  # уменьшили
+        self.muscle_unit.g_pas = 1e-5  # уменьшили
         self.muscle_unit.e_pas = -80
-        self.muscle_unit.Ra = 1.1
+        self.muscle_unit.Ra = 0.3 #1.1
+        # каналы и токи
+        self.muscle_unit.insert('cal')  # L-тип кальциевых каналов
+        self.muscle_unit.gcalbar_cal = 0.05
 
+        self.muscle_unit.insert('na14a')  # натриевый канал Nav1.4
+        self.muscle_unit.gbar_na14a = 0.5
         # Вставляем простые каналы в muscle_unit:
-        self.muscle_unit.insert('fastchannels')
-        self.muscle_unit.gnabar_fastchannels = 0.1
-        self.muscle_unit.gkbar_fastchannels = 0.01
+        # self.muscle_unit.insert('fastchannels')
+        # self.muscle_unit.gnabar_fastchannels = 0
+        # self.muscle_unit.gkbar_fastchannels = 0.01
 
         # CaSP и fHill в muscle_unit:
         self.muscle_unit.insert('CaSP')
         self.muscle_unit.insert('fHill')
         self.muscle_unit.insert('extracellular')
+
+        self.muscle_unit.ena = 50
+        self.muscle_unit.ek = -77
 
         # soma параметры:
         self.soma.cm = 3.6
@@ -143,15 +152,15 @@ class muscle(object):
             s.tau2 = 2.2
             s.e = -70
             self.synlistinh.append(s)
-            s = h.ExpSyn(self.soma(0.5))  # Exsitatory
-            s.tau = 0.2
-            s.e = 55
-            self.synlistex.append(s)
-            s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
-            s.tau1 = 0.6
-            s.tau2 = 2.2
-            s.e = -70
-            self.synlistinh.append(s)
+            # s = h.ExpSyn(self.soma(0.5))  # Exsitatory
+            # s.tau = 0.2
+            # s.e = 55
+            # self.synlistex.append(s)
+            # s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
+            # s.tau1 = 0.6
+            # s.tau2 = 2.2
+            # s.e = -70
+            # self.synlistinh.append(s)
 
         # for i in range(100):
         #     syn = h.MGISyn(self.muscle_unit(0.5))

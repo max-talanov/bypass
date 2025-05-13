@@ -272,9 +272,9 @@ class CPG:
                         else:
                             syn = target.synlistex[i]
                         nc = pc.gid_connect(src_gid, syn)
-                        nc.weight[0] = random.gauss(weight, weight / 5)
+                        nc.weight[0] = max(0.0, random.gauss(weight, weight / 5))
                         nc.threshold = threshold
-                        nc.delay = random.gauss(delay, delay / 5)
+                        nc.delay = max(0.1, random.gauss(delay, delay / 5))
                         pc.threshold(src_gid, nc.threshold)
                         self.netcons.append(nc)
 
@@ -291,7 +291,7 @@ class CPG:
                         syn = target.synlistex[j]
                     nc = pc.gid_connect(gen_gid, syn)
                     nc.threshold = self.threshold
-                    nc.delay = random.gauss(delay, delay / 5)
+                    nc.delay = max(0.1, random.gauss(delay, delay / 5))
                     nc.weight[0] = weight #random.gauss(weight, weight / 5)
                     pc.threshold(gen_gid, nc.threshold)
                     self.stimnclist.append(nc)

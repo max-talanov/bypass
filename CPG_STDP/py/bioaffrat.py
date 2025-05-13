@@ -60,7 +60,8 @@ class bioaffrat(Axon):
         '''
         self.all = h.SectionList()
         for sec in h.allsec():
-            self.all.append(sec=sec)
+            if sec.cell() == self:  # проверяем, принадлежит ли секция текущему объекту
+                self.all.append(sec)
 
     def geom(self):
         '''
