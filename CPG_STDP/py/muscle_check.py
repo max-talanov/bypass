@@ -126,27 +126,32 @@ class CPG:
         #     self.genconnect(F_bs_gid, self.BS_aff_F, 2, 1)
 
         ''' BS '''
+        # for E_bs_gid in self.E_bs_gids:
+        #     for layer in range(CV_number):
+        #         self.genconnect(E_bs_gid, self.dict_RG_E[layer], 0.02, 1)
+        #
+        # for F_bs_gid in self.F_bs_gids:
+        #     for layer in range(CV_number):
+        #         self.genconnect(F_bs_gid, self.dict_RG_F[layer], 0.02, 1)
+
         for E_bs_gid in self.E_bs_gids:
-            for layer in range(CV_number):
-                self.genconnect(E_bs_gid, self.dict_RG_E[layer], 0.02, 1)
+            self.genconnect(E_bs_gid, self.muscle_E, 1.5, 1)
 
         for F_bs_gid in self.F_bs_gids:
-            for layer in range(CV_number):
-                self.genconnect(F_bs_gid, self.dict_RG_F[layer], 0.02, 1)
-
+            self.genconnect(F_bs_gid, self.muscle_F, 1.5, 1)
 
         # for layer in range(CV_number):
         #     self.connectcells(self.BS_aff_F, self.dict_RG_F[layer], 4, 1, stdptype=False)
         #     self.connectcells(self.BS_aff_E, self.dict_RG_E[layer], 4, 1, stdptype=False)
         # #
-        for layer in range(CV_number):
-            '''Internal to RG topology'''
-            self.connectinsidenucleus(self.dict_RG_F[layer])
-            self.connectinsidenucleus(self.dict_RG_E[layer])
-
-            # '''RG2Motor'''
-            self.connectcells(self.dict_RG_E[layer], self.muscle_E, 2, 1)
-            self.connectcells(self.dict_RG_F[layer], self.muscle_F, 2, 1)
+        # for layer in range(CV_number):
+        #     '''Internal to RG topology'''
+        #     self.connectinsidenucleus(self.dict_RG_F[layer])
+        #     self.connectinsidenucleus(self.dict_RG_E[layer])
+        #
+        #     # '''RG2Motor'''
+        #     self.connectcells(self.dict_RG_E[layer], self.muscle_E, 2, 1)
+        #     self.connectcells(self.dict_RG_F[layer], self.muscle_F, 2, 1)
         #
         # # '''muscle afferents generators'''
         #
@@ -156,145 +161,290 @@ class CPG:
         logging.info("done connectcells")
 
     def addpool(self, num, name, neurontype="int") -> list:
-        '''
-        Creates pool of cells determined by the neurontype and returns gids of the pool
+        """
+        Adds a pool of neurons.
+        """
+        # Начальный gid для этого пула
+        start_gid = self.n_gid
+        
+        # Создаем полный список gids для всего пула
+        all_gids = list(range(start_gid, start_gid + num))
+        
+        # Каждый процесс обрабатывает только свои gid
+        local_gids = []
+        
+        for gid in all_gids:
+            if (gid % nhost) == rank:  # Распределяем gid по процессам
+                try:
+                    # Создаем нейрон соответствующего типа
+                    if neurontype.lower() == "moto":
+                        cell = motoneuron(self.motodiams(num)[gid - start_gid])
+                        self.motos.append(cell)
+                    elif neurontype.lower() == "muscle":
+                        cell = muscle()
+                        self.muscles.append(cell)
+                    elif neurontype.lower() == "aff":
+                        cell = bioaffrat()
+                        if "_F" in name:
+                            cell.neuron_type = "flexor"
+                        else:
+                            cell.neuron_type = "extensor"
+                        self.affs.append(cell)
+                    elif neurontype.lower() == "bursting":
+                        cell = interneuron(False, bursting_mode=True)
+                        self.ints.append(cell)
+                    else:
+                        cell = interneuron(False)
+                        self.ints.append(cell)
+
+                    # Регистрируем gid на текущем процессе
+                    pc.set_gid2node(gid, rank)
+                    
+                    # Создаем и регистрируем соединение
+                    nc = cell.connect2target(None)
+                    nc.threshold = self.threshold
+                    pc.cell(gid, nc)
+                    
+                    # Проверяем успешность регистрации
+                    if not pc.gid_exists(gid):
+                        raise RuntimeError(f"Failed to register gid {gid}")
+                    
+                    local_gids.append(gid)
+                    
+                except Exception as e:
+                    logging.error(f"Failed to create/register gid {gid}: {str(e)}")
+                    raise
+        
+        # Синхронизация после создания клеток
+        pc.barrier()
+        
+        # Обновляем Groups
+        if neurontype.lower() == "muscle":
+            self.musclegroups.append((all_gids, name))
+        elif neurontype.lower() == "moto":
+            self.motogroups.append((all_gids, name))
+        elif neurontype.lower() == "aff":
+            self.affgroups.append((all_gids, name))
+        else:
+            self.intgroups.append((all_gids, name))
+        
+        # Обновляем n_gid
+        self.n_gid = start_gid + num
+        
+        # Финальная синхронизация
+        pc.barrier()
+        
+        return all_gids
+
+    def safe_gid2cell(self, gid):
+        """
+        Безопасно получает клетку по gid
+        
         Parameters
         ----------
-        num: int
-            neurons number in pool
-        name: string
-            the name of the pool
-        neurontype: string
-            int: interneuron
-            delay: interneuron with 5ht
-            bursting: interneuron with bursting
-            moto: motor neuron
-            aff: afferent
-            muscle: muscle fiber
+        gid : int
+            Global ID клетки
+            
         Returns
         -------
-        gids: list
-            the list of cells gids
-        '''
-        gids = []
-        gid = self.n_gid
-
-        delaytype = False
-        if neurontype.lower() == "delay":
-            delaytype = True
-
-        if neurontype.lower() == "moto":
-            diams = self.motodiams(num)
-        for i in range(rank, num, nhost):
-            if neurontype.lower() == "moto":
-                cell = motoneuron(diams[i])
-                self.motos.append(cell)
-            elif neurontype.lower() == "aff":
-                cell = bioaffrat()
-                if "_F" in name:
-                    cell.neuron_type = "flexor"
-                else: cell.neuron_type = "extensor"
-                self.affs.append(cell)
-            elif neurontype.lower() == "muscle":
-                cell = muscle()
-                self.muscles.append(cell)
-            elif neurontype.lower() == "bursting":
-                cell = interneuron(False, bursting_mode=True)
-                self.ints.append(cell)
-            else:
-                cell = interneuron(delaytype)
-                self.ints.append(cell)
-
-            pc.set_gid2node(gid, rank)
-            nc = cell.connect2target(None)
-            nc.threshold = self.threshold
-            pc.cell(gid, nc)
-            pc.threshold(gid, nc.threshold)
-            self.netcons.append(nc)
-            gids.append(gid)
-            gid += 1
-
-        # Groups
-        if neurontype.lower() == "muscle":
-            self.musclegroups.append((gids, name))
-        elif neurontype.lower() == "moto":
-            self.motogroups.append((gids, name))
-        elif neurontype.lower() == "aff":
-            self.affgroups.append((gids, name))
-        else:
-            self.intgroups.append((gids, name))
-
-        self.n_gid = gid
-
-        return gids
+        cell or None
+            Клетка если она существует, иначе None
+        """
+        try:
+            # Сначала проверяем локальный кэш
+            if hasattr(self, 'gid_to_cell') and gid in self.gid_to_cell:
+                return self.gid_to_cell[gid]
+            
+            # Проверяем существование gid
+            if not pc.gid_exists(gid):
+                logging.warning(f"Process {rank}: gid {gid} does not exist")
+                return None
+                
+            # Пытаемся получить клетку
+            cell = pc.gid2cell(gid)
+            if cell is None:
+                logging.warning(f"Process {rank}: Failed to get cell for gid {gid}")
+                return None
+                
+            # Кэшируем результат
+            if not hasattr(self, 'gid_to_cell'):
+                self.gid_to_cell = {}
+            self.gid_to_cell[gid] = cell
+            
+            return cell
+            
+        except Exception as e:
+            logging.error(f"Process {rank}: Error accessing cell for gid {gid}: {str(e)}")
+            return None
 
     def connectcells(self, pre_cells, post_cells, weight=1.0, delay=1, threshold=-20, inhtype=False,
                      stdptype=False, N=45):
-        nsyn = random.randint(N, N + 15)
+        """
+        Connect two groups of cells with synapses
+        
+        Parameters
+        ----------
+        pre_cells : list
+            List of presynaptic cell gids
+        post_cells : list
+            List of postsynaptic cell gids
+        weight : float
+            Base synaptic weight
+        delay : float
+            Base synaptic delay
+        threshold : float
+            Spike threshold
+        inhtype : bool
+            If True, use inhibitory synapses
+        stdptype : bool
+            If True, use STDP synapses
+        N : int
+            Base number of synapses per cell
+        """
+        # Синхронизация перед началом создания соединений
+        pc.barrier()
+        
+        # Для каждой постсинаптической клетки
         for post_gid in post_cells:
+            # Проверяем, принадлежит ли эта клетка текущему процессу
             if pc.gid_exists(post_gid):
+                # Получаем клетку
+                target = pc.gid2cell(post_gid)
+                
+                # Определяем количество синапсов для этой клетки
+                nsyn = random.randint(N, N + 15)
+                
+                # Создаем соединения
                 for i in range(nsyn):
+                    # Выбираем случайную пресинаптическую клетку
                     src_gid = random.randint(pre_cells[0], pre_cells[-1])
-                    target = pc.gid2cell(post_gid)
+                    
                     if stdptype:
-                        syn = target.synlistexstdp[i]
-                        nc = pc.gid_connect(src_gid, syn)
-                        nc.delay = delay
-                        nc.weight[0] = weight
-                        nc.threshold = threshold
-                        pc.threshold(src_gid, threshold)
-                        self.netcons.append(nc)
+                        # STDP синапсы
+                        try:
+                            syn = target.synlistexstdp[i]
+                            nc = pc.gid_connect(src_gid, syn)
+                            nc.delay = delay
+                            nc.weight[0] = weight
+                            nc.threshold = threshold
+                            pc.threshold(src_gid, threshold)
+                            self.netcons.append(nc)
 
-                        dummy = h.Section()  # Create a dummy section to put the point processes in
-                        stdpmech = h.STDP(0, dummy)
-                        self.stdpmechs.append(stdpmech)
-                        presyn = pc.gid_connect(src_gid,
-                                                stdpmech)  # threshold, delay, 1)  # Feed presynaptic spikes to the STDP mechanism -- must have weight >0
-                        presyn.delay = delay
-                        presyn.weight[0] = 2
-                        presyn.threshold = threshold
-                        self.presyns.append(presyn)
-                        pstsyn = pc.gid_connect(post_gid,
-                                                stdpmech)  # threshold, delay, -1)  # Feed postsynaptic spikes to the STDP mechanism -- must have weight <0
-                        pstsyn.delay = delay
-                        pstsyn.weight[0] = -2
-                        pstsyn.threshold = threshold
-                        self.postsyns.append(pstsyn)
-                        pc.threshold(post_gid, threshold)
-                        h.setpointer(nc._ref_weight[0], 'synweight', stdpmech)
+                            # Создаем STDP механизм
+                            dummy = h.Section()
+                            stdpmech = h.STDP(0, dummy)
+                            self.stdpmechs.append(stdpmech)
+                            
+                            # Пресинаптическое соединение для STDP
+                            presyn = pc.gid_connect(src_gid, stdpmech)
+                            presyn.delay = delay
+                            presyn.weight[0] = 2
+                            presyn.threshold = threshold
+                            self.presyns.append(presyn)
+                            
+                            # Постсинаптическое соединение для STDP
+                            pstsyn = pc.gid_connect(post_gid, stdpmech)
+                            pstsyn.delay = delay
+                            pstsyn.weight[0] = -2
+                            pstsyn.threshold = threshold
+                            self.postsyns.append(pstsyn)
+                            
+                            pc.threshold(post_gid, threshold)
+                            h.setpointer(nc._ref_weight[0], 'synweight', stdpmech)
 
-                        weight_changes = h.Vector()
-                        weight_changes.record(stdpmech._ref_synweight)
-                        self.weight_changes_vectors.append((src_gid, post_gid, weight_changes))
+                            # Запись изменений весов
+                            weight_changes = h.Vector()
+                            weight_changes.record(stdpmech._ref_synweight)
+                            self.weight_changes_vectors.append((src_gid, post_gid, weight_changes))
+                            
+                        except Exception as e:
+                            logging.error(f"Error creating STDP connection {src_gid}->{post_gid}: {str(e)}")
+                            continue
+                            
                     else:
-                        if inhtype:
-                            syn = target.synlistinh[i]
-                        else:
-                            syn = target.synlistex[i]
-                        nc = pc.gid_connect(src_gid, syn)
-                        nc.weight[0] = max(0.0, random.gauss(weight, weight / 5))
-                        nc.threshold = threshold
-                        nc.delay = max(0.1, random.gauss(delay, delay / 5))
-                        pc.threshold(src_gid, nc.threshold)
-                        self.netcons.append(nc)
+                        # Обычные синапсы
+                        try:
+                            if inhtype:
+                                syn = target.synlistinh[i]
+                            else:
+                                syn = target.synlistex[i]
+                                
+                            nc = pc.gid_connect(src_gid, syn)
+                            nc.weight[0] = max(0.0, random.gauss(weight, weight / 5))
+                            nc.threshold = threshold
+                            nc.delay = max(0.1, random.gauss(delay, delay / 5))
+                            pc.threshold(src_gid, nc.threshold)
+                            self.netcons.append(nc)
+                            
+                        except Exception as e:
+                            logging.error(f"Error creating connection {src_gid}->{post_gid}: {str(e)}")
+                            continue
 
-    def genconnect(self, gen_gid, afferents_gids, weight, delay, inhtype=False, N=45):
-        nsyn = random.randint(N - 5, N)
-        for i in afferents_gids:
-            if pc.gid_exists(i):
-                for j in range(nsyn):
-                    target = pc.gid2cell(i)
-                    if inhtype:
-                        syn = target.synlistinh[j]
-                    else:
-                        # syn = target.synlistees[j]
-                        syn = target.synlistex[j]
-                    nc = pc.gid_connect(gen_gid, syn)
-                    nc.threshold = self.threshold
-                    nc.delay = max(0.1, random.gauss(delay, delay / 5))
-                    nc.weight[0] = weight #random.gauss(weight, weight / 5)
-                    pc.threshold(gen_gid, nc.threshold)
-                    self.stimnclist.append(nc)
+        # Синхронизация после создания всех соединений
+        pc.barrier()
+
+    def genconnect(self, gen_gid, afferents_gids, weight, delay, inhtype=False, N=90):
+        """
+        Connect a generator to a group of cells
+        """
+        # Синхронизация перед началом создания соединений
+        pc.barrier()
+        
+        try:
+            # Проверяем существование генератора
+            if not pc.gid_exists(gen_gid):
+                logging.error(f"Generator {gen_gid} does not exist")
+                return
+                
+            # Для каждой клетки-мишени
+            for target_gid in afferents_gids:
+                # Проверяем существование клетки перед использованием gid2cell
+                if not pc.gid_exists(target_gid):
+                    logging.warning(f"Target {target_gid} does not exist, skipping")
+                    continue
+                    
+                try:
+                    # Получаем клетку
+                    target = pc.gid2cell(target_gid)
+                    if target is None:
+                        logging.warning(f"Failed to get cell for gid {target_gid}, skipping")
+                        continue
+                        
+                    # Определяем количество синапсов для этой клетки
+                    nsyn = random.randint(N - 5, N)
+                    
+                    # Создаем соединения
+                    for j in range(nsyn):
+                        try:
+                            # Выбираем тип синапса
+                            if inhtype:
+                                syn = target.synlistinh[j]
+                            else:
+                                syn = target.synlistex[j]
+                                
+                            # Создаем соединение
+                            nc = pc.gid_connect(gen_gid, syn)
+                            nc.threshold = self.threshold
+                            nc.delay = max(0.1, random.gauss(delay, delay / 5))
+                            nc.weight[0] = weight
+                            
+                            # Сохраняем соединение
+                            self.stimnclist.append(nc)
+                            
+                        except Exception as e:
+                            logging.error(f"Error creating synapse: {str(e)}")
+                            continue
+                            
+                except Exception as e:
+                    logging.error(f"Error processing target cell: {str(e)}")
+                    continue
+                    
+        except Exception as e:
+            logging.error(f"Error in genconnect: {str(e)}")
+            
+        finally:
+            # Синхронизация после создания всех соединений
+            pc.barrier()
 
     def motodiams(self, number):
         nrn_number = number
@@ -312,132 +462,147 @@ class CPG:
 
         return x2
 
+    def addgener(self, start, freq, flg_interval, interval, weight=0.5, cv=False, r=True):
+        """
+        Creates generator and returns generator gid
+        """
+        # Получаем начальный gid
+        gid = self.n_gid
+        
+        # Определяем целевой процесс
+        target_rank = gid % nhost
+        
+        # Создаем генератор на целевом процессе
+        if rank == target_rank:
+            # Создаем и настраиваем стимулятор
+            stim = h.NetStim()
+            
+            if r:
+                stim.start = random.uniform(start - 3, start + 3)
+            else:
+                stim.start = start
+            
+            if flg_interval:
+                stim.interval = interval
+                stim.number = 10
+            else:
+                stim.interval = int(1000 / freq)
+                stim.number = int(one_step_time / stim.interval)
+            
+            stim.noise = 0.01
+            self.stims.append(stim)
+            
+            # Создаем и регистрируем соединение
+            ncstim = h.NetCon(stim, None)
+            ncstim.weight[0] = weight
+            self.netcons.append(ncstim)
+            
+            # Регистрируем gid
+            pc.set_gid2node(gid, target_rank)
+            pc.cell(gid, ncstim)
+            
+            # Проверяем регистрацию
+            if not pc.gid_exists(gid):
+                raise RuntimeError(f"Failed to register generator gid {gid}")
+        
+        # Синхронизация после создания
+        pc.barrier()
+        
+        # Проверяем, что генератор доступен на всех процессах
+        if not pc.gid_exists(gid):
+            logging.error(f"Process {rank}: Generator {gid} is not accessible")
+            raise RuntimeError(f"Generator {gid} is not accessible on process {rank}")
+        
+        # Добавляем gid в список и обновляем счетчик
+        self.gener_gids.append(gid)
+        self.n_gid = gid + 1
+        
+        return gid
+
     def addIagener(self, mn: list, mn2: list, start: int, weight: float = 1.0) -> int:
         """
         Creates an Ia generator and returns its gid.
-
-        Parameters
-        ----------
-        mn : list
-            of motor neuron gids for the agonist muscle.
-        mn2 : list
-            of motor neuron gids for the antagonist muscle.
-        start : int
-            Start time for the generator (in ms).
-        weight : float, optional
-            Connection weight, default is 1.0.
-
-        Returns
-        -------
-        int
-            The gid of the created generator.
         """
-
-        # Choose a random motor neuron cell from the provided lists using random.choice.
-        # moto = pc.gid2cell(random.choice(mn))
-        # moto2 = pc.gid2cell(random.choice(mn2))
-
-        # --- ВЫБОР moto ---
-        available_mn = list(set(mn) - set(getattr(self, "used_mn", [])))
-        if not available_mn:
-            raise ValueError("All motor neurons in mn have been used already.")
-        chosen_mn = random.choice(available_mn)
-        self.used_mn = getattr(self, "used_mn", []) + [chosen_mn]
-        moto = pc.gid2cell(chosen_mn)
-
-        # --- ВЫБОР moto2 ---
-        available_mn2 = list(set(mn2) - set(getattr(self, "used_mn2", [])))
-        if not available_mn2:
-            raise ValueError("All motor neurons in mn2 have been used already.")
-        chosen_mn2 = random.choice(available_mn2)
-        self.used_mn2 = getattr(self, "used_mn2", []) + [chosen_mn2]
-        moto2 = pc.gid2cell(chosen_mn2)
-
-        # Create the Ia generator with an initial value of 0.5.
-        stim = h.IaGenerator(0.5)
-        stim.start = start
-
-        # Set generator parameters:
-        freq = 70 #70 #100  # frequency in Hz
-        stim.interval = int(1000 / freq)  # interval between stimuli in ms
-        # 'one_step_time' is assumed to be a global variable representing the simulation step duration (in ms).
-        stim.number = int(one_step_time / stim.interval) - 5
-
-        # Set pointers for the muscle units associated with the motor neurons.
-        muscle_unit1 = moto.muscle_unit(0.5)
-        muscle_unit2 = moto2.muscle_unit(0.5)
-        h.setpointer(muscle_unit1._ref_F_fHill, 'fhill', stim)
-        h.setpointer(muscle_unit2._ref_F_fHill, 'fhill2', stim)
-
-        # Append the generator to the list of stimulations.
-        self.stims.append(stim)
-
-        # Assign a unique gid to the generator.
+        # Получаем начальный gid
         gid = self.n_gid
-        # 'rank' is assumed to be a global variable responsible for distributing gids across nodes.
-        pc.set_gid2node(gid, rank)
+        
+        # Определяем целевой процесс
+        target_rank = gid % nhost
+        
+        if rank == target_rank:
+            try:
+                # --- ВЫБОР moto ---
+                available_mn = list(set(mn) - set(getattr(self, "used_mn", [])))
+                if not available_mn:
+                    raise ValueError("All motor neurons in mn have been used already.")
+                chosen_mn = random.choice(available_mn)
+                self.used_mn = getattr(self, "used_mn", []) + [chosen_mn]
+                
+                # Проверяем существование клетки
+                if not pc.gid_exists(chosen_mn):
+                    raise RuntimeError(f"Motor neuron {chosen_mn} does not exist")
+                moto = pc.gid2cell(chosen_mn)
 
-        # Create a NetCon for the generator and configure its parameters.
-        ncstim = h.NetCon(stim, None)
-        ncstim.weight[0] = weight
-        self.netcons.append(ncstim)
-        pc.cell(gid, ncstim)
+                # --- ВЫБОР moto2 ---
+                available_mn2 = list(set(mn2) - set(getattr(self, "used_mn2", [])))
+                if not available_mn2:
+                    raise ValueError("All motor neurons in mn2 have been used already.")
+                chosen_mn2 = random.choice(available_mn2)
+                self.used_mn2 = getattr(self, "used_mn2", []) + [chosen_mn2]
+                
+                # Проверяем существование клетки
+                if not pc.gid_exists(chosen_mn2):
+                    raise RuntimeError(f"Motor neuron {chosen_mn2} does not exist")
+                moto2 = pc.gid2cell(chosen_mn2)
 
-        # Record the spike times of the generator.
-        spike_times = h.Vector()
-        ncstim.record(spike_times)
-        self.recorded_spikes.append(spike_times)
+                # Create the Ia generator
+                stim = h.IaGenerator(0.5)
+                stim.start = start
+                stim.interval = int(1000 / 70)
+                stim.number = int(one_step_time / stim.interval) - 5
 
-        # Append the generator gid to the list and increment the gid counter.
+                # Set pointers for the muscle units
+                muscle_unit1 = moto.muscle_unit(0.5)
+                muscle_unit2 = moto2.muscle_unit(0.5)
+                h.setpointer(muscle_unit1._ref_F_fHill, 'fhill', stim)
+                h.setpointer(muscle_unit2._ref_F_fHill, 'fhill2', stim)
+
+                self.stims.append(stim)
+
+                # Создаем и регистрируем соединение
+                ncstim = h.NetCon(stim, None)
+                ncstim.weight[0] = weight
+                self.netcons.append(ncstim)
+                
+                # Регистрируем gid
+                pc.set_gid2node(gid, target_rank)
+                pc.cell(gid, ncstim)
+                
+                # Проверяем регистрацию
+                if not pc.gid_exists(gid):
+                    raise RuntimeError(f"Failed to register generator gid {gid}")
+
+                # Record spike times
+                spike_times = h.Vector()
+                ncstim.record(spike_times)
+                self.recorded_spikes.append(spike_times)
+                
+            except Exception as e:
+                logging.error(f"Failed to create Ia generator on process {rank}: {str(e)}")
+                raise
+        
+        # Синхронизация после создания
+        pc.barrier()
+        
+        # Проверяем, что генератор доступен на всех процессах
+        if not pc.gid_exists(gid):
+            logging.error(f"Process {rank}: Generator {gid} is not accessible")
+            raise RuntimeError(f"Generator {gid} is not accessible on process {rank}")
+        
+        # Добавляем gid в список и обновляем счетчик
         self.gener_gids.append(gid)
-        self.n_gid += 1
-
-        return gid
-
-    def addgener(self, start, freq, flg_interval, interval, weight = 0.5, cv=False, r=True):
-        '''
-        Creates generator and returns generator gid
-        Parameters
-        ----------
-        weight: float
-            weight of the connection
-        start: int
-            generator start up
-        freq: int
-            generator frequency
-        flg_interval: bool
-            have interval_CV
-        interval: int
-            time interval_CV
-        Returns
-        -------
-        gid: int
-            generator gid
-        '''
-        gid = self.n_gid
-        stim = h.NetStim()
-        # stim.number = nums
-        if r:
-            stim.start = random.uniform(start - 3, start + 3)
-            # stim.noise = 0.01
-        else:
-            stim.start = start
-        if flg_interval:
-            stim.interval = interval
-            stim.number = 10
-        else:
-            stim.interval = int(1000 / freq)
-            stim.number = int(one_step_time / stim.interval)
-        stim.noise = 0.01
-        self.stims.append(stim)
-        pc.set_gid2node(gid, rank)
-        ncstim = h.NetCon(stim, None)
-        ncstim.weight[0] = weight
-        self.netcons.append(ncstim)
-        pc.cell(gid, ncstim)
-        self.gener_gids.append(gid)
-        self.n_gid += 1
-
+        self.n_gid = gid + 1
+        
         return gid
 
     def connectinsidenucleus(self, nucleus):

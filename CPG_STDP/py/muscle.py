@@ -35,7 +35,7 @@ class muscle(object):
         '''
         self.muscle_unit = h.Section(name='muscle_unit', cell=self)
         self.soma = h.Section(name='soma', cell=self)
-        self.muscle_unit.connect(self.soma(1))
+        self.muscle_unit.connect(self.soma(0.5))
 
     def subsets(self):
         '''
@@ -61,7 +61,7 @@ class muscle(object):
         Calculates numder of segments in section
         '''
         for sec in self.all:
-            sec.nseg = 3 #int((sec.L/(0.1*h.lambda_f(100)) + .9)/2.)*2 + 1
+            sec.nseg = int((sec.L/(0.1*h.lambda_f(100)) + .9)/2.)*2 + 1
 
     def biophys(self):
         '''
@@ -70,18 +70,18 @@ class muscle(object):
         for sec in self.all:
             sec.cm = random.gauss(1, 0.01)  # cm uf/cm2 - membrane capacitance
         # muscle_unit параметры:
-        self.muscle_unit.cm = 1.0 #3.6
+        self.muscle_unit.cm = 3.6
         self.muscle_unit.insert('Ca_conc')
         self.muscle_unit.insert('pas')
-        self.muscle_unit.g_pas = 1e-5  # уменьшили
+        self.muscle_unit.g_pas = 0.01
         self.muscle_unit.e_pas = -80
-        self.muscle_unit.Ra = 0.3 #1.1
+        self.muscle_unit.Ra = 1.1
         # каналы и токи
         self.muscle_unit.insert('cal')  # L-тип кальциевых каналов
-        self.muscle_unit.gcalbar_cal = 0.05
+        self.muscle_unit.gcalbar_cal = 0.1
 
         self.muscle_unit.insert('na14a')  # натриевый канал Nav1.4
-        self.muscle_unit.gbar_na14a = 0.5
+        self.muscle_unit.gbar_na14a = 0.75
         # Вставляем простые каналы в muscle_unit:
         # self.muscle_unit.insert('fastchannels')
         # self.muscle_unit.gnabar_fastchannels = 0
@@ -92,8 +92,8 @@ class muscle(object):
         self.muscle_unit.insert('fHill')
         self.muscle_unit.insert('extracellular')
 
-        self.muscle_unit.ena = 50
-        self.muscle_unit.ek = -77
+        # self.muscle_unit.ena = 50
+        # self.muscle_unit.ek = -77
 
         # soma параметры:
         self.soma.cm = 3.6
@@ -134,7 +134,7 @@ class muscle(object):
         nc: NEURON NetCon
             connection between neurons
         '''
-        nc = h.NetCon(self.muscle_unit(0.5)._ref_v, target, sec=self.muscle_unit)
+        nc = h.NetCon(self.muscle_unit(1)._ref_v, target, sec=self.muscle_unit)
         nc.threshold = -20
         return nc
 
