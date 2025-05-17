@@ -10,7 +10,7 @@ from motoneuron import motoneuron
 from bioaffrat import bioaffrat
 from muscle import muscle
 
-bokeh.sampledata.download()
+# bokeh.sampledata.download()
 
 from bokeh.plotting import figure, output_file, show
 

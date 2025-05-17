@@ -51,7 +51,7 @@ class muscle(object):
         '''
         Adds length and diameter to sections
         '''
-        self.muscle_unit.L = 3000  # microns
+        self.muscle_unit.L = 3000 #3000  # microns
         self.muscle_unit.diam = 40  # microns
         self.soma.L = 3000  # microns
         self.soma.diam = 40  # microns
@@ -61,7 +61,7 @@ class muscle(object):
         Calculates numder of segments in section
         '''
         for sec in self.all:
-            sec.nseg = int((sec.L/(0.1*h.lambda_f(100)) + .9)/2.)*2 + 1
+            sec.nseg = 3 #int((sec.L/(0.1*h.lambda_f(100)) + .9)/2.)*2 + 1
 
     def biophys(self):
         '''
@@ -75,7 +75,7 @@ class muscle(object):
         self.muscle_unit.insert('pas')
         self.muscle_unit.g_pas = 0.004
         self.muscle_unit.e_pas = -70
-        self.muscle_unit.Ra = 1.1
+        self.muscle_unit.Ra = 50 #1.1
         # # каналы и токи
         # self.muscle_unit.insert('cal')  # L-тип кальциевых каналов
         # self.muscle_unit.gcalbar_cal = 0.1
@@ -83,9 +83,9 @@ class muscle(object):
         # self.muscle_unit.insert('na14a')  # натриевый канал Nav1.4
         # self.muscle_unit.gbar_na14a = 0.75
         # Вставляем простые каналы в muscle_unit:
-        # self.muscle_unit.insert('fastchannels')
-        # self.muscle_unit.gnabar_fastchannels = 0
-        # self.muscle_unit.gkbar_fastchannels = 0.01
+        self.muscle_unit.insert('fastchannels')
+        self.muscle_unit.gnabar_fastchannels = 0.05
+        self.muscle_unit.gkbar_fastchannels = 0.01
 
         # CaSP и fHill в muscle_unit:
         self.muscle_unit.insert('CaSP')
@@ -135,7 +135,7 @@ class muscle(object):
         nc: NEURON NetCon
             connection between neurons
         '''
-        nc = h.NetCon(self.muscle_unit(1)._ref_v, target, sec=self.muscle_unit)
+        nc = h.NetCon(self.muscle_unit(0.5)._ref_v, target, sec=self.muscle_unit)
         nc.threshold = 10
         return nc
 

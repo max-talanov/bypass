@@ -46,7 +46,7 @@ PARAMETER {
 	::module 2::
 	c1 = 0.128
 	c2 = 0.093
-	c3 = 61.206
+	c3 = 40 :61.206
 	c4 = -13.116
 	c5 = 5.095
 	alpha = 2
@@ -103,9 +103,10 @@ BREAKPOINT { LOCAL i, tempR
 
 	::isometric and isokinetic condition::
 	mgi = AM^alpha
-	if (t > 100 && t < 200) {
-		printf("t=%g ms, v=%g mV (muscle_unit)\n", t, v)
-	}
+	if (mgi > 2.0) { mgi = 2.0 }
+	: if (t > 100 && t < 200) {
+	: 	printf("t=%g ms, v=%g mV (muscle_unit)\n", t, v)
+	: }
 }
 
 DERIVATIVE state {
@@ -128,9 +129,9 @@ PROCEDURE SPK_DETECT (v (mv), t (ms)) {
 		spk[spk_index] = t + t_axon
 		spk_index = spk_index + 1
 		R_On = 1
-		if (spk_index < 20) {
-			printf("CaSP: Spike detected at t = %g ms, v = %g mV\n", t, v)
-		}
+		: if (spk_index < 20) {
+		: 	printf("CaSP: Spike detected at t = %g ms, v = %g mV\n", t, v)
+		: }
 	} else if (v < vth) {
 		Spike_On = 0
 	}

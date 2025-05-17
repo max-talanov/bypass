@@ -694,7 +694,7 @@ if __name__ == '__main__':
             musclerecorders.append(spike_record(group[k_nrns]))
             # musclerecorders_extra.append(spike_record(group[k_nrns], True))
             force_recorders.append(force_record(group[k_nrns]))
-            muscle_units_recorders.append(spike_record(group[k_nrns], 'muscle'))
+            muscle_units_recorders.append(spike_record(group[k_nrns], location='muscle'))
 
         logging.info("added recorders")
 

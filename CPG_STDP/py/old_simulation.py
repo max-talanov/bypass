@@ -13,7 +13,7 @@ from motoneuron import motoneuron
 from muscle import muscle
 
 logging.basicConfig(filename='logs_new_new_2.log',
-                    filemode='a',
+                    filemode='w',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                     datefmt='%H:%M:%S',
                     level=logging.DEBUG)
@@ -57,7 +57,7 @@ class CPG:
         self.delay = 1
         self.nAff = 12
         self.nInt = 5
-        self.nMn = 21
+        self.nMn = 14
         self.ncell = n
         self.affs = []
         self.ints = []
@@ -120,8 +120,8 @@ class CPG:
         '''sensory and muscle afferents and brainstem and V3F'''
         # self.Ia_aff_E = self.addpool(self.nAff, "Ia_aff_E", "aff")
         # self.Ia_aff_F = self.addpool(self.nAff, "Ia_aff_F", "aff")
-        self.BS_aff_E = self.addpool(self.nAff, "BS_aff_E", "aff")
-        self.BS_aff_F = self.addpool(self.nAff, "BS_aff_F", "aff")
+        # self.BS_aff_E = self.addpool(self.nAff, "BS_aff_E", "aff")
+        # self.BS_aff_F = self.addpool(self.nAff, "BS_aff_F", "aff")
         # self.V3F = self.addpool(self.nAff, "V3F", "int")
 
         '''moto neuron pools'''
@@ -241,8 +241,8 @@ class CPG:
             # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 15.5, 2, inhtype=False, N=45)
-        self.connectcells(self.mns_F, self.muscle_F, 15.5, 2, inhtype=False, N=45)
+        self.connectcells(self.mns_E, self.muscle_E, 3, 2, inhtype=False, N=45, sect="muscle")
+        self.connectcells(self.mns_F, self.muscle_F, 3, 2, inhtype=False, N=45, sect="muscle")
 
         # '''Ia2RG, RG2Motor'''
         # self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
@@ -332,7 +332,7 @@ class CPG:
         return gids
 
     def connectcells(self, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, inhtype=False,
-                     stdptype=False, N=50):
+                     stdptype=False, N=50, sect="int"):
         nsyn = random.randint(N, N + 15)
         for post_gid in post_cells:
             if pc.gid_exists(post_gid):
@@ -547,6 +547,10 @@ def spike_record(pool, extra=False, location='soma'):
                 vec.record(cell.node[0](1.0)._ref_v)
             elif location == 'muscle':
                 vec.record(cell.muscle_unit(0.5)._ref_v)
+            elif location == 'am':
+                vec.record(cell.muscle_unit(0.5)._ref_AM)
+            elif location == 'mgi':
+                vec.record(cell.muscle_unit(0.5)._ref_mgi)
             else:
                 # Запись из сомы (как было раньше)
                 vec.record(cell.soma(0.5)._ref_v)
@@ -672,6 +676,8 @@ if __name__ == '__main__':
         motorecorders_mem = []
         musclerecorders = []
         muscle_units_recorders = []
+        muscle_am_recorders = []
+        muscle_mgi_recorders = []
         force_recorders = []
         for group in cpg_ex.motogroups:
             motorecorders.append(spike_record(group[k_nrns], True))
@@ -687,7 +693,9 @@ if __name__ == '__main__':
         for group in cpg_ex.musclegroups:
             musclerecorders.append(spike_record(group[k_nrns]))
             force_recorders.append(force_record(group[k_nrns]))
-            muscle_units_recorders.append(spike_record(group[k_nrns], 'muscle'))
+            muscle_units_recorders.append(spike_record(group[k_nrns], location='muscle'))
+            muscle_am_recorders.append(spike_record(group[k_nrns], location='am'))
+            muscle_mgi_recorders.append(spike_record(group[k_nrns], location='mgi'))
 
         logging.info("added recorders")
 
@@ -721,6 +729,10 @@ if __name__ == '__main__':
             spikeout(group[k_nrns], 'force_{}'.format(group[k_name]), i, recorder)
         for group, recorder in zip(cpg_ex.musclegroups, muscle_units_recorders):
             spikeout(group[k_nrns], 'units_{}'.format(group[k_name]), i, recorder)
+        for group, recorder in zip(cpg_ex.musclegroups, muscle_am_recorders):
+            spikeout(group[k_nrns], 'am_{}'.format(group[k_name]), i, recorder)
+        for group, recorder in zip(cpg_ex.musclegroups, muscle_mgi_recorders):
+            spikeout(group[k_nrns], 'mgi_{}'.format(group[k_name]), i, recorder)
 
             logging.info("recorded")
 
