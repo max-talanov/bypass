@@ -73,15 +73,15 @@ class muscle(object):
         self.muscle_unit.cm = 3.6
         self.muscle_unit.insert('Ca_conc')
         self.muscle_unit.insert('pas')
-        self.muscle_unit.g_pas = 0.01
-        self.muscle_unit.e_pas = -80
+        self.muscle_unit.g_pas = 0.004
+        self.muscle_unit.e_pas = -70
         self.muscle_unit.Ra = 1.1
-        # каналы и токи
-        self.muscle_unit.insert('cal')  # L-тип кальциевых каналов
-        self.muscle_unit.gcalbar_cal = 0.1
-
-        self.muscle_unit.insert('na14a')  # натриевый канал Nav1.4
-        self.muscle_unit.gbar_na14a = 0.75
+        # # каналы и токи
+        # self.muscle_unit.insert('cal')  # L-тип кальциевых каналов
+        # self.muscle_unit.gcalbar_cal = 0.1
+        #
+        # self.muscle_unit.insert('na14a')  # натриевый канал Nav1.4
+        # self.muscle_unit.gbar_na14a = 0.75
         # Вставляем простые каналы в muscle_unit:
         # self.muscle_unit.insert('fastchannels')
         # self.muscle_unit.gnabar_fastchannels = 0
@@ -90,7 +90,7 @@ class muscle(object):
         # CaSP и fHill в muscle_unit:
         self.muscle_unit.insert('CaSP')
         self.muscle_unit.insert('fHill')
-        self.muscle_unit.insert('extracellular')
+        # self.muscle_unit.insert('extracellular')
 
         # self.muscle_unit.ena = 50
         # self.muscle_unit.ek = -77
@@ -120,6 +120,7 @@ class muscle(object):
         self.soma.ek = -80
 
         self.soma.insert('extracellular')
+        rec = h.xm(self.muscle_unit(0.5))
 
     def connect2target(self, target):
         '''
@@ -135,7 +136,7 @@ class muscle(object):
             connection between neurons
         '''
         nc = h.NetCon(self.muscle_unit(1)._ref_v, target, sec=self.muscle_unit)
-        nc.threshold = -20
+        nc.threshold = 10
         return nc
 
     def synapses(self):
