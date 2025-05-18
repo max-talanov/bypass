@@ -24,36 +24,36 @@ NEURON {
 PARAMETER {
 	::module 1::
 	k1 = 3000		: M-1*ms-1
-	k2 = 3			: ms-1
+	k2 = 5			: Increased from 3 to speed up calcium release
 	k3 = 400		: M-1*ms-1
-	k4 = 1			: ms-1
+	k4 = 2			: Increased from 1 to speed up calcium removal
 	k5i = 4e5		: M-1*ms-1
-	k6i = 150		: ms-1
+	k6i = 200		: Increased from 150 for faster calcium dynamics
 	k = 850			: M-1
-	SF_AM = 5
-	Rmax = 100 : 10		: ms-1
-	Umax = 8000 : 2000		: M-1*ms-1
-	t1 = 2 : 3			: ms
-	t2 = 15 : 25			: ms
+	SF_AM = 4       : Increased to reduce prolonged activation
+	Rmax = 80		: Reduced from 100 to prevent oversaturation
+	Umax = 6000		: Reduced from 8000 to prevent prolonged calcium elevation
+	t1 = 1.0		: Faster rise time
+	t2 = 8			: Faster decay to prevent prolonged activation
 	phi1 = 0.03
 	phi2 = 1.23
 	phi3 = 0.01
 	phi4 = 1.08
-	CS0 = 0.03     	:[M]
+	CS0 = 0.025     : Reduced from 0.03 for less calcium storage
 	B0 = 0.00043	:[M]
 	T0 = 0.00007 	:[M]
 
 	::module 2::
 	c1 = 0.128
 	c2 = 0.093
-	c3 = 40 :61.206
+	c3 = 30         : Reduced from 40 for faster AM dynamics
 	c4 = -13.116
 	c5 = 5.095
-	alpha = 2
+	alpha = 1.8     : Adjusted for force sensitivity
 	alpha1 = 4.77
 	alpha2 = 400
 	alpha3 = 160
-	beta = 0.47
+	beta = 0.6      : Increased from 0.47 for faster recovery
 	gamma = 0.001
 
 	::simulation::
@@ -102,8 +102,8 @@ BREAKPOINT { LOCAL i, tempR
 	vm = (xm[1]-xm[0])/(dt*10^-3)
 
 	::isometric and isokinetic condition::
-	mgi = AM^alpha
-	if (mgi > 2.0) { mgi = 2.0 }
+	mgi = AM^alpha * exp(-beta*AM)  : Modified force relationship for better dynamics
+	if (mgi > 2.5) { mgi = 2.5 }    : Adjusted force limit
 	: if (t > 100 && t < 200) {
 	: 	printf("t=%g ms, v=%g mV (muscle_unit)\n", t, v)
 	: }

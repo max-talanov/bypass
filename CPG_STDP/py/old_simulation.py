@@ -548,9 +548,9 @@ def spike_record(pool, extra=False, location='soma'):
             elif location == 'muscle':
                 vec.record(cell.muscle_unit(0.5)._ref_v)
             elif location == 'am':
-                vec.record(cell.muscle_unit(0.5)._ref_AM)
+                vec.record(cell.muscle_unit(0.5)._ref_AM_CaSP)
             elif location == 'mgi':
-                vec.record(cell.muscle_unit(0.5)._ref_mgi)
+                vec.record(cell.muscle_unit(0.5)._ref_mgi_CaSP)
             else:
                 # Запись из сомы (как было раньше)
                 vec.record(cell.soma(0.5)._ref_v)
