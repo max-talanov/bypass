@@ -549,8 +549,6 @@ def spike_record(pool, extra=False, location='soma'):
                 vec.record(cell.muscle_unit(0.5)._ref_v)
             elif location == 'am':
                 vec.record(cell.muscle_unit(0.5)._ref_AM_CaSP)
-            elif location == 'mgi':
-                vec.record(cell.muscle_unit(0.5)._ref_mgi_CaSP)
             else:
                 # Запись из сомы (как было раньше)
                 vec.record(cell.soma(0.5)._ref_v)
@@ -677,7 +675,6 @@ if __name__ == '__main__':
         musclerecorders = []
         muscle_units_recorders = []
         muscle_am_recorders = []
-        muscle_mgi_recorders = []
         force_recorders = []
         for group in cpg_ex.motogroups:
             motorecorders.append(spike_record(group[k_nrns], True))
@@ -695,7 +692,6 @@ if __name__ == '__main__':
             force_recorders.append(force_record(group[k_nrns]))
             muscle_units_recorders.append(spike_record(group[k_nrns], location='muscle'))
             muscle_am_recorders.append(spike_record(group[k_nrns], location='am'))
-            muscle_mgi_recorders.append(spike_record(group[k_nrns], location='mgi'))
 
         logging.info("added recorders")
 
@@ -731,8 +727,6 @@ if __name__ == '__main__':
             spikeout(group[k_nrns], 'units_{}'.format(group[k_name]), i, recorder)
         for group, recorder in zip(cpg_ex.musclegroups, muscle_am_recorders):
             spikeout(group[k_nrns], 'am_{}'.format(group[k_name]), i, recorder)
-        for group, recorder in zip(cpg_ex.musclegroups, muscle_mgi_recorders):
-            spikeout(group[k_nrns], 'mgi_{}'.format(group[k_name]), i, recorder)
 
             logging.info("recorded")
 

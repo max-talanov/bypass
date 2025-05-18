@@ -23,38 +23,38 @@ NEURON {
 
 PARAMETER {
 	::module 1::
-	k1 = 3000		: M-1*ms-1
-	k2 = 5			: Increased from 3 to speed up calcium release
-	k3 = 400		: M-1*ms-1
-	k4 = 2			: Increased from 1 to speed up calcium removal
-	k5i = 4e5		: M-1*ms-1
-	k6i = 200		: Increased from 150 for faster calcium dynamics
-	k = 850			: M-1
-	SF_AM = 4       : Increased to reduce prolonged activation
-	Rmax = 80		: Reduced from 100 to prevent oversaturation
-	Umax = 6000		: Reduced from 8000 to prevent prolonged calcium elevation
-	t1 = 1.0		: Faster rise time
-	t2 = 8			: Faster decay to prevent prolonged activation
-	phi1 = 0.03
-	phi2 = 1.23
-	phi3 = 0.01
-	phi4 = 1.08
-	CS0 = 0.025     : Reduced from 0.03 for less calcium storage
+	k1 = 2500		: Calcium binding rate
+	k2 = 6			: Release rate
+	k3 = 350		: Secondary binding rate
+	k4 = 2			: Removal rate
+	k5i = 3.5e5		: Troponin binding rate
+	k6i = 180		: Dissociation rate
+	k = 750			: Calcium sensitivity
+	SF_AM = 3.0     : Activation scaling
+	Rmax = 70		: Maximum release rate
+	Umax = 5000		: Maximum uptake rate
+	t1 = 2.0		: Rise time adjusted for 600ms activation
+	t2 = 15			: Decay time adjusted for 600ms activation
+	phi1 = 0.025    
+	phi2 = 1.1      
+	phi3 = 0.009    
+	phi4 = 1.0      
+	CS0 = 0.02      : Calcium store capacity
 	B0 = 0.00043	:[M]
 	T0 = 0.00007 	:[M]
 
 	::module 2::
-	c1 = 0.128
-	c2 = 0.093
-	c3 = 30         : Reduced from 40 for faster AM dynamics
+	c1 = 0.115      : AM activation threshold
+	c2 = 0.085      : AM curve steepness
+	c3 = 35         : AM time constant
 	c4 = -13.116
-	c5 = 5.095
-	alpha = 1.8     : Adjusted for force sensitivity
+	c5 = 4.8        : AM recovery rate
+	alpha = 1.5     : Force scaling
 	alpha1 = 4.77
 	alpha2 = 400
 	alpha3 = 160
-	beta = 0.6      : Increased from 0.47 for faster recovery
-	gamma = 0.001
+	beta = 0.5      : Force decay rate
+	gamma = 0.004   : Time-dependent scaling
 
 	::simulation::
 	vth = -40
@@ -102,8 +102,8 @@ BREAKPOINT { LOCAL i, tempR
 	vm = (xm[1]-xm[0])/(dt*10^-3)
 
 	::isometric and isokinetic condition::
-	mgi = AM^alpha * exp(-beta*AM)  : Modified force relationship for better dynamics
-	if (mgi > 2.5) { mgi = 2.5 }    : Adjusted force limit
+	mgi = AM^alpha * (1 - exp(-beta*AM)) * (1 - exp(-gamma*(t/600)))  : Force with time scaling relative to 600ms
+	if (mgi > 2.0) { mgi = 2.0 }    : Force limit
 	: if (t > 100 && t < 200) {
 	: 	printf("t=%g ms, v=%g mV (muscle_unit)\n", t, v)
 	: }
@@ -166,9 +166,9 @@ PROCEDURE rate (cli (M), CaT (M), AM (M), t(ms)) {
 }
 
 INITIAL {LOCAL i
-	CaSR = 0.0025  		:[M]
+	CaSR = 0.0015  		: Initial calcium store
 	CaSRCS = 0			:[M]
-	Ca = 1e-10			:[M]
+	Ca = 5e-11			: Initial free calcium
 	CaB = 0				:[M]
 	CaT = 0				:[M]
 	AM = 0				:[M]
