@@ -23,38 +23,38 @@ NEURON {
 
 PARAMETER {
 	::module 1::
-	k1 = 2500		: Calcium binding rate
-	k2 = 6			: Release rate
-	k3 = 350		: Secondary binding rate
-	k4 = 2			: Removal rate
-	k5i = 3.5e5		: Troponin binding rate
-	k6i = 180		: Dissociation rate
-	k = 750			: Calcium sensitivity
-	SF_AM = 3.0     : Activation scaling
-	Rmax = 70		: Maximum release rate
-	Umax = 5000		: Maximum uptake rate
-	t1 = 2.0		: Rise time adjusted for 600ms activation
-	t2 = 15			: Decay time adjusted for 600ms activation
-	phi1 = 0.025    
-	phi2 = 1.1      
-	phi3 = 0.009    
-	phi4 = 1.0      
-	CS0 = 0.02      : Calcium store capacity
+	k1 = 2000		: Calcium binding rate
+	k2 = 2			: Slower release rate for smoothing
+	k3 = 300		: Secondary binding rate
+	k4 = 1			: Slower removal for smoothing
+	k5i = 2e5		: Slower troponin binding for smoothing
+	k6i = 100		: Slower dissociation for smoothing
+	k = 600			: Reduced sensitivity to prevent spikes
+	SF_AM = 2.0     : Reduced scaling for smoother response
+	Rmax = 50		: Reduced to prevent spike-based oscillations
+	Umax = 3000		: Reduced for smoother calcium dynamics
+	t1 = 5.0		: Slower rise for integration
+	t2 = 25			: Slower decay for integration
+	phi1 = 0.015    : Reduced sensitivity
+	phi2 = 0.8      : Reduced baseline
+	phi3 = 0.005    : Reduced sensitivity
+	phi4 = 0.7      : Reduced baseline
+	CS0 = 0.015     : Reduced store capacity
 	B0 = 0.00043	:[M]
 	T0 = 0.00007 	:[M]
 
 	::module 2::
-	c1 = 0.115      : AM activation threshold
-	c2 = 0.085      : AM curve steepness
-	c3 = 35         : AM time constant
+	c1 = 0.08       : Lower threshold for smoother activation
+	c2 = 0.15       : Slower activation curve
+	c3 = 50         : Much slower AM dynamics
 	c4 = -13.116
-	c5 = 4.8        : AM recovery rate
-	alpha = 1.5     : Force scaling
+	c5 = 3.5        : Slower recovery
+	alpha = 1.2     : Reduced power for smoother force
 	alpha1 = 4.77
 	alpha2 = 400
 	alpha3 = 160
-	beta = 0.5      : Force decay rate
-	gamma = 0.004   : Time-dependent scaling
+	beta = 0.3      : Slower force decay
+	gamma = 0.001   : Very slow time scaling
 
 	::simulation::
 	vth = -40
@@ -89,7 +89,7 @@ ASSIGNED {
 	acm
 }
 
-BREAKPOINT { LOCAL i, tempR
+BREAKPOINT { LOCAL i, tempR, f_temp
 
 	SPK_DETECT (v, t)
 	CaR (CaSR, t)
@@ -102,8 +102,9 @@ BREAKPOINT { LOCAL i, tempR
 	vm = (xm[1]-xm[0])/(dt*10^-3)
 
 	::isometric and isokinetic condition::
-	mgi = AM^alpha * (1 - exp(-beta*AM)) * (1 - exp(-gamma*(t/600)))  : Force with time scaling relative to 600ms
-	if (mgi > 2.0) { mgi = 2.0 }    : Force limit
+	f_temp = AM^alpha                    : Base force component
+	mgi = f_temp/(1 + beta*f_temp)      : Hill-like force relationship
+	if (mgi > 1.0) { mgi = 1.0 }        : Normalized force limit
 	: if (t > 100 && t < 200) {
 	: 	printf("t=%g ms, v=%g mV (muscle_unit)\n", t, v)
 	: }
@@ -119,7 +120,7 @@ DERIVATIVE state {
 	CaB' = k3*B0*Ca - (k3*Ca+k4)*CaB
 	CaT' = k5*T0*Ca - (k5*Ca+k6)*CaT
 
-	AM' = (AMinf -AM)/AMtau
+	AM' = (AMinf - AM)/AMtau * 0.1      : Slowed AM dynamics
 	mgi' = 0
 }
 
@@ -162,7 +163,7 @@ PROCEDURE rate (cli (M), CaT (M), AM (M), t(ms)) {
 	k5 = phi(cli)*k5i
 	k6 = k6i/(1 + SF_AM*AM)
 	AMinf = 0.5*(1+tanh(((CaT/T0)-c1)/c2))
-	AMtau = c3/(cosh(((CaT/T0)-c4)/(2*c5)))
+	AMtau = c3/(cosh(((CaT/T0)-c4)/(2*c5))) + 20  : Added base time constant
 }
 
 INITIAL {LOCAL i
