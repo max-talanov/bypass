@@ -26,12 +26,12 @@ PARAMETER {
 	k1 = 2000		: Calcium binding rate
 	k2 = 4			: Release rate
 	k3 = 300		: Secondary binding rate
-	k4 = 3			: Increased removal rate for better recovery
+	k4 = 3			: Removal rate
 	k5i = 2e5		: Troponin binding rate
-	k6i = 200		: Increased dissociation for better recovery
+	k6i = 200		: Dissociation rate
 	k = 600			: Calcium sensitivity
 	SF_AM = 2.5     : Activation scaling
-	Rmax = 40		: Reduced maximum release
+	Rmax = 40		: Maximum release rate
 	Umax = 4000		: Uptake rate
 	t1 = 3.0		: Rise time
 	t2 = 20			: Decay time
@@ -39,8 +39,8 @@ PARAMETER {
 	phi2 = 0.8      : Baseline
 	phi3 = 0.005    : Sensitivity
 	phi4 = 0.7      : Baseline
-	CS0 = 0.01      : Reduced store capacity for better cycling
-	B0 = 0.0006		: Increased buffer capacity
+	CS0 = 0.01      : Store capacity
+	B0 = 0.0006		: Buffer capacity
 	T0 = 0.00007 	:[M]
 
 	::module 2::
@@ -54,7 +54,7 @@ PARAMETER {
 	alpha2 = 400
 	alpha3 = 160
 	beta = 0.4      : Force decay rate
-	gamma = 0.002   : Time scaling
+	decay = 0.002   : Additional decay rate
 
 	::simulation::
 	vth = -40
@@ -90,7 +90,6 @@ ASSIGNED {
 }
 
 BREAKPOINT { LOCAL i, tempR, f_temp
-
 	SPK_DETECT (v, t)
 	CaR (CaSR, t)
 
@@ -103,12 +102,8 @@ BREAKPOINT { LOCAL i, tempR, f_temp
 
 	::isometric and isokinetic condition::
 	f_temp = AM^alpha
-	: Enhanced recovery with time-dependent term
-	mgi = f_temp/(1 + beta*f_temp) * exp(-gamma*((t % 600)/600))
+	mgi = f_temp/(1 + beta*f_temp)
 	if (mgi > 1.0) { mgi = 1.0 }
-	: if (t > 100 && t < 200) {
-	: 	printf("t=%g ms, v=%g mV (muscle_unit)\n", t, v)
-	: }
 }
 
 DERIVATIVE state {
@@ -121,8 +116,8 @@ DERIVATIVE state {
 	CaB' = k3*B0*Ca - (k3*Ca+k4)*CaB
 	CaT' = k5*T0*Ca - (k5*Ca+k6)*CaT
 
-	: Enhanced recovery in AM dynamics
-	AM' = (AMinf - AM)/AMtau - 0.001*AM^2
+	: Enhanced recovery with additional decay term
+	AM' = (AMinf - AM)/AMtau - decay*AM
 	mgi' = 0
 }
 
@@ -132,9 +127,6 @@ PROCEDURE SPK_DETECT (v (mv), t (ms)) {
 		spk[spk_index] = t + t_axon
 		spk_index = spk_index + 1
 		R_On = 1
-		: if (spk_index < 20) {
-		: 	printf("CaSP: Spike detected at t = %g ms, v = %g mV\n", t, v)
-		: }
 	} else if (v < vth) {
 		Spike_On = 0
 	}
@@ -164,8 +156,7 @@ PROCEDURE CaR (CaSR (M), t (ms)) { LOCAL i, tempR  ::Ca_Release::
 PROCEDURE rate (cli (M), CaT (M), AM (M), t(ms)) {
 	k5 = phi(cli)*k5i
 	k6 = k6i/(1 + SF_AM*AM)
-	: Modified activation function with enhanced recovery
-	AMinf = 0.5*(1+tanh(((CaT/T0)-c1)/c2)) * exp(-((t % 600)/600))
+	AMinf = 0.5*(1+tanh(((CaT/T0)-c1)/c2))
 	AMtau = c3/(cosh(((CaT/T0)-c4)/(2*c5))) + 15
 }
 
