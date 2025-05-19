@@ -31,11 +31,11 @@ PARAMETER {
 	k5i = 4e5		: M-1*ms-1
 	k6i = 120		: Faster dissociation
 	k = 850			: M-1
-	SF_AM = 0.5		: Reduced feedback
-	Rmax = 150		: Increased release
+	SF_AM = 0.3		: Further reduced feedback to increase Ca retention
+	Rmax = 200		: Further increased release
 	Umax = 5000
-	t1 = 5			: Slow rise
-	t2 = 80		: Slow decay
+	t1 = 4			: Faster rise for better response
+	t2 = 70		    : Slightly faster decay
 	phi1 = 0.03
 	phi2 = 1.23
 	phi3 = 0.01
@@ -45,9 +45,9 @@ PARAMETER {
 	T0 = 0.00002 	:[M]
 
 	::module 2::
-	c1 = 0.0008		: Lower threshold
-	c2 = 0.008		: Steeper transition
-	c3 = 30			: Slow time constant
+	c1 = 0.0005		: Even lower threshold for earlier activation
+	c2 = 0.006		: Steeper transition curve
+	c3 = 25			: Faster time constant
 	c4 = -10
 	c5 = 4
 	alpha = 4.5     
@@ -105,7 +105,7 @@ BREAKPOINT { LOCAL i, tempR
 	vm = (xm[1]-xm[0])/(dt*10^-3)
 
 	::isometric and isokinetic condition::
-	mgi = AM^alpha
+	mgi = AM^alpha * (1 + 0.2*exp(-0.1*cli*cli))
 	
 	if (t < 0.1 || (t > 199.95 && t < 200.0) || (t > 399.95 && t < 400.0) || (t > 599.95 && t < 600.0)) {
 		printf("Muscle: t=%.1f ms, mgi=%.4f, cli=%.4f, AM=%.4f\n", t, mgi, cli, AM)

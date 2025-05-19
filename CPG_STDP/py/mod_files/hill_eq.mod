@@ -13,16 +13,16 @@ NEURON {
 }
 
 PARAMETER {
-	a0 = 2.35		:[N]
+	a0 = 2.0		:[N]
 	b0 = 24.35		:[mm*s-1]
 	c0 = -7.4		:[N]
 	d0 = 30.3		:[mm*s-1]
-	p0 = 60			:[N]
+	p0 = 90			:[N]
 	g1 = -8			:[mm]
-	g2 = 5			:[mm]
+	g2 = 3			:[mm]
 	xm_init = -5	:[mm]
 	xce_init = -5	:[mm]
-	Kse = 2.5		:[mm-1]
+	Kse = 3.0		:[mm-1]
 }
 
 STATE {
@@ -68,16 +68,25 @@ FUNCTION xse (x, y) { LOCAL d_xm, d_xce, d_se
 }
 
 FUNCTION g (x) {
-	g = exp(-((x-g1)/g2)^2)
+	:: More dynamic response curve with sharper peak at optimal length
+	:: Add small constant to prevent complete zero output
+	g = (1.2 * exp(-1.2*((x-g1)/g2)^2)) + 0.05
 }
 
 FUNCTION dxdt (x, xc) {LOCAL gain_length
 	if (x <= xc) {
+		:: Speed up contraction for more responsive behavior
 		dxdt = (10^-3)*(-b0*(xc-x))/(x+a0*xc/p0)
 	} else {
 		gain_length = (-d0*(xc-x))/(2*xc-x+c0*xc/p0)
-		if (gain_length <= 0) {dxdt = (10^-3)*1e5}
-		else {dxdt = (10^-3)*gain_length}
+		:: Make sure extension is always at a reasonable rate
+		if (gain_length <= 0) {
+			dxdt = (10^-3)*50
+		} else if (gain_length > 1000) {
+			dxdt = (10^-3)*50
+		} else {
+			dxdt = (10^-3)*gain_length
+		}
 	}
 }
 

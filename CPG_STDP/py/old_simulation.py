@@ -241,8 +241,8 @@ class CPG:
             # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 3.5, 2, inhtype=False, N=45, sect="muscle")
-        self.connectcells(self.mns_F, self.muscle_F, 3.5, 2, inhtype=False, N=45, sect="muscle")
+        self.connectcells(self.mns_E, self.muscle_E, 5.0, 2, inhtype=False, N=80, sect="muscle")
+        self.connectcells(self.mns_F, self.muscle_F, 5.0, 2, inhtype=False, N=80, sect="muscle")
 
         # '''Ia2RG, RG2Motor'''
         # self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
