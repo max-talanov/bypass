@@ -23,38 +23,38 @@ NEURON {
 
 PARAMETER {
 	::module 1::
-	k1 = 3000		: M-1*ms-1 (keep original fast binding)
-	k2 = 3			: ms-1
-	k3 = 400		: M-1*ms-1
-	k4 = 1			: ms-1
-	k5i = 4e5		: M-1*ms-1
-	k6i = 150		: ms-1
-	k = 850			: M-1
-	SF_AM = 5
-	Rmax = 10		: ms-1
-	Umax = 2000		: M-1*ms-1
-	t1 = 9			: ms (longer rise time)
-	t2 = 75			: ms (longer decay)
-	phi1 = 0.03
-	phi2 = 1.23
-	phi3 = 0.01
-	phi4 = 1.08
-	CS0 = 0.03     	:[M]
-	B0 = 0.00043	:[M]
-	T0 = 0.00007 	:[M]
+	k1 = 3000		: M-1*ms-1 (fast binding)
+	k2 = 2.0		: ms-1 (faster unbinding for oscillations)
+	k3 = 1000		: M-1*ms-1 (increased force generation)
+	k4 = 1.5		: ms-1 (faster decay for oscillations)
+	k5i = 8e5		: M-1*ms-1 (increased for stronger response)
+	k6i = 200		: ms-1 (faster recovery for oscillations)
+	k = 1200		: M-1 (increased for higher levels)
+	SF_AM = 0.8		: Reduced damping significantly
+	Rmax = 30		: ms-1 (increased response)
+	Umax = 8000		: M-1*ms-1 (increased activation)
+	t1 = 25			: ms (faster rise)
+	t2 = 175		: ms (faster decay)
+	phi1 = 0.08
+	phi2 = 2.0
+	phi3 = 0.04
+	phi4 = 1.5
+	CS0 = 0.1		:[M] (increased significantly)
+	B0 = 0.001	:[M] (increased buffer)
+	T0 = 0.00005	:[M] (lowered threshold)
 
 	::module 2::
-	c1 = 0.128
-	c2 = 0.093
-	c3 = 61.206     : Keep original timing
-	c4 = -13.116
-	c5 = 5.095
-	alpha = 2
-	alpha1 = 4.77
-	alpha2 = 400
-	alpha3 = 160
-	beta = 0.47
-	gamma = 0.001
+	c1 = 0.08
+	c2 = 0.05
+	c3 = 120.0		: Faster timing
+	c4 = -10.0		: Adjusted threshold
+	c5 = 8.0		: Sharper response
+	alpha = 4
+	alpha1 = 6.0
+	alpha2 = 600
+	alpha3 = 250
+	beta = 0.8
+	gamma = 0.004
 
 	::simulation::
 	vth = -40
@@ -102,21 +102,21 @@ BREAKPOINT { LOCAL i, tempR
 	vm = (xm[1]-xm[0])/(dt*10^-3)
 
 	::isometric and isokinetic condition::
-	mgi = AM^alpha/(1 + 2*AM*AM)  : Modified force generation with stronger recovery
-	if (mgi > 1.0) { mgi = 1.0 }
+	mgi = 15.0 * (AM^alpha)/(1 + 0.1*AM*AM)  : Increased scaling and reduced damping
+	if (mgi > 7.0) { mgi = 7.0 }
 }
 
 DERIVATIVE state {
-	rate (cli, CaT, AM, t)
+	rate(cli, CaT, AM, t)
 
 	CaSR' = -k1*CS0*CaSR + (k1*CaSR+k2)*CaSRCS - R + U(Ca)
 	CaSRCS' = k1*CS0*CaSR - (k1*CaSR+k2)*CaSRCS
 
-	Ca' = - k5*T0*Ca + (k5*Ca+k6)*CaT - k3*B0*Ca + (k3*Ca+k4)*CaB + R - U(Ca)
+	Ca' = -k5*T0*Ca + (k5*Ca+k6)*CaT - k3*B0*Ca + (k3*Ca+k4)*CaB + R - U(Ca)
 	CaB' = k3*B0*Ca - (k3*Ca+k4)*CaB
 	CaT' = k5*T0*Ca - (k5*Ca+k6)*CaT
 
-	AM' = (AMinf - AM)/AMtau - 0.1*AM*AM  : Added stronger recovery term
+	AM' = (2.0*(AMinf - AM)/AMtau) - (0.5*AM*AM) + 0.1*(1 - AM)  : Fixed syntax for differential equation
 	mgi' = 0
 }
 
@@ -138,7 +138,8 @@ FUNCTION U (x) {
 
 FUNCTION phi (x) {
 	if (x <= -8) {phi = phi1*x + phi2}
-	else {phi = phi3*x + phi4}
+	else if (x >= 8) {phi = phi3*x + phi4}
+	else {phi = phi1*x*cos(x/4) + phi2}
 }
 
 PROCEDURE CaR (CaSR (M), t (ms)) { LOCAL i, tempR  ::Ca_Release::
@@ -155,8 +156,8 @@ PROCEDURE CaR (CaSR (M), t (ms)) { LOCAL i, tempR  ::Ca_Release::
 PROCEDURE rate (cli (M), CaT (M), AM (M), t(ms)) {
 	k5 = phi(cli)*k5i
 	k6 = k6i/(1 + SF_AM*AM)
-	AMinf = 0.5*(1+tanh(((CaT/T0)-c1)/c2))/(1 + AM*AM)  : Modified activation
-	AMtau = c3/(cosh(((CaT/T0)-c4)/(2*c5))) + 15  : Increased base time constant
+	AMinf = 1.2*(1+tanh(((CaT/T0)-c1)/c2))/(1 + 0.05*AM*AM)
+	AMtau = c3/(cosh(((CaT/T0)-c4)/(2*c5))) + 15
 }
 
 INITIAL {LOCAL i
