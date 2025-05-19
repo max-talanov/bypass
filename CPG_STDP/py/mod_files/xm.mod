@@ -20,4 +20,11 @@ ASSIGNED {
 
 BREAKPOINT {
 	cli = amp
+	if (t < 0.1 || (t > 199.95 && t < 200.0) || (t > 399.95 && t < 400.0) || (t > 599.95 && t < 600.0)) {
+		printf("XM: t=%.1f ms, amp=%.4f, cli=%.4f\n", t, amp, cli)
+	}
+}
+
+INITIAL {
+    printf("XM INITIAL: amp=%.4f\n", amp)
 }

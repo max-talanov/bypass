@@ -17,12 +17,12 @@ PARAMETER {
 	b0 = 24.35		:[mm*s-1]
 	c0 = -7.4		:[N]
 	d0 = 30.3		:[mm*s-1]
-	p0 = 23			:[N]
-	g1 = -10 :-8			:[mm]
-	g2 = 10 :21.4		:[mm]
-	xm_init = -8	:[mm]
-	xce_init = -8	:[mm]
-	Kse = 1.0 : 0.4		:[mm-1]
+	p0 = 60			:[N]
+	g1 = -8			:[mm]
+	g2 = 5			:[mm]
+	xm_init = -5	:[mm]
+	xce_init = -5	:[mm]
+	Kse = 2.5		:[mm-1]
 }
 
 STATE {
@@ -41,6 +41,10 @@ ASSIGNED {
 BREAKPOINT { LOCAL d_xm, d_xce, d_se
 	A = mgi
 	xm = cli
+
+	if (t < 0.1 || (t > 299.95 && t < 300.0) || (t > 599.95 && t < 600.0) || (t > 699.95 && t < 700.0)) {
+		printf("Hill: t=%.1f, A=%.4f, F=%.4f\n", t, A, F)
+	}
 
 	SOLVE state_hill METHOD cnexp
 

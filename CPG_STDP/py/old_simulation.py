@@ -40,7 +40,7 @@ k = 0.017  # CV weights multiplier to take into account air and toe stepping
 CV_0_len = 12  # 125 # Duration of the CV generator with no sensory inputs
 extra_layers = 0  # 1 + layers
 
-step_number = 3
+step_number = 2
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = one_step_time * step_number
@@ -241,8 +241,8 @@ class CPG:
             # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 3, 2, inhtype=False, N=45, sect="muscle")
-        self.connectcells(self.mns_F, self.muscle_F, 3, 2, inhtype=False, N=45, sect="muscle")
+        self.connectcells(self.mns_E, self.muscle_E, 3.5, 2, inhtype=False, N=45, sect="muscle")
+        self.connectcells(self.mns_F, self.muscle_F, 3.5, 2, inhtype=False, N=45, sect="muscle")
 
         # '''Ia2RG, RG2Motor'''
         # self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)

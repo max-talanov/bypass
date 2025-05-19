@@ -120,7 +120,6 @@ class muscle(object):
         self.soma.ek = -80
 
         self.soma.insert('extracellular')
-        rec = h.xm(self.muscle_unit(0.5))
 
     def connect2target(self, target):
         '''
@@ -143,6 +142,9 @@ class muscle(object):
         '''
         Adds synapses
         '''
+        # Добавляем xm_mech для текущей мышцы
+        self.xm_mech = h.xm(self.muscle_unit(0.5))
+        
         for i in range(100):
             s = h.ExpSyn(self.muscle_unit(0.5))  # Exsitatory
             s.tau = 0.2

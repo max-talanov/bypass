@@ -9,6 +9,7 @@ NEURON {
 	RANGE k1, k2, k3, k4, k5, k6, k, k5i, k6i
 	RANGE Umax, Rmax, t1, t2, R, vth, U
 	RANGE phi0, phi1, phi2, phi3, phi4, phi
+	RANGE first_on, first_off
 
 	::module 2::
 	RANGE c1, c2, c3, c4, c5
@@ -23,38 +24,38 @@ NEURON {
 
 PARAMETER {
 	::module 1::
-	k1 = 3000		: M-1*ms-1 (fast binding)
-	k2 = 2.0		: ms-1 (faster unbinding for oscillations)
-	k3 = 1000		: M-1*ms-1 (increased force generation)
-	k4 = 1.5		: ms-1 (faster decay for oscillations)
-	k5i = 8e5		: M-1*ms-1 (increased for stronger response)
-	k6i = 200		: ms-1 (faster recovery for oscillations)
-	k = 1200		: M-1 (increased for higher levels)
-	SF_AM = 0.8		: Reduced damping significantly
-	Rmax = 30		: ms-1 (increased response)
-	Umax = 8000		: M-1*ms-1 (increased activation)
-	t1 = 25			: ms (faster rise)
-	t2 = 175		: ms (faster decay)
-	phi1 = 0.08
-	phi2 = 2.0
-	phi3 = 0.04
-	phi4 = 1.5
-	CS0 = 0.1		:[M] (increased significantly)
-	B0 = 0.001	:[M] (increased buffer)
-	T0 = 0.00005	:[M] (lowered threshold)
+	k1 = 3000		: M-1*ms-1
+	k2 = 3			: ms-1
+	k3 = 400		: M-1*ms-1
+	k4 = 1			: ms-1
+	k5i = 4e5		: M-1*ms-1
+	k6i = 120		: Faster dissociation
+	k = 850			: M-1
+	SF_AM = 0.5		: Reduced feedback
+	Rmax = 150		: Increased release
+	Umax = 5000
+	t1 = 5			: Slow rise
+	t2 = 80		: Slow decay
+	phi1 = 0.03
+	phi2 = 1.23
+	phi3 = 0.01
+	phi4 = 1.08
+	CS0 = 0.2		:[M]
+	B0 = 0.00043	:[M]
+	T0 = 0.00002 	:[M]
 
 	::module 2::
-	c1 = 0.08
-	c2 = 0.05
-	c3 = 120.0		: Faster timing
-	c4 = -10.0		: Adjusted threshold
-	c5 = 8.0		: Sharper response
-	alpha = 4
-	alpha1 = 6.0
-	alpha2 = 600
-	alpha3 = 250
-	beta = 0.8
-	gamma = 0.004
+	c1 = 0.0008		: Lower threshold
+	c2 = 0.008		: Steeper transition
+	c3 = 30			: Slow time constant
+	c4 = -10
+	c5 = 4
+	alpha = 4.5     
+	alpha1 = 4.77
+	alpha2 = 400
+	alpha3 = 160
+	beta = 0.47
+	gamma = 0.001
 
 	::simulation::
 	vth = -40
@@ -87,6 +88,8 @@ ASSIGNED {
 	xm[2]
 	vm
 	acm
+	first_on
+	first_off
 }
 
 BREAKPOINT { LOCAL i, tempR
@@ -102,33 +105,57 @@ BREAKPOINT { LOCAL i, tempR
 	vm = (xm[1]-xm[0])/(dt*10^-3)
 
 	::isometric and isokinetic condition::
-	mgi = 15.0 * (AM^alpha)/(1 + 0.1*AM*AM)  : Increased scaling and reduced damping
-	if (mgi > 7.0) { mgi = 7.0 }
+	mgi = AM^alpha
+	
+	if (t < 0.1 || (t > 199.95 && t < 200.0) || (t > 399.95 && t < 400.0) || (t > 599.95 && t < 600.0)) {
+		printf("Muscle: t=%.1f ms, mgi=%.4f, cli=%.4f, AM=%.4f\n", t, mgi, cli, AM)
+	}
 }
 
 DERIVATIVE state {
-	rate(cli, CaT, AM, t)
+	rate (cli, CaT, AM, t)
 
 	CaSR' = -k1*CS0*CaSR + (k1*CaSR+k2)*CaSRCS - R + U(Ca)
 	CaSRCS' = k1*CS0*CaSR - (k1*CaSR+k2)*CaSRCS
 
-	Ca' = -k5*T0*Ca + (k5*Ca+k6)*CaT - k3*B0*Ca + (k3*Ca+k4)*CaB + R - U(Ca)
+	Ca' = - k5*T0*Ca + (k5*Ca+k6)*CaT - k3*B0*Ca + (k3*Ca+k4)*CaB + R - U(Ca)
 	CaB' = k3*B0*Ca - (k3*Ca+k4)*CaB
 	CaT' = k5*T0*Ca - (k5*Ca+k6)*CaT
 
-	AM' = (2.0*(AMinf - AM)/AMtau) - (0.5*AM*AM) + 0.1*(1 - AM)  : Fixed syntax for differential equation
+	AM' = (AMinf - AM)/AMtau
 	mgi' = 0
 }
 
 PROCEDURE SPK_DETECT (v (mv), t (ms)) {
 	if (Spike_On == 0 && v > vth) {
-	Spike_On = 1
-	spk[spk_index] = t + t_axon
-	spk_index = spk_index + 1
-	R_On = 1
+	  Spike_On = 1
+	  spk[spk_index] = t + t_axon
+	  spk_index = spk_index + 1
+	  R_On = 1
+	  
+	  :if (first_on) {
+	   : printf("First spike - Time %g ms: R_On set to 1\n", t)
+	    :first_on = 0
+	  :}
 	} else if (v < vth) {
-	Spike_On = 0
+	  if (Spike_On == 1) {
+	    Spike_On = 0
+	    R_On = 0
+	    
+	    :if (first_off) {
+	      :printf("First spike end - Time %g ms: R_On set to 0\n", t)
+	      :first_off = 0
+	    :}
+	    
+	    :if (t > 595 && t < 605) {
+	      :printf("Near end of spiking at %g ms: R_On set to 0\n", t)
+	    :}
+	  }
 	}
+	
+	:if (t > 699 && t < 701) {
+	  :printf("Check at 700 ms: R_On = %g, Spike_On = %g\n", R_On, Spike_On)
+	:}
 }
 
 FUNCTION U (x) {
@@ -138,8 +165,7 @@ FUNCTION U (x) {
 
 FUNCTION phi (x) {
 	if (x <= -8) {phi = phi1*x + phi2}
-	else if (x >= 8) {phi = phi3*x + phi4}
-	else {phi = phi1*x*cos(x/4) + phi2}
+	else {phi = phi3*x + phi4}
 }
 
 PROCEDURE CaR (CaSR (M), t (ms)) { LOCAL i, tempR  ::Ca_Release::
@@ -147,8 +173,8 @@ PROCEDURE CaR (CaSR (M), t (ms)) { LOCAL i, tempR  ::Ca_Release::
     if (spk_index > 0){
       tempR = tempR + CaSR*Rmax*(1-exp(-(t-spk[spk_index-1])/t1))*exp(-(t-spk[spk_index-1])/t2)
     }
-    R = tempR
-    tempR = 0
+      R = tempR
+      tempR = 0
 	}
 	else {R = 0}
 }
@@ -156,8 +182,8 @@ PROCEDURE CaR (CaSR (M), t (ms)) { LOCAL i, tempR  ::Ca_Release::
 PROCEDURE rate (cli (M), CaT (M), AM (M), t(ms)) {
 	k5 = phi(cli)*k5i
 	k6 = k6i/(1 + SF_AM*AM)
-	AMinf = 1.2*(1+tanh(((CaT/T0)-c1)/c2))/(1 + 0.05*AM*AM)
-	AMtau = c3/(cosh(((CaT/T0)-c4)/(2*c5))) + 15
+	AMinf = 0.5*(1+tanh(((CaT/T0)-c1)/c2))
+	AMtau = c3/(cosh(((CaT/T0)-c4)/(2*c5)))
 }
 
 INITIAL {LOCAL i
@@ -170,11 +196,13 @@ INITIAL {LOCAL i
 	mgi = 0
 
 	FROM i = 0 TO 9999 {
-	spk[i] = 0
+	  spk[i] = 0
 	}
 	FROM i = 0 TO 1 {
-	xm[i] = 0
+	  xm[i] = 0
 	}
 	spk_index = 0
 	R_On = 0
+	first_on = 1
+	first_off = 1
 }
