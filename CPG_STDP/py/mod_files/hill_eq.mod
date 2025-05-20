@@ -14,15 +14,15 @@ NEURON {
 
 PARAMETER {
 	a0 = 2.0		:[N]
-	b0 = 24.35		:[mm*s-1]
+	b0 = 35.0		:[mm*s-1] : Increased speed of contraction/relaxation
 	c0 = -7.4		:[N]
-	d0 = 30.3		:[mm*s-1]
+	d0 = 45.0		:[mm*s-1] : Increased speed of relaxation
 	p0 = 90			:[N]
 	g1 = -8			:[mm]
-	g2 = 3			:[mm]
+	g2 = 2.5		:[mm] : Narrower curve for more dynamic response
 	xm_init = -5	:[mm]
 	xce_init = -5	:[mm]
-	Kse = 3.0		:[mm-1]
+	Kse = 3.5		:[mm-1] : Increased sensitivity
 }
 
 STATE {
@@ -70,7 +70,14 @@ FUNCTION xse (x, y) { LOCAL d_xm, d_xce, d_se
 FUNCTION g (x) {
 	:: More dynamic response curve with sharper peak at optimal length
 	:: Add small constant to prevent complete zero output
-	g = (1.2 * exp(-1.2*((x-g1)/g2)^2)) + 0.05
+	:: Enhanced asymmetric response for better force dynamics
+	if (x < g1) {
+		:: Left side of curve (more steep decline)
+		g = (1.3 * exp(-1.5*((x-g1)/g2)^2)) + 0.05
+	} else {
+		:: Right side of curve (less steep decline)
+		g = (1.1 * exp(-1.0*((x-g1)/g2)^2)) + 0.05
+	}
 }
 
 FUNCTION dxdt (x, xc) {LOCAL gain_length
@@ -78,12 +85,18 @@ FUNCTION dxdt (x, xc) {LOCAL gain_length
 		:: Speed up contraction for more responsive behavior
 		dxdt = (10^-3)*(-b0*(xc-x))/(x+a0*xc/p0)
 	} else {
-		gain_length = (-d0*(xc-x))/(2*xc-x+c0*xc/p0)
+		:: Accelerate extension when force is low
+		if ((xc/x) < 0.5) {
+			gain_length = (-d0*(xc-x)*1.5)/(2*xc-x+c0*xc/p0)
+		} else {
+			gain_length = (-d0*(xc-x))/(2*xc-x+c0*xc/p0)
+		}
+		
 		:: Make sure extension is always at a reasonable rate
 		if (gain_length <= 0) {
-			dxdt = (10^-3)*50
+			dxdt = (10^-3)*75 :: Increased baseline recovery rate
 		} else if (gain_length > 1000) {
-			dxdt = (10^-3)*50
+			dxdt = (10^-3)*75
 		} else {
 			dxdt = (10^-3)*gain_length
 		}
