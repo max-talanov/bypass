@@ -32,7 +32,7 @@ nhost = int(pc.nhost())
 file_name = 'res_alina_50_all'
 
 N = 7
-speed = 50
+speed = 100
 bs_fr = 100  # 40 # frequency of brainstem inputs
 versions = 1
 CV_number = 6
