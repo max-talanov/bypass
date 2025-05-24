@@ -24,15 +24,15 @@ h.load_file('nrngui.hoc')
 h.load_file('stdrun.hoc')
 
 # paralleling NEURON stuff
-
+h.nrnmpi_init()
 pc = h.ParallelContext()
 rank = int(pc.id())
 nhost = int(pc.nhost())
 
-file_name = 'res_alina'
+file_name = 'res_alina_50'
 
-N = 15
-speed = 100
+N = 2
+speed = 50
 bs_fr = 100  # 40 # frequency of brainstem inputs
 versions = 1
 CV_number = 6
@@ -40,7 +40,7 @@ k = 0.017  # CV weights multiplier to take into account air and toe stepping
 CV_0_len = 12  # 125 # Duration of the CV generator with no sensory inputs
 extra_layers = 0  # 1 + layers
 
-step_number = 1
+step_number = 4
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = one_step_time * step_number + 30
@@ -53,11 +53,13 @@ network topology https://github.com/max-talanov/bypass/blob/main/figs/CPG_feedba
 class CPG:
 
     def __init__(self, speed, bs_fr, inh_p, step_number, n):
+        logging.info(f"Hello from rank {rank} of {nhost}")
+        logging.info("NEURON version: " + h.nrnversion())
         self.threshold = 10
         self.delay = 1
-        self.nAff = 12
-        self.nInt = 5
-        self.nMn = 14
+        self.nAff = 2
+        self.nInt = 2
+        self.nMn = 2
         self.ncell = n
         self.affs = []
         self.ints = []
@@ -118,8 +120,8 @@ class CPG:
         # self.CV = sum(self.CV, [])
 
         '''sensory and muscle afferents and brainstem and V3F'''
-        # self.Ia_aff_E = self.addpool(self.nAff, "Ia_aff_E", "aff")
-        # self.Ia_aff_F = self.addpool(self.nAff, "Ia_aff_F", "aff")
+        self.Ia_aff_E = self.addpool(self.nAff, "Ia_aff_E", "aff")
+        self.Ia_aff_F = self.addpool(self.nAff, "Ia_aff_F", "aff")
         # self.BS_aff_E = self.addpool(self.nAff, "BS_aff_E", "aff")
         # self.BS_aff_F = self.addpool(self.nAff, "BS_aff_F", "aff")
         # self.V3F = self.addpool(self.nAff, "V3F", "int")
@@ -143,6 +145,8 @@ class CPG:
         # periodic stimulation
         self.E_bs_gids, self.F_bs_gids = self.add_bs_geners(bs_fr, 1)
 
+        # self.E_bs_gids = sum(pc.py_allgather(self.E_bs_gids), [])
+        # self.F_bs_gids = sum(pc.py_allgather(self.F_bs_gids), [])
         # ''' BS '''
         # for E_bs_gid in self.E_bs_gids:
         #     self.genconnect(E_bs_gid, self.muscle_E, 0.5, 1)
@@ -153,19 +157,19 @@ class CPG:
         # ''' BS '''
         for E_bs_gid in self.E_bs_gids:
             for layer in range(CV_number):
-                self.genconnect(E_bs_gid, self.dict_RG_E[layer], 3.5, 1)
+                self.genconnect(E_bs_gid, self.dict_RG_E[layer], 3.75, 1)
 
         for F_bs_gid in self.F_bs_gids:
             for layer in range(CV_number):
-                self.genconnect(F_bs_gid, self.dict_RG_F[layer], 3.5, 1)
+                self.genconnect(F_bs_gid, self.dict_RG_F[layer], 3.75, 1)
 
-        #self.E_ia_gids, self.F_ia_gids = self.add_ia_geners()
+        self.E_ia_gids, self.F_ia_gids = self.add_ia_geners()
 
-        # for E_ia_gids in self.E_ia_gids:
-        #     self.genconnect(E_ia_gids, self.Ia_aff_E, 5.5, 1, False, 20)
-        #
-        # for F_ia_gids in self.F_ia_gids:
-        #     self.genconnect(F_ia_gids, self.Ia_aff_F, 5.5, 1, False, 30)
+        for E_ia_gids in self.E_ia_gids:
+            self.genconnect(E_ia_gids, self.Ia_aff_E, 3.5, 1, False, 20)
+
+        for F_ia_gids in self.F_ia_gids:
+            self.genconnect(F_ia_gids, self.Ia_aff_F, 3.5, 1, False, 30)
 
         # '''muscle afferents generators'''
         # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 10, weight=20)
@@ -241,8 +245,8 @@ class CPG:
             # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 5.0, 2, inhtype=False, N=80, sect="muscle")
-        self.connectcells(self.mns_F, self.muscle_F, 5.0, 2, inhtype=False, N=80, sect="muscle")
+        self.connectcells(self.mns_E, self.muscle_E, 15, 2, inhtype=False, N=45, sect="muscle")
+        self.connectcells(self.mns_F, self.muscle_F, 15, 2, inhtype=False, N=45, sect="muscle")
 
         # '''Ia2RG, RG2Motor'''
         # self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
@@ -334,6 +338,7 @@ class CPG:
     def connectcells(self, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, inhtype=False,
                      stdptype=False, N=50, sect="int"):
         nsyn = random.randint(N, N + 15)
+        nsyn = 15
         for post_gid in post_cells:
             if pc.gid_exists(post_gid):
                 for i in range(nsyn):
@@ -382,6 +387,7 @@ class CPG:
 
     def genconnect(self, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50):
         nsyn = random.randint(N - 5, N)
+        nsyn = 15
         for i in afferents_gids:
             if pc.gid_exists(i):
                 for j in range(nsyn):
@@ -438,6 +444,8 @@ class CPG:
         moto2 = pc.gid2cell(random.randint(mn2[0], mn2[-1]))
         stim = h.IaGenerator(0.5)
         stim.start = start
+        stim.interval = int(1000 / bs_fr)
+        stim.number = int(one_step_time / stim.interval)
         self.stims.append(stim)
         h.setpointer(moto.muscle_unit(0.5)._ref_F_fHill, 'fhill', stim)
         h.setpointer(moto2.muscle_unit(0.5)._ref_F_fHill, 'fhill2', stim)
@@ -560,8 +568,6 @@ def force_record(pool):
     ''' Records force from gids of motor neurons muscle unit
       Parameters
       ----------
-      pool: list
-        list of neurons gids
       Returns
       -------
       v_vec: list of h.Vector()
@@ -603,7 +609,7 @@ def spikeout(pool, name, version, v_vec):
     pc.barrier()
     result = pc.py_gather(vec, 0)
     if rank == 0:
-        logging.info("start recording")
+        logging.info("start recording " + name)
         result = np.mean(np.array(result), axis=0, dtype=np.float32)
         with hdf5.File(f'./{file_name}/{name}_sp_{speed}_CVs_{CV_number}_bs_{bs_fr}.hdf5', 'w') as file:
             for i in range(step_number):
@@ -631,6 +637,7 @@ def prun(speed, step_number):
     t = h.Vector().record(h._ref_t)
     tstop = time_sim
     pc.set_maxstep(10)
+    h.finitialize(-65)
     h.stdinit()
     pc.psolve(tstop)
     return t
@@ -676,14 +683,14 @@ if __name__ == '__main__':
         muscle_units_recorders = []
         muscle_am_recorders = []
         force_recorders = []
-        for group in cpg_ex.motogroups:
-            motorecorders.append(spike_record(group[k_nrns], True))
+        # for group in cpg_ex.motogroups:
+        #     motorecorders.append(spike_record(group[k_nrns], True))
 
         for group in cpg_ex.motogroups:
             motorecorders_mem.append(spike_record(group[k_nrns]))
         affrecorders = []
-        # for group in cpg_ex.affgroups:
-        #     affrecorders.append(spike_record(group[k_nrns]))
+        for group in cpg_ex.affgroups:
+            affrecorders.append(spike_record(group[k_nrns]))
         recorders = []
         for group in cpg_ex.intgroups:
             recorders.append(spike_record(group[k_nrns]))
@@ -711,14 +718,14 @@ if __name__ == '__main__':
         #                    'w') as file:
         #         file.create_dataset('#0_step_{}'.format(i), data=cpg_weight[2], compression="gzip")
 
-        for group, recorder in zip(cpg_ex.motogroups, motorecorders):
-            spikeout(group[k_nrns], group[k_name], i, recorder)
+        # for group, recorder in zip(cpg_ex.motogroups, motorecorders):
+        #     spikeout(group[k_nrns], group[k_name], i, recorder)
         for group, recorder in zip(cpg_ex.musclegroups, musclerecorders):
             spikeout(group[k_nrns], group[k_name], i, recorder)
         for group, recorder in zip(cpg_ex.motogroups, motorecorders_mem):
             spikeout(group[k_nrns], 'mem_{}'.format(group[k_name]), i, recorder)
-        # for group, recorder in zip(cpg_ex.affgroups, affrecorders):
-        #     spikeout(group[k_nrns], group[k_name], i, recorder)
+        for group, recorder in zip(cpg_ex.affgroups, affrecorders):
+            spikeout(group[k_nrns], group[k_name], i, recorder)
         for group, recorder in zip(cpg_ex.intgroups, recorders):
             spikeout(group[k_nrns], group[k_name], i, recorder)
         for group, recorder in zip(cpg_ex.musclegroups, force_recorders):

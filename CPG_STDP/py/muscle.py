@@ -67,15 +67,15 @@ class muscle(object):
         '''
         Adds channels and their parameters
         '''
-        for sec in self.all:
-            sec.cm = random.gauss(1, 0.01)  # cm uf/cm2 - membrane capacitance
-        # muscle_unit параметры:
+        # for sec in self.all:
+        #     sec.cm = random.gauss(1, 0.01)  # cm uf/cm2 - membrane capacitance
+        # # muscle_unit параметры:
         self.muscle_unit.cm = 3.6
         self.muscle_unit.insert('Ca_conc')
         self.muscle_unit.insert('pas')
         self.muscle_unit.g_pas = 0.004
         self.muscle_unit.e_pas = -70
-        self.muscle_unit.Ra = 50 #1.1
+        self.muscle_unit.Ra = 1.1
         # # каналы и токи
         # self.muscle_unit.insert('cal')  # L-тип кальциевых каналов
         # self.muscle_unit.gcalbar_cal = 0.1
@@ -90,6 +90,7 @@ class muscle(object):
         # CaSP и fHill в muscle_unit:
         self.muscle_unit.insert('CaSP')
         self.muscle_unit.insert('fHill')
+        self.muscle_unit.insert('xm')
         # self.muscle_unit.insert('extracellular')
 
         # self.muscle_unit.ena = 50
@@ -142,8 +143,6 @@ class muscle(object):
         '''
         Adds synapses
         '''
-        # Добавляем xm_mech для текущей мышцы
-        self.xm_mech = h.xm(self.muscle_unit(0.5))
         
         for i in range(100):
             s = h.ExpSyn(self.muscle_unit(0.5))  # Exsitatory
