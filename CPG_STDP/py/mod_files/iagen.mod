@@ -75,7 +75,7 @@ FUNCTION invl(t (ms)) (ms) {
 
 	 if (fhill > fhill0) {
 		: printf("INC \n")
-		vel = v0 + 0.0005*fhill*(t-t0) + 0.000015*fhill*(t-t0)*(t-t0)
+		vel = v0 + 0.001*fhill*(t-t0) + 0.00015*fhill*(t-t0)*(t-t0)
 		: vel = v0 + 0.1*fhill*(t-t0) + 0.0009*fhill*(t-t0)*(t-t0)
 		if (fhill2 > 0) {
         	vel = vel - 0.00025*fhill2*(t-t0)

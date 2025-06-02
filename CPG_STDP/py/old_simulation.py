@@ -40,7 +40,7 @@ k = 0.017  # CV weights multiplier to take into account air and toe stepping
 CV_0_len = 12  # 125 # Duration of the CV generator with no sensory inputs
 extra_layers = 0  # 1 + layers
 
-step_number = 4
+step_number = 6
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = one_step_time * step_number + 30
@@ -166,10 +166,10 @@ class CPG:
         self.E_ia_gids, self.F_ia_gids = self.add_ia_geners()
 
         for E_ia_gids in self.E_ia_gids:
-            self.genconnect(E_ia_gids, self.Ia_aff_E, 0.1, 1, False, 20)
+            self.genconnect(E_ia_gids, self.Ia_aff_E, 0.01, 1, False, 20)
 
         for F_ia_gids in self.F_ia_gids:
-            self.genconnect(F_ia_gids, self.Ia_aff_F, 0.1, 1, False, 30)
+            self.genconnect(F_ia_gids, self.Ia_aff_F, 0.01, 1, False, 30)
 
         # # '''muscle afferents generators'''
         # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 10, weight=3)
