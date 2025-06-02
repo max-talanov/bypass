@@ -19,7 +19,7 @@ PARAMETER {
 	d0 = 30.3		:[mm*s-1]
 	p0 = 23			:[N]
 	g1 = -8			:[mm]
-	g2 = 21.4		:[mm]
+	g2 = 10 : 21.4		:[mm]
 	xm_init = -8	:[mm]
 	xce_init = -8	:[mm]
 	Kse = 0.4		:[mm-1]

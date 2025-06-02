@@ -29,7 +29,7 @@ pc = h.ParallelContext()
 rank = int(pc.id())
 nhost = int(pc.nhost())
 
-file_name = 'res_alina_50'
+file_name = 'res_alina_50_1'
 
 N = 2
 speed = 100
@@ -166,16 +166,16 @@ class CPG:
         self.E_ia_gids, self.F_ia_gids = self.add_ia_geners()
 
         for E_ia_gids in self.E_ia_gids:
-            self.genconnect(E_ia_gids, self.Ia_aff_E, 3.5, 1, False, 20)
+            self.genconnect(E_ia_gids, self.Ia_aff_E, 0.1, 1, False, 20)
 
         for F_ia_gids in self.F_ia_gids:
-            self.genconnect(F_ia_gids, self.Ia_aff_F, 3.5, 1, False, 30)
+            self.genconnect(F_ia_gids, self.Ia_aff_F, 0.1, 1, False, 30)
 
-        # '''muscle afferents generators'''
-        # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 10, weight=20)
-        # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time, weight=30)
-
-        # # '''Create connectcells'''
+        # # '''muscle afferents generators'''
+        # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 10, weight=3)
+        # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time, weight=3)
+        #
+        # # # '''Create connectcells'''
         # self.genconnect(self.Iagener_E, self.Ia_aff_E, 5.5, 1, False, 20)
         # self.genconnect(self.Iagener_F, self.Ia_aff_F, 5.5, 1, False, 30)
 
@@ -245,8 +245,8 @@ class CPG:
             # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
 
         '''motor2muscles'''
-        self.connectcells(self.mns_E, self.muscle_E, 15, 2, inhtype=False, N=45, sect="muscle")
-        self.connectcells(self.mns_F, self.muscle_F, 15, 2, inhtype=False, N=45, sect="muscle")
+        self.connectcells(self.mns_E, self.muscle_E, 10, 2, inhtype=False, N=45, sect="muscle")
+        self.connectcells(self.mns_F, self.muscle_F, 10, 2, inhtype=False, N=45, sect="muscle")
 
         # '''Ia2RG, RG2Motor'''
         # self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
@@ -484,7 +484,7 @@ class CPG:
         else:
             stim.start = start
         stim.interval = int(1000 / freq)
-        stim.number = int(one_step_time / stim.interval)
+        stim.number = int(one_step_time / stim.interval) - 7
         self.stims.append(stim)
         pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)
@@ -510,8 +510,10 @@ class CPG:
         E_ia_gids = []
         F_ia_gids = []
         for step in range(step_number):
-            E_ia_gids.append(self.addIagener(self.muscle_E, self.muscle_F, 10, weight=5))
-            F_ia_gids.append(self.addIagener(self.muscle_F, self.muscle_E, one_step_time, weight=8))
+            # E_ia_gids.append(self.addIagener(self.muscle_E, self.muscle_F, 10, weight=5))
+            # F_ia_gids.append(self.addIagener(self.muscle_F, self.muscle_E, one_step_time, weight=8))
+            E_ia_gids.append(self.addIagener(self.muscle_E, self.muscle_F, 15 + one_step_time * 2 * step, weight=0.1))
+            F_ia_gids.append(self.addIagener(self.muscle_F, self.muscle_E, 15 + one_step_time * (1 + 2 * step), weight=0.1))
         return E_ia_gids, F_ia_gids
 
 
