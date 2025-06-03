@@ -70,6 +70,7 @@ class CPG:
         self.motogroups = []
         self.musclegroups = []
         self.gener_gids = []
+        self.gener_Iagids = []
         self.n_gid = 0
 
         self.RG_E = []  # Rhythm generators of extensors
@@ -318,6 +319,7 @@ class CPG:
             pc.set_gid2node(gid, rank)
             nc = cell.connect2target(None)
             pc.cell(gid, nc)
+            self.log_gid_by_lookup(gid, neurontype.lower())
             self.netcons.append(nc)
             gid += 1
 
@@ -440,9 +442,12 @@ class CPG:
         '''
 
         gid = self.n_gid
+        while pc.gid_exists(gid):  # если уже занят, ищем следующий
+            gid += 1
         moto = pc.gid2cell(random.randint(mn[0], mn[-1]))
         moto2 = pc.gid2cell(random.randint(mn2[0], mn2[-1]))
-        stim = h.IaGenerator(0.5)
+        stim = h.IaGenerator()
+        print(f"[rank {rank}] IaGenerator created: stim = {stim}, class = {type(stim).__name__}")
         stim.start = start
         stim.interval = int(1000 / bs_fr)
         stim.number = int(one_step_time / stim.interval)
@@ -454,8 +459,10 @@ class CPG:
         ncstim.weight[0] = weight
         self.netcons.append(ncstim)
         pc.cell(gid, ncstim)
-        self.gener_gids.append(gid)
-        self.n_gid += 1
+        print(f"gid2cell({gid}) is {type(pc.gid2cell(gid)).__name__}")
+        self.gener_Iagids.append(gid)
+        self.log_gid_by_lookup(gid, "Ia")
+        self.n_gid = gid + 1
 
         return gid
 
@@ -491,6 +498,7 @@ class CPG:
         self.netcons.append(ncstim)
         pc.cell(gid, ncstim)
         self.gener_gids.append(gid)
+        self.log_gid_by_lookup(gid, "gen")
         self.n_gid += 1
 
         return gid
@@ -515,6 +523,17 @@ class CPG:
             E_ia_gids.append(self.addIagener(self.muscle_E, self.muscle_F, 15 + one_step_time * 2 * step, weight=0.1))
             F_ia_gids.append(self.addIagener(self.muscle_F, self.muscle_E, 15 + one_step_time * (1 + 2 * step), weight=0.1))
         return E_ia_gids, F_ia_gids
+
+    def log_gid_by_lookup(self, gid: int, name):
+        if not pc.gid_exists(gid):
+            print(f"[rank {rank}] GID {gid} not assigned to this process.")
+            return
+
+        obj = pc.gid2cell(gid)
+        typename = type(obj).__name__
+        if name:
+            print(f"[rank {rank}] Added GID {gid} (type: {typename}) - name: {name}")
+        else: print(f"[rank {rank}] Added GID {gid} (type: {typename})")
 
 
 # def draw(weight_changes, time_t):
@@ -582,6 +601,30 @@ def force_record(pool):
         vec.record(cell.muscle_unit(0.5)._ref_F_fHill)
         v_vec.append(vec)
     return v_vec
+
+def velocity_record(gids, attr='_ref_vel'):
+    """
+    Records velocity-related variable (vel or v0) from IaGenerator instances
+
+    Parameters
+    ----------
+    gids : list of int
+        gids of IaGenerator processes
+    attr : str
+        which attribute to record ('_ref_vel' or '_ref_v0')
+
+    Returns
+    -------
+    vecs : list of h.Vector()
+        list of recorded vectors for each gid
+    """
+    vecs = []
+    for gid in gids:
+        cell = pc.gid2cell(gid)
+        vec = h.Vector(np.zeros(int(time_sim / 0.025 + 1), dtype=np.float32))
+        vec.record(getattr(cell, attr))
+        vecs.append(vec)
+    return vecs
 
 
 def spikeout(pool, name, version, v_vec):
@@ -702,6 +745,9 @@ if __name__ == '__main__':
             muscle_units_recorders.append(spike_record(group[k_nrns], location='muscle'))
             muscle_am_recorders.append(spike_record(group[k_nrns], location='am'))
 
+        vel_vecs_recorders = velocity_record(cpg_ex.gener_Iagids, attr='_ref_vel')
+        v0_vecs_recorders = velocity_record(cpg_ex.gener_Iagids, attr='_ref_v0')
+
         logging.info("added recorders")
 
         print("- " * 10, "\nstart")
@@ -737,6 +783,9 @@ if __name__ == '__main__':
         for group, recorder in zip(cpg_ex.musclegroups, muscle_am_recorders):
             spikeout(group[k_nrns], 'am_{}'.format(group[k_name]), i, recorder)
 
-            logging.info("recorded")
+        spikeout(cpg_ex.gener_Iagids, 'vel', i, vel_vecs_recorders)
+        spikeout(cpg_ex.gener_Iagids, 'v0', i, v0_vecs_recorders)
+
+        logging.info("recorded")
 
     finish()

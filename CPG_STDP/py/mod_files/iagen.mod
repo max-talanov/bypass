@@ -1,9 +1,9 @@
 NEURON	{
-  POINT_PROCESS IaGenerator
+  ARTIFICIAL_CELL IaGenerator
     POINTER fhill, fhill2
   RANGE y
   RANGE interval, number, start
-  RANGE noise, freq, mean, vel, invl
+  RANGE noise, freq, mean, vel, invl, v0
 }
 
 PARAMETER {
@@ -27,6 +27,7 @@ ASSIGNED {
     fhill0
     fhill2
     len2
+	diff_t0
 }
 
 PROCEDURE seed(x) {
@@ -39,6 +40,7 @@ INITIAL {
 	y = 0
     t0 = start
     v0 = 40 : 50
+	diff_t0 = 0
     fhill0 = 0
 	if (noise < 0) {
 		noise = 0
@@ -72,41 +74,43 @@ PROCEDURE init_sequence(t(ms)) {
 FUNCTION invl(t (ms)) (ms) {
 	:interspike interval
 	:len2 is the length increase of the antagonist muscle
-
-	 if (fhill > fhill0) {
+    printf("PRE: t=%g, t0=%g\n", t, t0)
+	if (fhill > fhill0) {
 		: printf("INC \n")
 		vel = v0 + 0.001*fhill*(t-t0) + 0.00015*fhill*(t-t0)*(t-t0)
 		: vel = v0 + 0.1*fhill*(t-t0) + 0.0009*fhill*(t-t0)*(t-t0)
 		if (fhill2 > 0) {
-        	vel = vel - 0.00025*fhill2*(t-t0)
-        }
-     } else {
-	 	: printf("DEC \n")
-     	: vel = v0 - 0.1*fhill*(t-t0) - 0.0009*fhill*(t-t0)*(t-t0)
-	 	vel = v0 - 0.5*fhill*(t-t0) - 0.015*fhill*(t-t0)*(t-t0)
+			vel = vel - 0.00025*fhill2*(t-t0)
+		}
+	} else {
+		: printf("DEC \n")
+		: vel = v0 - 0.1*fhill*(t-t0) - 0.0009*fhill*(t-t0)*(t-t0)
+		vel = v0 - 0.5*fhill*(t-t0) - 0.015*fhill*(t-t0)*(t-t0)
 		if (fhill2 > 0) {
-            vel = vel - 0.0025*fhill2*(t-t0)
-        }
-     }
-	 if (vel < 1) {vel = 1}
-     printf("t: %g, t0: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g, vel: %g, ", t, t0 , len2, fhill2, fhill0, fhill, vel)
-     : printf("IaGenerator v0: %g, vel: %g \n", v0, vel)
-	 : printf("IaGenerator fhill2: %g, fhill0 %g, fhill %g \n, vel: %g \n", fhill2, fhill0, fhill, vel)
-     v0 = vel
-     fhill0 = fhill
-     mean = 1000/vel
-     : printf("v0: %g, mean: %g \n", v0, mean)
-     t0 = t
-	 if (noise == 0) {
+			vel = vel - 0.0025*fhill2*(t-t0)
+		}
+	}
+	if (vel < 1) {vel = 1}
+	diff_t0 = t - t0
+	if (diff_t0 > 100 && vel > 1) {vel = 40}
+	printf("t: %g, t0: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g, vel: %g, ", t, t0 , len2, fhill2, fhill0, fhill, vel)
+	: printf("IaGenerator v0: %g, vel: %g \n", v0, vel)
+	: printf("IaGenerator fhill2: %g, fhill0 %g, fhill %g \n, vel: %g \n", fhill2, fhill0, fhill, vel)
+	v0 = vel
+	fhill0 = fhill
+	mean = 1000/vel
+	: printf("v0: %g, mean: %g \n", v0, mean)
+	t0 = t
+	if (noise == 0) {
 		invl = mean
-	 }else{
+	}else{
 		invl = (1. - noise)*mean + noise*mean*exprand(1)
-	 }
+	}
 }
 
 PROCEDURE event_time(t (ms)) {
 	if (number > 0) {
-	    printf("event_time inv \n")
+	    :printf("event_time inv \n")
 		event = event + invl(t)
 	}
 	if (event > end) {
@@ -141,8 +145,5 @@ NET_RECEIVE (w) {
 			net_send(event - t, 1)
 		}
 		net_send(.1, 2)
-	}
-	if (flag == 2) {
-		y = 0
 	}
 }
