@@ -96,29 +96,29 @@ class CPG:
 
         for layer in range(CV_number):
             '''cut and muscle feedback'''
-            # self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
+            self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
             self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
             self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
             # self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
-            # self.dict_C = {layer: 'C{}'.format(layer + 1)}
+            self.dict_C = {layer: 'C{}'.format(layer + 1)}
 
         for layer in range(CV_number):
             '''Cutaneous pools'''
-            # self.dict_CV_1[layer] = self.addpool(self.ncell, "CV" + str(layer + 1) + "_1", "aff")
+            self.dict_CV_1[layer] = self.addpool(self.ncell, "CV" + str(layer + 1) + "_1", "aff")
             '''Rhythm generator pools'''
             self.dict_RG_E[layer] = self.addpool(self.ncell, "RG" + str(layer + 1) + "_E", "int")
             self.dict_RG_F[layer] = self.addpool(self.ncell, "RG" + str(layer + 1) + "_F", "int")
             self.RG_E.append(self.dict_RG_E[layer])
             self.RG_F.append(self.dict_RG_F[layer])
-            # self.CV.append(self.dict_CV_1[layer])
+            self.CV.append(self.dict_CV_1[layer])
 
         '''RG'''
         self.RG_E = sum(self.RG_E, [])
-        # self.InE = self.addpool(self.nInt, "InE", "int")
+        self.InE = self.addpool(self.nInt, "InE", "int")
         self.RG_F = sum(self.RG_F, [])
-        # self.InF = self.addpool(self.nInt, "InF", "int")
+        self.InF = self.addpool(self.nInt, "InF", "int")
 
-        # self.CV = sum(self.CV, [])
+        self.CV = sum(self.CV, [])
 
         '''sensory and muscle afferents and brainstem and V3F'''
         self.Ia_aff_E = self.addpool(self.nAff, "Ia_aff_E", "aff")
@@ -136,10 +136,10 @@ class CPG:
         self.muscle_F = self.addpool(self.nMn, "muscle_F", "muscle")
 
         # '''reflex arc'''
-        # self.Ia_E = self.addpool(self.nInt, "Ia_E", "int")
-        # self.R_E = self.addpool(self.nInt, "R_E", "int")  # Renshaw cells
-        # self.Ia_F = self.addpool(self.nInt, "Ia_F", "int")
-        # self.R_F = self.addpool(self.nInt, "R_F", "int")  # Renshaw cells
+        self.Ia_E = self.addpool(self.nInt, "Ia_E", "int")
+        self.R_E = self.addpool(self.nInt, "R_E", "int")  # Renshaw cells
+        self.Ia_F = self.addpool(self.nInt, "Ia_F", "int")
+        self.R_F = self.addpool(self.nInt, "R_F", "int")  # Renshaw cells
 
         '''BS'''
         # periodic stimulation
@@ -183,18 +183,17 @@ class CPG:
         # self.connectcells(self.muscle_E, self.Ia_aff_E, 3.5, 1, 10, False)
         # self.connectcells(self.muscle_F, self.Ia_aff_F, 3.5, 1, 10, False)
 
-        # '''cutaneous inputs'''
-        # cfr = 200
-        # c_int = 1000 / cfr
-        #
-        # '''cutaneous inputs generators'''
-        # for layer in range(CV_number):
-        #     self.dict_C[layer] = []
-        #     for i in range(step_number):
-        #         '''25 + 50*(0-6) + (0-10)*(50*6 + 12), '''
-        #         self.dict_C[layer].append(
-        #             self.addgener(25 + speed * layer + i * (speed * CV_number + CV_0_len + one_step_time),
-        #                           int(random.gauss(cfr, cfr / 10)), (speed / c_int + 1)))
+        '''cutaneous inputs'''
+        cfr = 90
+        c_int = 1000 / cfr
+
+        '''cutaneous inputs generators'''
+        for layer in range(CV_number):
+            self.dict_C[layer] = []
+            for i in range(step_number):
+                self.dict_C[layer].append(
+                    self.addgener(
+                        10 + speed * layer + i * (speed * CV_number + CV_0_len + one_step_time) + 7 - layer * 12, cfr, True, int((one_step_time / CV_number) * 0.15), cv=True))
         #
         # '''Generators'''
         # '''TODO: need it?'''
@@ -203,9 +202,9 @@ class CPG:
         #         self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, int(CV_0_len / c_int), False))
         #
         # '''TODO: need it?'''
-        # for layer in range(CV_number):
-        #     self.C_1.append(self.dict_CV_1[layer])
-        # self.C_1 = sum(self.C_1, [])
+        for layer in range(CV_number):
+            self.C_1.append(self.dict_CV_1[layer])
+        self.C_1 = sum(self.C_1, [])
 
         # ''' BS '''
         # for E_bs_gid in self.E_bs_gids:
@@ -219,17 +218,17 @@ class CPG:
         # self.connectcells(self.BS_aff_F, self.RG_F, 0.1, 3, stdptype=False)
         # self.connectcells(self.BS_aff_E, self.RG_E, 0.1, 3, stdptype=False)
 
-        # self.connectcells(self.Ia_aff_E, self.RG_E, weight=3.3, delay=3, stdptype=True)
-        # self.connectcells(self.Ia_aff_F, self.RG_F, weight=3.3, delay=3, stdptype=True)
+        self.connectcells(self.Ia_aff_E, self.RG_E, weight=1.3, delay=3, stdptype=True)
+        self.connectcells(self.Ia_aff_F, self.RG_F, weight=1.3, delay=3, stdptype=True)
 
         # '''cutaneous inputs'''
-        # for layer in range(CV_number):
-        #     self.connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15 * k * speed, 2)
-        #     self.connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
-        #
+        for layer in range(CV_number):
+            self.connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15 * k * speed, 2)
+            self.connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
+
         # '''Ia2motor'''
-        # self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 2)
-        # self.connectcells(self.Ia_aff_F, self.mns_F, 1.55, 2)
+        self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 2)
+        self.connectcells(self.Ia_aff_F, self.mns_F, 1.55, 2)
 
         for layer in range(CV_number):
             '''Internal to RG topology'''
@@ -240,8 +239,8 @@ class CPG:
             self.connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
             self.connectcells(self.dict_RG_F[layer], self.mns_F, 2.75, 3)
             #
-            # self.connectcells(self.dict_RG_E[layer], self.InE, 2.75, 3)
-            # self.connectcells(self.dict_RG_F[layer], self.InF, 2.75, 3)
+            self.connectcells(self.dict_RG_E[layer], self.InE, 2.75, 3)
+            self.connectcells(self.dict_RG_F[layer], self.InF, 2.75, 3)
 
             # self.connectcells(self.dict_RG_F[layer], self.V3F, 1.5, 3)
 
@@ -250,23 +249,23 @@ class CPG:
         self.connectcells(self.mns_F, self.muscle_F, 10, 2, inhtype=False, N=45, sect="muscle")
 
         # '''Ia2RG, RG2Motor'''
-        # self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
-        # self.connectcells(self.InF, self.RG_E, 0.8, 1, inhtype=True)
+        self.connectcells(self.InE, self.RG_F, 0.5, 1, inhtype=True)
+        self.connectcells(self.InF, self.RG_E, 0.8, 1, inhtype=True)
+
+        self.connectcells(self.Ia_aff_E, self.Ia_E, 0.08, 1, inhtype=False)
+        self.connectcells(self.Ia_aff_F, self.Ia_F, 0.08, 1, inhtype=False)
+
+        self.connectcells(self.mns_E, self.R_E, 0.015, 1, inhtype=False)
+        self.connectcells(self.mns_F, self.R_F, 0.015, 1, inhtype=False)
+
+        self.connectcells(self.R_E, self.mns_E, 0.015, 1, inhtype=True)
+        self.connectcells(self.R_F, self.mns_F, 0.015, 1, inhtype=True)
+
+        self.connectcells(self.R_E, self.Ia_E, 0.001, 1, inhtype=True)
+        self.connectcells(self.R_F, self.Ia_F, 0.001, 1, inhtype=True)
         #
-        # self.connectcells(self.Ia_aff_E, self.Ia_E, 0.08, 1, inhtype=False)
-        # self.connectcells(self.Ia_aff_F, self.Ia_F, 0.08, 1, inhtype=False)
-        #
-        # self.connectcells(self.mns_E, self.R_E, 0.0015, 1, inhtype=False)
-        # self.connectcells(self.mns_F, self.R_F, 0.0015, 1, inhtype=False)
-        #
-        # self.connectcells(self.R_E, self.mns_E, 0.0015, 1, inhtype=True)
-        # self.connectcells(self.R_F, self.mns_F, 0.0015, 1, inhtype=True)
-        #
-        # self.connectcells(self.R_E, self.Ia_E, 0.001, 1, inhtype=True)
-        # self.connectcells(self.R_F, self.Ia_F, 0.001, 1, inhtype=True)
-        # #
-        # self.connectcells(self.Ia_E, self.mns_F, 0.08, 1, inhtype=True)
-        # self.connectcells(self.Ia_F, self.mns_E, 0.08, 1, inhtype=True)
+        self.connectcells(self.Ia_E, self.mns_F, 0.08, 1, inhtype=True)
+        self.connectcells(self.Ia_F, self.mns_E, 0.08, 1, inhtype=True)
 
     def addpool(self, num, name, neurontype = "int") -> list:
         '''
@@ -466,7 +465,7 @@ class CPG:
 
         return gid
 
-    def addgener(self, start, freq, nums, r=True):
+    def addgener(self, start, freq, flg_interval, interval, cv=False, r=True):
         '''
         Creates generator and returns generator gid
         Parameters
@@ -490,8 +489,12 @@ class CPG:
             stim.noise = 0.05
         else:
             stim.start = start
-        stim.interval = int(1000 / freq)
-        stim.number = int(one_step_time / stim.interval) - 7
+        if cv:
+            stim.interval = int(1000 / freq)
+            stim.number = int(int(one_step_time / stim.interval) / CV_number) + 0.45 * int(int(one_step_time / stim.interval) / CV_number)
+        else:
+            stim.interval = int(1000 / freq)
+            stim.number = int(one_step_time / stim.interval) - 7
         self.stims.append(stim)
         pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)
@@ -510,8 +513,8 @@ class CPG:
         E_bs_gids = []
         F_bs_gids = []
         for step in range(step_number):
-            F_bs_gids.append(self.addgener(int(one_step_time * (2 * step + 1)), freq, spikes_per_step, False))
-            E_bs_gids.append(self.addgener(int(one_step_time * 2 * step) + 10, freq, spikes_per_step, False))
+            F_bs_gids.append(self.addgener(int(one_step_time * (2 * step + 1)), freq, False, 1))
+            E_bs_gids.append(self.addgener(int(one_step_time * 2 * step) + 10, freq, False, 1))
         return E_bs_gids, F_bs_gids
 
     def add_ia_geners(self):
