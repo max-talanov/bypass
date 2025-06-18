@@ -161,7 +161,7 @@ NET_RECEIVE (w) {
     }
     if (verbose > 1)  {
         printf("I in net_receive end")}
-        : printf("t=%f (AFTER) tlaspre=%f, tlastpost=%f, flag=%f, w=%f, deltaw=%f \n",t,tlastpre, tlastpost,flag,w,deltaw) }
+    printf("t=%f (AFTER) tlaspre=%f, tlastpost=%f, flag=%f, w=%f, deltaw=%f \n",t,tlastpre, tlastpost,flag,w,deltaw)
 }
 
 PROCEDURE reward_punish(reinf) {
