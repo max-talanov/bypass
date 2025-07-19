@@ -1,0 +1,180 @@
+*******************************************************************************
+* Copyright (C) Maxim Integrated Products, Inc., All Rights Reserved.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a
+* copy of this software and associated documentation files (the "Software"),
+* to deal in the Software without restriction, including without limitation
+* the rights to use, copy, modify, merge, publish, distribute, sublicense,
+* and/or sell copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included
+* in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL MAXIM INTEGRATED BE LIABLE FOR ANY CLAIM, DAMAGES
+* OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+* ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+*
+* Except as contained in this notice, the name of Maxim Integrated
+* Products, Inc. shall not be used except as stated in the Maxim Integrated
+* Products, Inc. Branding Policy.
+*
+* The mere transfer of this software does not imply any licenses
+* of trade secrets, proprietary technology, copyrights, patents,
+* trademarks, maskwork rights, or any other form of intellectual
+* property whatsoever. Maxim Integrated Products, Inc. retains all
+* ownership rights.
+***************************************************************
+* The ICM7555 is a general purpose RC timer capable of generating accurate 
+* time delays or frequencies. This device feature and extremely low supply
+* current combined with virtually non-existant current spike during output
+* transitions.  
+*********************************************************************************
+.SUBCKT ICM7555   1   2   3    4    5   6   7    8 
+*                 |   |   |    |    |   |   |    |       
+*                 |   |   |    |    |   |   |    |    
+*                 |   |   |    |    |   |   |    |
+*                 |   |   |    |    |   |   |    VCC
+*                 |   |   |    |    |   |   |
+*                 |   |   |    |    |   |   Discharge
+*                 |   |   |    |    |   |
+*                 |   |   |    |    |   Threshold
+*                 |   |   |    |    |
+*                 |   |   |    |    Control Voltage
+*                 |   |   |    |
+*                 |   |   |    ResetB
+*                 |   |   | 
+*                 |   |   Output
+*                 |   |
+*                 |   Trigger
+*                 |  
+*                 Ground
+*
+*
+* Date of model creation: 
+*		  4/2006
+*
+*
+* Revision History: 
+* 		  Version 0
+*         Version 1
+* 
+* Recommendations:
+*     	Use SIMETRIX (or SPICE 2G6; other simulators may require translation)
+*     	For a quick, effective design, use a combination of: data sheet
+* 	    specs, bench testing, and simulations with this macromodel
+*			
+*
+* Supported:
+*	     Discharge output voltage , Threshold voltage ,Output voltage drop , Astable , Monostable
+*        Model works only at temperature of 27 degree celsius.
+*
+*
+* Not Supported:
+*       
+*
+* Known Discrepancies in Model vs. Datasheet:
+*       Rise/Fall time
+*
+**************************************************************************************************
+ XOPAMP 1 2 3 4 5 6 7 8 ICM7555_S
+.ENDS ICM7555
+**************************
+.SUBCKT ICM7555_S 18 11 12 13 14 15 16 10
+*****************************************
+*COMPARATORS
+ES1 A11 18 10 18 1
+IABIAS A11 A12 10UA 
+MA1 A13 A16 A12 A11 MOSP
+MA2 A14 A15 A12 A11 MOSP
+VAOS A17 A16 0.5M    
+RAD1 A13 18 10K
+RAD2 A14 18 10K
+DAC3 A15 10 DA
+DAC4 18 A15 DA
+GCA1 18 A20 A13 A14 1000M
+RCA1 A20 18 100K
+VCA1 A21 18 1V
+DCA1 A20 A21 DY
+DCA2 18 A20 DY
+**************
+IBBIAS A11 B12 10UA 
+MB1 B13 B16 B12 A11 MOSP
+MB2 B14 B15 B12 A11 MOSP
+VBOS B17 B16 0.5M    
+RBD1 B13 18 10K    
+RBD2 B14 18 10K
+DBC1 B16 10 DA    
+DBC2 18 B16 DA
+GCB1 18 B20 B13 B14 100M
+RCB1 B20 18 100K
+VCB1 B21 18 1V
+DCB1 B20 B21 DY
+DCB2 18 B20 DY
+**************
+RB1 10 B22 60K
+RB2 B22 B23 60K
+RB3 B23 18 60K
+VR1 B23 A15 0
+VR2 B22 B17 0
+VIN1 A17 11 0
+VIN2 B15 15 0
+VIN3 B22 14 0
+*******************************************
+*SR LATCH
+EL1 A25 18 10 18 1
+RLA A25 A26 10K
+CLA A26 18 1P
+MLA1 A26 A27 18 18 MOSN
+MLA2 A26 A28 18 18 MOSN
+RLB A25 B26 10K
+CLB B26 18 1P
+MLB1 B26 B27 18 18 MOSN
+MLB2 B26 B28 18 18 MOSN
+MLB3 B26 B29 18 18 MOSN
+VFB1 B27 A26 0
+VFB2 A27 B26 0
+EFB1 A28 18 POLY(2) A20 18 10 18 0 0 0 0 1
+EFB2 B28 18 POLY(2) B20 18 10 18 0 0 0 0 1
+****************************
+*PD
+EPD1 B33 18 B26 18 1
+RPD1 B33 B34 10K
+CPD1 B34 18 50P
+*OUTPUT
+MO1 B30 B34 A25 A25 MOSPA 
+MO2 B30 B34 18 18 MOSNA
+MO3 B31 B30 A25 A25 MOSPA
+MO4 B31 B30 18 18 MOSNA
+CO1 B31 18 0.1P
+CO2 B30 18 0.1P
+VO1 B31 12 0 
+*DISCHARGE
+MD1 16 B30 18 18 MOSNA
+*RESET
+RRST B29 A25 20K
+MRST B29 13 18 18 MOSN
+RRSTB 13 18 50G
+*SUPPLY CURRENT
+ISUP 10 18 12.3U
+FSUP 18 A36 VO1 1
+DSUP1 18 A36 DZ
+DSUP2 A36 A37 DZ
+RSUP A37 18 1
+GSUP 10 18 A37 18 1
+*******************************************
+.MODEL DA D(IS=100E-14 RS=0.5k)
+.MODEL MOSP PMOS(VTO=-0.7 KP=12.57E-4)
+.MODEL MOSN NMOS(VTO=0.7 KP=12.57E-3)
+.MODEL MOSPA PMOS(VTO=-2.0 KP=78.5E-4)
+.MODEL MOSNA NMOS(VTO=2.0 KP=78.5E-4)
+.MODEL DX D(IS=100E-14)
+.MODEL DZ D(N=100M)
+.MODEL DY D(IS=100E-14 N=100M)
+*******************************************
+.ENDS ICM7555_S
+*$
