@@ -915,33 +915,33 @@ if __name__ == '__main__':
             spikeout(cpg_ex.gener_Iagids, 'v0', i, v0_vecs_recorders)
             print(f"      ✅ Spike data saved")
 
-            print(f"      Saving STDP weight changes...")
-            stdp_dir = f'./{file_name}/stdp_1'
-            if not os.path.exists(stdp_dir):
-                os.makedirs(stdp_dir)
-                print(f"      ✅ Created STDP directory: {stdp_dir}")
-
-            stdp_count = 0
-            for src_gid, post_gid, weight_vec in cpg_ex.weight_changes_vectors:
-                try:
-                    src_obj = pc.gid2cell(src_gid)
-                    post_obj = pc.gid2cell(post_gid)
-
-                    src_type = type(src_obj).__name__ if src_obj is not None else "None"
-                    post_type = type(post_obj).__name__ if post_obj is not None else "None"
-
-                    # Сформировать безопасное имя файла
-                    safe_name = safe_filename(f'{src_type}_{src_gid}_to_{post_type}_{post_gid}.hdf5')
-                    fname = f'{stdp_dir}/{safe_name}'
-
-                    with hdf5.File(fname, 'w') as file:
-                        file.create_dataset(f'#0_step_{i}', data=np.array(weight_vec), compression="gzip")
-                    stdp_count += 1
-
-                except Exception as e:
-                    print(f"      ⚠️ Error saving STDP weight {src_gid} → {post_gid}: {e}")
-
-            print(f"      ✅ Saved {stdp_count} STDP weight change files")
+            # print(f"      Saving STDP weight changes...")
+            # stdp_dir = f'./{file_name}/stdp_1'
+            # if not os.path.exists(stdp_dir):
+            #     os.makedirs(stdp_dir)
+            #     print(f"      ✅ Created STDP directory: {stdp_dir}")
+            #
+            # stdp_count = 0
+            # for src_gid, post_gid, weight_vec in cpg_ex.weight_changes_vectors:
+            #     try:
+            #         src_obj = pc.gid2cell(src_gid)
+            #         post_obj = pc.gid2cell(post_gid)
+            #
+            #         src_type = type(src_obj).__name__ if src_obj is not None else "None"
+            #         post_type = type(post_obj).__name__ if post_obj is not None else "None"
+            #
+            #         # Сформировать безопасное имя файла
+            #         safe_name = safe_filename(f'{src_type}_{src_gid}_to_{post_type}_{post_gid}.hdf5')
+            #         fname = f'{stdp_dir}/{safe_name}'
+            #
+            #         with hdf5.File(fname, 'w') as file:
+            #             file.create_dataset(f'#0_step_{i}', data=np.array(weight_vec), compression="gzip")
+            #         stdp_count += 1
+            #
+            #     except Exception as e:
+            #         print(f"      ⚠️ Error saving STDP weight {src_gid} → {post_gid}: {e}")
+            #
+            # print(f"      ✅ Saved {stdp_count} STDP weight change files")
 
             print(f"   ✅ All results saved successfully")
             logging.info("Results recorded")

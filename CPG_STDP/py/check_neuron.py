@@ -53,6 +53,8 @@ network topology https://github.com/max-talanov/bypass/blob/main/figs/CPG_feedba
 class CPG:
 
     def __init__(self, speed, bs_fr, inh_p, step_number, n):
+        if not check_mechanisms():
+            raise RuntimeError("Required NEURON mechanisms not available")
         logging.info(f"Hello from rank {rank} of {nhost}")
         logging.info("NEURON version: " + h.nrnversion())
         self.threshold = 10
@@ -822,19 +824,6 @@ def spikeout(pool, name, version, v_vec):
 
 
 def prun(speed, step_number):
-    ''' simulation control
-    Parameters
-    ----------
-    speed: int
-      duration of each layer
-    step_number: int
-      number of steps
-
-    Returns
-    -------
-    t: list of h.Vector()
-      recorded time
-    '''
     print(f"🚀 [rank {rank}] Starting simulation: speed={speed}, steps={step_number}")
     logging.info(f"prun start: speed={speed}, steps={step_number}, time_sim={time_sim}")
 
@@ -846,34 +835,38 @@ def prun(speed, step_number):
         t = h.Vector().record(h._ref_t)
 
         print(f"   Setting tstop={time_sim}")
-        tstop = time_sim
+        h.tstop = time_sim  # Убедитесь что h.tstop установлен
 
-        print(f"   Setting maxstep=10")
-        pc.set_maxstep(10)
+        # Добавьте проверку на macOS
+        import platform
+        if platform.system() == "Darwin":  # macOS
+            print(f"   macOS detected - using alternative approach")
+            h.dt = 0.025  # Установите явно шаг времени
+            h.cvode_active(0)  # Отключите переменный шаг
+            pc.set_maxstep(1)  # Уменьшите maxstep для macOS
+        else:
+            pc.set_maxstep(10)
 
         print(f"   Initializing with h.finitialize(-65)...")
         h.finitialize(-65)
         print(f"   ✅ finitialize completed")
 
-        print(f"   Running h.stdinit()...")
-        h.stdinit()
-        print(f"   ✅ stdinit completed")
-
-        print(f"   Starting main simulation with pc.psolve({tstop})...")
-        logging.info(f"Starting pc.psolve({tstop})")
-        pc.psolve(tstop)
-        print(f"   ✅ psolve completed")
+        print(f"   Starting main simulation...")
+        if platform.system() == "Darwin":
+            # Альтернативный подход для macOS
+            while h.t < time_sim:
+                h.fadvance()
+                if int(h.t) % 500 == 0:  # Логирование каждые 500ms
+                    print(f"   Progress: {h.t:.1f}/{time_sim} ms")
+        else:
+            pc.psolve(time_sim)
 
         print(f"🏁 Simulation completed successfully")
-        logging.info(f"prun completed successfully")
-
         return t
 
     except Exception as sim_error:
         print(f"❌ Simulation error: {sim_error}")
         logging.error(f"Simulation error: {sim_error}")
-        import traceback
-        print(f"Traceback: {traceback.format_exc()}")
         raise sim_error
 
 
@@ -902,11 +895,50 @@ def safe_filename(name: str) -> str:
     return re.sub(r'[^\w\-_.]', '_', name)
 
 
+def check_mechanisms():
+    """Проверка доступности необходимых механизмов"""
+    try:
+        # Проверяем STDP
+        dummy = h.Section()
+        stdp_test = h.STDP(0, dummy)
+        print("✅ STDP mechanism available")
+        del stdp_test, dummy
+
+        # Проверяем IaGenerator
+        ia_test = h.IaGenerator()
+        print("✅ IaGenerator mechanism available")
+        del ia_test
+
+        return True
+    except Exception as e:
+        print(f"❌ Mechanism check failed: {e}")
+        return False
+
+def check_mpi_status():
+    try:
+        h.nrnmpi_init()
+        pc = h.ParallelContext()
+        rank = int(pc.id())
+        nhost = int(pc.nhost())
+
+        print(f"MPI Status:")
+        print(f"  Rank: {rank}")
+        print(f"  Number of hosts: {nhost}")
+        print(f"  MPI initialized: {h.nrnmpi_is_initialized()}")
+
+        return pc, rank, nhost
+    except Exception as e:
+        print(f"MPI Error: {e}")
+        # Fallback to single process
+        pc = h.ParallelContext()
+        return pc, 0, 1
+
 if __name__ == '__main__':
     '''
     cpg_ex: cpg
         topology of central pattern generation + reflex arc
     '''
+    pc, rank, nhost = check_mpi_status()
     print(f"🎬 [rank {rank}] MAIN EXECUTION START")
     print(f"   Rank {rank} of {nhost} processes")
     print(f"   Parameters: N={N}, speed={speed}, bs_fr={bs_fr}, versions={versions}")
