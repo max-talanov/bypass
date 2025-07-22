@@ -60,6 +60,7 @@ Before running the simulation, you need to compile the custom NEURON mechanisms:
 nrnivmodl 
 # or 
 nrnivmodl ./mod_files/
+```
 
 ## 5. Running the Simulation
 
