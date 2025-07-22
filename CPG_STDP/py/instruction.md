@@ -45,6 +45,7 @@ pip install mpi4py
 ```
 
 ### Install Other Required Libraries
+```
 pip install -r requirements.txt
 ```
 ## 4. Compiling NEURON Mechanisms
