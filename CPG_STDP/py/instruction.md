@@ -9,6 +9,9 @@ git clone https://github.com/max-talanov/bypass.git
 # Navigate to the project directory
 cd bypass
 
+# Switch to the brunch old
+git checkout old
+
 # Navigate to the specific CPG directory
 cd CPG_STDP/py
 ```
