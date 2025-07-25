@@ -24,10 +24,27 @@ h.load_file('nrngui.hoc')
 h.load_file('stdrun.hoc')
 
 # paralleling NEURON stuff
-h.nrnmpi_init()
-pc = h.ParallelContext()
-rank = int(pc.id())
-nhost = int(pc.nhost())
+def check_mpi_status():
+    try:
+        # h.nrnmpi_init()
+        pc = h.ParallelContext()
+        rank = int(pc.id())
+        nhost = int(pc.nhost())
+
+        print(f"MPI Status:")
+        print(f"  Rank: {rank}")
+        print(f"  Number of hosts: {nhost}")
+        print(f"  MPI initialized: {h.nrnmpi_is_initialized()}")
+
+        return pc, rank, nhost
+    except Exception as e:
+        print(f"MPI Error: {e}")
+        # Fallback to single process
+        pc = h.ParallelContext()
+        return pc, 0, 1
+
+# Initialize MPI properly
+pc, rank, nhost = check_mpi_status()
 
 file_name = 'res_alina_50_stdp'
 
@@ -291,52 +308,59 @@ class CPG:
             the list of cells gids
         '''
         gids = []
-        gid = self.n_gid
-
+        all_gids = []  # All GIDs for this pool across all ranks
+        
         delaytype = False
         if neurontype.lower() == "delay":
             delaytype = True
 
         if neurontype.lower() == "moto":
             diams = self.motodiams(num)
-        for i in range(rank, num, nhost):
-            if neurontype.lower() == "moto":
-                cell = motoneuron(diams[i])
-                self.motos.append(cell)
-            elif neurontype.lower() == "aff":
-                cell = bioaffrat()
-                self.affs.append(cell)
-            elif neurontype.lower() == "muscle":
-                cell = muscle()
-                self.muscles.append(cell)
-            elif neurontype.lower() == "bursting":
-                cell = interneuron(False, bursting_mode=True)
-                self.ints.append(cell)
-            else:
-                cell = interneuron(delaytype)
-                self.ints.append(cell)
+            
+        # Create GIDs for all neurons in pool (distributed across ranks)
+        for i in range(num):
+            gid = self.n_gid + i
+            all_gids.append(gid)
+            
+            # Only create cell if this rank is responsible for this neuron
+            if i % nhost == rank:
+                if neurontype.lower() == "moto":
+                    cell = motoneuron(diams[i])
+                    self.motos.append(cell)
+                elif neurontype.lower() == "aff":
+                    cell = bioaffrat()
+                    self.affs.append(cell)
+                elif neurontype.lower() == "muscle":
+                    cell = muscle()
+                    self.muscles.append(cell)
+                elif neurontype.lower() == "bursting":
+                    cell = interneuron(False, bursting_mode=True)
+                    self.ints.append(cell)
+                else:
+                    cell = interneuron(delaytype)
+                    self.ints.append(cell)
 
-            gids.append(gid)
-            pc.set_gid2node(gid, rank)
-            nc = cell.connect2target(None)
-            pc.cell(gid, nc)
-            self.log_gid_by_lookup(gid, neurontype.lower())
-            self.netcons.append(nc)
-            gid += 1
+                gids.append(gid)
+                pc.set_gid2node(gid, rank)
+                nc = cell.connect2target(None)
+                pc.cell(gid, nc)
+                self.log_gid_by_lookup(gid, neurontype.lower())
+                self.netcons.append(nc)
 
-        # Groups
+        # Update n_gid for next pool
+        self.n_gid += num
+
+        # Groups - store all GIDs, not just local ones
         if neurontype.lower() == "muscle":
-            self.musclegroups.append((gids, name))
+            self.musclegroups.append((all_gids, name))
         elif neurontype.lower() == "moto":
-            self.motogroups.append((gids, name))
+            self.motogroups.append((all_gids, name))
         elif neurontype.lower() == "aff":
-            self.affgroups.append((gids, name))
+            self.affgroups.append((all_gids, name))
         else:
-            self.intgroups.append((gids, name))
+            self.intgroups.append((all_gids, name))
 
-        self.n_gid = gid
-
-        return gids
+        return all_gids
 
     def connectcells(self, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, inhtype=False,
                      stdptype=False, N=50, sect="int"):
@@ -541,83 +565,102 @@ class CPG:
         logging.info(f"IaGenerator creation start: start={start}, weight={weight}")
 
         gid = self.n_gid
-        while pc.gid_exists(gid):  # если уже занят, ищем следующий
-            gid += 1
-
         print(f"   Assigned GID: {gid}")
 
-        try:
-            # Получаем мотонейроны
-            moto_gid = random.randint(mn[0], mn[-1])
-            moto2_gid = random.randint(mn2[0], mn2[-1])
-            print(f"   Selected motor neurons: {moto_gid}, {moto2_gid}")
-
-            moto = pc.gid2cell(moto_gid)
-            moto2 = pc.gid2cell(moto2_gid)
-            print(f"   Got motor neuron objects: {type(moto).__name__}, {type(moto2).__name__}")
-
-            # Создаем IaGenerator
-            print(f"   Creating IaGenerator...")
-            stim = h.IaGenerator()
-            print(f"   ✅ IaGenerator created: {type(stim).__name__}")
-            logging.info(f"IaGenerator object created successfully")
-
-            # Настраиваем параметры
-            print(f"   Setting parameters...")
-            stim.start = start
-            stim.interval = int(1000 / bs_fr)
-            stim.number = int(one_step_time / stim.interval)
-            print(f"   Parameters set: start={stim.start}, interval={stim.interval}, number={stim.number}")
-
-            self.stims.append(stim)
-
-            # Устанавливаем указатели
-            print(f"   Setting pointers...")
+        # Only create on rank 0 to avoid conflicts
+        if rank == 0:
             try:
-                h.setpointer(moto.muscle_unit(0.5)._ref_F_fHill, 'fhill', stim)
-                print(f"   ✅ First pointer set (fhill)")
-            except Exception as ptr1_error:
-                print(f"   ❌ First pointer error: {ptr1_error}")
-                logging.error(f"First pointer error: {ptr1_error}")
+                # Check if we have motor neurons available
+                if not mn or not mn2:
+                    print(f"   ❌ Empty motor neuron lists")
+                    logging.error("Empty motor neuron lists for IaGenerator")
+                    self.n_gid += 1
+                    return gid
 
-            try:
-                h.setpointer(moto2.muscle_unit(0.5)._ref_F_fHill, 'fhill2', stim)
-                print(f"   ✅ Second pointer set (fhill2)")
-            except Exception as ptr2_error:
-                print(f"   ❌ Second pointer error: {ptr2_error}")
-                logging.error(f"Second pointer error: {ptr2_error}")
+                # Get random motor neurons from the lists
+                moto_gid = random.choice(mn)
+                moto2_gid = random.choice(mn2)
+                print(f"   Selected motor neurons: {moto_gid}, {moto2_gid}")
 
-            # Регистрируем в параллельном контексте
-            print(f"   Registering with ParallelContext...")
-            pc.set_gid2node(gid, rank)
-            ncstim = h.NetCon(stim, None)
-            ncstim.weight[0] = weight
-            self.netcons.append(ncstim)
-            pc.cell(gid, ncstim)
-            print(f"   ✅ Registered with PC, NetCon created")
+                # Check if motor neurons exist on any rank
+                moto_rank = None
+                moto2_rank = None
+                for r in range(nhost):
+                    if pc.gid_exists(moto_gid):
+                        moto_rank = r
+                    if pc.gid_exists(moto2_gid):
+                        moto2_rank = r
 
-            # Проверяем что все работает
-            try:
-                test_obj = pc.gid2cell(gid)
-                print(f"   ✅ Verification: gid2cell({gid}) returns {type(test_obj).__name__}")
-            except Exception as verify_error:
-                print(f"   ❌ Verification failed: {verify_error}")
+                if moto_rank is None or moto2_rank is None:
+                    print(f"   ⚠️ Motor neurons not found locally, creating simplified IaGenerator")
+                    # Create simplified generator without muscle connections
+                    stim = h.IaGenerator()
+                    stim.start = start
+                    stim.interval = int(1000 / bs_fr)
+                    stim.number = int(one_step_time / stim.interval)
+                    
+                    self.stims.append(stim)
+                    pc.set_gid2node(gid, rank)
+                    ncstim = h.NetCon(stim, None)
+                    ncstim.weight[0] = weight
+                    self.netcons.append(ncstim)
+                    pc.cell(gid, ncstim)
+                    
+                else:
+                    # Create full IaGenerator with muscle connections
+                    moto = pc.gid2cell(moto_gid)
+                    moto2 = pc.gid2cell(moto2_gid)
+                    print(f"   Got motor neuron objects: {type(moto).__name__}, {type(moto2).__name__}")
 
-            self.gener_Iagids.append(gid)
-            self.log_gid_by_lookup(gid, "Ia")
-            self.n_gid = gid + 1
+                    stim = h.IaGenerator()
+                    print(f"   ✅ IaGenerator created: {type(stim).__name__}")
+                    logging.info(f"IaGenerator object created successfully")
 
-            print(f"🎯 IaGenerator creation completed successfully: GID={gid}")
-            logging.info(f"IaGenerator creation completed: GID={gid}")
+                    stim.start = start
+                    stim.interval = int(1000 / bs_fr)
+                    stim.number = int(one_step_time / stim.interval)
+                    print(f"   Parameters set: start={stim.start}, interval={stim.interval}, number={stim.number}")
 
-            return gid
+                    self.stims.append(stim)
 
-        except Exception as ia_error:
-            print(f"❌ IaGenerator creation failed: {ia_error}")
-            logging.error(f"IaGenerator creation failed: {ia_error}")
-            import traceback
-            print(f"Traceback: {traceback.format_exc()}")
-            raise ia_error
+                    # Set pointers if motor neurons have muscle_unit
+                    try:
+                        if hasattr(moto, 'muscle_unit'):
+                            h.setpointer(moto.muscle_unit(0.5)._ref_F_fHill, 'fhill', stim)
+                            print(f"   ✅ First pointer set (fhill)")
+                    except Exception as ptr1_error:
+                        print(f"   ⚠️ First pointer warning: {ptr1_error}")
+
+                    try:
+                        if hasattr(moto2, 'muscle_unit'):
+                            h.setpointer(moto2.muscle_unit(0.5)._ref_F_fHill, 'fhill2', stim)
+                            print(f"   ✅ Second pointer set (fhill2)")
+                    except Exception as ptr2_error:
+                        print(f"   ⚠️ Second pointer warning: {ptr2_error}")
+
+                    pc.set_gid2node(gid, rank)
+                    ncstim = h.NetCon(stim, None)
+                    ncstim.weight[0] = weight
+                    self.netcons.append(ncstim)
+                    pc.cell(gid, ncstim)
+
+                self.log_gid_by_lookup(gid, "Ia")
+                print(f"🎯 IaGenerator creation completed successfully: GID={gid}")
+                logging.info(f"IaGenerator creation completed: GID={gid}")
+
+            except Exception as ia_error:
+                print(f"❌ IaGenerator creation failed: {ia_error}")
+                logging.error(f"IaGenerator creation failed: {ia_error}")
+                # Still increment GID to maintain consistency
+                pass
+
+        else:
+            # Other ranks just register the GID assignment
+            pc.set_gid2node(gid, 0)
+
+        self.gener_Iagids.append(gid)
+        self.n_gid += 1
+        return gid
 
     def addgener(self, start, freq, flg_interval, interval, cv=False, r=True):
         '''
@@ -636,26 +679,32 @@ class CPG:
             generator gid
         '''
         gid = self.n_gid
-        stim = h.NetStim()
-        # stim.number = nums
-        if r:
-            stim.start = random.uniform(start - 3, start + 3)
-            stim.noise = 0.05
+        # Only create generator on rank 0 to avoid duplicates
+        if rank == 0:
+            stim = h.NetStim()
+            # stim.number = nums
+            if r:
+                stim.start = random.uniform(start - 3, start + 3)
+                stim.noise = 0.05
+            else:
+                stim.start = start
+            if cv:
+                stim.interval = int(1000 / freq)
+                stim.number = int(int(one_step_time / stim.interval) / CV_number) + 0.45 * int(int(one_step_time / stim.interval) / CV_number)
+            else:
+                stim.interval = int(1000 / freq)
+                stim.number = int(one_step_time / stim.interval) - 7
+            self.stims.append(stim)
+            pc.set_gid2node(gid, rank)
+            ncstim = h.NetCon(stim, None)
+            self.netcons.append(ncstim)
+            pc.cell(gid, ncstim)
+            self.log_gid_by_lookup(gid, "gen")
         else:
-            stim.start = start
-        if cv:
-            stim.interval = int(1000 / freq)
-            stim.number = int(int(one_step_time / stim.interval) / CV_number) + 0.45 * int(int(one_step_time / stim.interval) / CV_number)
-        else:
-            stim.interval = int(1000 / freq)
-            stim.number = int(one_step_time / stim.interval) - 7
-        self.stims.append(stim)
-        pc.set_gid2node(gid, rank)
-        ncstim = h.NetCon(stim, None)
-        self.netcons.append(ncstim)
-        pc.cell(gid, ncstim)
+            # Other ranks just need to know the GID is assigned to rank 0
+            pc.set_gid2node(gid, 0)
+            
         self.gener_gids.append(gid)
-        self.log_gid_by_lookup(gid, "gen")
         self.n_gid += 1
 
         return gid
@@ -914,31 +963,11 @@ def check_mechanisms():
         print(f"❌ Mechanism check failed: {e}")
         return False
 
-def check_mpi_status():
-    try:
-        h.nrnmpi_init()
-        pc = h.ParallelContext()
-        rank = int(pc.id())
-        nhost = int(pc.nhost())
-
-        print(f"MPI Status:")
-        print(f"  Rank: {rank}")
-        print(f"  Number of hosts: {nhost}")
-        print(f"  MPI initialized: {h.nrnmpi_is_initialized()}")
-
-        return pc, rank, nhost
-    except Exception as e:
-        print(f"MPI Error: {e}")
-        # Fallback to single process
-        pc = h.ParallelContext()
-        return pc, 0, 1
-
 if __name__ == '__main__':
     '''
     cpg_ex: cpg
         topology of central pattern generation + reflex arc
     '''
-    pc, rank, nhost = check_mpi_status()
     print(f"🎬 [rank {rank}] MAIN EXECUTION START")
     print(f"   Rank {rank} of {nhost} processes")
     print(f"   Parameters: N={N}, speed={speed}, bs_fr={bs_fr}, versions={versions}")
@@ -950,9 +979,12 @@ if __name__ == '__main__':
     k_nrns = 0
     k_name = 1
 
-    if not os.path.isdir(file_name):
+    if rank == 0 and not os.path.isdir(file_name):
         os.mkdir(file_name)
         print(f"   ✅ Created directory: {file_name}")
+
+    # Synchronize all ranks before proceeding
+    pc.barrier()
 
     for i in range(versions):
         print(f"🔄 [rank {rank}] VERSION {i + 1}/{versions} START")
@@ -963,6 +995,9 @@ if __name__ == '__main__':
             cpg_ex = CPG(speed, bs_fr, 100, step_number, N)
             print(f"   ✅ CPG network created successfully")
             logging.info("CPG created successfully")
+
+            # Synchronize after network creation
+            pc.barrier()
 
             print(f"   Setting up voltage recorders...")
             motorecorders = []
@@ -1005,6 +1040,9 @@ if __name__ == '__main__':
             print(f"   ✅ All recorders set up successfully")
             logging.info("Added recorders")
 
+            # Synchronize before simulation
+            pc.barrier()
+
             print(f"   🚀 Starting simulation...")
             print("- " * 20)
             t = prun(speed, step_number)
@@ -1015,11 +1053,12 @@ if __name__ == '__main__':
 
             print(f"   💾 Saving results...")
 
-            print(f"      Saving time data...")
-            with open(f'./{file_name}/time.txt', 'w') as time_file:
-                for time in t:
-                    time_file.write(str(time) + "\n")
-            print(f"      ✅ Time data saved")
+            if rank == 0:
+                print(f"      Saving time data...")
+                with open(f'./{file_name}/time.txt', 'w') as time_file:
+                    for time in t:
+                        time_file.write(str(time) + "\n")
+                print(f"      ✅ Time data saved")
 
             print(f"      Saving spike data...")
             for group, recorder in zip(cpg_ex.musclegroups, musclerecorders):
@@ -1041,33 +1080,34 @@ if __name__ == '__main__':
             spikeout(cpg_ex.gener_Iagids, 'v0', i, v0_vecs_recorders)
             print(f"      ✅ Spike data saved")
 
-            print(f"      Saving STDP weight changes...")
-            stdp_dir = f'./{file_name}/stdp_1'
-            if not os.path.exists(stdp_dir):
-                os.makedirs(stdp_dir)
-                print(f"      ✅ Created STDP directory: {stdp_dir}")
+            if rank == 0:
+                print(f"      Saving STDP weight changes...")
+                stdp_dir = f'./{file_name}/stdp_1'
+                if not os.path.exists(stdp_dir):
+                    os.makedirs(stdp_dir)
+                    print(f"      ✅ Created STDP directory: {stdp_dir}")
 
-            stdp_count = 0
-            for src_gid, post_gid, weight_vec in cpg_ex.weight_changes_vectors:
-                try:
-                    src_obj = pc.gid2cell(src_gid)
-                    post_obj = pc.gid2cell(post_gid)
+                stdp_count = 0
+                for src_gid, post_gid, weight_vec in cpg_ex.weight_changes_vectors:
+                    try:
+                        src_obj = pc.gid2cell(src_gid) if pc.gid_exists(src_gid) else None
+                        post_obj = pc.gid2cell(post_gid) if pc.gid_exists(post_gid) else None
 
-                    src_type = type(src_obj).__name__ if src_obj is not None else "None"
-                    post_type = type(post_obj).__name__ if post_obj is not None else "None"
+                        src_type = type(src_obj).__name__ if src_obj is not None else "None"
+                        post_type = type(post_obj).__name__ if post_obj is not None else "None"
 
-                    # Сформировать безопасное имя файла
-                    safe_name = safe_filename(f'{src_type}_{src_gid}_to_{post_type}_{post_gid}.hdf5')
-                    fname = f'{stdp_dir}/{safe_name}'
+                        # Сформировать безопасное имя файла
+                        safe_name = safe_filename(f'{src_type}_{src_gid}_to_{post_type}_{post_gid}.hdf5')
+                        fname = f'{stdp_dir}/{safe_name}'
 
-                    with hdf5.File(fname, 'w') as file:
-                        file.create_dataset(f'#0_step_{i}', data=np.array(weight_vec), compression="gzip")
-                    stdp_count += 1
+                        with hdf5.File(fname, 'w') as file:
+                            file.create_dataset(f'#0_step_{i}', data=np.array(weight_vec), compression="gzip")
+                        stdp_count += 1
 
-                except Exception as e:
-                    print(f"      ⚠️ Error saving STDP weight {src_gid} → {post_gid}: {e}")
+                    except Exception as e:
+                        print(f"      ⚠️ Error saving STDP weight {src_gid} → {post_gid}: {e}")
 
-            print(f"      ✅ Saved {stdp_count} STDP weight change files")
+                print(f"      ✅ Saved {stdp_count} STDP weight change files")
 
             print(f"   ✅ All results saved successfully")
             logging.info("Results recorded")
