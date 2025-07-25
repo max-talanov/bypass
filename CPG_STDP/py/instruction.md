@@ -9,6 +9,9 @@ git clone https://github.com/max-talanov/bypass.git
 # Navigate to the project directory
 cd bypass
 
+# Switch to the brunch old
+git checkout old
+
 # Navigate to the specific CPG directory
 cd CPG_STDP/py
 ```
@@ -45,6 +48,7 @@ pip install mpi4py
 ```
 
 ### Install Other Required Libraries
+```
 pip install -r requirements.txt
 ```
 ## 4. Compiling NEURON Mechanisms
@@ -59,6 +63,7 @@ Before running the simulation, you need to compile the custom NEURON mechanisms:
 nrnivmodl 
 # or 
 nrnivmodl ./mod_files/
+```
 
 ## 5. Running the Simulation
 
