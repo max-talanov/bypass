@@ -57,7 +57,7 @@ k = 0.017  # CV weights multiplier to take into account air and toe stepping
 CV_0_len = 12  # 125 # Duration of the CV generator with no sensory inputs
 extra_layers = 0  # 1 + layers
 
-step_number = 6
+step_number = 10
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = one_step_time * step_number + 30
@@ -76,9 +76,9 @@ class CPG:
         logging.info("NEURON version: " + h.nrnversion())
         self.threshold = 10
         self.delay = 1
-        self.nAff = 2
-        self.nInt = 2
-        self.nMn = 2
+        self.nAff = 35
+        self.nInt = 21
+        self.nMn = 21
         self.ncell = n
         self.affs = []
         self.ints = []
@@ -369,7 +369,6 @@ class CPG:
         logging.info(f"connectcells start: pre={len(pre_cells)}, post={len(post_cells)}, stdp={stdptype}")
 
         nsyn = random.randint(N, N + 15)
-        nsyn = 15
         print(f"   nsyn={nsyn}")
 
         connection_count = 0
@@ -512,7 +511,6 @@ class CPG:
 
     def genconnect(self, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50):
         nsyn = random.randint(N - 5, N)
-        nsyn = 15
         for i in afferents_gids:
             if pc.gid_exists(i):
                 for j in range(nsyn):
@@ -849,16 +847,40 @@ def spikeout(pool, name, version, v_vec):
     global rank
     pc.barrier()
     vec = h.Vector()
+
+    # Создаем директорию для индивидуальных записей, если её нет
+    if rank == 0:
+        individual_dir = f'./{file_name}/{name}_individual'
+        if not os.path.exists(individual_dir):
+            os.makedirs(individual_dir)
+
     for i in range(nhost):
         if i == rank:
+            # Подготовка средних значений (как в оригинале)
             outavg = []
             for j in range(len(pool)):
                 outavg.append(list(v_vec[j]))
+
+                # Сохранение индивидуальных значений для каждого нейрона
+                if rank == 0:  # Сохраняем только на узле 0 для простоты
+                    individual_file = f'{individual_dir}/neuron_{pool[j]}_sp_{speed}_CVs_{CV_number}_bs_{bs_fr}.hdf5'
+                    with hdf5.File(individual_file, 'w') as indiv_file:
+                        neuron_data = list(v_vec[j])
+                        for step in range(step_number):
+                            sl = slice((int(1000 / bs_fr) * 40 + step * one_step_time * 40),
+                                       (int(1000 / bs_fr) * 40 + (step + 1) * one_step_time * 40))
+                            indiv_file.create_dataset(f'#0_step_{step}', data=np.array(neuron_data)[sl],
+                                                      compression="gzip")
+
+            # Продолжение обработки средних значений
             outavg = np.mean(np.array(outavg), axis=0, dtype=np.float32)
             vec = vec.from_python(outavg)
         pc.barrier()
+
     pc.barrier()
     result = pc.py_gather(vec, 0)
+
+    # Сохранение средних значений (как в оригинале)
     if rank == 0:
         logging.info("start recording " + name)
         result = np.mean(np.array(result), axis=0, dtype=np.float32)
@@ -867,7 +889,8 @@ def spikeout(pool, name, version, v_vec):
                 sl = slice((int(1000 / bs_fr) * 40 + i * one_step_time * 40),
                            (int(1000 / bs_fr) * 40 + (i + 1) * one_step_time * 40))
                 file.create_dataset('#0_step_{}'.format(i), data=np.array(result)[sl], compression="gzip")
-        logging.info("done recording")
+        logging.info("done recording average")
+        logging.info("done recording individual neurons")
     else:
         logging.info(rank)
 
