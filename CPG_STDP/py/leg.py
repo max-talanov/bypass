@@ -8,9 +8,9 @@ class LEG:
         logging.info("NEURON version: " + h.nrnversion())
         self.threshold = 10
         self.delay = 1
-        self.nAff = 35
-        self.nInt = 21
-        self.nMn = 21
+        self.nAff = 2 #35
+        self.nInt = 2 #21
+        self.nMn = 2 #21
         self.ncell = n
         self.affs = []
         self.ints = []
@@ -22,7 +22,7 @@ class LEG:
         self.musclegroups = []
         self.gener_gids = []
         self.gener_Iagids = []
-        self.n_gid = 0
+        # self.n_gid = get_gid()
 
         self.RG_E = []  # Rhythm generators of extensors
         self.RG_F = []  # Rhythm generators of flexor
@@ -43,14 +43,17 @@ class LEG:
 
         self.C_1 = []
         self.C_0 = []
-        # self.V0v = []
+        self.V0v = []
+        self.V3F = []
+        self.V0d = []
+        self.V2a = []
 
         for layer in range(CV_number):
             '''cut and muscle feedback'''
             self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
             self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
             self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
-            # self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
+            self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
             self.dict_C = {layer: 'C{}'.format(layer + 1)}
 
         for layer in range(CV_number):
@@ -69,6 +72,12 @@ class LEG:
         self.RG_F = sum(self.RG_F, [])
         self.InF = addpool(self, self.nInt, "InF", "int")
 
+        self.In1 = addpool(self, self.nInt, "In1", "int")
+
+        self.V0v = addpool(self, self.nInt, "V0v", "int")
+        self.V2a = addpool(self, self.nInt, "V2a", "int")
+        self.V0d = addpool(self, self.nInt, "V0d", "int")
+
         self.CV = sum(self.CV, [])
 
         '''sensory and muscle afferents and brainstem and V3F'''
@@ -76,7 +85,7 @@ class LEG:
         self.Ia_aff_F = addpool(self, self.nAff, "Ia_aff_F", "aff")
         # self.BS_aff_E = addpool(self, self.nAff, "BS_aff_E", "aff")
         # self.BS_aff_F = addpool(self, self.nAff, "BS_aff_F", "aff")
-        # self.V3F = addpool(self, self.nAff, "V3F", "int")
+        self.V3F = addpool(self, self.nInt, "V3F", "int")
 
         '''moto neuron pools'''
         self.mns_E = addpool(self, self.nMn, "mns_E", "moto")
@@ -94,8 +103,7 @@ class LEG:
 
         '''BS'''
         # periodic stimulation
-        # periodic stimulation
-        self.E_bs_gids, self.F_bs_gids = add_bs_geners(self, bs_fr, 1)
+        # self.E_bs_gids, self.F_bs_gids = add_bs_geners(bs_fr)
 
         # self.E_bs_gids = sum(pc.py_allgather(self.E_bs_gids), [])
         # self.F_bs_gids = sum(pc.py_allgather(self.F_bs_gids), [])
@@ -106,14 +114,6 @@ class LEG:
         # for F_bs_gid in self.F_bs_gids:
         #     self.genconnect(F_bs_gid, self.muscle_F, 0.5, 1)
 
-        # ''' BS '''
-        for E_bs_gid in self.E_bs_gids:
-            for layer in range(CV_number):
-                genconnect(self, E_bs_gid, self.dict_RG_E[layer], 3.75, 1)
-
-        for F_bs_gid in self.F_bs_gids:
-            for layer in range(CV_number):
-                genconnect(self, F_bs_gid, self.dict_RG_F[layer], 3.75, 1)
 
         self.E_ia_gids, self.F_ia_gids = self.add_ia_geners()
 
@@ -194,7 +194,7 @@ class LEG:
             connectcells(self, self.dict_RG_E[layer], self.InE, 2.75, 3)
             connectcells(self, self.dict_RG_F[layer], self.InF, 2.75, 3)
 
-            # connectcells(self, self.dict_RG_F[layer], self.V3F, 1.5, 3)
+            connectcells(self, self.dict_RG_F[layer], self.V3F, 1.5, 3)
 
         '''motor2muscles'''
         connectcells(self, self.mns_E, self.muscle_E, 10, 2, inhtype=False, N=45, sect="muscle")
@@ -203,6 +203,8 @@ class LEG:
         # '''Ia2RG, RG2Motor'''
         connectcells(self, self.InE, self.RG_F, 0.5, 1, inhtype=True)
         connectcells(self, self.InF, self.RG_E, 0.8, 1, inhtype=True)
+
+        connectcells(self, self.In1, self.RG_F, 0.5, 1, inhtype=True)
 
         connectcells(self, self.Ia_aff_E, self.Ia_E, 0.08, 1, inhtype=False)
         connectcells(self, self.Ia_aff_F, self.Ia_F, 0.08, 1, inhtype=False)
@@ -218,6 +220,10 @@ class LEG:
         #
         connectcells(self, self.Ia_E, self.mns_F, 0.08, 1, inhtype=True)
         connectcells(self, self.Ia_F, self.mns_E, 0.08, 1, inhtype=True)
+
+        connectcells(self, self.RG_F, self.V2a, 1.75, 3)
+        connectcells(self, self.RG_F, self.V0d, 1.75, 3)
+        connectcells(self, self.V2a, self.V0v, 1.2, 3)
 
     def addIagener(self, mn: list, mn2: list, start, weight=1.0):
         '''
@@ -240,7 +246,7 @@ class LEG:
         print(f"🎯 [rank {rank}] Creating IaGenerator: start={start}, weight={weight}")
         logging.info(f"IaGenerator creation start: start={start}, weight={weight}")
 
-        gid = self.n_gid
+        gid = get_gid()
         print(f"   Assigned GID: {gid}")
 
         # Only create on rank 0 to avoid conflicts
@@ -250,7 +256,6 @@ class LEG:
                 if not mn or not mn2:
                     print(f"   ❌ Empty motor neuron lists")
                     logging.error("Empty motor neuron lists for IaGenerator")
-                    self.n_gid += 1
                     return gid
 
                 # Get random motor neurons from the lists
@@ -335,7 +340,6 @@ class LEG:
             pc.set_gid2node(gid, 0)
 
         self.gener_Iagids.append(gid)
-        self.n_gid += 1
         return gid
 
     def connectinsidenucleus(self, nucleus):

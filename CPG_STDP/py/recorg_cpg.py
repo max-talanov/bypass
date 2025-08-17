@@ -77,7 +77,7 @@ def velocity_record(gids, attr='_ref_vel'):
     return vecs
 
 
-def spikeout(pool, name, version, v_vec):
+def spikeout(pool, name, version, v_vec, leg):
     ''' Reports simulation results
       Parameters
       ----------
@@ -109,7 +109,7 @@ def spikeout(pool, name, version, v_vec):
 
                 # Сохранение индивидуальных значений для каждого нейрона
                 if rank == 0:  # Сохраняем только на узле 0 для простоты
-                    individual_file = f'{individual_dir}/neuron_{pool[j]}_sp_{speed}_CVs_{CV_number}_bs_{bs_fr}.hdf5'
+                    individual_file = f'{individual_dir}/neuron_{pool[j]}_sp_{speed}_CVs_{CV_number}_bs_{bs_fr}_{leg}.hdf5'
                     with hdf5.File(individual_file, 'w') as indiv_file:
                         neuron_data = list(v_vec[j])
                         for step in range(step_number):
@@ -139,3 +139,8 @@ def spikeout(pool, name, version, v_vec):
         logging.info("done recording individual neurons")
     else:
         logging.info(rank)
+
+def setup_recorders(leg, recorder_list, group_attr, group_name):
+    """Настраивает рекордеры для указанной группы нейронов"""
+    print(f"      Setting up {group_name} recorders...")
+    recorder_list.extend(spike_record(group[k_nrns]) for group in getattr(leg, group_attr))

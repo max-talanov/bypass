@@ -37,7 +37,7 @@ def addpool(LEG, num, name, neurontype="int") -> list:
 
     # Create GIDs for all neurons in pool (distributed across ranks)
     for i in range(num):
-        gid = LEG.n_gid + i
+        gid = get_gid()
         all_gids.append(gid)
 
         # Only create cell if this rank is responsible for this neuron
@@ -64,9 +64,6 @@ def addpool(LEG, num, name, neurontype="int") -> list:
             pc.cell(gid, nc)
             log_gid_by_lookup(LEG, gid, neurontype.lower())
             LEG.netcons.append(nc)
-
-    # Update n_gid for next pool
-    LEG.n_gid += num
 
     # Groups - store all GIDs, not just local ones
     if neurontype.lower() == "muscle":
@@ -243,7 +240,7 @@ def genconnect(LEG, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50)
                 nc.weight[0] = random.gauss(weight, weight / 6)
                 LEG.stimnclist.append(nc)
 
-def motodiams(LEG, number):
+def motodiams(number):
     nrn_number = number
     standby_percent = 70
     active_percent = 100 - standby_percent
@@ -259,12 +256,12 @@ def motodiams(LEG, number):
 
     return x2
     
-def add_bs_geners(LEG, freq, spikes_per_step):
+def add_bs_geners(freq, LEG_L, LEG_R):
         E_bs_gids = []
         F_bs_gids = []
         for step in range(step_number):
-            F_bs_gids.append(addgener(int(one_step_time * (2 * step + 1)), freq, False, 1))
-            E_bs_gids.append(addgener(int(one_step_time * 2 * step) + 10, freq, False, 1))
+            F_bs_gids.append(addgener(LEG_R, (one_step_time * (2 * step + 1)), freq, False, 1))
+            E_bs_gids.append(addgener(LEG_L, int(one_step_time * 2 * step) + 10, freq, False, 1))
         return E_bs_gids, F_bs_gids
 
 def log_gid_by_lookup(LEG, gid: int, name):
@@ -295,7 +292,7 @@ def addgener(LEG, start, freq, flg_interval, interval, cv=False, r=True):
     gid: int
         generator gid
     '''
-    gid = LEG.n_gid
+    gid = get_gid()
     # Only create generator on rank 0 to avoid duplicates
     if rank == 0:
         stim = h.NetStim()
@@ -323,6 +320,38 @@ def addgener(LEG, start, freq, flg_interval, interval, cv=False, r=True):
         pc.set_gid2node(gid, 0)
 
     LEG.gener_gids.append(gid)
-    LEG.n_gid += 1
 
     return gid
+
+def create_connect_bs(LEG_L, LEG_R):
+    E_bs_gids, F_bs_gids = add_bs_geners(bs_fr, LEG_L, LEG_R)
+    # ''' BS '''
+    for E_bs_gid in E_bs_gids:
+        for layer in range(CV_number):
+            genconnect(LEG_L, E_bs_gid, LEG_L.dict_RG_E[layer], 1.75, 1)
+            genconnect(LEG_R, E_bs_gid, LEG_R.dict_RG_E[layer], 1.75, 1)
+
+    for F_bs_gid in F_bs_gids:
+        for layer in range(CV_number):
+            genconnect(LEG_L, F_bs_gid, LEG_L.dict_RG_F[layer], 1.75, 1)
+            genconnect(LEG_R, F_bs_gid, LEG_R.dict_RG_F[layer], 1.75, 1)
+        genconnect(LEG_R, F_bs_gid, LEG_R.V3F, 1.75, 1)
+        genconnect(LEG_L, F_bs_gid, LEG_L.V3F, 1.75, 1)
+
+def add_external_connections(LEG_L, LEG_R):
+    connectcells(LEG_L, LEG_L.V3F, LEG_R.RG_F, weight=1.3, delay=3)
+    connectcells(LEG_R, LEG_R.V3F, LEG_L.RG_F, weight=1.3, delay=3)
+    connectcells(LEG_L, LEG_L.V0v, LEG_R.In1, weight=1.3, delay=3)
+    connectcells(LEG_R, LEG_R.V0v, LEG_L.In1, weight=1.3, delay=3)
+    connectcells(LEG_L, LEG_L.V0d, LEG_R.RG_F, weight=1.3, delay=3, inhtype=True)
+    connectcells(LEG_R, LEG_R.V0d, LEG_L.RG_F, weight=1.3, delay=3, inhtype=True)
+
+
+def safe_filename(name: str) -> str:
+    """Преобразует строку в безопасное имя файла."""
+    return re.sub(r'[^\w\-_.]', '_', name)
+
+def get_gid():
+    global global_gid
+    global_gid += 1
+    return global_gid
