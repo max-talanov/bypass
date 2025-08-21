@@ -3,6 +3,7 @@ from utils_cpg import *
 from leg import *
 from recorg_cpg import *
 
+
 def prun(speed, step_number):
     print(f"🚀 [rank {rank}] Starting simulation: speed={speed}, steps={step_number}")
     logging.info(f"prun start: speed={speed}, steps={step_number}, time_sim={time_sim}")
@@ -119,7 +120,7 @@ if __name__ == '__main__':
             setup_recorders(LEG_R, recorders_r, 'intgroups', 'interneuron')
 
             # print(f"      Setting up muscle recorders...")
-            for group in LEG_L.musclegroups:
+            for group in getattr(LEG_L, "musclegroups"):
                 musclerecorders_l.append(spike_record(group[k_nrns]))
                 force_recorders_l.append(force_record(group[k_nrns]))
                 muscle_units_recorders_l.append(spike_record(group[k_nrns], location='muscle'))

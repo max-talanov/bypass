@@ -84,7 +84,8 @@ class motoneuron(Axon):
         '''
         self.all = h.SectionList()
         for sec in h.allsec():
-            self.all.append(sec=sec)
+            if sec.cell() == self:
+                self.all.append(sec=sec)
 
     def geom(self):
         '''

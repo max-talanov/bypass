@@ -9,7 +9,12 @@ import random
 class muscle(object):
     '''
     muscle class with parameters:
-      ...
+      soma: NEURON Section (creates by topol())
+      dend: NEURON Section (creates by topol())
+      synlistinh: list (creates by synapses())
+        list of inhibitory synapses
+      synlistex: list (creates by synapses())
+        list of excitatory synapses
     '''
 
     def __init__(self):
