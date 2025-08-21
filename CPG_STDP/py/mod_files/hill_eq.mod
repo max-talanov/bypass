@@ -19,7 +19,7 @@ PARAMETER {
 	d0 = 30.3		:[mm*s-1]
 	p0 = 23			:[N]
 	g1 = -8			:[mm]
-	g2 = 21.4		:[mm]
+	g2 = 10 : 21.4		:[mm]
 	xm_init = -8	:[mm]
 	xce_init = -8	:[mm]
 	Kse = 0.4		:[mm-1]
@@ -53,12 +53,12 @@ DERIVATIVE state_hill {
 }
 
 FUNCTION xse (x, y) { LOCAL d_xm, d_xce, d_se
-	d_xm = xm - xm_init
-	d_xce = xce - xce_init
-	d_se = d_xm - d_xce
-
-	if (d_se <= 0) {xse = 0}
-	else {xse = d_se}
+	d_se = (x - xm_init) - (y - xce_init)
+    if (d_se <= 0) {
+        xse = 0
+    } else {
+        xse = d_se
+    }
 }
 
 FUNCTION g (x) {

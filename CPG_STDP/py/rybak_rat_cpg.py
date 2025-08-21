@@ -40,13 +40,6 @@ step_number = 10
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = 300 + one_step_time * step_number
 
-exnclist = []
-inhnclist = []
-exstdpnclist = []
-inhstdpnclist = []
-eesnclist = []
-stimnclist = []
-
 from interneuron import interneuron
 from motoneuron import motoneuron
 from bioaffrat import bioaffrat
@@ -67,11 +60,21 @@ class CPG:
         self.muscles = []
         self.afferents = []
         self.stims = []
+        self.netcons = []
         self.ncell = N
         self.groups = []
         self.motogroups = []
         self.musclegroups = []
         self.affgroups = []
+        self.exnclist = []
+        self.inhnclist = []
+        self.exstdpnclist = []
+        self.inhstdpnclist = []
+        self.eesnclist = []
+        self.stimnclist = []
+        self.stdpmechs = []
+        self.presyns = []
+        self.postsyns = []
         self.RG_E = []  # Rhythm generators of extensors
         self.RG_F = []  # Rhythm generators of flexor
         self.V3F = []
@@ -165,111 +168,111 @@ class CPG:
         # self.C_0 = sum(self.C_0, [])
 
         ## TODO possibly project to RG_F
-        ## connectcells(self.V0v, self.RG_F, 3.75, 3)
+        ## self.connectcells(self.V0v, self.RG_F, 3.75, 3)
 
         ''' BS '''
         for E_bs_gid in self.E_bs_gids:
-            genconnect(E_bs_gid, self.BS_aff_E, 3.5, 3)
+            self.genconnect(E_bs_gid, self.BS_aff_E, 3.5, 3)
 
         for F_bs_gid in self.F_bs_gids:
-            genconnect(F_bs_gid, self.BS_aff_F, 3.5, 3)
+            self.genconnect(F_bs_gid, self.BS_aff_F, 3.5, 3)
 
-        connectcells(self.BS_aff_F, self.V3F, 1.5, 3)
+        self.connectcells(self.BS_aff_F, self.V3F, 1.5, 3)
         '''STDP synapse'''
-        connectcells(self.BS_aff_F, self.RG_F, 0.001, 3, stdptype=True)
-        connectcells(self.BS_aff_E, self.RG_E, 0.001, 3, stdptype=True)
+        self.connectcells(self.BS_aff_F, self.RG_F, 0.001, 3, stdptype=True)
+        self.connectcells(self.BS_aff_E, self.RG_E, 0.001, 3, stdptype=True)
 
         '''generators of Ia aff'''
         ## TODO originally: 00005 and 0001
         ## TODO fix Iagener
-        genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 5)
-        genconnect(self.Iagener_F, self.Ia_aff_F, 1.5, 1, False, 15)
-        # genconnect(Iagener_E_1000, self.Ia_aff_E, 5.0, 1, False, 5)
-        # genconnect(Iagener_F_1000, self.Ia_aff_F, 5.0, 1, False, 15)
+        self.genconnect(self.Iagener_E, self.Ia_aff_E, 0.5, 1, False, 5)
+        self.genconnect(self.Iagener_F, self.Ia_aff_F, 1.5, 1, False, 15)
+        # self.genconnect(Iagener_E_1000, self.Ia_aff_E, 5.0, 1, False, 5)
+        # self.genconnect(Iagener_F_1000, self.Ia_aff_F, 5.0, 1, False, 15)
 
         '''Ia2motor'''
-        connectcells(self.Ia_aff_E, self.mns_E, 1.55, 1.5)
-        connectcells(self.Ia_aff_F, self.mns_F, 0.5, 1.5)
+        self.connectcells(self.Ia_aff_E, self.mns_E, 1.55, 1.5)
+        self.connectcells(self.Ia_aff_F, self.mns_F, 0.5, 1.5)
         '''motor2muscles'''
-        connectcells(self.mns_E, self.muscle_E, 15.5, 2, False, 45)
-        connectcells(self.mns_F, self.muscle_F, 15.5, 2, False, 45)
+        self.connectcells(self.mns_E, self.muscle_E, 15.5, 2, False, 45)
+        self.connectcells(self.mns_F, self.muscle_F, 15.5, 2, False, 45)
 
         for layer in range(CV_number):
             '''Internal to RG topology'''
-            connectinsidenucleus(self.dict_RG_F[layer])
-            connectinsidenucleus(self.dict_RG_E[layer])
+            self.connectinsidenucleus(self.dict_RG_F[layer])
+            self.connectinsidenucleus(self.dict_RG_E[layer])
 
             '''RG2Motor'''
-            connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
-            connectcells(self.dict_RG_F[layer], self.mns_F, 2.75, 3)
+            self.connectcells(self.dict_RG_E[layer], self.mns_E, 2.75, 3)
+            self.connectcells(self.dict_RG_F[layer], self.mns_F, 2.75, 3)
 
-            '''Neg feedback RG -> Ia'''
-            ## TODO why do we have this neg feedback ?
-            if layer > 3:
-                connectcells(self.dict_RG_E[layer], self.Ia_aff_E, layer * 0.0002, 1, True)
-            else:
-                '''RG2Ia'''
-                connectcells(self.dict_RG_E[layer], self.Ia_aff_E, 0.0001, 1, True)
+            # '''Neg feedback RG -> Ia'''
+            # ## TODO why do we have this neg feedback ?
+            # if layer > 3:
+            #     self.connectcells(self.dict_RG_E[layer], self.Ia_aff_E, layer * 0.0002, 1, True)
+            # else:
+            #     '''RG2Ia'''
+            #     self.connectcells(self.dict_RG_E[layer], self.Ia_aff_E, 0.0001, 1, True)
 
             '''RG2Motor, RG2Ia'''
-            connectcells(self.dict_RG_F[layer], self.mns_F, 3.75, 2)
+            self.connectcells(self.dict_RG_F[layer], self.mns_F, 3.75, 2)
             '''Neg feedback loop RG->Ia'''
-            connectcells(self.dict_RG_F[layer], self.Ia_aff_F, 0.95, 1, True)
+            self.connectcells(self.dict_RG_F[layer], self.Ia_aff_F, 0.95, 1, True)
 
         '''cutaneous inputs'''
         for layer in range(CV_number):
-            connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15 * k * speed, 2)
-            connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 0.00035 * k * speed, 3)
+            self.connectcells(self.dict_C[layer], self.dict_CV_1[layer], 0.15 * k * speed, 2)
+            self.connectcells(self.dict_CV_1[layer], self.dict_RG_E[layer], 0.00035 * k * speed, 3)
 
-        # connectcells(self.IP_F, self.Ia_aff_F, 0.0015, 2, True)
-        # connectcells(self.IP_E, self.Ia_aff_E, 0.0015, 2, True)
+        # self.connectcells(self.IP_F, self.Ia_aff_F, 0.0015, 2, True)
+        # self.connectcells(self.IP_E, self.Ia_aff_E, 0.0015, 2, True)
 
         '''Rhythm generators'''
         for layer in range(CV_number):
-            connectcells(self.dict_RG_E[layer], self.InE, 0.001, 1)
+            self.connectcells(self.dict_RG_E[layer], self.InE, 0.001, 1)
             ## TODO weight 0.0001
-            connectcells(self.dict_RG_F[layer], self.InF, 0.001, 1)
+            self.connectcells(self.dict_RG_F[layer], self.InF, 0.001, 1)
 
         '''Ia2RG, RG2Motor'''
-        connectcells(self.InE, self.RG_F, 0.5, 1, True)
+        self.connectcells(self.InE, self.RG_F, 0.5, 1, True)
         '''STDP synapse'''
-        connectcells(self.Ia_aff_F, self.RG_F, 0.001, 1, stdptype=True)
+        self.connectcells(self.Ia_aff_F, self.RG_F, 0.001, 1, stdptype=True)
 
         # TODO check this too many reciprocal inh connections
-        connectcells(self.InE, self.Ia_aff_F, 1.2, 1, True)
-        connectcells(self.InE, self.mns_F, 0.8, 1, True)
+        self.connectcells(self.InE, self.Ia_aff_F, 1.2, 1, True)
+        self.connectcells(self.InE, self.mns_F, 0.8, 1, True)
 
-        connectcells(self.InF, self.RG_E, 0.8, 1, True)
+        self.connectcells(self.InF, self.RG_E, 0.8, 1, True)
         '''STDP synapse'''
-        connectcells(self.Ia_aff_E, self.RG_E, 0.001, 1, stdptype=True)
+        self.connectcells(self.Ia_aff_E, self.RG_E, 0.001, 1, stdptype=True)
 
         # TODO check this too many reciprocal inh connections
-        ## connectcells(self.InF, self.InE, 0.5, 1, True)
-        connectcells(self.InF, self.Ia_aff_E, 0.5, 1, True)
-        connectcells(self.InF, self.mns_E, 0.4, 1, True)
+        ## self.connectcells(self.InF, self.InE, 0.5, 1, True)
+        self.connectcells(self.InF, self.Ia_aff_E, 0.5, 1, True)
+        self.connectcells(self.InF, self.mns_E, 0.4, 1, True)
 
         '''reflex arc'''
-        connectcells(self.InE, self.Ia_E, 0.001, 1)
-        connectcells(self.Ia_aff_E, self.Ia_E, 0.008, 1)
-        connectcells(self.mns_E, self.R_E, 0.00015, 1)
-        connectcells(self.Ia_E, self.mns_F, 0.08, 1, True)
-        connectcells(self.R_E, self.mns_E, 0.00015, 1, True)
-        connectcells(self.R_E, self.Ia_E, 0.001, 1, True)
+        self.connectcells(self.InE, self.Ia_E, 0.001, 1)
+        self.connectcells(self.Ia_aff_E, self.Ia_E, 0.008, 1)
+        self.connectcells(self.mns_E, self.R_E, 0.00015, 1)
+        self.connectcells(self.Ia_E, self.mns_F, 0.08, 1, True)
+        self.connectcells(self.R_E, self.mns_E, 0.00015, 1, True)
+        self.connectcells(self.R_E, self.Ia_E, 0.001, 1, True)
 
-        connectcells(self.InF, self.Ia_F, 0.001, 1)
-        connectcells(self.Ia_aff_F, self.Ia_F, 0.008, 1)
-        connectcells(self.mns_F, self.R_F, 0.00015, 1)
-        connectcells(self.Ia_F, self.mns_E, 0.08, 1, True)
-        connectcells(self.R_F, self.mns_F, 0.00015, 1, True)
-        connectcells(self.R_F, self.Ia_F, 0.001, 1, True)
+        self.connectcells(self.InF, self.Ia_F, 0.001, 1)
+        self.connectcells(self.Ia_aff_F, self.Ia_F, 0.008, 1)
+        self.connectcells(self.mns_F, self.R_F, 0.00015, 1)
+        self.connectcells(self.Ia_F, self.mns_E, 0.08, 1, True)
+        self.connectcells(self.R_F, self.mns_F, 0.00015, 1, True)
+        self.connectcells(self.R_F, self.Ia_F, 0.001, 1, True)
 
-        connectcells(self.R_E, self.R_F, 0.04, 1, True)
-        connectcells(self.R_F, self.R_E, 0.04, 1, True)
-        connectcells(self.Ia_E, self.Ia_F, 0.08, 1, True)
-        connectcells(self.Ia_F, self.Ia_E, 0.08, 1, True)
+        self.connectcells(self.R_E, self.R_F, 0.04, 1, True)
+        self.connectcells(self.R_F, self.R_E, 0.04, 1, True)
+        self.connectcells(self.Ia_E, self.Ia_F, 0.08, 1, True)
+        self.connectcells(self.Ia_F, self.Ia_E, 0.08, 1, True)
         ## TODO check the inh connection
-        connectcells(self.InE, self.InF, 0.04, 1, True)
-        connectcells(self.InF, self.InE, 0.04, 1, True)
+        self.connectcells(self.InE, self.InF, 0.04, 1, True)
+        self.connectcells(self.InF, self.InE, 0.04, 1, True)
 
     def addpool(self, num, name="test", neurontype="int"):
         '''
@@ -323,6 +326,7 @@ class CPG:
             gids.append(gid)
             pc.set_gid2node(gid, rank)
             nc = cell.connect2target(None)
+            self.netcons.append(nc)
             pc.cell(gid, nc)
 
         # Groups
@@ -379,6 +383,7 @@ class CPG:
             gid += 1
         pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)
+        self.netcons.append(ncstim)
         pc.cell(gid, ncstim)
         return gid
 
@@ -415,155 +420,159 @@ class CPG:
         pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)
         ncstim.weight[0] = weight
+        self.netcons.append(ncstim)
         pc.cell(gid, ncstim)
 
         return gid
 
+    def connectcells(self, pre, post, weight, delay=1, inhtype=False, N=50, stdptype=False, threshold=10, ):
+        ''' Connects with excitatory synapses
+          Parameters
+          ----------
+          pre: list
+              list of presynase neurons gids
+          post: list
+              list of postsynapse neurons gids
+          weight: float
+              weight of synapse
+              used with Gaussself.Ian distribution
+          delay: int
+              synaptic delay
+              used with Gaussself.Ian distribution
+          nsyn: int
+              numder of synapses
+          inhtype: bool
+              is this connection inhibitory?
+          N: int
+              number of synapses
+          stdptype: bool
+               is connection stdp?
+          threshold: int
+                voltage thershold
+        '''
+        nsyn = random.randint(N - 15, N)
+        for post_gid in post:
+            if pc.gid_exists(post_gid):
+                for j in range(nsyn):
+                    src_gid = random.randint(pre[0], pre[-1])
+                    target = pc.gid2cell(post_gid)
+                    if stdptype:
+                        if inhtype:
+                            syn = target.synlistinhstdp[j]
+                            nc = pc.gid_connect(src_gid, syn)
+                            nc.delay = delay
+                            pc.threshold(src_gid, threshold)
+                            """Create STDP synapses"""
+                            dummy = h.Section()  # Create a dummy section to put the point processes in
+                            stdpmech = h.STDP(0, sec=dummy)  # Create the STDP mechanism
+                            self.stdpmechs.append(stdpmech)
+                            # TODO check target, threshold,
+                            presyn = pc.gid_connect(src_gid,
+                                                    stdpmech)  # threshold, delay, 1)  # Feed presynaptic spikes to the STDP mechanism -- must have weight >0
+                            presyn.delay = delay
+                            presyn.weight = 1
+                            self.presyns.append(presyn)
+                            pstsyn = pc.gid_connect(post_gid,
+                                                    stdpmech)  # threshold, delay, -1)  # Feed postsynaptic spikes to the STDP mechanism -- must have weight <0
+                            pstsyn.delay = delay
+                            pstsyn.weight = -1
+                            self.postsyns.append(pstsyn)
+                            pc.threshold(post_gid, threshold)
+                            h.setpointer(nc._ref_weight[0], 'synweight',
+                                         stdpmech)  # Point the STDP mechanism to the connection weight
+                            self.inhstdpnclist.append(nc)
+                        else:
+                            syn = target.synlistexstdp[j]
+                            nc = pc.gid_connect(src_gid, syn)
+                            nc.delay = delay
+                            nc.weight[0] = weight
+                            nc.threshold = threshold
+                            pc.threshold(src_gid, threshold)
+                            """Create STDP synapses"""
+                            dummy = h.Section()  # Create a dummy section to put the point processes in
+                            stdpmech = h.STDP(0, sec=dummy)  # Create the STDP mechanism
+                            self.stdpmechs.append(stdpmech)
+                            stdpmech.verbose = 2
+                            # TODO check target, threshold,
+                            presyn = pc.gid_connect(src_gid,
+                                                    stdpmech)  # threshold, delay, 1)  # Feed presynaptic spikes to the STDP mechanism -- must have weight >0
+                            presyn.delay = delay
+                            presyn.weight[0] = 1
+                            presyn.threshold = threshold
+                            self.presyns.append(presyn)
+                            pstsyn = pc.gid_connect(post_gid,
+                                                    stdpmech)  # threshold, delay, -1)  # Feed postsynaptic spikes to the STDP mechanism -- must have weight <0
+                            pstsyn.delay = delay
+                            pstsyn.weight[0] = -1
+                            pstsyn.threshold = threshold
+                            self.postsyns.append(pstsyn)
+                            pc.threshold(post_gid, threshold)
+                            h.setpointer(nc._ref_weight[0], 'synweight',
+                                         stdpmech)  # Point the STDP mechanism to the connection weight
+                            logging.info(nc._ref_weight[0])
+                            self.exstdpnclist.append(nc)
+                            # nc.weight[0] = random.gauss(weight, weight / 6) # str
 
-def connectcells(pre, post, weight, delay=1, inhtype=False, N=50, stdptype=False, threshold=10):
-    ''' Connects with excitatory synapses
-      Parameters
-      ----------
-      pre: list
-          list of presynase neurons gids
-      post: list
-          list of postsynapse neurons gids
-      weight: float
-          weight of synapse
-          used with Gaussself.Ian distribution
-      delay: int
-          synaptic delay
-          used with Gaussself.Ian distribution
-      nsyn: int
-          numder of synapses
-      inhtype: bool
-          is this connection inhibitory?
-      N: int
-          number of synapses
-      stdptype: bool
-           is connection stdp?
-      threshold: int
-            voltage thershold
-    '''
-    nsyn = random.randint(N - 15, N)
-    for post_gid in post:
-        if pc.gid_exists(post_gid):
-            for j in range(nsyn):
-                src_gid = random.randint(pre[0], pre[-1])
-                target = pc.gid2cell(post_gid)
-                if stdptype:
-                    if inhtype:
-                        syn = target.synlistinhstdp[j]
-                        nc = pc.gid_connect(src_gid, syn)
-                        nc.delay = delay
-                        pc.threshold(src_gid, threshold)
-                        """Create STDP synapses"""
-                        dummy = h.Section()  # Create a dummy section to put the point processes in
-                        stdpmech = h.STDP(0, sec=dummy)  # Create the STDP mechanism
-                        # TODO check target, threshold,
-                        presyn = pc.gid_connect(src_gid,
-                                                stdpmech)  # threshold, delay, 1)  # Feed presynaptic spikes to the STDP mechanism -- must have weight >0
-                        presyn.delay = delay
-                        presyn.weight = 1
-                        pstsyn = pc.gid_connect(post_gid,
-                                                stdpmech)  # threshold, delay, -1)  # Feed postsynaptic spikes to the STDP mechanism -- must have weight <0
-                        pstsyn.delay = delay
-                        pstsyn.weight = -1
-                        pc.threshold(post_gid, threshold)
-                        h.setpointer(nc._ref_weight[0], 'synweight',
-                                     stdpmech)  # Point the STDP mechanism to the connection weight
-                        inhstdpnclist.append(nc)
                     else:
-                        syn = target.synlistexstdp[j]
-                        nc = pc.gid_connect(src_gid, syn)
-                        nc.delay = delay
-                        nc.weight[0] = weight
-                        nc.threshold = threshold
-                        pc.threshold(src_gid, threshold)
-                        """Create STDP synapses"""
-                        dummy = h.Section()  # Create a dummy section to put the point processes in
-                        stdpmech = h.STDP(0, sec=dummy)  # Create the STDP mechanism
-                        stdpmech.verbose = 2
-                        # TODO check target, threshold,
-                        presyn = pc.gid_connect(src_gid,
-                                                stdpmech)  # threshold, delay, 1)  # Feed presynaptic spikes to the STDP mechanism -- must have weight >0
-                        presyn.delay = delay
-                        presyn.weight[0] = 1
-                        presyn.threshold = threshold
-                        pstsyn = pc.gid_connect(post_gid,
-                                                stdpmech)  # threshold, delay, -1)  # Feed postsynaptic spikes to the STDP mechanism -- must have weight <0
-                        pstsyn.delay = delay
-                        pstsyn.weight[0] = -1
-                        pstsyn.threshold = threshold
-                        pc.threshold(post_gid, threshold)
-                        h.setpointer(nc._ref_weight[0], 'synweight',
-                                     stdpmech)  # Point the STDP mechanism to the connection weight
-                        logging.info(nc._ref_weight[0])
-                        exstdpnclist.append(nc)
-                        # nc.weight[0] = random.gauss(weight, weight / 6) # str
+                        if inhtype:
+                            syn = target.synlistinh[j]
+                            nc = pc.gid_connect(src_gid, syn)
+                            self.inhnclist.append(nc)
+                        else:
+                            syn = target.synlistex[j]
+                            nc = pc.gid_connect(src_gid, syn)
+                            self.exnclist.append(nc)
+                            # nc.weight[0] = random.gauss(weight, weight / 6) # str
 
-                else:
+                    # if mode == 'STR':
+                    #     nc.weight[0] = 0 # str
+                    # else:
+                    nc.weight[0] = random.gauss(weight, weight / 5)
+                    nc.delay = random.gauss(delay, delay / 5)
+
+    def genconnect(self, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50):
+        ''' Connects with generator
+          Parameters
+          ----------
+          afferents_gids: list
+              list of presynase neurons gids
+          gen_gid: int
+              generator gid
+          weight: float
+              weight of synapse
+              used with Gaussian distribution
+          delay: int
+              synaptic delay
+              used with Gaussian distribution
+          nsyn: int
+              numder of synapses
+          inhtype: bool
+              is this connection inhibitory?
+        '''
+        nsyn = random.randint(N, N + 5)
+        for i in afferents_gids:
+            if pc.gid_exists(i):
+                for j in range(nsyn):
+                    target = pc.gid2cell(i)
                     if inhtype:
                         syn = target.synlistinh[j]
-                        nc = pc.gid_connect(src_gid, syn)
-                        inhnclist.append(nc)
+                        # nc = pc.gid_connect(gen_gid, syn)
+                        # self.stimnclist.append(nc)
+                        # nc.delay = random.gauss(delay, delay / 6)
+                        # nc.weight[0] = 0
                     else:
-                        syn = target.synlistex[j]
-                        nc = pc.gid_connect(src_gid, syn)
-                        exnclist.append(nc)
-                        # nc.weight[0] = random.gauss(weight, weight / 6) # str
+                        syn = target.synlistees[j]
+                        # nc = pc.gid_connect(gen_gid, syn)
+                        # self.stimnclist.append(nc)
+                        # nc.delay = random.gauss(delay, delay / 6)
+                        # nc.weight[0] = random.gauss(weight, weight / 6)
+                    nc = pc.gid_connect(gen_gid, syn)
+                    self.stimnclist.append(nc)
+                    nc.delay = random.gauss(delay, delay / 5)
+                    nc.weight[0] = random.gauss(weight, weight / 6)
 
-                # if mode == 'STR':
-                #     nc.weight[0] = 0 # str
-                # else:
-                nc.weight[0] = random.gauss(weight, weight / 5)
-                nc.delay = random.gauss(delay, delay / 5)
-
-
-def genconnect(gen_gid, afferents_gids, weight, delay, inhtype=False, N=50):
-    ''' Connects with generator
-      Parameters
-      ----------
-      afferents_gids: list
-          list of presynase neurons gids
-      gen_gid: int
-          generator gid
-      weight: float
-          weight of synapse
-          used with Gaussian distribution
-      delay: int
-          synaptic delay
-          used with Gaussian distribution
-      nsyn: int
-          numder of synapses
-      inhtype: bool
-          is this connection inhibitory?
-    '''
-    nsyn = random.randint(N, N + 5)
-    for i in afferents_gids:
-        if pc.gid_exists(i):
-            for j in range(nsyn):
-                target = pc.gid2cell(i)
-                if inhtype:
-                    syn = target.synlistinh[j]
-                    # nc = pc.gid_connect(gen_gid, syn)
-                    # stimnclist.append(nc)
-                    # nc.delay = random.gauss(delay, delay / 6)
-                    # nc.weight[0] = 0
-                else:
-                    syn = target.synlistees[j]
-                    # nc = pc.gid_connect(gen_gid, syn)
-                    # stimnclist.append(nc)
-                    # nc.delay = random.gauss(delay, delay / 6)
-                    # nc.weight[0] = random.gauss(weight, weight / 6)
-                nc = pc.gid_connect(gen_gid, syn)
-                stimnclist.append(nc)
-                nc.delay = random.gauss(delay, delay / 5)
-                nc.weight[0] = random.gauss(weight, weight / 6)
-
-
-def connectinsidenucleus(nucleus):
-    connectcells(nucleus, nucleus, 0.25, 0.5)
+    def connectinsidenucleus(self, nucleus):
+        self.connectcells(nucleus, nucleus, 0.25, 0.5)
 
 
 def spike_record(pool, extra=False):

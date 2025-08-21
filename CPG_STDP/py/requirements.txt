@@ -1,0 +1,9 @@
+bokeh==3.7.0
+h5py==3.13.0
+matplotlib==3.10.3
+nest==0.4.4
+neuron==8.2.7
+numpy==2.3.1
+panel==1.7.4
+plotly==6.2.0
+scipy==1.16.0

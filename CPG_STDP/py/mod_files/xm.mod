@@ -1,23 +1,19 @@
-TITLE Muscle length variation
+TITLE Chloride setter as DENSITY mechanism
 
 NEURON {
-	POINT_PROCESS xm
-	RANGE amp, cli
-	USEION cl WRITE cli VALENCE -1
-}
-
-UNITS {
-	(nA) = (nanoamp)
+    SUFFIX xm
+    USEION cl WRITE cli VALENCE -1
+    RANGE amp
 }
 
 PARAMETER {
-	amp = -8	::mm
+    amp = -8 (mm)
 }
 
 ASSIGNED {
-    cli (nA)
+    cli (mM)
 }
 
 BREAKPOINT {
-	cli = amp
+    cli = amp
 }
