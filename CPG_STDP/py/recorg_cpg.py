@@ -130,7 +130,7 @@ def spikeout(pool, name, version, v_vec, leg):
     if rank == 0:
         logging.info("start recording " + name)
         result = np.mean(np.array(result), axis=0, dtype=np.float32)
-        with hdf5.File(f'./{file_name}/{name}_sp_{speed}_CVs_{CV_number}_bs_{bs_fr}.hdf5', 'w') as file:
+        with hdf5.File(f'./{file_name}/{name}_sp_{speed}_CVs_{CV_number}_bs_{bs_fr}_{leg}.hdf5', 'w') as file:
             for i in range(step_number):
                 sl = slice((int(1000 / bs_fr) * 40 + i * one_step_time * 40),
                            (int(1000 / bs_fr) * 40 + (i + 1) * one_step_time * 40))
