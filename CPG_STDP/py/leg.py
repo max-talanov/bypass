@@ -3,7 +3,7 @@ from utils_cpg import *
 
 class LEG:
 
-    def __init__(self, speed, bs_fr, inh_p, step_number, n, antagonist = False):
+    def __init__(self, speed, bs_fr, inh_p, step_number, n):
         logging.info(f"Hello from rank {rank} of {nhost}")
         logging.info("NEURON version: " + h.nrnversion())
         self.threshold = 10
@@ -103,19 +103,16 @@ class LEG:
 
         '''BS'''
         # periodic stimulation
-        if (antagonist):
-            self.E_bs_gids, self.F_bs_gids = add_antagonist_bs_geners(bs_fr)
-        else:
-            self.E_bs_gids, self.F_bs_gids = add_bs_geners(bs_fr)
+        # self.E_bs_gids, self.F_bs_gids = add_bs_geners(bs_fr)
 
-        self.E_bs_gids = sum(pc.py_allgather(self.E_bs_gids), [])
-        self.F_bs_gids = sum(pc.py_allgather(self.F_bs_gids), [])
-        ''' BS '''
-        for E_bs_gid in self.E_bs_gids:
-            genconnect(E_bs_gid, self.muscle_E, 0.5, 1)
-
-        for F_bs_gid in self.F_bs_gids:
-            genconnect(F_bs_gid, self.muscle_F, 0.5, 1)
+        # self.E_bs_gids = sum(pc.py_allgather(self.E_bs_gids), [])
+        # self.F_bs_gids = sum(pc.py_allgather(self.F_bs_gids), [])
+        # ''' BS '''
+        # for E_bs_gid in self.E_bs_gids:
+        #     self.genconnect(E_bs_gid, self.muscle_E, 0.5, 1)
+        #
+        # for F_bs_gid in self.F_bs_gids:
+        #     self.genconnect(F_bs_gid, self.muscle_F, 0.5, 1)
 
 
         self.E_ia_gids, self.F_ia_gids = self.add_ia_geners()
