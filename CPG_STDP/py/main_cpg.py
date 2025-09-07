@@ -84,7 +84,7 @@ if __name__ == '__main__':
         try:
             print(f"   Creating CPG network...")
             LEG_L = LEG(speed, bs_fr, 100, step_number, N)
-            LEG_R = LEG(speed, bs_fr, 100, step_number, N, antagonist=True)
+            LEG_R = LEG(speed, bs_fr, 100, step_number, N)
             create_connect_bs(LEG_L, LEG_R)
             add_external_connections(LEG_L, LEG_R)
             print(f"   ✅ CPG network created successfully")
