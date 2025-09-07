@@ -266,17 +266,10 @@ def add_bs_geners(freq, LEG_L, LEG_R):
     F_bs_gids = []
     for step in range(step_number):
         F_bs_gids.append(addgener(LEG_R, (one_step_time * (2 * step + 1)), freq, False, 1))
-        E_bs_gids.append(addgener(LEG_L, int(one_step_time * 2 * step) + 10, freq, False, 1))
-    return E_bs_gids, F_bs_gids
-
-def add_antagonist_bs_geners(freq, LEG_L, LEG_R):
-    E_bs_gids = []
-    F_bs_gids = []
-    for step in range(step_number):
-        E_bs_gids.append(addgener(LEG_R, (one_step_time * (2 * step + 1)), freq, False, 1))
+        E_bs_gids.append(addgener(LEG_R, int(one_step_time * 2 * step) + 10, freq, False, 1))
+        E_bs_gids.append(addgener(LEG_L, (one_step_time * (2 * step + 1)), freq, False, 1))
         F_bs_gids.append(addgener(LEG_L, int(one_step_time * 2 * step) + 10, freq, False, 1))
     return E_bs_gids, F_bs_gids
-
 
 def log_gid_by_lookup(leg, gid: int, name):
     if not pc.gid_exists(gid):
@@ -351,6 +344,7 @@ def create_connect_bs(LEG_L, LEG_R):
         for layer in range(CV_number):
             genconnect(LEG_L, F_bs_gid, LEG_L.dict_RG_F[layer], 1.75, 1)
             genconnect(LEG_R, F_bs_gid, LEG_R.dict_RG_F[layer], 1.75, 1)
+
         genconnect(LEG_R, F_bs_gid, LEG_R.V3F, 1.75, 1)
         genconnect(LEG_L, F_bs_gid, LEG_L.V3F, 1.75, 1)
 
