@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from constants import *
 from utils_cpg import *
 from leg import *
