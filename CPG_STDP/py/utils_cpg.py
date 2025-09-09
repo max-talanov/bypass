@@ -262,15 +262,17 @@ def motodiams(number):
 
 
 def add_bs_geners(freq, LEG_L, LEG_R):
-    E_bs_gids = []
-    F_bs_gids = []
+    left_E_bs_gids = []
+    left_F_bs_gids = []
+    right_E_bs_gids = []
+    right_F_bs_gids = []
     for step in range(step_number):
-        F_bs_gids.append(addgener(LEG_R, (one_step_time * (2 * step + 1)), freq, False, 1))
-        E_bs_gids.append(addgener(LEG_R, int(one_step_time * 2 * step) + 10, freq, False, 1))
+        right_F_bs_gids.append(addgener(LEG_R, (one_step_time * (2 * step + 1)), freq, False, 1))
+        right_E_bs_gids.append(addgener(LEG_R, int(one_step_time * 2 * step) + 10, freq, False, 1))
         # added generators in anti-phase
-        E_bs_gids.append(addgener(LEG_L, (one_step_time * (2 * step + 1)), freq, False, 1))
-        F_bs_gids.append(addgener(LEG_L, int(one_step_time * 2 * step) + 10, freq, False, 1))
-    return E_bs_gids, F_bs_gids
+        left_E_bs_gids.append(addgener(LEG_L, (one_step_time * (2 * step + 1)), freq, False, 1))
+        left_F_bs_gids.append(addgener(LEG_L, int(one_step_time * 2 * step) + 10, freq, False, 1))
+    return left_E_bs_gids, left_F_bs_gids, right_E_bs_gids, right_F_bs_gids
 
 def log_gid_by_lookup(leg, gid: int, name):
     if not pc.gid_exists(gid):
@@ -334,20 +336,27 @@ def addgener(leg, start, freq, flg_interval, interval, cv=False, r=True):
 
 
 def create_connect_bs(LEG_L, LEG_R):
-    E_bs_gids, F_bs_gids = add_bs_geners(bs_fr, LEG_L, LEG_R)
+    left_E_bs_gids, left_F_bs_gids, right_E_bs_gids, right_F_bs_gids = add_bs_geners(bs_fr, LEG_L, LEG_R)
     ''' BS '''
-    for E_bs_gid in E_bs_gids:
+    '''Left leg'''
+    for E_bs_gid in left_E_bs_gids:
         for layer in range(CV_number):
             genconnect(LEG_L, E_bs_gid, LEG_L.dict_RG_E[layer], 1.75, 1)
-            genconnect(LEG_R, E_bs_gid, LEG_R.dict_RG_E[layer], 1.75, 1)
 
-    for F_bs_gid in F_bs_gids:
+    for F_bs_gid in left_F_bs_gids:
         for layer in range(CV_number):
             genconnect(LEG_L, F_bs_gid, LEG_L.dict_RG_F[layer], 1.75, 1)
-            genconnect(LEG_R, F_bs_gid, LEG_R.dict_RG_F[layer], 1.75, 1)
-
-        genconnect(LEG_R, F_bs_gid, LEG_R.V3F, 1.75, 1)
         genconnect(LEG_L, F_bs_gid, LEG_L.V3F, 1.75, 1)
+
+    '''Right leg'''
+    for E_bs_gid in right_E_bs_gids:
+        for layer in range(CV_number):
+            genconnect(LEG_R, E_bs_gid, LEG_R.dict_RG_E[layer], 1.75, 1)
+
+    for F_bs_gid in right_F_bs_gids:
+        for layer in range(CV_number):
+            genconnect(LEG_R, F_bs_gid, LEG_R.dict_RG_F[layer], 1.75, 1)
+        genconnect(LEG_R, F_bs_gid, LEG_R.V3F, 1.75, 1)
 
 
 def add_external_connections(LEG_L, LEG_R):
