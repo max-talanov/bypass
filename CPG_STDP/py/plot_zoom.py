@@ -64,7 +64,7 @@ def draw(volt_data, data_time):
         # Сохраняем PNG
         filename_without_ext = os.path.splitext(v[0])[0]
         png_path = os.path.join(images_dir, filename_without_ext + '.png')
-        export_png(figur, filename=png_path)
+        #export_png(figur, filename=png_path)
 
 
 if __name__ == '__main__':
