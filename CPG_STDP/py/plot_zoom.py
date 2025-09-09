@@ -14,7 +14,7 @@ import numpy as np
 from bokeh.plotting import figure, output_file, show
 from bokeh.io import export_png
 
-paths = 'res_28_07/'
+paths = '2025-09-08/'
 sys.path.append(paths)
 my_path = os.path.abspath(paths)
 
@@ -26,8 +26,8 @@ def read():
     data_time = []
 
     for file in fnmatch.filter(os.listdir(my_path), '*.hdf5'):
-        with h5py.File(my_path + f'\\{file}') as f:
-            name = f.filename.split('\\')[-1]
+        with h5py.File(my_path + f'/{file}') as f:
+            name = f.filename.split('/')[-1]
             if name == 'time.hdf5':
                 time_group = list(f.keys())[0]
                 data_y = list(f[time_group])
