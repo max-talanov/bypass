@@ -334,7 +334,7 @@ def addgener(leg, start, freq, flg_interval, interval, cv=False, r=True):
 
 def create_connect_bs(LEG_L, LEG_R):
     E_bs_gids, F_bs_gids = add_bs_geners(bs_fr, LEG_L, LEG_R)
-    # ''' BS '''
+    ''' BS '''
     for E_bs_gid in E_bs_gids:
         for layer in range(CV_number):
             genconnect(LEG_L, E_bs_gid, LEG_L.dict_RG_E[layer], 1.75, 1)
