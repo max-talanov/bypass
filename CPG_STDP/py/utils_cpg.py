@@ -267,6 +267,7 @@ def add_bs_geners(freq, LEG_L, LEG_R):
     for step in range(step_number):
         F_bs_gids.append(addgener(LEG_R, (one_step_time * (2 * step + 1)), freq, False, 1))
         E_bs_gids.append(addgener(LEG_R, int(one_step_time * 2 * step) + 10, freq, False, 1))
+        # added generators in anti-phase
         E_bs_gids.append(addgener(LEG_L, (one_step_time * (2 * step + 1)), freq, False, 1))
         F_bs_gids.append(addgener(LEG_L, int(one_step_time * 2 * step) + 10, freq, False, 1))
     return E_bs_gids, F_bs_gids
