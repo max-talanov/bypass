@@ -14,7 +14,7 @@ import numpy as np
 from bokeh.plotting import figure, output_file, show
 from bokeh.io import export_png
 
-paths = '2025-09-08/'
+paths = 'res/'
 sys.path.append(paths)
 my_path = os.path.abspath(paths)
 
