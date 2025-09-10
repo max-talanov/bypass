@@ -346,7 +346,7 @@ def create_connect_bs(LEG_L, LEG_R):
     for F_bs_gid in left_F_bs_gids:
         for layer in range(CV_number):
             genconnect(LEG_L, F_bs_gid, LEG_L.dict_RG_F[layer], 1.75, 1)
-            genconnect(LEG_L, F_bs_gid, LEG_L.V3F, 1.75, 1)
+            #genconnect(LEG_L, F_bs_gid, LEG_L.V3F, 1.75, 1)
 
     '''Right leg'''
     for E_bs_gid in right_E_bs_gids:
@@ -356,12 +356,12 @@ def create_connect_bs(LEG_L, LEG_R):
     for F_bs_gid in right_F_bs_gids:
         for layer in range(CV_number):
             genconnect(LEG_R, F_bs_gid, LEG_R.dict_RG_F[layer], 1.75, 1)
-            genconnect(LEG_R, F_bs_gid, LEG_R.V3F, 1.75, 1)
+            #genconnect(LEG_R, F_bs_gid, LEG_R.V3F, 1.75, 1)
 
 
 def add_external_connections(LEG_L, LEG_R):
-    connectcells(LEG_L, LEG_L.V3F, LEG_R.RG_F, weight=1.3, delay=3)
-    connectcells(LEG_R, LEG_R.V3F, LEG_L.RG_F, weight=1.3, delay=3)
+    #connectcells(LEG_L, LEG_L.V3F, LEG_R.RG_F, weight=1.3, delay=3)
+    #connectcells(LEG_R, LEG_R.V3F, LEG_L.RG_F, weight=1.3, delay=3)
     connectcells(LEG_L, LEG_L.V0v, LEG_R.In1, weight=1.3, delay=3)
     connectcells(LEG_R, LEG_R.V0v, LEG_L.In1, weight=1.3, delay=3)
     connectcells(LEG_L, LEG_L.V0d, LEG_R.RG_F, weight=1.3, delay=3, inhtype=True)
