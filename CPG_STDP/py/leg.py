@@ -221,9 +221,9 @@ class LEG:
         connectcells(self, self.Ia_E, self.mns_F, 0.08, 1, inhtype=True)
         connectcells(self, self.Ia_F, self.mns_E, 0.08, 1, inhtype=True)
 
-        connectcells(self, self.RG_F, self.V2a, 1.75, 3)
-        connectcells(self, self.RG_F, self.V0d, 1.75, 3)
-        connectcells(self, self.V2a, self.V0v, 1.2, 3)
+        #connectcells(self, self.RG_F, self.V2a, 1.75, 3)
+        #connectcells(self, self.RG_F, self.V0d, 1.75, 3)
+        #connectcells(self, self.V2a, self.V0v, 1.2, 3)
 
     def addIagener(self, mn: list, mn2: list, start, weight=1.0):
         '''
