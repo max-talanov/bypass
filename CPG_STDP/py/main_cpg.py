@@ -87,7 +87,7 @@ if __name__ == '__main__':
             LEG_L = LEG(speed, bs_fr, 100, step_number, N)
             LEG_R = LEG(speed, bs_fr, 100, step_number, N)
             create_connect_bs(LEG_L, LEG_R)
-            add_external_connections(LEG_L, LEG_R)
+            #add_external_connections(LEG_L, LEG_R)
             print(f"   ✅ CPG network created successfully")
             logging.info("CPG created successfully")
 
