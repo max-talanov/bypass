@@ -190,7 +190,9 @@ class LEG:
             '''RG2Motor'''
             connectcells(self, self.dict_RG_E[layer], self.mns_E, 2.75, 3)
             connectcells(self, self.dict_RG_F[layer], self.mns_F, 2.75, 3)
-            #
+            #added as experimet to fix commisural projections
+            connectcells(self, self.dict_RG_F[layer], self.V2a, 0.75, 3)
+
             connectcells(self, self.dict_RG_E[layer], self.InE, 2.75, 3)
             connectcells(self, self.dict_RG_F[layer], self.InF, 2.75, 3)
 
@@ -217,11 +219,11 @@ class LEG:
 
         connectcells(self, self.R_E, self.Ia_E, 0.001, 1, inhtype=True)
         connectcells(self, self.R_F, self.Ia_F, 0.001, 1, inhtype=True)
-        #
+
         connectcells(self, self.Ia_E, self.mns_F, 0.08, 1, inhtype=True)
         connectcells(self, self.Ia_F, self.mns_E, 0.08, 1, inhtype=True)
 
-        connectcells(self, self.RG_F, self.V2a, 0.75, 3)
+        #connectcells(self, self.RG_F, self.V2a, 0.75, 3)
         connectcells(self, self.RG_F, self.V0d, 0.75, 3)
         connectcells(self, self.V2a, self.V0v, 1.2, 3)
 
