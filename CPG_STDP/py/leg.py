@@ -167,8 +167,8 @@ class LEG:
 
         # connectcells(self, self.BS_aff_F, self.V3F, 1.5, 3)
         '''STDP synapse'''
-        # connectcells(self, self.BS_aff_F, self.RG_F, 0.1, 3, stdptype=False)
-        # connectcells(self, self.BS_aff_E, self.RG_E, 0.1, 3, stdptype=False)
+        connectcells(self, self.BS_aff_F, self.RG_F, 0.1, 3, stdptype=False)
+        connectcells(self, self.BS_aff_E, self.RG_E, 0.1, 3, stdptype=False)
 
         connectcells(self, self.Ia_aff_E, self.RG_E, weight=1.3, delay=3, stdptype=True)
         connectcells(self, self.Ia_aff_F, self.RG_F, weight=1.3, delay=3, stdptype=True)
