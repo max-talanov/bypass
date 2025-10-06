@@ -8,9 +8,9 @@ class LEG:
         logging.info("NEURON version: " + h.nrnversion())
         self.threshold = 10
         self.delay = 1
-        self.nAff = 5 #35
-        self.nInt = 5 #21
-        self.nMn = 5 #21
+        self.nAff = 35 #5
+        self.nInt = 21 #5
+        self.nMn = 21 #5
         self.ncell = n
         self.affs = []
         self.ints = []
