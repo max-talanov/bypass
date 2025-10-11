@@ -8,9 +8,9 @@ class LEG:
         logging.info("NEURON version: " + h.nrnversion())
         self.threshold = 10
         self.delay = 1
-        self.nAff = 5 #15 #35 #5
-        self.nInt = 5 #10 #21 #5
-        self.nMn = 5 #10 #21 #5
+        self.nAff = 15 #15 #35 #5
+        self.nInt = 10 #10 #21 #5
+        self.nMn = 15 #10 #21 #5
         self.ncell = n
         self.affs = []
         self.ints = []
@@ -169,9 +169,9 @@ class LEG:
         '''STDP synapse'''
         #connectcells(self, self.BS_aff_F, self.RG_F, 0.1, 3, stdptype=False)
         #connectcells(self, self.BS_aff_E, self.RG_E, 0.1, 3, stdptype=False)
-
-        connectcells(self, self.Ia_aff_E, self.RG_E, weight=1.3, delay=3, stdptype=True)
-        connectcells(self, self.Ia_aff_F, self.RG_F, weight=1.3, delay=3, stdptype=True)
+        w_Ia = 0.3 #1.3
+        connectcells(self, self.Ia_aff_E, self.RG_E, weight=w_Ia, delay=3, stdptype=True)
+        connectcells(self, self.Ia_aff_F, self.RG_F, weight=w_Ia, delay=3, stdptype=True)
 
         # '''cutaneous inputs'''
         for layer in range(CV_number):
