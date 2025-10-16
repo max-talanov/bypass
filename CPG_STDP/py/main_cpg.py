@@ -84,8 +84,8 @@ if __name__ == '__main__':
 
         try:
             print(f"   Creating CPG network...")
-            LEG_L = LEG(speed, bs_fr, 100, step_number, N)
-            LEG_R = LEG(speed, bs_fr, 100, step_number, N)
+            LEG_L = LEG(speed, bs_fr, 100, step_number, N, leg_l=True)
+            LEG_R = LEG(speed, bs_fr, 100, step_number, N, leg_l=False)
             # switch the legs
             # create_connect_bs(LEG_L, LEG_R)
             # add_external_connections(LEG_L, LEG_R)
@@ -200,7 +200,7 @@ if __name__ == '__main__':
             # print(f"      ✅ Spike data saved")
 
             if rank == 0:
-                print(f"      Saving STDP weight changes...")
+                logging.info(f"      Saving STDP weight changes...")
                 stdp_dir = f'./{file_name}/stdp_1'
                 if not os.path.exists(stdp_dir):
                     os.makedirs(stdp_dir)
@@ -226,7 +226,7 @@ if __name__ == '__main__':
                     except Exception as e:
                         print(f"      ⚠️ Error saving STDP weight {src_gid} → {post_gid}: {e}")
 
-                print(f"      ✅ Saved {stdp_count} STDP weight change files")
+                logging.info(f"      ✅ Saved {stdp_count} STDP weight change files")
 
             print(f"   ✅ All results saved successfully")
             logging.info("Results recorded")

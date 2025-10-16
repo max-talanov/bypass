@@ -3,7 +3,7 @@ from utils_cpg import *
 
 class LEG:
 
-    def __init__(self, speed, bs_fr, inh_p, step_number, n):
+    def __init__(self, speed, bs_fr, inh_p, step_number, n, leg_l=False):
         logging.info(f"Hello from rank {rank} of {nhost}")
         logging.info("NEURON version: " + h.nrnversion())
         self.threshold = 10
@@ -142,9 +142,11 @@ class LEG:
         for layer in range(CV_number):
             self.dict_C[layer] = []
             for i in range(step_number):
+                step_leg = 10 + speed * layer + i * (speed * CV_number + CV_0_len + one_step_time) + 7 - layer * 12
+                if leg_l:
+                    step_leg += one_step_time
                 self.dict_C[layer].append(
-                    addgener(self,
-                        10 + speed * layer + i * (speed * CV_number + CV_0_len + one_step_time) + 7 - layer * 12, cfr,
+                    addgener(self, step_leg, cfr,
                         True, int((one_step_time / CV_number) * 0.15), cv=True))
         #
         # '''Generators'''
