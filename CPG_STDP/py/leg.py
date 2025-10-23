@@ -173,13 +173,13 @@ class LEG:
         #connectcells(self, self.BS_aff_E, self.RG_E, 0.1, 3, stdptype=False)
         w_Ia =  1.3 #0.3 #1.3
         stdp_Ia = False #True
-        connectcells(self, self.Ia_aff_E, self.RG_E, weight=w_Ia, delay=3, stdptype=stdp_Ia)
+        #connectcells(self, self.Ia_aff_E, self.RG_E, weight=w_Ia, delay=3, stdptype=stdp_Ia)
         connectcells(self, self.Ia_aff_F, self.RG_F, weight=w_Ia, delay=3, stdptype=stdp_Ia)
 
-        # '''cutaneous inputs'''
+        '''cutaneous inputs'''
         for layer in range(CV_number):
             connectcells(self, self.dict_C[layer], self.dict_CV_1[layer], 0.15 * k * speed, 2)
-            connectcells(self, self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
+            #connectcells(self, self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
 
         # '''Ia2motor'''
         connectcells(self, self.Ia_aff_E, self.mns_E, 1.55, 2)
@@ -206,9 +206,9 @@ class LEG:
         connectcells(self, self.mns_E, self.muscle_E, 10, 2, inhtype=False, N=45, sect="muscle")
         connectcells(self, self.mns_F, self.muscle_F, 10, 2, inhtype=False, N=45, sect="muscle")
 
-        # '''Ia2RG, RG2Motor'''
+        '''Ia2RG, RG2Motor'''
         connectcells(self, self.InE, self.RG_F, 0.5, 1, inhtype=True)
-        connectcells(self, self.InF, self.RG_E, 0.8, 1, inhtype=True)
+        #connectcells(self, self.InF, self.RG_E, 0.8, 1, inhtype=True)
 
         connectcells(self, self.In1, self.RG_F, 0.5, 1, inhtype=True)
 
