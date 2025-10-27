@@ -115,7 +115,7 @@ class LEG:
         #     self.genconnect(F_bs_gid, self.muscle_F, 0.5, 1)
 
 
-        self.E_ia_gids, self.F_ia_gids = self.add_ia_geners()
+        self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(leg_l)
 
         for E_ia_gids in self.E_ia_gids:
             genconnect(self, E_ia_gids, self.Ia_aff_E, 0.01, 1, False, 20)
@@ -352,12 +352,17 @@ class LEG:
     def connectinsidenucleus(self, nucleus):
         connectcells(self, nucleus, nucleus, 0.25, 0.5)
 
-    def add_ia_geners(self):
+    def add_ia_geners(self, leg_l):
         E_ia_gids = []
         F_ia_gids = []
         for step in range(step_number):
             # E_ia_gids.append(self.addIagener(self.muscle_E, self.muscle_F, 10, weight=5))
             # F_ia_gids.append(self.addIagener(self.muscle_F, self.muscle_E, one_step_time, weight=8))
+            start_time_e = 15 + one_step_time * 2 * step
+            start_time_f = 15 + one_step_time * (1 + 2 * step)
+            if leg_l:
+                start_time_e += one_step_time
+                start_time_f += one_step_time
             E_ia_gids.append(self.addIagener(self.muscle_E, self.muscle_F, 15 + one_step_time * 2 * step, weight=0.1))
             F_ia_gids.append(
                 self.addIagener(self.muscle_F, self.muscle_E, 15 + one_step_time * (1 + 2 * step), weight=0.1))
