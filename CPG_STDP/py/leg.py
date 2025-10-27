@@ -363,7 +363,7 @@ class LEG:
             if leg_l:
                 start_time_e += one_step_time
                 start_time_f += one_step_time
-            E_ia_gids.append(self.addIagener(self.muscle_E, self.muscle_F, 15 + one_step_time * 2 * step, weight=0.1))
+            E_ia_gids.append(self.addIagener(self.muscle_E, self.muscle_F, start_time_e, weight=0.1))
             F_ia_gids.append(
-                self.addIagener(self.muscle_F, self.muscle_E, 15 + one_step_time * (1 + 2 * step), weight=0.1))
+                self.addIagener(self.muscle_F, self.muscle_E, start_time_f, weight=0.1))
         return E_ia_gids, F_ia_gids
