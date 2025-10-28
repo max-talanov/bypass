@@ -172,7 +172,7 @@ class LEG:
         #connectcells(self, self.BS_aff_F, self.RG_F, 0.1, 3, stdptype=False)
         #connectcells(self, self.BS_aff_E, self.RG_E, 0.1, 3, stdptype=False)
         w_Ia =  0.3 #0.3 #1.3
-        stdp_Ia = False #True
+        stdp_Ia = True
         connectcells(self, self.Ia_aff_E, self.RG_E, weight=w_Ia, delay=3, stdptype=stdp_Ia)
         connectcells(self, self.Ia_aff_F, self.RG_F, weight=w_Ia, delay=3, stdptype=stdp_Ia)
 
