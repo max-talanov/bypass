@@ -267,11 +267,11 @@ def add_bs_geners(freq, LEG_L, LEG_R):
     right_E_bs_gids = []
     right_F_bs_gids = []
     for step in range(step_number):
-        right_F_bs_gids.append(addgener(LEG_R, (one_step_time * (2 * step + 1)), freq, False, 1))
-        right_E_bs_gids.append(addgener(LEG_R, int(one_step_time * 2 * step) + 10, freq, False, 1))
+        right_F_bs_gids.append(addgener(LEG_R, (one_step_time * (2 * step + 1)), freq, False, 1, r=False))
+        right_E_bs_gids.append(addgener(LEG_R, int(one_step_time * 2 * step) + 10, freq, False, 1, r=False))
         # added generators in anti-phase
-        left_E_bs_gids.append(addgener(LEG_L, (one_step_time * (2 * step + 1)), freq, False, 1))
-        left_F_bs_gids.append(addgener(LEG_L, int(one_step_time * 2 * step) + 10, freq, False, 1))
+        left_E_bs_gids.append(addgener(LEG_L, (one_step_time * (2 * step + 1)), freq, False, 1, r=False))
+        left_F_bs_gids.append(addgener(LEG_L, int(one_step_time * 2 * step) + 10, freq, False, 1, r=False))
     return left_E_bs_gids, left_F_bs_gids, right_E_bs_gids, right_F_bs_gids
 
 def log_gid_by_lookup(leg, gid: int, name):
@@ -319,7 +319,7 @@ def addgener(leg, start, freq, flg_interval, interval, cv=False, r=True):
                 int(one_step_time / stim.interval) / CV_number)
         else:
             stim.interval = int(1000 / freq)
-            stim.number = int(one_step_time / stim.interval) - 7
+            stim.number = int(one_step_time / stim.interval) - 2
         leg.stims.append(stim)
         pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)
