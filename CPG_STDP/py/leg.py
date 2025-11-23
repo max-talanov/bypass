@@ -285,7 +285,7 @@ class LEG:
                     stim = h.IaGenerator()
                     stim.start = start
                     stim.interval = int(1000 / bs_fr)
-                    stim.number = int(one_step_time / stim.interval)
+                    stim.number = int(one_step_time / stim.interval) - 2
 
                     self.stims.append(stim)
                     pc.set_gid2node(gid, rank)
@@ -306,7 +306,7 @@ class LEG:
 
                     stim.start = start
                     stim.interval = int(1000 / bs_fr)
-                    stim.number = int(one_step_time / stim.interval)
+                    stim.number = int(one_step_time / stim.interval) - 2
                     print(f"   Parameters set: start={stim.start}, interval={stim.interval}, number={stim.number}")
 
                     self.stims.append(stim)
@@ -361,8 +361,8 @@ class LEG:
             start_time_e = 15 + one_step_time * 2 * step
             start_time_f = 15 + one_step_time * (1 + 2 * step)
             if leg_l:
-                start_time_e += one_step_time
-                start_time_f += one_step_time
+                start_time_e += one_step_time + 4
+                start_time_f += one_step_time + 4
             E_ia_gids.append(self.addIagener(self.muscle_E, self.muscle_F, start_time_e, weight=0.1))
             F_ia_gids.append(
                 self.addIagener(self.muscle_F, self.muscle_E, start_time_f, weight=0.1))
