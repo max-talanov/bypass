@@ -80,59 +80,6 @@ class LEG:
 
         self.CV = sum(self.CV, [])
 
-        '''sensory and muscle afferents and brainstem and V3F'''
-        self.Ia_aff_E = addpool(self, self.nAff, "Ia_aff_E", "aff")
-        self.Ia_aff_F = addpool(self, self.nAff, "Ia_aff_F", "aff")
-        # self.BS_aff_E = addpool(self, self.nAff, "BS_aff_E", "aff")
-        # self.BS_aff_F = addpool(self, self.nAff, "BS_aff_F", "aff")
-        self.V3F = addpool(self, self.nInt, "V3F", "int")
-
-        '''moto neuron pools'''
-        self.mns_E = addpool(self, self.nMn, "mns_E", "moto")
-        self.mns_F = addpool(self, self.nMn, "mns_F", "moto")
-
-        '''muscles'''
-        self.muscle_E = addpool(self, self.nMn, "muscle_E", "muscle")
-        self.muscle_F = addpool(self, self.nMn, "muscle_F", "muscle")
-
-        # '''reflex arc'''
-        self.Ia_E = addpool(self, self.nInt, "Ia_E", "int")
-        self.R_E = addpool(self, self.nInt, "R_E", "int")  # Renshaw cells
-        self.Ia_F = addpool(self, self.nInt, "Ia_F", "int")
-        self.R_F = addpool(self, self.nInt, "R_F", "int")  # Renshaw cells
-
-        '''BS'''
-        # periodic stimulation
-        # self.E_bs_gids, self.F_bs_gids = add_bs_geners(bs_fr)
-
-        # self.E_bs_gids = sum(pc.py_allgather(self.E_bs_gids), [])
-        # self.F_bs_gids = sum(pc.py_allgather(self.F_bs_gids), [])
-        # ''' BS '''
-        # for E_bs_gid in self.E_bs_gids:
-        #     self.genconnect(E_bs_gid, self.muscle_E, 0.5, 1)
-        #
-        # for F_bs_gid in self.F_bs_gids:
-        #     self.genconnect(F_bs_gid, self.muscle_F, 0.5, 1)
-
-
-        self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(leg_l)
-
-        for E_ia_gids in self.E_ia_gids:
-            genconnect(self, E_ia_gids, self.Ia_aff_E, 0.01, 1, False, 20)
-
-        for F_ia_gids in self.F_ia_gids:
-            genconnect(self, F_ia_gids, self.Ia_aff_F, 0.01, 1, False, 30)
-
-        # # '''muscle afferents generators'''
-        # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 10, weight=3)
-        # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time, weight=3)
-        #
-        # # # '''Create connectcells'''
-        # self.genconnect(self.Iagener_E, self.Ia_aff_E, 5.5, 1, False, 20)
-        # self.genconnect(self.Iagener_F, self.Ia_aff_F, 5.5, 1, False, 30)
-
-        # connectcells(self, self.muscle_E, self.Ia_aff_E, 3.5, 1, 10, False)
-        # connectcells(self, self.muscle_F, self.Ia_aff_F, 3.5, 1, 10, False)
 
         '''cutaneous inputs'''
         cfr = 90
@@ -148,89 +95,16 @@ class LEG:
                 self.dict_C[layer].append(
                     addgener(self, step_leg, cfr,
                         True, int((one_step_time / CV_number) * 0.15), cv=True))
-        #
-        # '''Generators'''
-        # '''TODO: need it?'''
-        # for i in range(step_number):
-        #     self.C_0.append(
-        #         self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, int(CV_0_len / c_int), False))
-        #
-        # '''TODO: need it?'''
+
         for layer in range(CV_number):
             self.C_1.append(self.dict_CV_1[layer])
         self.C_1 = sum(self.C_1, [])
-
-        # ''' BS '''
-        # for E_bs_gid in self.E_bs_gids:
-        #     self.genconnect(E_bs_gid, self.BS_aff_E, 3.5, 3)
-        #
-        # for F_bs_gid in self.F_bs_gids:
-        #     self.genconnect(F_bs_gid, self.BS_aff_F, 3.5, 3)
-
-        # connectcells(self, self.BS_aff_F, self.V3F, 1.5, 3)
-        '''STDP synapse'''
-        #connectcells(self, self.BS_aff_F, self.RG_F, 0.1, 3, stdptype=False)
-        #connectcells(self, self.BS_aff_E, self.RG_E, 0.1, 3, stdptype=False)
-        w_Ia =  0.3 #0.3 #1.3
-        stdp_Ia = True
-        ## connectcells(self, self.Ia_aff_E, self.RG_E, weight=w_Ia, delay=3, stdptype=stdp_Ia)
-        ## connectcells(self, self.Ia_aff_F, self.RG_F, weight=w_Ia, delay=3, stdptype=stdp_Ia)
 
         '''cutaneous inputs'''
         for layer in range(CV_number):
             connectcells(self, self.dict_C[layer], self.dict_CV_1[layer], 0.15 * k * speed, 2)
             connectcells(self, self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
 
-        '''Ia2motor'''
-        ## connectcells(self, self.Ia_aff_E, self.mns_E, 1.55, 2)
-        ## connectcells(self, self.Ia_aff_F, self.mns_F, 1.55, 2)
-
-        for layer in range(CV_number):
-            '''Internal to RG topology'''
-            self.connectinsidenucleus(self.dict_RG_F[layer])
-            self.connectinsidenucleus(self.dict_RG_E[layer])
-
-            '''RG2Motor'''
-            ## connectcells(self, self.dict_RG_E[layer], self.mns_E, 2.75, 3)
-            ## connectcells(self, self.dict_RG_F[layer], self.mns_F, 2.75, 3)
-
-            ## connectcells(self, self.dict_RG_F[layer], self.V2a, 0.75, 3)
-            ## connectcells(self, self.dict_RG_F[layer], self.V0d, 0.75, 3)
-
-            ## connectcells(self, self.dict_RG_E[layer], self.InE, 2.75, 3)
-            ## connectcells(self, self.dict_RG_F[layer], self.InF, 2.75, 3)
-
-            ## connectcells(self, self.dict_RG_F[layer], self.V3F, 1.5, 3)
-
-        '''motor2muscles'''
-        ## connectcells(self, self.mns_E, self.muscle_E, 10, 2, inhtype=False, N=45, sect="muscle")
-        ## connectcells(self, self.mns_F, self.muscle_F, 10, 2, inhtype=False, N=45, sect="muscle")
-
-        '''Ia2RG, RG2Motor'''
-        ## connectcells(self, self.InE, self.RG_F, 0.5, 1, inhtype=True)
-        #connectcells(self, self.InF, self.RG_E, 0.8, 1, inhtype=True)
-
-        ## connectcells(self, self.In1, self.RG_F, 0.5, 1, inhtype=True)
-
-        ## connectcells(self, self.Ia_aff_E, self.Ia_E, 0.08, 1, inhtype=False)
-        ## connectcells(self, self.Ia_aff_F, self.Ia_F, 0.08, 1, inhtype=False)
-
-        ## connectcells(self, self.mns_E, self.R_E, 0.015, 1, inhtype=False)
-        ## connectcells(self, self.mns_F, self.R_F, 0.015, 1, inhtype=False)
-
-        ## connectcells(self, self.R_E, self.mns_E, 0.015, 1, inhtype=True)
-        ## connectcells(self, self.R_F, self.mns_F, 0.015, 1, inhtype=True)
-
-        ## connectcells(self, self.R_E, self.Ia_E, 0.001, 1, inhtype=True)
-        ## connectcells(self, self.R_F, self.Ia_F, 0.001, 1, inhtype=True)
-
-        ## connectcells(self, self.Ia_E, self.mns_F, 0.08, 1, inhtype=True)
-        ## connectcells(self, self.Ia_F, self.mns_E, 0.08, 1, inhtype=True)
-
-        ''' Commisural projections '''
-        #connectcells(self, self.RG_F, self.V2a, 0.75, 3)
-        #connectcells(self, self.RG_F, self.V0d, 0.75, 3)
-        ## connectcells(self, self.V2a, self.V0v, 1.2, 3)
 
     def addIagener(self, mn: list, mn2: list, start, weight=1.0):
         '''
