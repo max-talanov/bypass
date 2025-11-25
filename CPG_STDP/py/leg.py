@@ -173,17 +173,17 @@ class LEG:
         #connectcells(self, self.BS_aff_E, self.RG_E, 0.1, 3, stdptype=False)
         w_Ia =  0.3 #0.3 #1.3
         stdp_Ia = True
-        connectcells(self, self.Ia_aff_E, self.RG_E, weight=w_Ia, delay=3, stdptype=stdp_Ia)
-        connectcells(self, self.Ia_aff_F, self.RG_F, weight=w_Ia, delay=3, stdptype=stdp_Ia)
+        ## connectcells(self, self.Ia_aff_E, self.RG_E, weight=w_Ia, delay=3, stdptype=stdp_Ia)
+        ## connectcells(self, self.Ia_aff_F, self.RG_F, weight=w_Ia, delay=3, stdptype=stdp_Ia)
 
         '''cutaneous inputs'''
         for layer in range(CV_number):
             connectcells(self, self.dict_C[layer], self.dict_CV_1[layer], 0.15 * k * speed, 2)
-            #connectcells(self, self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
+            connectcells(self, self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
 
-        # '''Ia2motor'''
-        connectcells(self, self.Ia_aff_E, self.mns_E, 1.55, 2)
-        connectcells(self, self.Ia_aff_F, self.mns_F, 1.55, 2)
+        '''Ia2motor'''
+        ## connectcells(self, self.Ia_aff_E, self.mns_E, 1.55, 2)
+        ## connectcells(self, self.Ia_aff_F, self.mns_F, 1.55, 2)
 
         for layer in range(CV_number):
             '''Internal to RG topology'''
@@ -191,46 +191,46 @@ class LEG:
             self.connectinsidenucleus(self.dict_RG_E[layer])
 
             '''RG2Motor'''
-            connectcells(self, self.dict_RG_E[layer], self.mns_E, 2.75, 3)
-            connectcells(self, self.dict_RG_F[layer], self.mns_F, 2.75, 3)
-            #added as experimet to fix commisural projections
-            connectcells(self, self.dict_RG_F[layer], self.V2a, 0.75, 3)
-            connectcells(self, self.dict_RG_F[layer], self.V0d, 0.75, 3)
+            ## connectcells(self, self.dict_RG_E[layer], self.mns_E, 2.75, 3)
+            ## connectcells(self, self.dict_RG_F[layer], self.mns_F, 2.75, 3)
 
-            connectcells(self, self.dict_RG_E[layer], self.InE, 2.75, 3)
-            connectcells(self, self.dict_RG_F[layer], self.InF, 2.75, 3)
+            ## connectcells(self, self.dict_RG_F[layer], self.V2a, 0.75, 3)
+            ## connectcells(self, self.dict_RG_F[layer], self.V0d, 0.75, 3)
 
-            connectcells(self, self.dict_RG_F[layer], self.V3F, 1.5, 3)
+            ## connectcells(self, self.dict_RG_E[layer], self.InE, 2.75, 3)
+            ## connectcells(self, self.dict_RG_F[layer], self.InF, 2.75, 3)
+
+            ## connectcells(self, self.dict_RG_F[layer], self.V3F, 1.5, 3)
 
         '''motor2muscles'''
-        connectcells(self, self.mns_E, self.muscle_E, 10, 2, inhtype=False, N=45, sect="muscle")
-        connectcells(self, self.mns_F, self.muscle_F, 10, 2, inhtype=False, N=45, sect="muscle")
+        ## connectcells(self, self.mns_E, self.muscle_E, 10, 2, inhtype=False, N=45, sect="muscle")
+        ## connectcells(self, self.mns_F, self.muscle_F, 10, 2, inhtype=False, N=45, sect="muscle")
 
         '''Ia2RG, RG2Motor'''
-        connectcells(self, self.InE, self.RG_F, 0.5, 1, inhtype=True)
+        ## connectcells(self, self.InE, self.RG_F, 0.5, 1, inhtype=True)
         #connectcells(self, self.InF, self.RG_E, 0.8, 1, inhtype=True)
 
-        connectcells(self, self.In1, self.RG_F, 0.5, 1, inhtype=True)
+        ## connectcells(self, self.In1, self.RG_F, 0.5, 1, inhtype=True)
 
-        connectcells(self, self.Ia_aff_E, self.Ia_E, 0.08, 1, inhtype=False)
-        connectcells(self, self.Ia_aff_F, self.Ia_F, 0.08, 1, inhtype=False)
+        ## connectcells(self, self.Ia_aff_E, self.Ia_E, 0.08, 1, inhtype=False)
+        ## connectcells(self, self.Ia_aff_F, self.Ia_F, 0.08, 1, inhtype=False)
 
-        connectcells(self, self.mns_E, self.R_E, 0.015, 1, inhtype=False)
-        connectcells(self, self.mns_F, self.R_F, 0.015, 1, inhtype=False)
+        ## connectcells(self, self.mns_E, self.R_E, 0.015, 1, inhtype=False)
+        ## connectcells(self, self.mns_F, self.R_F, 0.015, 1, inhtype=False)
 
-        connectcells(self, self.R_E, self.mns_E, 0.015, 1, inhtype=True)
-        connectcells(self, self.R_F, self.mns_F, 0.015, 1, inhtype=True)
+        ## connectcells(self, self.R_E, self.mns_E, 0.015, 1, inhtype=True)
+        ## connectcells(self, self.R_F, self.mns_F, 0.015, 1, inhtype=True)
 
-        connectcells(self, self.R_E, self.Ia_E, 0.001, 1, inhtype=True)
-        connectcells(self, self.R_F, self.Ia_F, 0.001, 1, inhtype=True)
+        ## connectcells(self, self.R_E, self.Ia_E, 0.001, 1, inhtype=True)
+        ## connectcells(self, self.R_F, self.Ia_F, 0.001, 1, inhtype=True)
 
-        connectcells(self, self.Ia_E, self.mns_F, 0.08, 1, inhtype=True)
-        connectcells(self, self.Ia_F, self.mns_E, 0.08, 1, inhtype=True)
+        ## connectcells(self, self.Ia_E, self.mns_F, 0.08, 1, inhtype=True)
+        ## connectcells(self, self.Ia_F, self.mns_E, 0.08, 1, inhtype=True)
 
-        #Commisural projections
+        ''' Commisural projections '''
         #connectcells(self, self.RG_F, self.V2a, 0.75, 3)
         #connectcells(self, self.RG_F, self.V0d, 0.75, 3)
-        connectcells(self, self.V2a, self.V0v, 1.2, 3)
+        ## connectcells(self, self.V2a, self.V0v, 1.2, 3)
 
     def addIagener(self, mn: list, mn2: list, start, weight=1.0):
         '''
