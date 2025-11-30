@@ -336,24 +336,24 @@ def addgener(leg, start, freq, flg_interval, interval, cv=False, r=True):
 
 
 def create_connect_bs(LEG_L, LEG_R):
-    left_E_bs_gids, left_F_bs_gids, right_E_bs_gids, right_F_bs_gids = add_bs_geners(bs_fr, LEG_L, LEG_R)
+    LEG_L.left_E_bs_gids, LEG_L.left_F_bs_gids, LEG_R.right_E_bs_gids, LEG_R.right_F_bs_gids = add_bs_geners(bs_fr, LEG_L, LEG_R)
     ''' BS '''
     '''Left leg'''
-    for E_bs_gid in left_E_bs_gids:
+    for E_bs_gid in LEG_L.left_E_bs_gids:
         for layer in range(CV_number):
             genconnect(LEG_L, E_bs_gid, LEG_L.dict_RG_E[layer], 1.75, 1)
 
-    for F_bs_gid in left_F_bs_gids:
+    for F_bs_gid in LEG_L.left_F_bs_gids:
         for layer in range(CV_number):
             genconnect(LEG_L, F_bs_gid, LEG_L.dict_RG_F[layer], 1.75, 1)
             #genconnect(LEG_L, F_bs_gid, LEG_L.V3F, 1.75, 1)
 
     '''Right leg'''
-    for E_bs_gid in right_E_bs_gids:
+    for E_bs_gid in LEG_R.right_E_bs_gids:
         for layer in range(CV_number):
             genconnect(LEG_R, E_bs_gid, LEG_R.dict_RG_E[layer], 1.75, 1)
 
-    for F_bs_gid in right_F_bs_gids:
+    for F_bs_gid in LEG_R.right_F_bs_gids:
         for layer in range(CV_number):
             genconnect(LEG_R, F_bs_gid, LEG_R.dict_RG_F[layer], 1.75, 1)
             #genconnect(LEG_R, F_bs_gid, LEG_R.V3F, 1.75, 1)
