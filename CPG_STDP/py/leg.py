@@ -41,7 +41,6 @@ class LEG:
         self.weight_changes_vectors = []
         self.time_t_vectors = []
 
-        self.C_1 = []
         self.C_0 = []
         self.V0v = []
         self.V3F = []
@@ -155,10 +154,6 @@ class LEG:
         #     self.C_0.append(
         #         self.addgener(25 + speed * 6 + i * (speed * 6 + CV_0_len), cfr, int(CV_0_len / c_int), False))
         #
-        # '''TODO: need it?'''
-        for layer in range(CV_number):
-            self.C_1.append(self.dict_CV_1[layer])
-        self.C_1 = sum(self.C_1, [])
 
         # ''' BS '''
         # for E_bs_gid in self.E_bs_gids:
@@ -175,10 +170,13 @@ class LEG:
         stdp_Ia = True
         ## connectcells(self, self.Ia_aff_E, self.RG_E, weight=w_Ia, delay=3, stdptype=stdp_Ia)
         ## connectcells(self, self.Ia_aff_F, self.RG_F, weight=w_Ia, delay=3, stdptype=stdp_Ia)
-
+        
+        for layer in range(CV_number):
+            for gen_gid in self.dict_C[layer]:
+                genconnect(self, gen_gid, self.dict_CV_1[layer], 0.15 * k * speed, 2, False, 20)
+                
         '''cutaneous inputs'''
         for layer in range(CV_number):
-            connectcells(self, self.dict_C[layer], self.dict_CV_1[layer], 0.15 * k * speed, 2)
             connectcells(self, self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
 
         '''Ia2motor'''
