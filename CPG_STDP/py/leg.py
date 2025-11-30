@@ -40,8 +40,7 @@ class LEG:
 
         self.weight_changes_vectors = []
         self.time_t_vectors = []
-
-        self.C_1 = []
+        
         self.C_0 = []
         self.V0v = []
         self.V3F = []
@@ -96,13 +95,13 @@ class LEG:
                     addgener(self, step_leg, cfr,
                         True, int((one_step_time / CV_number) * 0.15), cv=True))
 
-        for layer in range(CV_number):
-            self.C_1.append(self.dict_CV_1[layer])
-        self.C_1 = sum(self.C_1, [])
 
+        for layer in range(CV_number):
+            for gen_gid in self.dict_C[layer]:
+                genconnect(self, gen_gid, self.dict_CV_1[layer], 0.15 * k * speed, 2, False, 20)
+                
         '''cutaneous inputs'''
         for layer in range(CV_number):
-            connectcells(self, self.dict_C[layer], self.dict_CV_1[layer], 0.15 * k * speed, 2)
             connectcells(self, self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
 
 
