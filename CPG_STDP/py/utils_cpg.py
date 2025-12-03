@@ -319,7 +319,7 @@ def addgener(leg, start, freq, flg_interval, interval, cv=False, r=True):
                 int(one_step_time / stim.interval) / CV_number)
         else:
             stim.interval = int(1000 / freq)
-            stim.number = int(one_step_time / stim.interval) - 10
+            stim.number = int(one_step_time / stim.interval) - 25
         leg.stims.append(stim)
         pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)
