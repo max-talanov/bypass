@@ -177,7 +177,7 @@ class LEG:
                 
         '''cutaneous inputs'''
         for layer in range(CV_number):
-            connectcells(self, self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
+            connectcells(self, self.dict_CV_1[layer], self.RG_E, 0.0035 * k * speed, 3)
 
         '''Ia2motor'''
         ## connectcells(self, self.Ia_aff_E, self.mns_E, 1.55, 2)
