@@ -40,20 +40,27 @@ class LEG:
 
         self.weight_changes_vectors = []
         self.time_t_vectors = []
-        
+
+        self.C_1 = []
         self.C_0 = []
         self.V0v = []
         self.V3F = []
         self.V0d = []
         self.V2a = []
+        
+        self.dict_CV_1 = {}
+        self.dict_RG_E = {}
+        self.dict_RG_F = {}
+        self.dict_V3F = {}
+        self.dict_C = {}
 
         for layer in range(CV_number):
             '''cut and muscle feedback'''
-            self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
-            self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
-            self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
-            self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
-            self.dict_C = {layer: 'C{}'.format(layer + 1)}
+            self.dict_CV_1[layer] = 'CV{}_1'.format(layer + 1)
+            self.dict_RG_E[layer] = 'RG{}_E'.format(layer + 1)
+            self.dict_RG_F[layer] = 'RG{}_F'.format(layer + 1)
+            self.dict_V3F[layer] = 'V3{}_F'.format(layer + 1)
+            self.dict_C[layer] = 'C{}'.format(layer + 1)
 
         for layer in range(CV_number):
             '''Cutaneous pools'''
@@ -64,6 +71,22 @@ class LEG:
             self.RG_E.append(self.dict_RG_E[layer])
             self.RG_F.append(self.dict_RG_F[layer])
             self.CV.append(self.dict_CV_1[layer])
+
+        '''cutaneous inputs'''
+        cfr = 200
+        c_int = 1000 / cfr
+
+        '''cutaneous inputs generators'''
+        for layer in range(CV_number):
+            self.dict_C[layer] = []
+            for i in range(step_number):
+                self.dict_C[layer].append(addgener(self, 25 + speed * layer + i * (speed * CV_number + CV_0_len),
+                                                        random.gauss(cfr, cfr / 10), False, (speed / c_int + 1)))
+
+        '''cutaneous connections'''
+        for layer in range(CV_number):
+            connectcells(self, self.dict_C[layer], self.dict_CV_1[layer], 0.15 * k * speed, 2)
+            connectcells(self, self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0007 * k * speed, 3)
 
         '''RG'''
         self.RG_E = sum(self.RG_E, [])
@@ -77,32 +100,6 @@ class LEG:
         self.V2a = addpool(self, self.nInt, "V2a", "int")
         self.V0d = addpool(self, self.nInt, "V0d", "int")
 
-        self.CV = sum(self.CV, [])
-
-
-        '''cutaneous inputs'''
-        cfr = 90
-        c_int = 1000 / cfr
-
-        '''cutaneous inputs generators'''
-        for layer in range(CV_number):
-            self.dict_C[layer] = []
-            for i in range(step_number):
-                step_leg = 10 + speed * layer + i * (speed * CV_number + CV_0_len + one_step_time) + 7 - layer * 12
-                if leg_l:
-                    step_leg += one_step_time
-                self.dict_C[layer].append(
-                    addgener(self, step_leg, cfr,
-                        True, int((one_step_time / CV_number) * 0.15), cv=True))
-
-
-        for layer in range(CV_number):
-            for gen_gid in self.dict_C[layer]:
-                genconnect(self, gen_gid, self.dict_CV_1[layer], 0.15 * k * speed, 2, False, 20)
-                
-        '''cutaneous inputs'''
-        for layer in range(CV_number):
-            connectcells(self, self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
 
 
     def addIagener(self, mn: list, mn2: list, start, weight=1.0):
