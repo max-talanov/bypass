@@ -69,7 +69,7 @@ if __name__ == '__main__':
     print(f"   Step number: {step_number}, one_step_time: {one_step_time}")
     print(f"   Total simulation time: {time_sim} ms")
     logging.info("=== MAIN EXECUTION START ===")
-    logging.info(f"Rank {rank}/{nhost}, N={N}, speed={speed}, versions={versions}")
+    logging.info(f"Rank {rank}/{nhost}, N={N}, Step number: {step_number}, speed={speed}, versions={versions}")
 
     if rank == 0 and not os.path.isdir(file_name):
         os.mkdir(file_name)
