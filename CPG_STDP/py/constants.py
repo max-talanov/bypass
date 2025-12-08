@@ -13,6 +13,29 @@ logging.basicConfig(filename='logs_new_new_2.log',
                     level=logging.DEBUG)
 logging.info("let's get it started")
 
+# --- ОТДЕЛЬНЫЕ ЛОГГЕРЫ ДЛЯ addgener и genconnect ---
+
+formatter = logging.Formatter(
+    fmt='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+    datefmt='%H:%M:%S'
+)
+
+# addgener log
+logger_addgener = logging.getLogger("addgener")
+logger_addgener.setLevel(logging.DEBUG)
+
+handler_add = logging.FileHandler("addgener.log", mode="w")
+handler_add.setFormatter(formatter)
+logger_addgener.addHandler(handler_add)
+
+# genconnect log
+logger_genconnect = logging.getLogger("genconnect")
+logger_genconnect.setLevel(logging.DEBUG)
+
+handler_conn = logging.FileHandler("genconnect.log", mode="w")
+handler_conn.setFormatter(formatter)
+logger_genconnect.addHandler(handler_conn)
+
 h.load_file("stdgui.hoc")
 h.load_file('nrngui.hoc')
 h.load_file('stdrun.hoc')

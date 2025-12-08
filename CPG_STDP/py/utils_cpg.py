@@ -229,6 +229,11 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
 
 def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50):
     nsyn = random.randint(N - 5, N)
+    logger_genconnect.info(
+        f"genconnect called | gen_gid={gen_gid} | "
+        f"afferents={len(afferents_gids)} | nsyn_per_target={nsyn} | "
+        f"weight={weight} | delay={delay} | inhtype={inhtype}"
+    )
     for i in afferents_gids:
         if pc.gid_exists(i):
             for j in range(nsyn):
@@ -241,6 +246,22 @@ def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50)
                 nc.threshold = leg.threshold
                 nc.delay = random.gauss(delay, delay / 5)
                 nc.weight[0] = random.gauss(weight, weight / 6)
+
+                # ---------------------------------------
+                # ЛОГИРУЕМ СОЕДИНЕНИЕ
+                # ---------------------------------------
+                logger_genconnect.info(
+                    "NetCon created | gen_gid=%s -> target_gid=%s | syn_index=%s | "
+                    "threshold=%.4f | delay=%.4f | weight=%.4f | inhtype=%s",
+                    gen_gid,
+                    i,
+                    j,
+                    nc.threshold,
+                    nc.delay,
+                    nc.weight[0],
+                    inhtype
+                )
+                # ---------------------------------------
                 leg.stimnclist.append(nc)
 
 
@@ -307,25 +328,42 @@ def addgener(leg, start, freq, flg_interval, interval, cv=False, r=True):
     # Only create generator on rank 0 to avoid duplicates
     if rank == 0:
         stim = h.NetStim()
-        # stim.number = nums
+
         if r:
             stim.start = random.uniform(start - 3, start + 3)
             stim.noise = 0.05
         else:
             stim.start = start
+
+        stim.interval = int(1000 / freq)
+
         if cv:
-            stim.interval = int(1000 / freq)
-            stim.number = int(int(one_step_time / stim.interval) / CV_number) + 0.45 * int(
-                int(one_step_time / stim.interval) / CV_number)
+            stim.number = int(int(one_step_time / stim.interval) / CV_number) + \
+                          0.45 * int(int(one_step_time / stim.interval) / CV_number)
         else:
-            stim.interval = int(1000 / freq)
             stim.number = int(one_step_time / stim.interval) - 2
+
+        # -----------------------------------------
+        # ЛОГИРУЕМ ВСЕ ПАРАМЕТРЫ STIM
+        # -----------------------------------------
+        logger_addgener.info(
+            "STIM created | gid=%s | start=%.3f | interval=%s | number=%s  | cv=%s | r=%s",
+            gid,
+            stim.start,
+            stim.interval,
+            stim.number,
+            cv,
+            r
+        )
+        # -----------------------------------------
+
         leg.stims.append(stim)
         pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)
         leg.netcons.append(ncstim)
         pc.cell(gid, ncstim)
         log_gid_by_lookup(leg, gid, "gen")
+
     else:
         # Other ranks just need to know the GID is assigned to rank 0
         pc.set_gid2node(gid, 0)
