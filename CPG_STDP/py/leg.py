@@ -47,13 +47,19 @@ class LEG:
         self.V0d = []
         self.V2a = []
 
-        for layer in range(CV_number):
-            '''cut and muscle feedback'''
-            self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
-            self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
-            self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
-            self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
-            self.dict_C = {layer: 'C{}'.format(layer + 1)}
+        self.dict_CV_1 = {}
+        self.dict_RG_E ={}
+        self.dict_RG_F = {}
+        self.dict_V3F ={}
+        self.dict_C = {}
+
+        '''cut and muscle feedback'''
+        #for layer in range(CV_number):
+        #    self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
+        #    self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
+        #    self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
+        #    self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
+        #    self.dict_C = {layer: 'C{}'.format(layer + 1)}
 
         for layer in range(CV_number):
             '''Cutaneous pools'''
