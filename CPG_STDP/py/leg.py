@@ -27,7 +27,6 @@ class LEG:
         self.RG_E = []  # Rhythm generators of extensors
         self.RG_F = []  # Rhythm generators of flexor
         self.CV = []
-
         self.netstims = []
         self.stims = []
 
@@ -54,22 +53,17 @@ class LEG:
         self.dict_C = {}
 
         '''cut and muscle feedback'''
-        #for layer in range(CV_number):
-        #    self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
-        #    self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
-        #    self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
-        #    self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
-        #    self.dict_C = {layer: 'C{}'.format(layer + 1)}
-
         for layer in range(CV_number):
             '''Cutaneous pools'''
             self.dict_CV_1[layer] = addpool(self, self.ncell, "CV" + str(layer + 1) + "_1", "aff")
             '''Rhythm generator pools'''
             self.dict_RG_E[layer] = addpool(self, self.ncell, "RG" + str(layer + 1) + "_E", "int")
             self.dict_RG_F[layer] = addpool(self, self.ncell, "RG" + str(layer + 1) + "_F", "int")
+            self.dict_V3F[layer] = addpool(self, self.ncell, "V3" + str(layer + 1) + "_F", "int")
             self.RG_E.append(self.dict_RG_E[layer])
             self.RG_F.append(self.dict_RG_F[layer])
             self.CV.append(self.dict_CV_1[layer])
+            self.V3F.append(self.dict_V3F[layer])
 
         '''RG'''
         self.RG_E = sum(self.RG_E, [])
