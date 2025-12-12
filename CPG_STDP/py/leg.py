@@ -67,8 +67,10 @@ class LEG:
             '''Rhythm generator pools'''
             self.dict_RG_E[layer] = addpool(self, self.ncell, "RG" + str(layer + 1) + "_E", "int")
             self.dict_RG_F[layer] = addpool(self, self.ncell, "RG" + str(layer + 1) + "_F", "int")
+            self.dict_V3F[layer] = addpool(self, self.ncell, "V3" + str(layer + 1) + "_F", "int")
             self.RG_E.append(self.dict_RG_E[layer])
             self.RG_F.append(self.dict_RG_F[layer])
+            self.V3F.append(self.dict_V3F[layer])
             self.CV.append(self.dict_CV_1[layer])
 
         '''RG'''
