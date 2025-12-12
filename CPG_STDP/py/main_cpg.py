@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+import sys
+import os
+
+# Fix for macOS having PYTHONPATH pointing to system NEURON
+if "darwin" in sys.platform:
+    sys.path = [p for p in sys.path if "/Applications/NEURON/lib/python" not in p]
+    # Also unset PYTHONPATH for subprocesses
+    if "PYTHONPATH" in os.environ:
+        del os.environ["PYTHONPATH"]
+
 from constants import *
 from utils_cpg import *
 from leg import *
