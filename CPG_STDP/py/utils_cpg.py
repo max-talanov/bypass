@@ -230,7 +230,8 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
 def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50):
     nsyn = random.randint(N - 5, N)
     logger_genconnect.info(
-        f"genconnect called | gen_gid={gen_gid} | "
+        f"genconnect called | leg={leg.name} | "
+        f"gen_gid={gen_gid} | "
         f"afferents={len(afferents_gids)} | nsyn_per_target={nsyn} | "
         f"weight={weight} | delay={delay} | inhtype={inhtype}"
     )

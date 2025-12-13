@@ -6,6 +6,7 @@ class LEG:
     def __init__(self, speed, bs_fr, inh_p, step_number, n, leg_l=False):
         logging.info(f"Hello from rank {rank} of {nhost}")
         logging.info("NEURON version: " + h.nrnversion())
+        self.name = "LEG left?=" + str(leg_l)
         self.threshold = 10
         self.delay = 1
         self.nAff = 5 #15 #35 #5
@@ -46,23 +47,23 @@ class LEG:
         self.V0d = []
         self.V2a = []
 
-        self.dict_CV_1 = {}
-        self.dict_RG_E ={}
-        self.dict_RG_F = {}
-        self.dict_V3F ={}
-        self.dict_C = {}
+        self.dict_CV_pool = {} # CV pools
+        self.dict_RG_E ={} # RG Extensor pools
+        self.dict_RG_F = {} # RG Flexor pools
+        self.dict_V3F ={} # V3F pools
+        self.dict_CV_gener = {} # cutaneous generators
 
         '''cut and muscle feedback'''
         for layer in range(CV_number):
             '''Cutaneous pools'''
-            self.dict_CV_1[layer] = addpool(self, self.ncell, "CV" + str(layer + 1) + "_1", "aff")
+            self.dict_CV_pool[layer] = addpool(self, self.ncell, "CV" + str(layer + 1) + "_1", "aff")
             '''Rhythm generator pools'''
             self.dict_RG_E[layer] = addpool(self, self.ncell, "RG" + str(layer + 1) + "_E", "int")
             self.dict_RG_F[layer] = addpool(self, self.ncell, "RG" + str(layer + 1) + "_F", "int")
             self.dict_V3F[layer] = addpool(self, self.ncell, "V3" + str(layer + 1) + "_F", "int")
             self.RG_E.append(self.dict_RG_E[layer])
             self.RG_F.append(self.dict_RG_F[layer])
-            self.CV.append(self.dict_CV_1[layer])
+            self.CV.append(self.dict_CV_pool[layer])
             self.V3F.append(self.dict_V3F[layer])
 
         '''RG'''
@@ -86,23 +87,23 @@ class LEG:
 
         '''cutaneous inputs generators'''
         for layer in range(CV_number):
-            self.dict_C[layer] = []
+            self.dict_CV_gener[layer] = []
             for i in range(step_number):
                 step_leg = 10 + speed * layer + i * (speed * CV_number + CV_0_len + one_step_time) + 7 - layer * 12
                 if leg_l:
                     step_leg += one_step_time
-                self.dict_C[layer].append(
+                self.dict_CV_gener[layer].append(
                     addgener(self, step_leg, cfr,
                         True, int((one_step_time / CV_number) * 0.15), cv=True))
 
 
         for layer in range(CV_number):
-            for gen_gid in self.dict_C[layer]:
-                genconnect(self, gen_gid, self.dict_CV_1[layer], 0.15 * k * speed, 2, False, 20)
+            for gen_gid in self.dict_CV_gener[layer]:
+                genconnect(self, gen_gid, self.dict_CV_pool[layer], 0.15 * k * speed, 2, False, 20)
                 
         '''cutaneous inputs'''
         for layer in range(CV_number):
-            connectcells(self, self.dict_CV_1[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
+            connectcells(self, self.dict_CV_pool[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
 
 
     def addIagener(self, mn: list, mn2: list, start, weight=1.0):
