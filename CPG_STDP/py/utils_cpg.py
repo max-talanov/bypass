@@ -104,7 +104,7 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
 
                 for i in range(nsyn):
                     src_gid = random.randint(pre_cells[0], pre_cells[-1])
-                    logging.info(f"     Synapse {i + 1}/{nsyn}: src_gid={src_gid} -> post_gid={post_gid}")
+                    logging.info(f"Synapse {i + 1}/{nsyn}: src_gid={src_gid} -> post_gid={post_gid}")
 
                     if stdptype:
                         # print(f"     🧠 Creating STDP connection...")
