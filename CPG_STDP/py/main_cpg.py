@@ -99,8 +99,8 @@ if __name__ == '__main__':
             # switched the legs
             # create_connect_bs(LEG_L, LEG_R)
             # add_external_connections(LEG_L, LEG_R)
-            #create_connect_bs(LEG_R, LEG_L)
-            #add_external_connections(LEG_R, LEG_L)
+            # create_connect_bs(LEG_R, LEG_L)
+            # add_external_connections(LEG_R, LEG_L)
             print(f"   ✅ CPG network created successfully")
             logging.info("CPG created successfully")
 
