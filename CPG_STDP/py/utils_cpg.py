@@ -79,11 +79,15 @@ def addpool(leg, num, name, neurontype="int") -> list:
     return all_gids
 
 
-def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, inhtype=False,
+def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="UNKNOWN_POST", weight=1.0, delay=1, threshold=10, inhtype=False,
                  stdptype=False, N=50, sect="int"):
     print(f"🔗 [rank {rank}] connectcells: pre_cells={len(pre_cells)}, post_cells={len(post_cells)}")
     print(f"   weight={weight}, delay={delay}, threshold={threshold}, inhtype={inhtype}, stdptype={stdptype}")
-    logging.info(f"connectcells start: pre={len(pre_cells)}, post={len(post_cells)}, stdp={stdptype}")
+    logging.info(
+        f"connectcells start | "
+        f"{pre_name}({len(pre_cells)}) -> {post_name}({len(post_cells)}) | "
+        f"stdp={stdptype}, inh={inhtype}"
+    )
 
     nsyn = random.randint(N, N + 15)
     # print(f"   nsyn={nsyn}")
@@ -103,12 +107,20 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
                 logging.info(f"Target {post_gid} type: {target_type}")
 
                 for i in range(nsyn):
-                    src_gid = random.randint(pre_cells[0], pre_cells[-1])
-                    logging.info(f"Synapse {i + 1}/{nsyn}: src_gid={src_gid} -> post_gid={post_gid}")
+                    pre_cells = list(pre_cells)
+                    src_gid = random.choice(pre_cells)
+                    logging.info(
+                        f"[{pre_name} -> {post_name}] "
+                        f"syn {i + 1}/{nsyn}: "
+                        f"{src_gid} -> {post_gid}"
+                    )
 
                     if stdptype:
                         # print(f"     🧠 Creating STDP connection...")
-                        logging.info(f"STDP connection: {src_gid} -> {post_gid}")
+                        logging.info(
+                            f"STDP [{pre_name}->{post_name}] "
+                            f"{src_gid} -> {post_gid}"
+                        )
 
                         try:
                             # Проверяем наличие STDP синапсов
@@ -227,12 +239,12 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
     logging.info(f"connectcells end: {connection_count} connections created")
 
 
-def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50):
+def genconnect(leg, gen_gid, afferents_gids, weight, delay, gen_name="GEN", target_name="TARGET", inhtype=False, N=50):
     nsyn = random.randint(N - 5, N)
     logger_genconnect.info(
-        f"genconnect called | leg={leg.name} | "
-        f"gen_gid={gen_gid} | "
-        f"afferents={len(afferents_gids)} | nsyn_per_target={nsyn} | "
+        f"genconnect start | leg={leg.name} | "
+        f"{gen_name}({gen_gid}) -> {target_name}({len(afferents_gids)}) | "
+        f"nsyn_per_target={nsyn} | "
         f"weight={weight} | delay={delay} | inhtype={inhtype}"
     )
     for i in afferents_gids:
@@ -252,9 +264,11 @@ def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50)
                 # ЛОГИРУЕМ СОЕДИНЕНИЕ
                 # ---------------------------------------
                 logger_genconnect.info(
-                    "NetCon created | gen_gid=%s -> target_gid=%s | syn_index=%s | "
+                    "NetCon created | %s(%s) -> %s(%s) | syn_index=%s | "
                     "threshold=%.4f | delay=%.4f | weight=%.4f | inhtype=%s",
+                    gen_name,
                     gen_gid,
+                    target_name,
                     i,
                     j,
                     nc.threshold,
@@ -289,11 +303,11 @@ def add_bs_geners(freq, LEG_L, LEG_R):
     right_E_bs_gids = []
     right_F_bs_gids = []
     for step in range(step_number):
-        right_F_bs_gids.append(addgener(LEG_R, (one_step_time * (2 * step + 1)), freq, False, 1, r=False))
-        right_E_bs_gids.append(addgener(LEG_R, int(one_step_time * 2 * step) + 10, freq, False, 1, r=False))
+        right_F_bs_gids.append(addgener(LEG_R, (one_step_time * (2 * step + 1)), freq, False, r=False))
+        right_E_bs_gids.append(addgener(LEG_R, int(one_step_time * 2 * step) + 10, freq, False, r=False))
         # added generators in anti-phase
-        left_E_bs_gids.append(addgener(LEG_L, (one_step_time * (2 * step + 1)), freq, False, 1, r=False))
-        left_F_bs_gids.append(addgener(LEG_L, int(one_step_time * 2 * step) + 10, freq, False, 1, r=False))
+        left_E_bs_gids.append(addgener(LEG_L, (one_step_time * (2 * step + 1)), freq, False, r=False))
+        left_F_bs_gids.append(addgener(LEG_L, int(one_step_time * 2 * step) + 10, freq, False, r=False))
     return left_E_bs_gids, left_F_bs_gids, right_E_bs_gids, right_F_bs_gids
 
 def log_gid_by_lookup(leg, gid: int, name):
@@ -309,7 +323,7 @@ def log_gid_by_lookup(leg, gid: int, name):
         print(f"[rank {rank}] Added GID {gid} (type: {typename})")
 
 
-def addgener(leg, start, freq, flg_interval, interval, cv=False, r=True):
+def addgener(leg, start, freq, cv=False, r=True):
     '''
     Creates generator and returns generator gid
     Parameters
@@ -339,8 +353,8 @@ def addgener(leg, start, freq, flg_interval, interval, cv=False, r=True):
         stim.interval = int(1000 / freq)
 
         if cv:
-            stim.number = int(int(one_step_time / stim.interval) / CV_number) + \
-                          0.45 * int(int(one_step_time / stim.interval) / CV_number)
+            stim.number = int(int(int(one_step_time / stim.interval) / CV_number) + \
+                          0.45 * int(int(one_step_time / stim.interval) / CV_number))
         else:
             stim.number = int(one_step_time / stim.interval) - 2
 
@@ -361,6 +375,9 @@ def addgener(leg, start, freq, flg_interval, interval, cv=False, r=True):
         leg.stims.append(stim)
         pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)
+        spike_times = h.Vector()
+        ncstim.record(spike_times)
+        leg.gen_spike_vectors.append((gid, spike_times))
         leg.netcons.append(ncstim)
         pc.cell(gid, ncstim)
         log_gid_by_lookup(leg, gid, "gen")
@@ -380,21 +397,21 @@ def create_connect_bs(LEG_L, LEG_R):
     '''Left leg'''
     for E_bs_gid in LEG_L.left_E_bs_gids:
         for layer in range(CV_number):
-            genconnect(LEG_L, E_bs_gid, LEG_L.dict_RG_E[layer], 1.75, 1)
+            genconnect(LEG_L, E_bs_gid, LEG_L.dict_RG_E[layer], 1.75, 1, gen_name="E_bs_gid", target_name=f"LEG_L_RG_E_{layer+1}")
 
     for F_bs_gid in LEG_L.left_F_bs_gids:
         for layer in range(CV_number):
-            genconnect(LEG_L, F_bs_gid, LEG_L.dict_RG_F[layer], 1.75, 1)
+            genconnect(LEG_L, F_bs_gid, LEG_L.dict_RG_F[layer], 1.75, 1, gen_name="F_bs_gid", target_name=f"LEG_L_RG_F_{layer+1}")
             #genconnect(LEG_L, F_bs_gid, LEG_L.V3F, 1.75, 1)
 
     '''Right leg'''
     for E_bs_gid in LEG_R.right_E_bs_gids:
         for layer in range(CV_number):
-            genconnect(LEG_R, E_bs_gid, LEG_R.dict_RG_E[layer], 1.75, 1)
+            genconnect(LEG_R, E_bs_gid, LEG_R.dict_RG_E[layer], 1.75, 1, gen_name="E_bs_gid", target_name=f"LEG_R_RG_E_{layer+1}")
 
     for F_bs_gid in LEG_R.right_F_bs_gids:
         for layer in range(CV_number):
-            genconnect(LEG_R, F_bs_gid, LEG_R.dict_RG_F[layer], 1.75, 1)
+            genconnect(LEG_R, F_bs_gid, LEG_R.dict_RG_F[layer], 1.75, 1, gen_name="F_bs_gid", target_name=f"LEG_R_RG_F_{layer+1}")
             #genconnect(LEG_R, F_bs_gid, LEG_R.V3F, 1.75, 1)
 
 

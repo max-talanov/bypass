@@ -23,6 +23,7 @@ class LEG:
         self.musclegroups = []
         self.gener_gids = []
         self.gener_Iagids = []
+        self.gen_spike_vectors = []
         # self.n_gid = get_gid()
 
         self.RG_E = []  # Rhythm generators of extensors
@@ -93,17 +94,16 @@ class LEG:
                 if leg_l:
                     step_leg += one_step_time
                 self.dict_CV_gener[layer].append(
-                    addgener(self, step_leg, cfr,
-                        True, int((one_step_time / CV_number) * 0.15), cv=True))
+                    addgener(self, step_leg, cfr, cv=True, r=False))
 
 
         for layer in range(CV_number):
             for gen_gid in self.dict_CV_gener[layer]:
-                genconnect(self, gen_gid, self.dict_CV_pool[layer], 0.15 * k * speed, 2, False, 20)
+                genconnect(self, gen_gid, self.dict_CV_pool[layer], 0.15 * k * speed, 2, gen_name="gen_CV", target_name=f"CV_{layer+1}", inhtype=False, N=20)
                 
         '''cutaneous inputs'''
         for layer in range(CV_number):
-            connectcells(self, self.dict_CV_pool[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
+            connectcells(self, self.dict_CV_pool[layer], self.dict_RG_E[layer], pre_name=f"CV_{layer+1}", post_name=f"RG_E_{layer+1}", weight=.0035 * k * speed, delay=3)
 
 
     def addIagener(self, mn: list, mn2: list, start, weight=1.0):
@@ -224,7 +224,7 @@ class LEG:
         return gid
 
     def connectinsidenucleus(self, nucleus):
-        connectcells(self, nucleus, nucleus, 0.25, 0.5)
+        connectcells(self, nucleus, nucleus, pre_name="", post_name="", weight=0.25, delay=0.5) #todo
 
     def add_ia_geners(self, leg_l):
         E_ia_gids = []

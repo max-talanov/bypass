@@ -52,6 +52,29 @@ def force_record(pool):
         v_vec.append(vec)
     return v_vec
 
+def generator_record(gen_gids):
+    """
+    Records real spike times from NetStim generators
+    Parameters
+    ----------
+    gen_gids : list[int]
+        generator gids
+    Returns
+    -------
+    gen_vecs : list[tuple]
+        list of (gid, h.Vector) with spike times
+    """
+    gen_vecs = []
+
+    for gid in gen_gids:
+        if pc.gid_exists(gid):
+            nc = pc.gid2cell(gid)
+            vec = h.Vector()
+            nc.record(vec)
+            gen_vecs.append((gid, vec))
+
+    return gen_vecs
+
 def velocity_record(gids, attr='_ref_vel'):
     """
     Records velocity-related variable (vel or v0) from IaGenerator instances
@@ -144,3 +167,55 @@ def setup_recorders(leg, recorder_list, group_attr, group_name):
     """Настраивает рекордеры для указанной группы нейронов"""
     print(f"      Setting up {group_name} recorders...")
     recorder_list.extend(spike_record(group[k_nrns]) for group in getattr(leg, group_attr))
+
+
+def generator_spikeout(gen_vecs, name, version, leg):
+    """
+    Saves generator spike times
+    Parameters
+    ----------
+    gen_vecs : list of (gid, h.Vector)
+        recorded generator spike times
+    name : str
+        generator group name
+    version : int
+        test number
+    leg : str
+        left / right
+    """
+    global rank
+    pc.barrier()
+
+    if rank == 0:
+        gen_dir = f'./{file_name}/{name}_generators'
+        if not os.path.exists(gen_dir):
+            os.makedirs(gen_dir)
+
+    pc.barrier()
+
+    local_data = []
+    for gid, vec in gen_vecs:
+        local_data.append((gid, list(vec)))
+
+    gathered = pc.py_gather(local_data, 0)
+
+    if rank == 0:
+        logging.info(f"start recording generators {name}")
+
+        # gathered = [rank0_data, rank1_data, ...]
+        for rank_data in gathered:
+            if rank_data is None:
+                continue
+            for gid, spikes in rank_data:
+                fname = (
+                    f'{gen_dir}/gen_{gid}_'
+                    f'sp_{speed}_CVs_{CV_number}_bs_{bs_fr}_{leg}_v{version}.hdf5'
+                )
+                with hdf5.File(fname, 'w') as f:
+                    f.create_dataset(
+                        'spike_times',
+                        data=np.array(spikes, dtype=np.float32),
+                        compression="gzip"
+                    )
+
+        logging.info("done recording generators")

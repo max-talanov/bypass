@@ -133,6 +133,9 @@ if __name__ == '__main__':
             setup_recorders(LEG_L, recorders_l, 'intgroups', 'interneuron')
             setup_recorders(LEG_R, recorders_r, 'intgroups', 'interneuron')
 
+            gen_recorders_l = generator_record(LEG_L.gener_gids)
+            gen_recorders_r = generator_record(LEG_R.gener_gids)
+
             # print(f"      Setting up muscle recorders...")
             for group in getattr(LEG_L, "musclegroups"):
                 musclerecorders_l.append(spike_record(group[k_nrns]))
@@ -175,6 +178,20 @@ if __name__ == '__main__':
                 print(f"      ✅ Time data saved")
 
             print(f"      Saving spike data...")
+            generator_spikeout(
+                gen_recorders_l,
+                name="GEN",
+                version=i,
+                leg="left"
+            )
+
+            generator_spikeout(
+                gen_recorders_r,
+                name="GEN",
+                version=i,
+                leg="right"
+            )
+
             for group, recorder in zip(LEG_L.musclegroups, musclerecorders_l):
                 spikeout(group[k_nrns], group[k_name], i, recorder, "left")
             for group, recorder in zip(LEG_L.motogroups, motorecorders_mem_l):
