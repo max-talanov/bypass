@@ -190,35 +190,35 @@ if __name__ == '__main__':
                 leg="right"
             )
 
-            # for group, recorder in zip(LEG_L.musclegroups, musclerecorders_l):
-            #     spikeout(group[k_nrns], group[k_name], i, recorder, "left")
-            # for group, recorder in zip(LEG_L.motogroups, motorecorders_mem_l):
-            #     spikeout(group[k_nrns], 'mem_{}'.format(group[k_name]), i, recorder, "left")
-            # for group, recorder in zip(LEG_L.affgroups, affrecorders_l):
-            #     spikeout(group[k_nrns], group[k_name], i, recorder, "left")
-            # for group, recorder in zip(LEG_L.intgroups, recorders_l):
-            #     spikeout(group[k_nrns], group[k_name], i, recorder, "left")
-            # for group, recorder in zip(LEG_L.musclegroups, force_recorders_l):
-            #     spikeout(group[k_nrns], 'force_{}'.format(group[k_name]), i, recorder, "left")
-            # for group, recorder in zip(LEG_L.musclegroups, muscle_units_recorders_l):
-            #     spikeout(group[k_nrns], 'units_{}'.format(group[k_name]), i, recorder, "left")
-            # for group, recorder in zip(LEG_L.musclegroups, muscle_am_recorders_l):
-            #     spikeout(group[k_nrns], 'am_{}'.format(group[k_name]), i, recorder, "left")
+            for group, recorder in zip(LEG_L.musclegroups, musclerecorders_l):
+                spikeout(group[k_nrns], group[k_name], i, recorder, "left")
+            for group, recorder in zip(LEG_L.motogroups, motorecorders_mem_l):
+                spikeout(group[k_nrns], 'mem_{}'.format(group[k_name]), i, recorder, "left")
+            for group, recorder in zip(LEG_L.affgroups, affrecorders_l):
+                spikeout(group[k_nrns], group[k_name], i, recorder, "left")
+            for group, recorder in zip(LEG_L.intgroups, recorders_l):
+                spikeout(group[k_nrns], group[k_name], i, recorder, "left")
+            for group, recorder in zip(LEG_L.musclegroups, force_recorders_l):
+                spikeout(group[k_nrns], 'force_{}'.format(group[k_name]), i, recorder, "left")
+            for group, recorder in zip(LEG_L.musclegroups, muscle_units_recorders_l):
+                spikeout(group[k_nrns], 'units_{}'.format(group[k_name]), i, recorder, "left")
+            for group, recorder in zip(LEG_L.musclegroups, muscle_am_recorders_l):
+                spikeout(group[k_nrns], 'am_{}'.format(group[k_name]), i, recorder, "left")
 
-            # for group, recorder in zip(LEG_R.musclegroups, musclerecorders_r):
-            #     spikeout(group[k_nrns], group[k_name], i, recorder, "right")
-            # for group, recorder in zip(LEG_R.motogroups, motorecorders_mem_r):
-            #     spikeout(group[k_nrns], 'mem_{}'.format(group[k_name]), i, recorder, "right")
-            # for group, recorder in zip(LEG_R.affgroups, affrecorders_r):
-            #     spikeout(group[k_nrns], group[k_name], i, recorder, "right")
-            # for group, recorder in zip(LEG_R.intgroups, recorders_r):
-            #     spikeout(group[k_nrns], group[k_name], i, recorder, "right")
-            # for group, recorder in zip(LEG_R.musclegroups, force_recorders_r):
-            #     spikeout(group[k_nrns], 'force_{}'.format(group[k_name]), i, recorder, "right")
-            # for group, recorder in zip(LEG_R.musclegroups, muscle_units_recorders_r):
-            #     spikeout(group[k_nrns], 'units_{}'.format(group[k_name]), i, recorder, "right")
-            # for group, recorder in zip(LEG_R.musclegroups, muscle_am_recorders_r):
-            #     spikeout(group[k_nrns], 'am_{}'.format(group[k_name]), i, recorder, "right")
+            for group, recorder in zip(LEG_R.musclegroups, musclerecorders_r):
+                spikeout(group[k_nrns], group[k_name], i, recorder, "right")
+            for group, recorder in zip(LEG_R.motogroups, motorecorders_mem_r):
+                spikeout(group[k_nrns], 'mem_{}'.format(group[k_name]), i, recorder, "right")
+            for group, recorder in zip(LEG_R.affgroups, affrecorders_r):
+                spikeout(group[k_nrns], group[k_name], i, recorder, "right")
+            for group, recorder in zip(LEG_R.intgroups, recorders_r):
+                spikeout(group[k_nrns], group[k_name], i, recorder, "right")
+            for group, recorder in zip(LEG_R.musclegroups, force_recorders_r):
+                spikeout(group[k_nrns], 'force_{}'.format(group[k_name]), i, recorder, "right")
+            for group, recorder in zip(LEG_R.musclegroups, muscle_units_recorders_r):
+                spikeout(group[k_nrns], 'units_{}'.format(group[k_name]), i, recorder, "right")
+            for group, recorder in zip(LEG_R.musclegroups, muscle_am_recorders_r):
+                spikeout(group[k_nrns], 'am_{}'.format(group[k_name]), i, recorder, "right")
 
             # spikeout(cpg_ex.gener_Iagids, 'vel', i, vel_vecs_recorders)
             # spikeout(cpg_ex.gener_Iagids, 'v0', i, v0_vecs_recorders)
