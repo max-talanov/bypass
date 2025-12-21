@@ -109,15 +109,15 @@ def spikeout(pool, name, version, v_vec, leg):
                 outavg.append(list(v_vec[j]))
 
                 # Сохранение индивидуальных значений для каждого нейрона
-                if rank == 0:  # Сохраняем только на узле 0 для простоты
-                    individual_file = f'{individual_dir}/neuron_{pool[j]}_sp_{speed}_CVs_{CV_number}_bs_{bs_fr}_{leg}.hdf5'
-                    with hdf5.File(individual_file, 'w') as indiv_file:
-                        neuron_data = list(v_vec[j])
-                        for step in range(step_number):
-                            sl = slice((int(1000 / bs_fr) * 40 + step * one_step_time * 40),
-                                       (int(1000 / bs_fr) * 40 + (step + 1) * one_step_time * 40))
-                            indiv_file.create_dataset(f'#0_step_{step}', data=np.array(neuron_data)[sl],
-                                                      compression="gzip")
+                #if rank == 0:  # Сохраняем только на узле 0 для простоты
+                #    individual_file = f'{individual_dir}/neuron_{pool[j]}_sp_{speed}_CVs_{CV_number}_bs_{bs_fr}_{leg}.hdf5'
+                #    with hdf5.File(individual_file, 'w') as indiv_file:
+                #        neuron_data = list(v_vec[j])
+                #        for step in range(step_number):
+                #            sl = slice((int(1000 / bs_fr) * 40 + step * one_step_time * 40),
+                #                       (int(1000 / bs_fr) * 40 + (step + 1) * one_step_time * 40))
+                #            indiv_file.create_dataset(f'#0_step_{step}', data=np.array(neuron_data)[sl],
+                #                                      compression="gzip")
 
             # Продолжение обработки средних значений
             outavg = np.mean(np.array(outavg), axis=0, dtype=np.float32)
