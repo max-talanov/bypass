@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+import sys
+import os
+
+# Fix for macOS having PYTHONPATH pointing to system NEURON
+if "darwin" in sys.platform:
+    sys.path = [p for p in sys.path if "/Applications/NEURON/lib/python" not in p]
+    # Also unset PYTHONPATH for subprocesses
+    if "PYTHONPATH" in os.environ:
+        del os.environ["PYTHONPATH"]
+
 from constants import *
 from utils_cpg import *
 from leg import *
@@ -69,7 +79,7 @@ if __name__ == '__main__':
     print(f"   Step number: {step_number}, one_step_time: {one_step_time}")
     print(f"   Total simulation time: {time_sim} ms")
     logging.info("=== MAIN EXECUTION START ===")
-    logging.info(f"Rank {rank}/{nhost}, N={N}, speed={speed}, versions={versions}")
+    logging.info(f"Rank {rank}/{nhost}, N={N}, Step number: {step_number}, speed={speed}, versions={versions}")
 
     if rank == 0 and not os.path.isdir(file_name):
         os.mkdir(file_name)
@@ -84,13 +94,13 @@ if __name__ == '__main__':
 
         try:
             print(f"   Creating CPG network...")
-            LEG_L = LEG(speed, bs_fr, 100, step_number, N, leg_l=True)
-            LEG_R = LEG(speed, bs_fr, 100, step_number, N, leg_l=False)
-            # switch the legs
-            create_connect_bs(LEG_L, LEG_R)
-            add_external_connections(LEG_L, LEG_R)
-            #create_connect_bs(LEG_R, LEG_L)
-            #add_external_connections(LEG_R, LEG_L)
+            LEG_L = LEG(speed, bs_fr, 100, step_number, N, leg_l=False)
+            LEG_R = LEG(speed, bs_fr, 100, step_number, N, leg_l=True)
+            # switched the legs
+            # create_connect_bs(LEG_L, LEG_R)
+            # add_external_connections(LEG_L, LEG_R)
+            # create_connect_bs(LEG_R, LEG_L)
+            # add_external_connections(LEG_R, LEG_L)
             print(f"   ✅ CPG network created successfully")
             logging.info("CPG created successfully")
 
@@ -165,6 +175,22 @@ if __name__ == '__main__':
                 print(f"      ✅ Time data saved")
 
             print(f"      Saving spike data...")
+            gen_recorders_l = LEG_L.gen_spike_vectors
+            gen_recorders_r = LEG_R.gen_spike_vectors
+            generator_spikeout(
+                gen_recorders_l,
+                name="GEN_L",
+                version=i,
+                leg="left"
+            )
+
+            generator_spikeout(
+                gen_recorders_r,
+                name="GEN_R",
+                version=i,
+                leg="right"
+            )
+
             for group, recorder in zip(LEG_L.musclegroups, musclerecorders_l):
                 spikeout(group[k_nrns], group[k_name], i, recorder, "left")
             for group, recorder in zip(LEG_L.motogroups, motorecorders_mem_l):

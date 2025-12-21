@@ -52,6 +52,7 @@ def force_record(pool):
         v_vec.append(vec)
     return v_vec
 
+
 def velocity_record(gids, attr='_ref_vel'):
     """
     Records velocity-related variable (vel or v0) from IaGenerator instances
@@ -108,15 +109,15 @@ def spikeout(pool, name, version, v_vec, leg):
                 outavg.append(list(v_vec[j]))
 
                 # Сохранение индивидуальных значений для каждого нейрона
-                if rank == 0:  # Сохраняем только на узле 0 для простоты
-                    individual_file = f'{individual_dir}/neuron_{pool[j]}_sp_{speed}_CVs_{CV_number}_bs_{bs_fr}_{leg}.hdf5'
-                    with hdf5.File(individual_file, 'w') as indiv_file:
-                        neuron_data = list(v_vec[j])
-                        for step in range(step_number):
-                            sl = slice((int(1000 / bs_fr) * 40 + step * one_step_time * 40),
-                                       (int(1000 / bs_fr) * 40 + (step + 1) * one_step_time * 40))
-                            indiv_file.create_dataset(f'#0_step_{step}', data=np.array(neuron_data)[sl],
-                                                      compression="gzip")
+                #if rank == 0:  # Сохраняем только на узле 0 для простоты
+                #    individual_file = f'{individual_dir}/neuron_{pool[j]}_sp_{speed}_CVs_{CV_number}_bs_{bs_fr}_{leg}.hdf5'
+                #    with hdf5.File(individual_file, 'w') as indiv_file:
+                #        neuron_data = list(v_vec[j])
+                #        for step in range(step_number):
+                #            sl = slice((int(1000 / bs_fr) * 40 + step * one_step_time * 40),
+                #                       (int(1000 / bs_fr) * 40 + (step + 1) * one_step_time * 40))
+                #            indiv_file.create_dataset(f'#0_step_{step}', data=np.array(neuron_data)[sl],
+                #                                      compression="gzip")
 
             # Продолжение обработки средних значений
             outavg = np.mean(np.array(outavg), axis=0, dtype=np.float32)
@@ -144,3 +145,53 @@ def setup_recorders(leg, recorder_list, group_attr, group_name):
     """Настраивает рекордеры для указанной группы нейронов"""
     print(f"      Setting up {group_name} recorders...")
     recorder_list.extend(spike_record(group[k_nrns]) for group in getattr(leg, group_attr))
+
+
+def generator_spikeout(gen_vecs, name, version, leg):
+    """
+    Saves generator spike times
+    Parameters
+    ----------
+    gen_vecs : list of (gid, h.Vector)
+        recorded generator spike times
+    name : str
+        generator group name
+    version : int
+        test number
+    leg : str
+        left / right
+    """
+    global rank
+    pc.barrier()
+
+    if rank == 0:
+        gen_dir = f'./{file_name}/{name}_generators'
+        if not os.path.exists(gen_dir):
+            os.makedirs(gen_dir)
+
+    pc.barrier()
+
+    local_data = [(gid, list(vec)) for gid, vec in gen_vecs]
+
+    gathered = pc.py_gather(local_data, 0)
+
+    if rank == 0:
+        logging.info(f"start recording generators {name}")
+
+        # gathered = [rank0_data, rank1_data, ...]
+        for rank_data in gathered:
+            if rank_data is None:
+                continue
+            for gid, spikes in rank_data:
+                fname = (
+                    f'{gen_dir}/gen_{gid}_rank{rank}_'
+                    f'sp_{speed}_CVs_{CV_number}_bs_{bs_fr}_{leg}_v{version}.hdf5'
+                )
+                with hdf5.File(fname, 'w') as f:
+                    f.create_dataset(
+                        'spike_times',
+                        data=np.array(spikes, dtype=np.float32),
+                        compression="gzip"
+                    )
+
+        logging.info("done recording generators")

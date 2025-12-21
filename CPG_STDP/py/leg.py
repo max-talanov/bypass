@@ -6,6 +6,7 @@ class LEG:
     def __init__(self, speed, bs_fr, inh_p, step_number, n, leg_l=False):
         logging.info(f"Hello from rank {rank} of {nhost}")
         logging.info("NEURON version: " + h.nrnversion())
+        self.name = "LEG left?=" + str(leg_l)
         self.threshold = 10
         self.delay = 1
         self.nAff = 5 #15 #35 #5
@@ -22,12 +23,12 @@ class LEG:
         self.musclegroups = []
         self.gener_gids = []
         self.gener_Iagids = []
+        self.gen_spike_vectors = []
         # self.n_gid = get_gid()
 
         self.RG_E = []  # Rhythm generators of extensors
         self.RG_F = []  # Rhythm generators of flexor
         self.CV = []
-
         self.netstims = []
         self.stims = []
 
@@ -40,6 +41,7 @@ class LEG:
 
         self.weight_changes_vectors = []
         self.time_t_vectors = []
+        
 
         self.C_0 = []
         self.V0v = []
@@ -47,23 +49,24 @@ class LEG:
         self.V0d = []
         self.V2a = []
 
-        for layer in range(CV_number):
-            '''cut and muscle feedback'''
-            self.dict_CV_1 = {layer: 'CV{}_1'.format(layer + 1)}
-            self.dict_RG_E = {layer: 'RG{}_E'.format(layer + 1)}
-            self.dict_RG_F = {layer: 'RG{}_F'.format(layer + 1)}
-            self.dict_V3F = {layer: 'V3{}_F'.format(layer + 1)}
-            self.dict_C = {layer: 'C{}'.format(layer + 1)}
+        self.dict_CV_pool = {} # CV pools
+        self.dict_RG_E ={} # RG Extensor pools
+        self.dict_RG_F = {} # RG Flexor pools
+        self.dict_V3F ={} # V3F pools
+        self.dict_CV_gener = {} # cutaneous generators
 
+        '''cut and muscle feedback'''
         for layer in range(CV_number):
             '''Cutaneous pools'''
-            self.dict_CV_1[layer] = addpool(self, self.ncell, "CV" + str(layer + 1) + "_1", "aff")
+            self.dict_CV_pool[layer] = addpool(self, self.ncell, "CV" + str(layer + 1) + "_1", "aff")
             '''Rhythm generator pools'''
             self.dict_RG_E[layer] = addpool(self, self.ncell, "RG" + str(layer + 1) + "_E", "int")
             self.dict_RG_F[layer] = addpool(self, self.ncell, "RG" + str(layer + 1) + "_F", "int")
+            self.dict_V3F[layer] = addpool(self, self.ncell, "V3" + str(layer + 1) + "_F", "int")
             self.RG_E.append(self.dict_RG_E[layer])
             self.RG_F.append(self.dict_RG_F[layer])
-            self.CV.append(self.dict_CV_1[layer])
+            self.CV.append(self.dict_CV_pool[layer])
+            self.V3F.append(self.dict_V3F[layer])
 
         '''RG'''
         self.RG_E = sum(self.RG_E, [])
@@ -79,59 +82,6 @@ class LEG:
 
         self.CV = sum(self.CV, [])
 
-        '''sensory and muscle afferents and brainstem and V3F'''
-        self.Ia_aff_E = addpool(self, self.nAff, "Ia_aff_E", "aff")
-        self.Ia_aff_F = addpool(self, self.nAff, "Ia_aff_F", "aff")
-        # self.BS_aff_E = addpool(self, self.nAff, "BS_aff_E", "aff")
-        # self.BS_aff_F = addpool(self, self.nAff, "BS_aff_F", "aff")
-        self.V3F = addpool(self, self.nInt, "V3F", "int")
-
-        '''moto neuron pools'''
-        self.mns_E = addpool(self, self.nMn, "mns_E", "moto")
-        self.mns_F = addpool(self, self.nMn, "mns_F", "moto")
-
-        '''muscles'''
-        self.muscle_E = addpool(self, self.nMn, "muscle_E", "muscle")
-        self.muscle_F = addpool(self, self.nMn, "muscle_F", "muscle")
-
-        # '''reflex arc'''
-        self.Ia_E = addpool(self, self.nInt, "Ia_E", "int")
-        self.R_E = addpool(self, self.nInt, "R_E", "int")  # Renshaw cells
-        self.Ia_F = addpool(self, self.nInt, "Ia_F", "int")
-        self.R_F = addpool(self, self.nInt, "R_F", "int")  # Renshaw cells
-
-        '''BS'''
-        # periodic stimulation
-        # self.E_bs_gids, self.F_bs_gids = add_bs_geners(bs_fr)
-
-        # self.E_bs_gids = sum(pc.py_allgather(self.E_bs_gids), [])
-        # self.F_bs_gids = sum(pc.py_allgather(self.F_bs_gids), [])
-        # ''' BS '''
-        # for E_bs_gid in self.E_bs_gids:
-        #     self.genconnect(E_bs_gid, self.muscle_E, 0.5, 1)
-        #
-        # for F_bs_gid in self.F_bs_gids:
-        #     self.genconnect(F_bs_gid, self.muscle_F, 0.5, 1)
-
-
-        self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(leg_l)
-
-        for E_ia_gids in self.E_ia_gids:
-            genconnect(self, E_ia_gids, self.Ia_aff_E, 0.01, 1, False, 20)
-
-        for F_ia_gids in self.F_ia_gids:
-            genconnect(self, F_ia_gids, self.Ia_aff_F, 0.01, 1, False, 30)
-
-        # # '''muscle afferents generators'''
-        # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 10, weight=3)
-        # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time, weight=3)
-        #
-        # # # '''Create connectcells'''
-        # self.genconnect(self.Iagener_E, self.Ia_aff_E, 5.5, 1, False, 20)
-        # self.genconnect(self.Iagener_F, self.Ia_aff_F, 5.5, 1, False, 30)
-
-        # connectcells(self, self.muscle_E, self.Ia_aff_E, 3.5, 1, 10, False)
-        # connectcells(self, self.muscle_F, self.Ia_aff_F, 3.5, 1, 10, False)
 
         '''cutaneous inputs'''
         cfr = 90
@@ -139,14 +89,14 @@ class LEG:
 
         '''cutaneous inputs generators'''
         for layer in range(CV_number):
-            self.dict_C[layer] = []
+            self.dict_CV_gener[layer] = []
             for i in range(step_number):
                 step_leg = 10 + speed * layer + i * (speed * CV_number + CV_0_len + one_step_time) + 7 - layer * 12
                 if leg_l:
                     step_leg += one_step_time
-                self.dict_C[layer].append(
-                    addgener(self, step_leg, cfr,
-                        True, int((one_step_time / CV_number) * 0.15), cv=True))
+                self.dict_CV_gener[layer].append(
+                    addgener(self, step_leg, cfr, cv=True))
+                    ## int((one_step_time / CV_number) * 0.15), cv=True))
         #
         # '''Generators'''
         # '''TODO: need it?'''
@@ -172,12 +122,13 @@ class LEG:
         ## connectcells(self, self.Ia_aff_F, self.RG_F, weight=w_Ia, delay=3, stdptype=stdp_Ia)
         
         for layer in range(CV_number):
-            for gen_gid in self.dict_C[layer]:
-                genconnect(self, gen_gid, self.dict_CV_1[layer], 0.15 * k * speed, 2, False, 20)
+            for gen_gid in self.dict_CV_gener[layer]:
+                genconnect(self, gen_gid, self.dict_CV_pool[layer], 0.15 * k * speed, 2, False, 20)
                 
         '''cutaneous inputs'''
         for layer in range(CV_number):
-            connectcells(self, self.dict_CV_1[layer], self.RG_E, 0.0035 * k * speed, 3)
+            connectcells(self, self.dict_CV_gener[layer], self.dict_CV_pool[layer], 0.15 * k * speed, 2)
+            connectcells(self, self.dict_CV_pool[layer], self.dict_RG_E[layer], 0.0035 * k * speed, 3)
 
         '''Ia2motor'''
         ## connectcells(self, self.Ia_aff_E, self.mns_E, 1.55, 2)
@@ -348,7 +299,7 @@ class LEG:
         return gid
 
     def connectinsidenucleus(self, nucleus):
-        connectcells(self, nucleus, nucleus, 0.25, 0.5)
+        connectcells(self, nucleus, nucleus, pre_name="", post_name="", weight=0.25, delay=0.5) #todo
 
     def add_ia_geners(self, leg_l):
         E_ia_gids = []

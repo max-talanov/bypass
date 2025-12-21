@@ -13,6 +13,29 @@ logging.basicConfig(filename='logs_new_new_2.log',
                     level=logging.DEBUG)
 logging.info("let's get it started")
 
+# --- ОТДЕЛЬНЫЕ ЛОГГЕРЫ ДЛЯ addgener и genconnect ---
+
+formatter = logging.Formatter(
+    fmt='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+    datefmt='%H:%M:%S'
+)
+
+# addgener log
+logger_addgener = logging.getLogger("addgener")
+logger_addgener.setLevel(logging.DEBUG)
+
+handler_add = logging.FileHandler("addgener.log", mode="w")
+handler_add.setFormatter(formatter)
+logger_addgener.addHandler(handler_add)
+
+# genconnect log
+logger_genconnect = logging.getLogger("genconnect")
+logger_genconnect.setLevel(logging.DEBUG)
+
+handler_conn = logging.FileHandler("genconnect.log", mode="w")
+handler_conn.setFormatter(formatter)
+logger_genconnect.addHandler(handler_conn)
+
 h.load_file("stdgui.hoc")
 h.load_file('nrngui.hoc')
 h.load_file('stdrun.hoc')
@@ -53,7 +76,7 @@ extra_layers = 0  # 1 + layers
 step_number = 50 #quick test #50 # 70 max thaht works  # 100 weights are not recorded, CVs are in disorder # 50 #15 #10
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
-time_sim = one_step_time * step_number + 30
+time_sim = (one_step_time * step_number + 30)*2
 
 k_nrns = 0
 k_name = 1
