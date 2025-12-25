@@ -42,7 +42,6 @@ class LEG:
         self.weight_changes_vectors = []
         self.time_t_vectors = []
         
-
         self.C_0 = []
         self.V0v = []
         self.V3F = []
@@ -73,14 +72,34 @@ class LEG:
         self.InE = addpool(self, self.nInt, "InE", "int")
         self.RG_F = sum(self.RG_F, [])
         self.InF = addpool(self, self.nInt, "InF", "int")
-
         self.In1 = addpool(self, self.nInt, "In1", "int")
-
         self.V0v = addpool(self, self.nInt, "V0v", "int")
         self.V2a = addpool(self, self.nInt, "V2a", "int")
         self.V0d = addpool(self, self.nInt, "V0d", "int")
 
         self.CV = sum(self.CV, [])
+
+        '''sensory and muscle afferents and brainstem and V3F'''
+        self.Ia_aff_E = addpool(self, self.nAff, "Ia_aff_E", "aff")
+        self.Ia_aff_F = addpool(self, self.nAff, "Ia_aff_F", "aff")
+        # self.BS_aff_E = addpool(self, self.nAff, "BS_aff_E", "aff")
+        # self.BS_aff_F = addpool(self, self.nAff, "BS_aff_F", "aff")
+        self.V3F = addpool(self, self.nInt, "V3F", "int")
+        
+        '''muscles'''
+        self.muscle_E = addpool(self, self.nMn, "muscle_E", "muscle")
+        self.muscle_F = addpool(self, self.nMn, "muscle_F", "muscle")
+
+        '''moto neuron pools'''
+        self.mns_E = addpool(self, self.nMn, "mns_E", "moto")
+        self.mns_F = addpool(self, self.nMn, "mns_F", "moto")
+
+        # '''reflex arc'''
+        self.Ia_E = addpool(self, self.nInt, "Ia_E", "int")
+        self.R_E = addpool(self, self.nInt, "R_E", "int")  # Renshaw cells
+        self.Ia_F = addpool(self, self.nInt, "Ia_F", "int")
+        self.R_F = addpool(self, self.nInt, "R_F", "int")  # Renshaw cells
+
 
 
         '''cutaneous inputs'''
@@ -116,11 +135,33 @@ class LEG:
         '''STDP synapse'''
         #connectcells(self, self.BS_aff_F, self.RG_F, 0.1, 3, stdptype=False)
         #connectcells(self, self.BS_aff_E, self.RG_E, 0.1, 3, stdptype=False)
+
+        '''Ia inputs'''
+        self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(leg_l)
+
+        for E_ia_gids in self.E_ia_gids:
+            genconnect(self, E_ia_gids, self.Ia_aff_E, 0.01, 1, False, 20)
+
+        for F_ia_gids in self.F_ia_gids:
+            genconnect(self, F_ia_gids, self.Ia_aff_F, 0.01, 1, False, 30)
+
+        # # '''muscle afferents generators'''
+        # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 10, weight=3)
+        # self.Iagener_F = self.addIagener(self.muscle_F, self.muscle_E, one_step_time, weight=3)
+        #
+        # # # '''Create connectcells'''
+        # self.genconnect(self.Iagener_E, self.Ia_aff_E, 5.5, 1, False, 20)
+        # self.genconnect(self.Iagener_F, self.Ia_aff_F, 5.5, 1, False, 30)
+
+        # connectcells(self, self.muscle_E, self.Ia_aff_E, 3.5, 1, 10, False)
+        # connectcells(self, self.muscle_F, self.Ia_aff_F, 3.5, 1, 10, False)
+
         w_Ia =  0.3 #0.3 #1.3
-        stdp_Ia = True
-        stdp_CV = False
-        ## connectcells(self, self.Ia_aff_E, self.RG_E, weight=w_Ia, delay=3, stdptype=stdp_Ia)
-        ## connectcells(self, self.Ia_aff_F, self.RG_F, weight=w_Ia, delay=3, stdptype=stdp_Ia)
+        stdp_Ia = False
+        stdp_CV = True
+        
+        connectcells(self, self.Ia_aff_E, self.RG_E, weight=w_Ia, delay=3, stdptype=stdp_Ia)
+        connectcells(self, self.Ia_aff_F, self.RG_F, weight=w_Ia, delay=3, stdptype=stdp_Ia)
         
         for layer in range(CV_number):
             for gen_gid in self.dict_CV_gener[layer]:
