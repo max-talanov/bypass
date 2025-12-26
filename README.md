@@ -1,4 +1,4 @@
-![](https://raw.githubusercontent.com/max-talanov/bypass/main/figs/memCPG_4_214x214.png)
+![](https://raw.githubusercontent.com/max-talanov/bypass/main/figs/SC_ico.png)
 # memCPG
 the memCPG project repository
 1. Models in brian2
