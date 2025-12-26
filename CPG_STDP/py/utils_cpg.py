@@ -393,6 +393,7 @@ def addgener(leg, start, freq, cv=False, r=True):
 
 def create_connect_bs(LEG_L, LEG_R):
     LEG_L.left_E_bs_gids, LEG_L.left_F_bs_gids, LEG_R.right_E_bs_gids, LEG_R.right_F_bs_gids = add_bs_geners(bs_fr, LEG_L, LEG_R)
+
     ''' BS '''
     '''Left leg'''
     for E_bs_gid in LEG_L.left_E_bs_gids:
