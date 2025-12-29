@@ -77,7 +77,7 @@ class muscle(object):
         # # muscle_unit параметры:
         self.muscle_unit.cm = 3.6
         ## self.muscle_unit.insert('Ca_conc')
-        ## self.muscle_unit.insert('pas')
+        self.muscle_unit.insert('pas')
         self.muscle_unit.g_pas = 0.004
         self.muscle_unit.e_pas = -70
         self.muscle_unit.Ra = 1.1
