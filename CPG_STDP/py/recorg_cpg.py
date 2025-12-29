@@ -42,18 +42,15 @@ def spike_record_old(pool, extra=False, location='soma', max_units = None, seed 
 
 
 def spike_record(pool, extra=False, location='soma', max_units=None, seed=0):
-
     pool = list(pool)
     if max_units is not None and len(pool) > max_units:
         rng = np.random.default_rng(seed)
         pool = rng.choice(pool, size=max_units, replace=False).tolist()
 
     v_vec = []
-
-    for i in pool:
-        cell = pc.gid2cell(i)
+    for gid in pool:
+        cell = pc.gid2cell(gid)
         vec = h.Vector()
-
         if extra:
             vec.record(cell.soma(0.5)._ref_vext[0], rec_dt)
         else:
@@ -65,10 +62,9 @@ def spike_record(pool, extra=False, location='soma', max_units=None, seed=0):
                 vec.record(cell.muscle_unit(0.5)._ref_AM_CaSP, rec_dt)
             else:
                 vec.record(cell.soma(0.5)._ref_v, rec_dt)
-
         v_vec.append(vec)
 
-    return v_vec
+    return pool, v_vec
 
 
 def force_record_old(pool):
@@ -233,9 +229,8 @@ def setup_recorders_old(leg, recorder_list, group_attr, group_name):
 
 def setup_recorders(leg, recorder_list, group_attr, group_name):
     print(f"      Setting up {group_name} recorders...")
-
     for group in getattr(leg, group_attr):
-        recorder_list.extend(
+        recorder_list.append(
             spike_record(group[k_nrns], max_units=2, seed=123)
         )
 
