@@ -59,7 +59,7 @@ PARAMETER {
     wmax  = 15.0
     softthresh = 1
     STDPon = 1
-    verbose = 2
+    verbose = 0
     skip = 0
 }
 

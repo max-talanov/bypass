@@ -1,6 +1,6 @@
 from constants import *
 
-def spike_record(pool, extra=False, location='soma'):
+def spike_record(pool, extra=False, location='soma', max_units = None, seed = 0):
     ''' Records spikes from gids
       Parameters
       ----------
@@ -13,6 +13,12 @@ def spike_record(pool, extra=False, location='soma'):
       v_vec: list of h.Vector()
           recorded voltages
     '''
+
+    pool = list(pool)
+    if max_units is not None and len(pool) > max_units:
+        rng = np.random.default_rng(seed)
+        pool = rng.choice(pool, size=max_units, replace=False).tolist()
+
     v_vec = []
 
     for i in pool:
@@ -132,7 +138,7 @@ def spikeout(pool, name, version, v_vec, leg):
         logging.info("start recording " + name)
         result = np.mean(np.array(result), axis=0, dtype=np.float32)
         with hdf5.File(f'./{file_name}/{name}_sp_{speed}_CVs_{CV_number}_bs_{bs_fr}_{leg}.hdf5', 'w') as file:
-            for i in range(step_number):
+            for i in range(step_number*2):
                 sl = slice((int(1000 / bs_fr) * 40 + i * one_step_time * 40),
                            (int(1000 / bs_fr) * 40 + (i + 1) * one_step_time * 40))
                 file.create_dataset('#0_step_{}'.format(i), data=np.array(result)[sl], compression="gzip")
@@ -144,7 +150,7 @@ def spikeout(pool, name, version, v_vec, leg):
 def setup_recorders(leg, recorder_list, group_attr, group_name):
     """Настраивает рекордеры для указанной группы нейронов"""
     print(f"      Setting up {group_name} recorders...")
-    recorder_list.extend(spike_record(group[k_nrns]) for group in getattr(leg, group_attr))
+    recorder_list.extend([spike_record(group[k_nrns], max_units=2, seed=123) for group in getattr(leg, group_attr)])
 
 
 def generator_spikeout(gen_vecs, name, version, leg):

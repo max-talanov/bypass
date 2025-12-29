@@ -81,8 +81,8 @@ def addpool(leg, num, name, neurontype="int") -> list:
 
 def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="UNKNOWN_POST", weight=1.0, delay=1, threshold=10, inhtype=False,
                  stdptype=False, N=50, sect="int"):
-    print(f"🔗 [rank {rank}] connectcells: pre_cells={len(pre_cells)}, post_cells={len(post_cells)}")
-    print(f"   weight={weight}, delay={delay}, threshold={threshold}, inhtype={inhtype}, stdptype={stdptype}")
+    #print(f"🔗 [rank {rank}] connectcells: pre_cells={len(pre_cells)}, post_cells={len(post_cells)}")
+    #print(f"   weight={weight}, delay={delay}, threshold={threshold}, inhtype={inhtype}, stdptype={stdptype}")
     logging.info(
         f"connectcells start | "
         f"{pre_name}({len(pre_cells)}) -> {post_name}({len(post_cells)}) | "
@@ -190,7 +190,7 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
 
                             # Запись изменений весов
                             weight_changes = h.Vector()
-                            weight_changes.record(stdpmech._ref_synweight)
+                            weight_changes.record(stdpmech._ref_synweight, 1.0)
                             leg.weight_changes_vectors.append((src_gid, post_gid, weight_changes))
                             # print(f"     ✅ Weight recording set up")
 

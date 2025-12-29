@@ -74,7 +74,7 @@ PROCEDURE init_sequence(t(ms)) {
 FUNCTION invl(t (ms)) (ms) {
 	:interspike interval
 	:len2 is the length increase of the antagonist muscle
-    printf("PRE: t=%g, t0=%g\n", t, t0)
+    : printf("PRE: t=%g, t0=%g\n", t, t0)
 	if (fhill > fhill0) {
 		: printf("INC \n")
 		vel = v0 + 0.001*fhill*(t-t0) + 0.00015*fhill*(t-t0)*(t-t0)
@@ -93,7 +93,7 @@ FUNCTION invl(t (ms)) (ms) {
 	if (vel < 1) {vel = 1}
 	diff_t0 = t - t0
 	if (diff_t0 > 100 && vel > 1) {vel = 40}
-	printf("t: %g, t0: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g, vel: %g, ", t, t0 , len2, fhill2, fhill0, fhill, vel)
+	: printf("t: %g, t0: %g, len2: %g, fhill2: %g, fhill0 %g, fhill %g, vel: %g, ", t, t0 , len2, fhill2, fhill0, fhill, vel)
 	: printf("IaGenerator v0: %g, vel: %g \n", v0, vel)
 	: printf("IaGenerator fhill2: %g, fhill0 %g, fhill %g \n, vel: %g \n", fhill2, fhill0, fhill, vel)
 	v0 = vel
