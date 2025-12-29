@@ -1,6 +1,6 @@
 from constants import *
 
-def spike_record(pool, extra=False, location='soma', max_units = None, seed = 0):
+def spike_record_old(pool, extra=False, location='soma', max_units = None, seed = 0):
     ''' Records spikes from gids
       Parameters
       ----------
@@ -41,7 +41,37 @@ def spike_record(pool, extra=False, location='soma', max_units = None, seed = 0)
     return v_vec
 
 
-def force_record(pool):
+def spike_record(pool, extra=False, location='soma', max_units=None, seed=0):
+
+    pool = list(pool)
+    if max_units is not None and len(pool) > max_units:
+        rng = np.random.default_rng(seed)
+        pool = rng.choice(pool, size=max_units, replace=False).tolist()
+
+    v_vec = []
+
+    for i in pool:
+        cell = pc.gid2cell(i)
+        vec = h.Vector()
+
+        if extra:
+            vec.record(cell.soma(0.5)._ref_vext[0], rec_dt)
+        else:
+            if location == 'axon':
+                vec.record(cell.node[0](1.0)._ref_v, rec_dt)
+            elif location == 'muscle':
+                vec.record(cell.muscle_unit(0.5)._ref_v, rec_dt)
+            elif location == 'am':
+                vec.record(cell.muscle_unit(0.5)._ref_AM_CaSP, rec_dt)
+            else:
+                vec.record(cell.soma(0.5)._ref_v, rec_dt)
+
+        v_vec.append(vec)
+
+    return v_vec
+
+
+def force_record_old(pool):
     ''' Records force from gids of motor neurons muscle unit
       Parameters
       ----------
@@ -58,8 +88,17 @@ def force_record(pool):
         v_vec.append(vec)
     return v_vec
 
+def force_record(pool):
 
-def velocity_record(gids, attr='_ref_vel'):
+    v_vec = []
+    for i in pool:
+        cell = pc.gid2cell(i)
+        vec = h.Vector()
+        vec.record(cell.muscle_unit(0.5)._ref_F_fHill, rec_dt)
+        v_vec.append(vec)
+    return v_vec
+
+def velocity_record_old(gids, attr='_ref_vel'):
     """
     Records velocity-related variable (vel or v0) from IaGenerator instances
 
@@ -84,7 +123,19 @@ def velocity_record(gids, attr='_ref_vel'):
     return vecs
 
 
-def spikeout(pool, name, version, v_vec, leg):
+
+def velocity_record(gids, attr='_ref_vel'):
+
+    vecs = []
+    for gid in gids:
+        cell = pc.gid2cell(gid)
+        vec = h.Vector()
+        vec.record(getattr(cell, attr), rec_dt)
+        vecs.append(vec)
+    return vecs
+
+
+def spikeout_old(pool, name, version, v_vec, leg):
     ''' Reports simulation results
       Parameters
       ----------
@@ -147,11 +198,46 @@ def spikeout(pool, name, version, v_vec, leg):
     else:
         logging.info(rank)
 
-def setup_recorders(leg, recorder_list, group_attr, group_name):
+def spikeout(pool, name, version, v_vec, leg):
+    pc.barrier()
+    vec = h.Vector()
+
+    for i in range(nhost):
+        if i == rank:
+            arrs = [np.array(v, dtype=np.float32) for v in v_vec]
+            outavg = np.mean(np.stack(arrs, axis=0), axis=0, dtype=np.float32)
+            vec = vec.from_python(outavg)
+        pc.barrier()
+
+    pc.barrier()
+    gathered = pc.py_gather(vec, 0)
+
+    if rank == 0:
+        result = np.mean(np.array(gathered), axis=0, dtype=np.float32)
+
+        with hdf5.File(f'./{file_name}/{name}_sp_{speed}_CVs_{CV_number}_bs_{bs_fr}_{leg}.hdf5', 'w') as f:
+            f.create_dataset(
+                "trace",
+                data=result,
+                compression="gzip",
+                compression_opts=4
+            )
+            f.attrs["rec_dt_ms"] = float(rec_dt)
+            f.attrs["time_sim_ms"] = float(time_sim)
+            f.attrs["version"] = int(version)
+
+def setup_recorders_old(leg, recorder_list, group_attr, group_name):
     """Настраивает рекордеры для указанной группы нейронов"""
     print(f"      Setting up {group_name} recorders...")
     recorder_list.extend([spike_record(group[k_nrns], max_units=2, seed=123) for group in getattr(leg, group_attr)])
 
+def setup_recorders(leg, recorder_list, group_attr, group_name):
+    print(f"      Setting up {group_name} recorders...")
+
+    for group in getattr(leg, group_attr):
+        recorder_list.extend(
+            spike_record(group[k_nrns], max_units=2, seed=123)
+        )
 
 def generator_spikeout(gen_vecs, name, version, leg):
     """

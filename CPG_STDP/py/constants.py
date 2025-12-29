@@ -64,6 +64,7 @@ def check_mpi_status():
 pc, rank, nhost = check_mpi_status()
 file_name = 'res_alina_50_stdp'
 
+rec_dt = 0.1 # the recording step
 N = 5
 speed = 100
 bs_fr = 100  # 40 # frequency of brainstem inputs
