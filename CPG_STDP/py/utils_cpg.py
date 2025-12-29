@@ -417,10 +417,10 @@ def create_connect_bs(LEG_L, LEG_R):
 
 
 def add_external_connections(LEG_L, LEG_R):
-    #connectcells(LEG_L, LEG_L.V3F, LEG_R.RG_F, weight=1.3, delay=3)
-    #connectcells(LEG_R, LEG_R.V3F, LEG_L.RG_F, weight=1.3, delay=3)
-    # connectcells(LEG_L, LEG_L.V0v, LEG_R.In1, weight=1.3, delay=3)
-    # connectcells(LEG_R, LEG_R.V0v, LEG_L.In1, weight=1.3, delay=3)
+    connectcells(LEG_L, LEG_L.V3F, LEG_R.RG_F, weight=1.3, delay=3)
+    connectcells(LEG_R, LEG_R.V3F, LEG_L.RG_F, weight=1.3, delay=3)
+    connectcells(LEG_L, LEG_L.V0v, LEG_R.In1, weight=1.3, delay=3)
+    connectcells(LEG_R, LEG_R.V0v, LEG_L.In1, weight=1.3, delay=3)
     connectcells(LEG_L, LEG_L.V0d, LEG_R.RG_F, weight=1.3, delay=3, inhtype=True)
     connectcells(LEG_R, LEG_R.V0d, LEG_L.RG_F, weight=1.3, delay=3, inhtype=True)
 
