@@ -196,13 +196,24 @@ def spikeout_old(pool, name, version, v_vec, leg):
 
 def spikeout(pool, name, version, v_vec, leg):
     pc.barrier()
+
+    expected_len = int(time_sim / rec_dt) + 1
     vec = h.Vector()
 
     for i in range(nhost):
         if i == rank:
-            arrs = [np.array(v, dtype=np.float32) for v in v_vec]
-            outavg = np.mean(np.stack(arrs, axis=0), axis=0, dtype=np.float32)
+            sum_ = np.zeros(expected_len, dtype=np.float32)
+            cnt  = np.zeros(expected_len, dtype=np.int32)
+
+            for v in v_vec:
+                a = np.asarray(v, dtype=np.float32)
+                n = min(a.size, expected_len)
+                sum_[:n] += a[:n]
+                cnt[:n] += 1
+
+            outavg = sum_ / np.maximum(cnt, 1)
             vec = vec.from_python(outavg)
+
         pc.barrier()
 
     pc.barrier()
