@@ -137,7 +137,7 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
                             syn = target.synlistexstdp[i]
                             # print(f"     ✅ Got STDP synapse: {type(syn).__name__}")
 
-                            # Создаем основное соединение
+                            # Creating main connection
                             nc = pc.gid_connect(src_gid, syn)
                             nc.delay = delay
                             nc.weight[0] = weight
@@ -146,7 +146,7 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
                             leg.netcons.append(nc)
                             # print(f"     ✅ Main NetCon created")
 
-                            # Создаем STDP механизм
+                            # Creating STDP mechanism
                             # print(f"     Creating STDP mechanism...")
                             dummy = h.Section()  # Create a dummy section to put the point processes in
                             # print(f"     ✅ Dummy section created")
@@ -160,7 +160,7 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
                                 logging.error(f"STDP creation error: {stdp_error}")
                                 continue
 
-                            # Пресинаптическое соединение
+                            # Presynaptic connection
                             # print(f"     Creating presynaptic connection...")
                             presyn = pc.gid_connect(src_gid, stdpmech)
                             presyn.delay = delay
@@ -169,7 +169,7 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
                             leg.presyns.append(presyn)
                             # print(f"     ✅ Presynaptic NetCon created")
 
-                            # Постсинаптическое соединение
+                            # Postsynaptic connection
                             # print(f"     Creating postsynaptic connection...")
                             pstsyn = pc.gid_connect(post_gid, stdpmech)
                             pstsyn.delay = delay

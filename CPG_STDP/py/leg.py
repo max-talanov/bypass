@@ -9,9 +9,9 @@ class LEG:
         self.name = "LEG left?=" + str(leg_l)
         self.threshold = 10
         self.delay = 1
-        self.nAff = 5 #15 #35 #5
-        self.nInt = 5 #10 #21 #5
-        self.nMn = 5 #10 #21 #5
+        self.nAff = 35 #15 #35 #5
+        self.nInt = 21 #10 #21 #5
+        self.nMn = 21 #10 #21 #5
         self.ncell = n
         self.affs = []
         self.ints = []
