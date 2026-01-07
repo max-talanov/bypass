@@ -65,8 +65,8 @@ pc, rank, nhost = check_mpi_status()
 file_name = 'res_alina_50_stdp'
 
 rec_dt = 0.1 # the recording step
-w_rec_dt = 10 # the recording step for weights
-N =  5 # 50
+w_rec_dt = 100 # the recording step for weights
+N =  50 # 50
 speed = 100
 bs_fr = 100  # 40 # frequency of brainstem inputs
 versions = 1
@@ -75,7 +75,7 @@ k = 0.017  # CV weights multiplier to take into account air and toe stepping
 CV_0_len = 12  # 125 # Duration of the CV generator with no sensory inputs
 extra_layers = 0  # 1 + layers
 
-step_number = 1 #quick test #50 # 70 max that works  # 100 weights are not recorded # 50 #15 #10
+step_number = 100 #quick test #50 # 70 max that works  # 100 weights are not recorded # 50 #15 #10
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = (one_step_time * step_number + 30)*2
