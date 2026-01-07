@@ -224,35 +224,44 @@ if __name__ == '__main__':
             # spikeout(cpg_ex.gener_Iagids, 'v0', i, v0_vecs_recorders)
             # print(f"      ✅ Spike data saved")
 
-            if rank == 0:
                 logging.info(f"      Saving STDP weight changes...")
                 stdp_dir = f'./{file_name}/stdp_1'
-                if not os.path.exists(stdp_dir):
-                    os.makedirs(stdp_dir)
-                    print(f"      ✅ Created STDP directory: {stdp_dir}")
+                if rank == 0:
+                    if not os.path.exists(stdp_dir):
+                        os.makedirs(stdp_dir)
+                        print(f"      ✅ Created STDP directory: {stdp_dir}")
 
-                stdp_count = 0
-                for src_gid, post_gid, weight_vec in LEG_L.weight_changes_vectors:
-                    try:
-                        src_obj = pc.gid2cell(src_gid) if pc.gid_exists(src_gid) else None
-                        post_obj = pc.gid2cell(post_gid) if pc.gid_exists(post_gid) else None
+                # Wait for directory creation
+                pc.barrier()
 
-                        src_type = type(src_obj).__name__ if src_obj is not None else "None"
-                        post_type = type(post_obj).__name__ if post_obj is not None else "None"
+                # Consolidate all weight changes into one file per rank
+                weights_file = f'{stdp_dir}/weights_rank_{rank}.hdf5'
+                print(f"      💾 Saving {len(LEG_L.weight_changes_vectors)} weight vectors to {weights_file}...")
+                
+                try:
+                    with hdf5.File(weights_file, 'w') as f:
+                        # Create groups for better organization
+                        grp_meta = f.create_group("metadata")
+                        grp_meta.attrs["rank"] = rank
+                        grp_meta.attrs["step"] = i
+                        
+                        grp_data = f.create_group("data")
+                        
+                        count = 0
+                        for src_gid, post_gid, weight_vec in LEG_L.weight_changes_vectors:
+                            # Use a unique key for each connection
+                            dset_name = f"{src_gid}_to_{post_gid}"
+                            grp_data.create_dataset(dset_name, data=np.array(weight_vec), compression="gzip")
+                            count += 1
+                            
+                        print(f"      ✅ Saved {count} datasets to {weights_file}")
+                        logging.info(f"Saved {count} datasets to {weights_file}")
 
-                        # Сформировать безопасное имя файла
-                        safe_name = safe_filename(f'{src_type}_{src_gid}_to_{post_type}_{post_gid}.hdf5')
-                        fname = f'{stdp_dir}/{safe_name}'
-
-                        with hdf5.File(fname, 'w') as file:
-                            file.create_dataset(f'#0_step_{i}', data=np.array(weight_vec), compression="gzip")
-                        stdp_count += 1
-
-                    except Exception as e:
-                        print(f"      ⚠️ Error saving STDP weight {src_gid} → {post_gid}: {e}")
-
+                except Exception as e:
+                    print(f"      ❌ Error saving HDF5 file {weights_file}: {e}")
+                    logging.error(f"Error saving HDF5 file {weights_file}: {e}")
+                
                 logging.info(f"      ✅ Saved {stdp_count} STDP weight change files")
-
             print(f"   ✅ All results saved successfully")
             logging.info("Results recorded")
 
