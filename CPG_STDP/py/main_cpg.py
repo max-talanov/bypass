@@ -161,10 +161,10 @@ if __name__ == '__main__':
             t = prun(speed, step_number)
             print("- " * 20)
             print(f"   ✅ Simulation completed")
-
             logging.info("Simulation done")
-
+            #################################
             print(f"   💾 Saving results...")
+            logging.info("Saving results...")
 
             if rank == 0:
                 print(f"      Saving time data...")
@@ -172,8 +172,9 @@ if __name__ == '__main__':
                     for time in t:
                         time_file.write(str(time) + "\n")
                 print(f"      ✅ Time data saved")
-
+                logging.info("Time data saved")
             print(f"      Saving spike data...")
+            logging.info("Saving spike data...")
             # gen_recorders_l = LEG_L.gen_spike_vectors
             # gen_recorders_r = LEG_R.gen_spike_vectors
             # generator_spikeout(
@@ -224,12 +225,13 @@ if __name__ == '__main__':
             # spikeout(cpg_ex.gener_Iagids, 'v0', i, v0_vecs_recorders)
             # print(f"      ✅ Spike data saved")
 
-                logging.info(f"      Saving STDP weight changes...")
-                stdp_dir = f'./{file_name}/stdp_1'
-                if rank == 0:
-                    if not os.path.exists(stdp_dir):
-                        os.makedirs(stdp_dir)
-                        print(f"      ✅ Created STDP directory: {stdp_dir}")
+            logging.info(f"      Saving STDP weight changes...")
+            stdp_dir = f'./{file_name}/stdp_1'
+            if rank == 0:
+                if not os.path.exists(stdp_dir):
+                    os.makedirs(stdp_dir)
+                print(f"      ✅ Created STDP directory: {stdp_dir}")
+                logging.info(f"      Created STDP directory: {stdp_dir}")
 
                 # Wait for directory creation
                 pc.barrier()
