@@ -116,14 +116,14 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
                     )
 
                     if stdptype:
-                        # print(f"     🧠 Creating STDP connection...")
+                        print(f"     🧠 Creating STDP connection...")
                         logging.info(
                             f"STDP [{pre_name}->{post_name}] "
                             f"{src_gid} -> {post_gid}"
                         )
 
                         try:
-                            # Проверяем наличие STDP синапсов
+                            # Checking for STDP synapses
                             if not hasattr(target, 'synlistexstdp'):
                                 # print(f"     ❌ Target {target_type} has no synlistexstdp")
                                 logging.error(f"No synlistexstdp in {target_type}")
@@ -177,22 +177,22 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
                             pstsyn.threshold = threshold
                             leg.postsyns.append(pstsyn)
                             pc.threshold(post_gid, threshold)
-                            # print(f"     ✅ Postsynaptic NetCon created")
+                            print(f"     ✅ Postsynaptic NetCon created")
 
-                            # Установка указателя
+                            # Setting pointer
                             # print(f"     Setting pointer...")
                             try:
                                 h.setpointer(nc._ref_weight[0], 'synweight', stdpmech)
-                                # print(f"     ✅ Pointer set successfully")
+                                logging.info(f"     ✅ Pointer set successfully")
                             except Exception as pointer_error:
                                 # print(f"     ❌ Pointer setting failed: {pointer_error}")
                                 logging.error(f"Pointer error: {pointer_error}")
 
-                            # Запись изменений весов
+                            # Storing vector changes
                             weight_changes = h.Vector()
-                            weight_changes.record(stdpmech._ref_synweight, 1.0)
+                            weight_changes.record(stdpmech._ref_synweight, w_rec_dt)
                             leg.weight_changes_vectors.append((src_gid, post_gid, weight_changes))
-                            # print(f"     ✅ Weight recording set up")
+                            logging.info(f"     ✅ Weight recording set up")
 
                             connection_count += 1
 

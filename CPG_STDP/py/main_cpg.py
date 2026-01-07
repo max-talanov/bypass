@@ -27,15 +27,15 @@ def prun(speed, step_number):
         t = h.Vector().record(h._ref_t)
 
         print(f"   Setting tstop={time_sim}")
-        h.tstop = time_sim  # Убедитесь что h.tstop установлен
+        h.tstop = time_sim  # check that h.tstop is set
 
-        # Добавьте проверку на macOS
+        # macOS check
         import platform
         if platform.system() == "Darwin":  # macOS
             print(f"   macOS detected - using alternative approach")
-            h.dt = 0.025  # Установите явно шаг времени
-            h.cvode_active(0)  # Отключите переменный шаг
-            pc.set_maxstep(1)  # Уменьшите maxstep для macOS
+            h.dt = 0.025  # Step dt
+            h.cvode_active(0)  # deactivate variable step
+            pc.set_maxstep(1)  # reduce maxstep macOS
         else:
             pc.set_maxstep(10)
 
@@ -45,10 +45,10 @@ def prun(speed, step_number):
 
         print(f"   Starting main simulation...")
         if platform.system() == "Darwin":
-            # Альтернативный подход для macOS
+            # macOS
             while h.t < time_sim:
                 h.fadvance()
-                if int(h.t) % 500 == 0:  # Логирование каждые 500ms
+                if int(h.t) % 500 == 0:  # logging every 500ms
                     print(f"   Progress: {h.t:.1f}/{time_sim} ms")
         else:
             pc.psolve(time_sim)
@@ -132,7 +132,7 @@ if __name__ == '__main__':
             setup_recorders(LEG_L, recorders_l, 'intgroups', 'interneuron')
             setup_recorders(LEG_R, recorders_r, 'intgroups', 'interneuron')
 
-            # print(f"      Setting up muscle recorders...")
+            print(f"      Setting up muscle recorders...")
             for group in getattr(LEG_L, "musclegroups"):
                 musclerecorders_l.append(spike_record(group[k_nrns]))
                 force_recorders_l.append(force_record(group[k_nrns]))
@@ -263,7 +263,7 @@ if __name__ == '__main__':
                     print(f"      ❌ Error saving HDF5 file {weights_file}: {e}")
                     logging.error(f"Error saving HDF5 file {weights_file}: {e}")
                 
-                logging.info(f"      ✅ Saved {stdp_count} STDP weight change files")
+                logging.info(f"      ✅ Saved {count} STDP weight change files")
             print(f"   ✅ All results saved successfully")
             logging.info("Results recorded")
 

@@ -35,7 +35,7 @@ def spike_record_old(pool, extra=False, location='soma', max_units = None, seed 
             elif location == 'am':
                 vec.record(cell.muscle_unit(0.5)._ref_AM_CaSP)
             else:
-                # Запись из сомы (как было раньше)
+                # Rec soma (original)
                 vec.record(cell.soma(0.5)._ref_v)
         v_vec.append(vec)
     return v_vec

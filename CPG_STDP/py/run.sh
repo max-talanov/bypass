@@ -1,6 +1,4 @@
 #!/bin/bash -l
-#SBATCH --nodes=1
-#SBATCH --ntasks=50
 #SBATCH --cpus-per-task=1
 #SBATCH --job-name=Neuron_calc
 #SBATCH --output=Neuron_calculation.slurmout

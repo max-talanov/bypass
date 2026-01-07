@@ -65,6 +65,7 @@ pc, rank, nhost = check_mpi_status()
 file_name = 'res_alina_50_stdp'
 
 rec_dt = 0.1 # the recording step
+w_rec_dt = 10 # the recording step for weights
 N =  5 # 50
 speed = 100
 bs_fr = 100  # 40 # frequency of brainstem inputs

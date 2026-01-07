@@ -157,7 +157,7 @@ class LEG:
         # connectcells(self, self.muscle_F, self.Ia_aff_F, 3.5, 1, 10, False)
 
         w_Ia =  0.3 #0.3 #1.3
-        stdp_Ia = False
+        stdp_Ia = True
         stdp_CV = True
         
         connectcells(self, self.Ia_aff_E, self.RG_E, weight=w_Ia, delay=3, stdptype=stdp_Ia)
