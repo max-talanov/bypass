@@ -1,10 +1,15 @@
 #!/bin/bash -l
-#SBATCH --cpus-per-task=1
 #SBATCH --job-name=Neuron_calc
-#SBATCH --output=Neuron_calculation.slurmout
-#SBATCH --error=Neuron_calculation.slurmerr
+#SBATCH --output=Neuron_comp.slurmout
+#SBATCH --error=Neuron_comp.slurmerr
 #SBATCH --ntasks=50
 #SBATCH --cpus-per-task=1
-echo "NTASKS=$SLURM_NTASKS  CPUS_PER_TASK=$SLURM_CPUS_PER_TASK  MEM=$SLURM_MEM_PER_NODE"
 
-srun nrniv -mpi -python main_cpg.py
+# Strongly recommended on HPC: ensure UTF-8 output + unbuffered python prints
+export LANG=${LANG:-C.UTF-8}
+export LC_ALL=${LC_ALL:-C.UTF-8}
+export PYTHONIOENCODING=utf-8
+export PYTHONUNBUFFERED=1
+
+# Headless NEURON + MPI
+srun nrniv -mpi -nogui -python main_cpg.py
