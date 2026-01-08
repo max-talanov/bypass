@@ -12,15 +12,30 @@ import re
 # IMPORTANT: Do not silently fall back to (rank=0, nhost=1) in MPI runs.
 # That leads to mismatched gid ownership and errors like:
 #   "gid=X has not been set on rank Y".
-try:
-    # Safe to call even if already initialized (nrniv -mpi)
-    h.nrnmpi_init()
-except Exception:
-    pass
+def check_mpi_status():
+    # Always initialize MPI (safe if already initialized)
+    # If Slurm requested multiple tasks, MPI must initialize successfully.
+    _expected_tasks = int(os.environ.get("SLURM_NTASKS", "1"))
 
-pc = h.ParallelContext()
-rank = int(pc.id())
-nhost = int(pc.nhost())
+    try:
+        h.nrnmpi_init()  # safe even if already initialized
+    except Exception as e:
+        if _expected_tasks > 1:
+            raise RuntimeError(f"MPI init failed but SLURM_NTASKS={_expected_tasks}") from e
+        # Serial run: OK to continue
+
+    pc = h.ParallelContext()
+    rank = int(pc.id())
+    nhost = int(pc.nhost())
+
+    if rank == 0:
+        print("MPI Status:")
+        print(f"  Number of hosts: {nhost}")
+
+    # No silent fallback: if nhost==1, you're not running MPI the way you think
+    return pc, rank, nhost
+
+pc, rank, nhost = check_mpi_status()
 
 # -----------------------------------------------------------------------------
 # Logging (rank-safe)
@@ -29,7 +44,7 @@ nhost = int(pc.nhost())
 # also trigger strange failures. Use one file per rank.
 LOG_LEVEL = os.environ.get("CPG_LOGLEVEL", "WARNING").upper()
 _level = getattr(logging, LOG_LEVEL, logging.WARNING)
-
+os.makedirs("logs", exist_ok=True)
 logging.basicConfig(
     filename=f"logs/logs_rank{rank:03d}.log",
     filemode="w",
@@ -50,12 +65,12 @@ logger_genconnect = logging.getLogger("genconnect")
 logger_genconnect.propagate = False
 
 if rank == 0:
-    h_add = logging.FileHandler(f"addgener_rank{rank:03d}.log", mode="w")
+    h_add = logging.FileHandler(f"logs/addgener_rank{rank:03d}.log", mode="w")
     h_add.setFormatter(_formatter)
     logger_addgener.addHandler(h_add)
     logger_addgener.setLevel(_level)
 
-    h_conn = logging.FileHandler(f"genconnect_rank{rank:03d}.log", mode="w")
+    h_conn = logging.FileHandler(f"logs/genconnect_rank{rank:03d}.log", mode="w")
     h_conn.setFormatter(_formatter)
     logger_genconnect.addHandler(h_conn)
     logger_genconnect.setLevel(_level)
@@ -73,7 +88,8 @@ h.load_file("stdrun.hoc")
 # -----------------------------------------------------------------------------
 # Simulation parameters (keep your original values here)
 # -----------------------------------------------------------------------------
-file_name = 'res_alina_50_stdp'
+os.makedirs("res_stdp", exist_ok=True)
+file_name = 'res_stdp'
 
 w_rec_dt = 10  # recording step in ms
 rec_dt = 0.1  # recording step in ms
