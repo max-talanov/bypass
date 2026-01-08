@@ -157,7 +157,7 @@ class LEG:
         # connectcells(self, self.muscle_F, self.Ia_aff_F, 3.5, 1, 10, False)
 
         w_Ia =  0.3 #0.3 #1.3
-        stdp_Ia = True
+        stdp_Ia = False
         stdp_CV = True
         
         connectcells(self, self.Ia_aff_E, self.RG_E, weight=w_Ia, delay=3, stdptype=stdp_Ia)
@@ -242,6 +242,11 @@ class LEG:
 
         gid = get_gid()
         print(f"   Assigned GID: {gid}")
+
+        # [MPI-FIX 4] Publish generator gid ownership to ALL ranks.
+        # This generator is instantiated only on rank 0, but other ranks must still
+        # know that this gid lives on rank 0 so pc.gid_connect(...) can work.
+        pc.set_gid2node(gid, 0)
 
         # Only create on rank 0 to avoid conflicts
         if rank == 0:
