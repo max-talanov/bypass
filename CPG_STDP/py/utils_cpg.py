@@ -4,10 +4,10 @@ from motoneuron import motoneuron
 from muscle import muscle
 from constants import *
 
-# Global gid counter (module-local). Needed by get_gid() across ranks.
+
+
+# Global GID counter (module-local; must exist on every MPI rank)
 global_gid = 0
-
-
 
 def addpool(leg, num, name, neurontype="int") -> list:
     '''
@@ -47,7 +47,8 @@ def addpool(leg, num, name, neurontype="int") -> list:
 
         # Only create cell if this rank is responsible for this neuron
         owner = i % nhost
-        pc.set_gid2node(gid, owner)  # must be called on all ranks
+        pc.set_gid2node(gid, owner)  # every rank must know gid→node
+
         if owner == rank:
             if neurontype.lower() == "moto":
                 cell = motoneuron(diams[i])
@@ -66,6 +67,7 @@ def addpool(leg, num, name, neurontype="int") -> list:
                 leg.ints.append(cell)
 
             gids.append(gid)
+            # pc.set_gid2node(gid, owner) already done above
             nc = cell.connect2target(None)
             pc.cell(gid, nc)
             log_gid_by_lookup(leg, gid, neurontype.lower())
@@ -128,7 +130,7 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
                         )
 
                         try:
-                            # Проверяем наличие STDP синапсов
+                            # Checking stdp synapses
                             if not hasattr(target, 'synlistexstdp'):
                                 # print(f"     ❌ Target {target_type} has no synlistexstdp")
                                 logging.error(f"No synlistexstdp in {target_type}")
@@ -147,7 +149,6 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
                             nc.delay = delay
                             nc.weight[0] = weight
                             nc.threshold = threshold
-                            pc.threshold(src_gid, threshold)
                             leg.netcons.append(nc)
                             # print(f"     ✅ Main NetCon created")
 
@@ -181,10 +182,9 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
                             pstsyn.weight[0] = -2
                             pstsyn.threshold = threshold
                             leg.postsyns.append(pstsyn)
-                            pc.threshold(post_gid, threshold)
                             # print(f"     ✅ Postsynaptic NetCon created")
 
-                            # Установка указателя
+                            # Setting pointer
                             # print(f"     Setting pointer...")
                             try:
                                 h.setpointer(nc._ref_weight[0], 'synweight', stdpmech)
@@ -193,7 +193,7 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
                                 # print(f"     ❌ Pointer setting failed: {pointer_error}")
                                 logging.error(f"Pointer error: {pointer_error}")
 
-                            # Запись изменений весов
+                            # Weights changes record
                             weight_changes = h.Vector()
                             weight_changes.record(stdpmech._ref_synweight, 1.0)
                             leg.weight_changes_vectors.append((src_gid, post_gid, weight_changes))
@@ -266,7 +266,7 @@ def genconnect(leg, gen_gid, afferents_gids, weight, delay, gen_name="GEN", targ
                 nc.weight[0] = random.gauss(weight, weight / 6)
 
                 # ---------------------------------------
-                # ЛОГИРУЕМ СОЕДИНЕНИЕ
+                # Logging connection
                 # ---------------------------------------
                 logger_genconnect.info(
                     "NetCon created | %s(%s) -> %s(%s) | syn_index=%s | "
@@ -364,7 +364,7 @@ def addgener(leg, start, freq, cv=False, r=True):
             stim.number = int(one_step_time / stim.interval) - 2
 
         # -----------------------------------------
-        # ЛОГИРУЕМ ВСЕ ПАРАМЕТРЫ STIM
+        # Logging all parameters of stim
         # -----------------------------------------
         logger_addgener.info(
             "STIM created | gid=%s | start=%.3f | interval=%s | number=%s  | cv=%s | r=%s",
@@ -378,7 +378,7 @@ def addgener(leg, start, freq, cv=False, r=True):
         # -----------------------------------------
 
         leg.stims.append(stim)
-        pc.set_gid2node(gid, rank)
+        # pc.set_gid2node(gid, owner) already done above
         ncstim = h.NetCon(stim, None)
         spike_times = h.Vector()
         ncstim.record(spike_times)
@@ -431,7 +431,7 @@ def add_external_connections(LEG_L, LEG_R):
 
 
 def safe_filename(name: str) -> str:
-    """Преобразует строку в безопасное имя файла."""
+    """Translate string to filename"""
     return re.sub(r'[^\w\-_.]', '_', name)
 
 
