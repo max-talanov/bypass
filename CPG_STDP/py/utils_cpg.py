@@ -4,6 +4,8 @@ from motoneuron import motoneuron
 from muscle import muscle
 from constants import *
 
+# utils_cpg.py (top of file, after imports)
+global_gid = 0
 
 def addpool(leg, num, name, neurontype="int") -> list:
     '''
@@ -196,7 +198,7 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
 
                             # Запись изменений весов
                             weight_changes = h.Vector()
-                            weight_changes.record(stdpmech._ref_synweight, 1.0)
+                            weight_changes.record(stdpmech._ref_synweight, w_rec_dt)
                             leg.weight_changes_vectors.append((src_gid, post_gid, weight_changes))
                             # print(f"     ✅ Weight recording set up")
 

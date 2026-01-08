@@ -31,7 +31,7 @@ LOG_LEVEL = os.environ.get("CPG_LOGLEVEL", "WARNING").upper()
 _level = getattr(logging, LOG_LEVEL, logging.WARNING)
 
 logging.basicConfig(
-    filename=f"logs_rank{rank:03d}.log",
+    filename=f"logs/logs_rank{rank:03d}.log",
     filemode="w",
     format="%(asctime)s %(name)s %(levelname)s %(message)s",
     datefmt="%H:%M:%S",
@@ -75,7 +75,8 @@ h.load_file("stdrun.hoc")
 # -----------------------------------------------------------------------------
 file_name = 'res_alina_50_stdp'
 
-rec_dt = 0.1  # recording step
+w_rec_dt = 10  # recording step in ms
+rec_dt = 0.1  # recording step in ms
 N = 5         # set to 50 for production
 speed = 100
 bs_fr = 100
