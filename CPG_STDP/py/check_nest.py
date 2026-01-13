@@ -1,5 +1,4 @@
 import nest
-import nest.voltage_trace
 import numpy as np
 
 # Проверка версии NEST
