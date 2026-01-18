@@ -60,9 +60,11 @@ def addpool(leg, num, name, neurontype="int") -> list:
                 leg.ints.append(cell)
 
             gids.append(gid)
-            pc.set_gid2node(gid, rank)
             nc = cell.connect2target(None)
-            pc.cell(gid, nc)
+
+            registered = safe_register_gid(gid, rank, nc)
+            if not registered:
+                logging.warning(f"[rank {rank}] GID {gid} already registered, skipping cell()")
             log_gid_by_lookup(leg, gid, neurontype.lower())
             leg.netcons.append(nc)
 
@@ -138,6 +140,9 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
                             # print(f"     ✅ Got STDP synapse: {type(syn).__name__}")
 
                             # Создаем основное соединение
+                            if not pc.gid_exists(src_gid):
+                                logging.warning(f"Source GID {src_gid} does not exist, skipping")
+                                continue
                             nc = pc.gid_connect(src_gid, syn)
                             nc.delay = delay
                             nc.weight[0] = weight
@@ -373,18 +378,20 @@ def addgener(leg, start, freq, cv=False, r=True):
         # -----------------------------------------
 
         leg.stims.append(stim)
-        pc.set_gid2node(gid, rank)
         ncstim = h.NetCon(stim, None)
         spike_times = h.Vector()
         ncstim.record(spike_times)
         leg.gen_spike_vectors.append((gid, spike_times))
         leg.netcons.append(ncstim)
-        pc.cell(gid, ncstim)
+        registered = safe_register_gid(gid, rank, ncstim)
+        if not registered:
+            logger_addgener.warning(f"GID {gid} already registered, generator skipped")
         log_gid_by_lookup(leg, gid, "gen")
 
     else:
         # Other ranks just need to know the GID is assigned to rank 0
-        pc.set_gid2node(gid, 0)
+        if not pc.gid_exists(gid):
+            pc.set_gid2node(gid, 0)
 
     leg.gener_gids.append(gid)
 
@@ -432,5 +439,22 @@ def safe_filename(name: str) -> str:
 
 def get_gid():
     global global_gid
+    gid = rank + global_gid * nhost
     global_gid += 1
-    return global_gid
+    return gid
+
+def safe_register_gid(gid, node, nc=None):
+    if pc.gid_exists(gid):
+        if pc.gid2node(gid) != node:
+            raise RuntimeError(
+                f"GID {gid} already exists on node {pc.gid2node(gid)}, "
+                f"attempt to assign to node {node}"
+            )
+        return False
+
+    pc.set_gid2node(gid, node)
+
+    if nc is not None:
+        pc.cell(gid, nc)
+
+    return True
