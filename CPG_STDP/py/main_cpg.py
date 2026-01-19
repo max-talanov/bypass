@@ -16,7 +16,6 @@ from recorg_cpg import *
 
 
 def prun(speed, step_number):
-    print(f"🚀 [rank {rank}] Starting simulation: speed={speed}, steps={step_number}")
     logging.info(f"prun start: speed={speed}, steps={step_number}, time_sim={time_sim}")
 
     try:
@@ -41,7 +40,7 @@ def prun(speed, step_number):
 
         print(f"   Initializing with h.finitialize(-65)...")
         h.finitialize(-65)
-        print(f"   ✅ finitialize completed")
+        print(f"   finitialize completed")
 
         print(f"   Starting main simulation...")
         if platform.system() == "Darwin":
@@ -53,11 +52,10 @@ def prun(speed, step_number):
         else:
             pc.psolve(time_sim)
 
-        print(f"🏁 Simulation completed successfully")
+        print(f"   Simulation completed successfully")
         return t
 
     except Exception as sim_error:
-        print(f"❌ Simulation error: {sim_error}")
         logging.error(f"Simulation error: {sim_error}")
         raise sim_error
 
@@ -65,7 +63,6 @@ def finish():
     ''' proper exit '''
     pc.runworker()
     pc.done()
-    # print("hi after finish")
     h.quit()
 
 if __name__ == '__main__':
@@ -73,40 +70,32 @@ if __name__ == '__main__':
     cpg_ex: cpg
         topology of central pattern generation + reflex arc
     '''
-    print(f"🎬 [rank {rank}] MAIN EXECUTION START")
-    print(f"   Rank {rank} of {nhost} processes")
-    print(f"   Parameters: N={N}, speed={speed}, bs_fr={bs_fr}, versions={versions}")
-    print(f"   Step number: {step_number}, one_step_time: {one_step_time}")
-    print(f"   Total simulation time: {time_sim} ms")
     logging.info("=== MAIN EXECUTION START ===")
     logging.info(f"Rank {rank}/{nhost}, N={N}, Step number: {step_number}, speed={speed}, versions={versions}")
 
     if rank == 0 and not os.path.isdir(file_name):
         os.mkdir(file_name)
-        print(f"   ✅ Created directory: {file_name}")
 
     # Synchronize all ranks before proceeding
     pc.barrier()
 
     for i in range(versions):
-        print(f"🔄 [rank {rank}] VERSION {i + 1}/{versions} START")
         logging.info(f"=== VERSION {i + 1} START ===")
 
         try:
-            print(f"   Creating CPG network...")
+            logging.info("Creating CPG network")
             LEG_L = LEG(speed, bs_fr, 100, step_number, N, leg_l=True)
             LEG_R = LEG(speed, bs_fr, 100, step_number, N, leg_l=False)
             create_connect_bs(LEG_L, LEG_R)
             add_external_connections(LEG_L, LEG_R)
             #create_connect_bs(LEG_R, LEG_L)
             #add_external_connections(LEG_R, LEG_L)
-            print(f"   ✅ CPG network created successfully")
             logging.info("CPG created successfully")
 
             # Synchronize after network creation
             pc.barrier()
 
-            print(f"   Setting up voltage recorders...")
+            logging.info("Setting up voltage recorders")
             motorecorders_l = []
             motorecorders_mem_l = []
             musclerecorders_l = []
@@ -143,14 +132,13 @@ if __name__ == '__main__':
                 force_recorders_r.append(force_record(group[k_nrns]))
                 muscle_units_recorders_r.append(spike_record(group[k_nrns], location='muscle'))
                 muscle_am_recorders_r.append(spike_record(group[k_nrns], location='am'))
-            print(f"      ✅ {len(musclerecorders_l)} muscle recorder groups")
+            logging.info("{len(musclerecorders_l)} muscle recorder groups")
 
             # print(f"      Setting up Ia generator recorders...")
             # vel_vecs_recorders = velocity_record(cpg_ex.gener_Iagids, attr='_ref_vel')
             # v0_vecs_recorders = velocity_record(cpg_ex.gener_Iagids, attr='_ref_v0')
             # print(f"      ✅ {len(vel_vecs_recorders)} Ia generator recorders")
 
-            print(f"   ✅ All recorders set up successfully")
             logging.info("Added recorders")
 
             # Synchronize before simulation
@@ -164,16 +152,11 @@ if __name__ == '__main__':
 
             logging.info("Simulation done")
 
-            print(f"   💾 Saving results...")
-
             if rank == 0:
-                print(f"      Saving time data...")
                 with open(f'./{file_name}/time.txt', 'w') as time_file:
                     for time in t:
                         time_file.write(str(time) + "\n")
-                print(f"      ✅ Time data saved")
 
-            print(f"      Saving spike data...")
             # gen_recorders_l = LEG_L.gen_spike_vectors
             # gen_recorders_r = LEG_R.gen_spike_vectors
             # generator_spikeout(
@@ -229,7 +212,6 @@ if __name__ == '__main__':
                 stdp_dir = f'./{file_name}/stdp_1'
                 if not os.path.exists(stdp_dir):
                     os.makedirs(stdp_dir)
-                    print(f"      ✅ Created STDP directory: {stdp_dir}")
 
                 stdp_count = 0
                 for src_gid, post_gid, weight_vec in LEG_L.weight_changes_vectors:
@@ -240,7 +222,6 @@ if __name__ == '__main__':
                         src_type = type(src_obj).__name__ if src_obj is not None else "None"
                         post_type = type(post_obj).__name__ if post_obj is not None else "None"
 
-                        # Сформировать безопасное имя файла
                         safe_name = safe_filename(f'{src_type}_{src_gid}_to_{post_type}_{post_gid}.hdf5')
                         fname = f'{stdp_dir}/{safe_name}'
 
@@ -249,23 +230,18 @@ if __name__ == '__main__':
                         stdp_count += 1
 
                     except Exception as e:
-                        print(f"      ⚠️ Error saving STDP weight {src_gid} → {post_gid}: {e}")
+                        logging.info(f"Error saving STDP weight {src_gid} → {post_gid}: {e}")
 
                 logging.info(f"      ✅ Saved {stdp_count} STDP weight change files")
 
-            print(f"   ✅ All results saved successfully")
             logging.info("Results recorded")
 
-            print(f"🏁 [rank {rank}] VERSION {i + 1} COMPLETED SUCCESSFULLY")
-
         except Exception as version_error:
-            print(f"❌ [rank {rank}] VERSION {i + 1} FAILED: {version_error}")
             logging.error(f"Version {i + 1} error: {version_error}")
             import traceback
 
-            print(f"Traceback: {traceback.format_exc()}")
+            logging.info(f"Traceback: {traceback.format_exc()}")
             break
 
-    print(f"🏁 [rank {rank}] MAIN EXECUTION FINISHED")
     logging.info("=== MAIN EXECUTION END ===")
     finish()

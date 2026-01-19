@@ -1,10 +1,8 @@
 from neuron import h
-import os
 import numpy as np
 import h5py as hdf5
 import logging
-import random
-import re
+
 
 logging.basicConfig(filename='logs_new_new_2.log',
                     filemode='w',

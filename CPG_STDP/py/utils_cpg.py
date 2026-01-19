@@ -92,24 +92,19 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
     )
 
     nsyn = random.randint(N, N + 15)
-    # print(f"   nsyn={nsyn}")
 
     connection_count = 0
 
     for post_idx, post_gid in enumerate(post_cells):
-        # print(f"   Processing post_cell {post_idx + 1}/{len(post_cells)}: gid={post_gid}")
 
         if pc.gid_exists(post_gid):
-            # print(f"   ✅ GID {post_gid} exists on this rank")
 
             try:
                 target = pc.gid2cell(post_gid)
                 target_type = type(target).__name__
-                # print(f"   Target type: {target_type}")
                 logging.info(f"Target {post_gid} type: {target_type}")
-
+                pre_cells = list(pre_cells)
                 for i in range(nsyn):
-                    pre_cells = list(pre_cells)
                     src_gid = random.choice(pre_cells)
                     logging.info(
                         f"[{pre_name} -> {post_name}] "
@@ -118,7 +113,6 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
                     )
 
                     if stdptype:
-                        # print(f"     🧠 Creating STDP connection...")
                         logging.info(
                             f"STDP [{pre_name}->{post_name}] "
                             f"{src_gid} -> {post_gid}"
@@ -127,21 +121,18 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
                         try:
                             # Проверяем наличие STDP синапсов
                             if not hasattr(target, 'synlistexstdp'):
-                                # print(f"     ❌ Target {target_type} has no synlistexstdp")
                                 logging.error(f"No synlistexstdp in {target_type}")
                                 continue
 
                             if len(target.synlistexstdp) <= i:
-                                # print(f"     ❌ synlistexstdp[{i}] out of range (len={len(target.synlistexstdp)})")
                                 logging.error(f"synlistexstdp index {i} out of range")
                                 continue
 
                             syn = target.synlistexstdp[i]
-                            # print(f"     ✅ Got STDP synapse: {type(syn).__name__}")
 
                             # Создаем основное соединение
-                            if not pc.gid_exists(src_gid):
-                                logging.warning(f"Source GID {src_gid} does not exist, skipping")
+                            if not pc.gid_exists(src_gid) or not pc.gid_exists(post_gid):
+                                logging.warning(f"Source GIDs {src_gid} or {post_gid} do not exist, skipping")
                                 continue
                             nc = pc.gid_connect(src_gid, syn)
                             nc.delay = delay
@@ -149,98 +140,80 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
                             nc.threshold = threshold
                             pc.threshold(src_gid, threshold)
                             leg.netcons.append(nc)
-                            # print(f"     ✅ Main NetCon created")
 
                             # Создаем STDP механизм
-                            # print(f"     Creating STDP mechanism...")
                             dummy = h.Section()  # Create a dummy section to put the point processes in
-                            # print(f"     ✅ Dummy section created")
+                            leg.dummy_sections.append(dummy)
 
                             try:
                                 stdpmech = h.STDP(0, dummy)
-                                # print(f"     ✅ STDP mechanism created: {type(stdpmech).__name__}")
                                 leg.stdpmechs.append(stdpmech)
                             except Exception as stdp_error:
-                                # print(f"     ❌ STDP creation failed: {stdp_error}")
                                 logging.error(f"STDP creation error: {stdp_error}")
                                 continue
 
                             # Пресинаптическое соединение
-                            # print(f"     Creating presynaptic connection...")
                             presyn = pc.gid_connect(src_gid, stdpmech)
                             presyn.delay = delay
                             presyn.weight[0] = 2
                             presyn.threshold = threshold
                             leg.presyns.append(presyn)
-                            # print(f"     ✅ Presynaptic NetCon created")
 
                             # Постсинаптическое соединение
-                            # print(f"     Creating postsynaptic connection...")
                             pstsyn = pc.gid_connect(post_gid, stdpmech)
                             pstsyn.delay = delay
                             pstsyn.weight[0] = -2
                             pstsyn.threshold = threshold
                             leg.postsyns.append(pstsyn)
                             pc.threshold(post_gid, threshold)
-                            # print(f"     ✅ Postsynaptic NetCon created")
 
                             # Установка указателя
-                            # print(f"     Setting pointer...")
                             try:
                                 h.setpointer(nc._ref_weight[0], 'synweight', stdpmech)
-                                # print(f"     ✅ Pointer set successfully")
                             except Exception as pointer_error:
-                                # print(f"     ❌ Pointer setting failed: {pointer_error}")
                                 logging.error(f"Pointer error: {pointer_error}")
 
                             # Запись изменений весов
                             weight_changes = h.Vector()
                             weight_changes.record(stdpmech._ref_synweight, 1.0)
                             leg.weight_changes_vectors.append((src_gid, post_gid, weight_changes))
-                            # print(f"     ✅ Weight recording set up")
 
                             connection_count += 1
 
                         except Exception as stdp_conn_error:
-                            # print(f"     ❌ STDP connection error: {stdp_conn_error}")
                             logging.error(f"STDP connection error {src_gid}->{post_gid}: {stdp_conn_error}")
 
                     else:
-                        # print(f"     🔗 Creating regular connection...")
                         try:
                             if inhtype:
                                 if not hasattr(target, 'synlistinh'):
-                                    # print(f"     ❌ Target {target_type} has no synlistinh")
+                                    continue
+                                if i >= len(target.synlistinh):
                                     continue
                                 syn = target.synlistinh[i]
-                                # print(f"     ✅ Got inhibitory synapse")
                             else:
                                 if not hasattr(target, 'synlistex'):
-                                    # print(f"     ❌ Target {target_type} has no synlistex")
+                                    continue
+                                if i >= len(target.synlistex):
                                     continue
                                 syn = target.synlistex[i]
-                                # print(f"     ✅ Got excitatory synapse")
 
                             nc = pc.gid_connect(src_gid, syn)
                             nc.weight[0] = random.gauss(weight, weight / 5)
                             nc.threshold = threshold
                             nc.delay = random.gauss(delay, delay / 5)
                             leg.netcons.append(nc)
-                            # print(f"     ✅ Regular NetCon created")
                             connection_count += 1
 
                         except Exception as reg_conn_error:
-                            # print(f"     ❌ Regular connection error: {reg_conn_error}")
                             logging.error(f"Regular connection error {src_gid}->{post_gid}: {reg_conn_error}")
 
             except Exception as target_error:
-                # print(f"   ❌ Error getting target for GID {post_gid}: {target_error}")
                 logging.error(f"Target error {post_gid}: {target_error}")
 
         else:
-            print(f"   ⏭️ GID {post_gid} not on this rank")
+            logging.info(f"GID {post_gid} not on this rank")
 
-    # print(f"🏁 connectcells finished: {connection_count} connections created")
     logging.info(f"connectcells end: {connection_count} connections created")
 
 
@@ -252,22 +225,26 @@ def genconnect(leg, gen_gid, afferents_gids, weight, delay, gen_name="GEN", targ
         f"nsyn_per_target={nsyn} | "
         f"weight={weight} | delay={delay} | inhtype={inhtype}"
     )
+    if not pc.gid_exists(gen_gid):
+        raise RuntimeError(f"Generator GID {gen_gid} does not exist on any rank")
+
     for i in afferents_gids:
         if pc.gid_exists(i):
             for j in range(nsyn):
                 target = pc.gid2cell(i)
                 if inhtype:
+                    if j >= len(target.synlistinh):
+                        break
                     syn = target.synlistinh[j]
                 else:
+                    if j >= len(target.synlistex):
+                        break
                     syn = target.synlistex[j]
                 nc = pc.gid_connect(gen_gid, syn)
                 nc.threshold = leg.threshold
                 nc.delay = random.gauss(delay, delay / 5)
                 nc.weight[0] = random.gauss(weight, weight / 6)
 
-                # ---------------------------------------
-                # ЛОГИРУЕМ СОЕДИНЕНИЕ
-                # ---------------------------------------
                 logger_genconnect.info(
                     "NetCon created | %s(%s) -> %s(%s) | syn_index=%s | "
                     "threshold=%.4f | delay=%.4f | weight=%.4f | inhtype=%s",
@@ -281,7 +258,6 @@ def genconnect(leg, gen_gid, afferents_gids, weight, delay, gen_name="GEN", targ
                     nc.weight[0],
                     inhtype
                 )
-                # ---------------------------------------
                 leg.stimnclist.append(nc)
 
 
@@ -319,7 +295,8 @@ def log_gid_by_lookup(leg, gid: int, name):
     if not pc.gid_exists(gid):
         print(f"[rank {rank}] GID {gid} not assigned to this process.")
         return
-
+    if pc.gid2node(gid) != rank:
+        return
     obj = pc.gid2cell(gid)
     typename = type(obj).__name__
     if name:
@@ -439,8 +416,12 @@ def safe_filename(name: str) -> str:
 
 def get_gid():
     global global_gid
-    gid = rank + global_gid * nhost
-    global_gid += 1
+    if rank == 0:
+        gid = global_gid
+        global_gid += 1
+    else:
+        gid = None
+    gid = pc.allreduce(gid, 1)  # broadcast
     return gid
 
 def safe_register_gid(gid, node, nc=None):

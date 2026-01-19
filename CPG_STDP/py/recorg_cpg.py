@@ -22,6 +22,8 @@ def spike_record(pool, extra=False, location='soma', max_units = None, seed = 0)
     v_vec = []
 
     for i in pool:
+        if pc.gid2node(i) != rank:
+            continue
         cell = pc.gid2cell(i)
         vec = h.Vector(np.zeros(int(time_sim / 0.025 + 1), dtype=np.float32))
         if extra:
@@ -77,6 +79,8 @@ def velocity_record(gids, attr='_ref_vel'):
     """
     vecs = []
     for gid in gids:
+        if pc.gid2node(gid) != rank:
+            continue
         cell = pc.gid2cell(gid)
         vec = h.Vector(np.zeros(int(time_sim / 0.025 + 1), dtype=np.float32))
         vec.record(getattr(cell, attr))
