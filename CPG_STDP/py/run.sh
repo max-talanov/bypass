@@ -14,5 +14,5 @@ export PYTHONIOENCODING=utf-8
 export PYTHONUNBUFFERED=1
 
 # Headless NEURON + MPI
-#srun nrniv -mpi -nogui -python main_cpg.py
-srun --mpi=pmix nrniv -mpi -nogui -python main_cpg.py
+srun nrniv -mpi -nogui -python main_cpg.py
+# srun --mpi=pmix nrniv -mpi -nogui -python main_cpg.py
