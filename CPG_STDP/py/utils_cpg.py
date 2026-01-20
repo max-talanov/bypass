@@ -8,6 +8,23 @@ from constants import *
 def addpool(leg, num, name, neurontype="int") -> list:
     '''
     Creates pool of cells determined by the neurontype and returns gids of the pool
+    Parameters
+    ----------
+    num: int
+        neurons number in pool
+    name: string
+        the name of the pool
+    neurontype: string
+        int: interneuron
+        delay: interneuron with 5ht
+        bursting: interneuron with bursting
+        moto: motor neuron
+        aff: afferent
+        muscle: muscle fiber
+    Returns
+    -------
+    gids: list
+        the list of cells gids
     '''
     gids = []
     all_gids = []  # All GIDs for this pool across all ranks
