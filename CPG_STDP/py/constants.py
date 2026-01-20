@@ -49,7 +49,6 @@ def check_mpi_status():
         print(f"MPI Status:")
         print(f"  Rank: {rank}")
         print(f"  Number of hosts: {nhost}")
-        print(f"  MPI initialized: {h.nrnmpi_is_initialized()}")
 
         return pc, rank, nhost
     except Exception as e:

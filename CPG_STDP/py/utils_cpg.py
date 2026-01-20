@@ -8,23 +8,6 @@ from constants import *
 def addpool(leg, num, name, neurontype="int") -> list:
     '''
     Creates pool of cells determined by the neurontype and returns gids of the pool
-    Parameters
-    ----------
-    num: int
-        neurons number in pool
-    name: string
-        the name of the pool
-    neurontype: string
-        int: interneuron
-        delay: interneuron with 5ht
-        bursting: interneuron with bursting
-        moto: motor neuron
-        aff: afferent
-        muscle: muscle fiber
-    Returns
-    -------
-    gids: list
-        the list of cells gids
     '''
     gids = []
     all_gids = []  # All GIDs for this pool across all ranks
@@ -36,13 +19,14 @@ def addpool(leg, num, name, neurontype="int") -> list:
     if neurontype.lower() == "moto":
         diams = motodiams(num)
 
-    # Create GIDs for all neurons in pool (distributed across ranks)
     for i in range(num):
         gid = get_gid()
         all_gids.append(gid)
 
-        # Only create cell if this rank is responsible for this neuron
-        if i % nhost == rank:
+        owner = i % nhost
+
+        if rank == owner:
+            # Создаём клетку только на owner_rank
             if neurontype.lower() == "moto":
                 cell = motoneuron(diams[i])
                 leg.motos.append(cell)
@@ -61,8 +45,11 @@ def addpool(leg, num, name, neurontype="int") -> list:
 
             gids.append(gid)
             nc = cell.connect2target(None)
+        else:
+            nc = None
 
-            registered = safe_register_gid(gid, rank, nc)
+        registered = safe_register_gid(gid, owner, nc)
+        if rank == owner:
             if not registered:
                 logging.warning(f"[rank {rank}] GID {gid} already registered, skipping cell()")
             log_gid_by_lookup(leg, gid, neurontype.lower())
@@ -81,10 +68,9 @@ def addpool(leg, num, name, neurontype="int") -> list:
     return all_gids
 
 
+
 def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="UNKNOWN_POST", weight=1.0, delay=1, threshold=10, inhtype=False,
                  stdptype=False, N=50, sect="int"):
-    #print(f"🔗 [rank {rank}] connectcells: pre_cells={len(pre_cells)}, post_cells={len(post_cells)}")
-    #print(f"   weight={weight}, delay={delay}, threshold={threshold}, inhtype={inhtype}, stdptype={stdptype}")
     logging.info(
         f"connectcells start | "
         f"{pre_name}({len(pre_cells)}) -> {post_name}({len(post_cells)}) | "
@@ -424,18 +410,18 @@ def get_gid():
     gid = pc.allreduce(gid, 1)  # broadcast
     return gid
 
-def safe_register_gid(gid, node, nc=None):
+def safe_register_gid(gid, owner_rank, nc=None):
     if pc.gid_exists(gid):
-        if pc.gid2node(gid) != node:
+        if pc.gid2node(gid) != owner_rank:
             raise RuntimeError(
-                f"GID {gid} already exists on node {pc.gid2node(gid)}, "
-                f"attempt to assign to node {node}"
+                f"GID {gid} already assigned to rank {pc.gid2node(gid)}, "
+                f"cannot assign to {owner_rank}"
             )
         return False
 
-    pc.set_gid2node(gid, node)
+    pc.set_gid2node(gid, owner_rank)
 
-    if nc is not None:
+    if nc is not None and rank == owner_rank:
         pc.cell(gid, nc)
 
     return True
