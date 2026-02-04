@@ -26,6 +26,8 @@ class LEG:
             self.gener_Iagids = []
             self.gen_spike_vectors = []
             self.dummy_sections = []
+            self.moto_cache = {}
+            self.muscle_cache = {}
 
             self.RG_E = []  # Rhythm generators of extensors
             self.RG_F = []  # Rhythm generators of flexor
@@ -206,94 +208,78 @@ class LEG:
         gid: int
             generators gid
         '''
-        logging.info(f"IaGenerator creation start: start={start}, weight={weight}")
-
         gid = get_gid()
-        logging.info(f"Assigned GID: {gid}")
+        logging.debug(f"IaGenerator gid={gid}, start={start}, weight={weight}")
 
-        # Only create on rank 0 to avoid conflicts
-        if rank == 0:
-            try:
-                # Check if we have motor neurons available
-                if not mn or not mn2:
-                    logging.error("Empty motor neuron lists for IaGenerator")
-                    return gid
+        moto_gid = random.choice(mn)
+        moto2_gid = random.choice(mn2)
 
-                # Get random motor neurons from the lists
-                moto_gid = random.choice(mn)
-                moto2_gid = random.choice(mn2)
-                logging.info(f"Selected motor neurons: {moto_gid}, {moto2_gid}")
+        owner_rank = pc.gid2node(moto_gid)
 
-                # Check if motor neurons exist on any rank
-                moto_rank = pc.gid2node(moto_gid)
-                moto2_rank = pc.gid2node(moto2_gid)
+        if rank != owner_rank:
+            pc.set_gid2node(gid, owner_rank)
+            self.gener_Iagids.append(gid)
+            return gid
 
-                if moto_rank != rank or moto2_rank != rank:
-                    logging.info(f"Motor neurons not found locally, creating simplified IaGenerator")
-                    # Create simplified generator without muscle connections
-                    stim = h.IaGenerator()
-                    stim.start = start
-                    stim.interval = int(1000 / bs_fr)
-                    stim.number = int(one_step_time / stim.interval) - 2
+        try:
+            # Check if we have motor neurons available
+            if not mn or not mn2:
+                logging.error("Empty motor neuron lists for IaGenerator")
+            moto = self.moto_cache.get(moto_gid)
+            if moto is None:
+                moto = pc.gid2cell(moto_gid)
+                if moto is not None:
+                    self.moto_cache[moto_gid] = moto
 
-                    self.stims.append(stim)
-                    pc.set_gid2node(gid, 0)
-                    ncstim = h.NetCon(stim, None)
-                    ncstim.weight[0] = weight
-                    self.netcons.append(ncstim)
-                    pc.cell(gid, ncstim)
+            moto2 = self.muscle_cache.get(moto2_gid)
+            if moto2 is None:
+                moto2 = pc.gid2cell(moto2_gid)
+                if moto2 is not None:
+                    self.muscle_cache[moto2_gid] = moto2
 
-                else:
-                    # Create full IaGenerator with muscle connections
-                    moto = pc.gid2cell(moto_gid)
-                    moto2 = pc.gid2cell(moto2_gid)
-                    logging.info(f"Got motor neuron objects: {type(moto).__name__}, {type(moto2).__name__}")
+            stim = h.IaGenerator()
+            stim.start = start
+            stim.interval = int(1000 / bs_fr)
+            stim.number = int(one_step_time / stim.interval) - 2
 
-                    stim = h.IaGenerator()
-                    logging.info(f"IaGenerator created: {type(stim).__name__}")
-                    logging.info(f"IaGenerator object created successfully")
+            self.stims.append(stim)
 
-                    stim.start = start
-                    stim.interval = int(1000 / bs_fr)
-                    stim.number = int(one_step_time / stim.interval) - 2
-                    logging.info(f"Parameters set: start={stim.start}, interval={stim.interval}, number={stim.number}")
+            full_mode = (moto is not None and moto2 is not None)
+            if full_mode:
+                try:
+                    if hasattr(moto, 'muscle_unit'):
+                        h.setpointer(moto.muscle_unit(0.5)._ref_F_fHill, 'fhill', stim)
+                except Exception as e:
+                    logging.warning(f"Ошибка установки указателя fhill: {e}")
 
-                    self.stims.append(stim)
+                try:
+                    if hasattr(moto2, 'muscle_unit'):
+                        h.setpointer(moto2.muscle_unit(0.5)._ref_F_fHill, 'fhill2', stim)
+                except Exception as e:
+                    logging.warning(f"Ошибка установки указателя fhill2: {e}")
+            else:
+                logging.info("Создаём упрощённый IaGenerator")
 
-                    # Set pointers if motor neurons have muscle_unit
-                    try:
-                        if hasattr(moto, 'muscle_unit'):
-                            h.setpointer(moto.muscle_unit(0.5)._ref_F_fHill, 'fhill', stim)
-                            logging.info(f"First pointer set (fhill)")
-                    except Exception as ptr1_error:
-                        logging.info(f"First pointer warning: {ptr1_error}")
+            nc = h.NetCon(stim, None)
+            nc.weight[0] = weight
+            self.netcons.append(nc)
+            pc.cell(gid, nc)
 
-                    try:
-                        if hasattr(moto2, 'muscle_unit'):
-                            h.setpointer(moto2.muscle_unit(0.5)._ref_F_fHill, 'fhill2', stim)
-                            logging.info(f"Second pointer set (fhill2)")
-                    except Exception as ptr2_error:
-                        logging.info(f"Second pointer warning: {ptr2_error}")
+            log_gid_by_lookup(self, gid, "Ia")
+            self.gener_Iagids.append(gid)
+            logging.info(f"IaGenerator успешно создан: GID={gid}, full_mode={full_mode}")
 
-                    pc.set_gid2node(gid, 0)
-                    ncstim = h.NetCon(stim, None)
-                    ncstim.weight[0] = weight
-                    self.netcons.append(ncstim)
-                    pc.cell(gid, ncstim)
+        except Exception as ia_error:
+            logging.error(f"IaGenerator creation failed: {ia_error}")
+            if 'stim' not in locals():
+                stim = h.IaGenerator()
+                self.stims.append(stim)
+            nc = h.NetCon(stim, None)
+            nc.weight[0] = weight
+            self.netcons.append(nc)
+            pc.cell(gid, nc)
+            self.gener_Iagids.append(gid)
 
-                log_gid_by_lookup(self, gid, "Ia")
-                logging.info(f"IaGenerator creation completed: GID={gid}")
-
-            except Exception as ia_error:
-                logging.error(f"IaGenerator creation failed: {ia_error}")
-                # Still increment GID to maintain consistency
-                pass
-
-        else:
-            # Other ranks just register the GID assignment
-            pc.set_gid2node(gid, 0)
-
-        self.gener_Iagids.append(gid)
         return gid
 
     def connectinsidenucleus(self, nucleus):

@@ -47,12 +47,14 @@ def addpool(leg, num, name, neurontype="int") -> list:
             if neurontype.lower() == "moto":
                 cell = motoneuron(diams[i])
                 leg.motos.append(cell)
+                leg.moto_cache[gid] = cell
             elif neurontype.lower() == "aff":
                 cell = bioaffrat()
                 leg.affs.append(cell)
             elif neurontype.lower() == "muscle":
                 cell = muscle()
                 leg.muscles.append(cell)
+                leg.muscle_cache[gid] = cell
             elif neurontype.lower() == "bursting":
                 cell = interneuron(False, bursting_mode=True)
                 leg.ints.append(cell)

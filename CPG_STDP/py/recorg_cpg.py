@@ -25,20 +25,18 @@ def spike_record(pool, extra=False, location='soma', max_units = None, seed = 0)
         if pc.gid2node(i) != rank:
             continue
         cell = pc.gid2cell(i)
-        vec = h.Vector(np.zeros(int(time_sim / 0.025 + 1), dtype=np.float32))
+        vec = h.Vector()
         if extra:
-            vec.record(cell.soma(0.5)._ref_vext[0])
+            vec.record(cell.soma(0.5)._ref_vext[0], RECORD_EVERY)
         else:
             if location == 'axon':
-                # Изменение на запись из первого узла аксона (здесь будут нормальные спайки)
-                vec.record(cell.node[0](1.0)._ref_v)
+                vec.record(cell.node[0](1.0)._ref_v, RECORD_EVERY)
             elif location == 'muscle':
-                vec.record(cell.muscle_unit(0.5)._ref_v)
+                vec.record(cell.muscle_unit(0.5)._ref_v, RECORD_EVERY)
             elif location == 'am':
-                vec.record(cell.muscle_unit(0.5)._ref_AM_CaSP)
+                vec.record(cell.muscle_unit(0.5)._ref_AM_CaSP, RECORD_EVERY)
             else:
-                # Запись из сомы (как было раньше)
-                vec.record(cell.soma(0.5)._ref_v)
+                vec.record(cell.soma(0.5)._ref_v, RECORD_EVERY)
         v_vec.append(vec)
     return v_vec
 
@@ -55,8 +53,8 @@ def force_record(pool):
     v_vec = []
     for i in pool:
         cell = pc.gid2cell(i)
-        vec = h.Vector(np.zeros(int(time_sim / 0.025 + 1), dtype=np.float32))
-        vec.record(cell.muscle_unit(0.5)._ref_F_fHill)
+        vec = h.Vector()
+        vec.record(cell.muscle_unit(0.5)._ref_F_fHill, RECORD_EVERY)
         v_vec.append(vec)
     return v_vec
 
@@ -82,13 +80,13 @@ def velocity_record(gids, attr='_ref_vel'):
         if pc.gid2node(gid) != rank:
             continue
         cell = pc.gid2cell(gid)
-        vec = h.Vector(np.zeros(int(time_sim / 0.025 + 1), dtype=np.float32))
-        vec.record(getattr(cell, attr))
+        vec = h.Vector()
+        vec.record(getattr(cell, attr), RECORD_EVERY)
         vecs.append(vec)
     return vecs
 
 
-def spikeout(pool, name, version, v_vec, leg):
+def spikeout(pool, name, v_vec, leg):
     ''' Reports simulation results
       Parameters
       ----------

@@ -79,3 +79,4 @@ k_nrns = 0
 k_name = 1
 
 global_gid = 0
+RECORD_EVERY = 100
