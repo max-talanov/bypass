@@ -5,14 +5,13 @@ class LEG:
 
     def __init__(self, speed, bs_fr, inh_p, step_number, n, leg_l=False):
         logging.info(f"Hello from rank {rank} of {nhost}")
-        logging.info("NEURON version: " + h.nrnversion())
         if rank == 0:
             self.name = "LEG left?=" + str(leg_l)
             self.threshold = 10
             self.delay = 1
-            self.nAff = 5 #15 #35 #5
-            self.nInt = 5 #10 #21 #5
-            self.nMn = 5 #10 #21 #5
+            self.nAff = 35 #15 #35 #5
+            self.nInt = 21 #10 #21 #5
+            self.nMn = 21 #10 #21 #5
             self.ncell = n
             self.affs = []
             self.ints = []

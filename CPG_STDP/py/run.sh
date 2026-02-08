@@ -3,8 +3,8 @@
 #SBATCH --output=Neuron_comp.slurmout
 #SBATCH --error=Neuron_comp.slurmerr
 #SBATCH --nodes=1
-#SBATCH --ntasks=50
-#SBATCH --ntasks-per-node=50
+#SBATCH --ntasks=4
+#SBATCH --ntasks-per-node=4
 #SBATCH --cpus-per-task=1
 
 # Strongly recommended on HPC: ensure UTF-8 output + unbuffered python prints
@@ -15,4 +15,3 @@ export PYTHONUNBUFFERED=1
 
 # Headless NEURON + MPI
 srun nrniv -mpi -nogui -python main_cpg.py
-# srun --mpi=pmix nrniv -mpi -nogui -python main_cpg.py

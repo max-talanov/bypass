@@ -157,22 +157,6 @@ if __name__ == '__main__':
                     for time in t:
                         time_file.write(str(time) + "\n")
 
-            # gen_recorders_l = LEG_L.gen_spike_vectors
-            # gen_recorders_r = LEG_R.gen_spike_vectors
-            # generator_spikeout(
-            #     gen_recorders_l,
-            #     name="GEN_L",
-            #     version=i,
-            #     leg="left"
-            # )
-            #
-            # generator_spikeout(
-            #     gen_recorders_r,
-            #     name="GEN_R",
-            #     version=i,
-            #     leg="right"
-            # )
-
             for group, recorder in zip(LEG_L.musclegroups, musclerecorders_l):
                 spikeout(group[k_nrns], group[k_name], i, recorder, "left")
             for group, recorder in zip(LEG_L.motogroups, motorecorders_mem_l):
@@ -203,9 +187,6 @@ if __name__ == '__main__':
             for group, recorder in zip(LEG_R.musclegroups, muscle_am_recorders_r):
                 spikeout(group[k_nrns], 'am_{}'.format(group[k_name]), i, recorder, "right")
 
-            # spikeout(cpg_ex.gener_Iagids, 'vel', i, vel_vecs_recorders)
-            # spikeout(cpg_ex.gener_Iagids, 'v0', i, v0_vecs_recorders)
-            # print(f"      ✅ Spike data saved")
 
             if rank == 0:
                 logging.info(f"      Saving STDP weight changes...")

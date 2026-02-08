@@ -19,7 +19,6 @@ class bioaffrat(Axon):
       synlistees: list (creates by synapses())
         list of excitatory synapses for connection with generators
     '''
-    # from axon import make_axon, topol_axon, geom_axon, biophys_axon
 
     def __init__(self, neuron_type="extensor"):
         self.nc = None
@@ -68,8 +67,6 @@ class bioaffrat(Axon):
         Adds length and diameter to sections
         '''
         self.soma.L = self.soma.diam = random.uniform(15, 20)  # microns
-        # self.axon.L = 150  # microns
-        # self.axon.diam = 1  # microns
         h.define_shape()
 
     def biophys(self):
@@ -84,9 +81,6 @@ class bioaffrat(Axon):
         self.soma.Ra = 150
         self.soma.cm = 1
         self.soma.insert('extracellular')
-
-        # self.axon.Ra = 50
-        # self.axon.insert('hh')
 
     def connect2target(self, target):
         '''
@@ -105,12 +99,8 @@ class bioaffrat(Axon):
         self.nc.threshold = -20
         return self.nc
 
-        # nc = h.NetCon(self.axon(1)._ref_v, target, sec=self.axon)
-        # nc.threshold = -10
-        # return nc
 
     def synapses(self):
-        # Ингибирующие (на соме!)
         for i in range(100):
             s = h.ExpSyn(self.soma(0.5))
             s.tau = 0.4
@@ -126,18 +116,6 @@ class bioaffrat(Axon):
             s.tau2 = 2.2
             s.e = -70
             self.synlistinh.append(s)
-        # else:
-        #     # Extensor parameters (default)
-        #     for i in range(50):
-        #         s = h.ExpSyn(self.soma(0.5))
-        #         s.tau = 2.0
-        #         s.e = 55
-        #         self.synlistees.append(s)
-        #
-        #         s_extra = h.ExpSyn(self.soma(0.5))
-        #         s_extra.tau = 2.0
-        #         s_extra.e = 55
-        #         self.synlistex.append(s_extra)
 
     def is_art(self):
         return 0
