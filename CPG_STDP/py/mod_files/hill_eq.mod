@@ -38,7 +38,7 @@ ASSIGNED {
 	cli
 }
 
-BREAKPOINT { LOCAL d_xm, d_xce, d_se
+BREAKPOINT {
 	A = mgi
 	xm = cli
 

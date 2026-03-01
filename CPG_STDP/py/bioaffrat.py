@@ -21,11 +21,13 @@ class bioaffrat(Axon):
     '''
     # from axon import make_axon, topol_axon, geom_axon, biophys_axon
 
-    def __init__(self, neuron_type="extensor"):
+    def __init__(self, neuron_type="extensor", n_synapses=100, n_axon_nodes=None, use_graphics=True):
         self.nc = None
         self.soma = None
         self.all = None
-        self.nu = random.randint(8, 11)
+        self._n_synapses = n_synapses
+        self._use_graphics = use_graphics
+        self.nu = n_axon_nodes if n_axon_nodes is not None else random.randint(8, 11)
         super().__init__(self.nu)
         self.neuron_type = neuron_type
         self.topol()
@@ -47,6 +49,10 @@ class bioaffrat(Axon):
         '''
         self.soma = h.Section(name='soma', cell=self)
         # self.axon = h.Section(name='axon', cell=self)
+        # These nodes were already part of the axon tree created in Axon.topol_axon().
+        # Disconnect first to avoid per-cell reconnection notices (stdout I/O is very slow).
+        self.node[0].disconnect()
+        self.node[-1].disconnect()
         self.node[0].connect(self.soma(1))
         self.node[-1].connect(self.soma(1))
         # self.axon.connect(self.soma(1))
@@ -55,13 +61,18 @@ class bioaffrat(Axon):
 
     def subsets(self):
         '''
-        NEURON staff
-        adds sections in NEURON SectionList
+        NEURON staff: add our sections to SectionList (no global h.allsec() scan).
         '''
         self.all = h.SectionList()
-        for sec in h.allsec():
-            if sec.cell() == self:  # проверяем, принадлежит ли секция текущему объекту
-                self.all.append(sec)
+        self.all.append(self.soma)
+        for sec in self.node:
+            self.all.append(sec)
+        for sec in self.MYSA:
+            self.all.append(sec)
+        for sec in self.FLUT:
+            self.all.append(sec)
+        for sec in self.STIN:
+            self.all.append(sec)
 
     def geom(self):
         '''
@@ -70,7 +81,10 @@ class bioaffrat(Axon):
         self.soma.L = self.soma.diam = random.uniform(15, 20)  # microns
         # self.axon.L = 150  # microns
         # self.axon.diam = 1  # microns
-        h.define_shape()
+        # define_shape() is called in Axon.geom_axon(); avoid calling it again per cell.
+        if self._use_graphics:
+            # Include soma in the shape view when GUI is used.
+            h.define_shape()
 
     def biophys(self):
         '''
@@ -110,22 +124,28 @@ class bioaffrat(Axon):
         # return nc
 
     def synapses(self):
-        # Ингибирующие (на соме!)
-        for i in range(100):
-            s = h.ExpSyn(self.soma(0.5))
+        n = self._n_synapses
+        loc = self.soma(0.5)
+        ExpSyn = h.ExpSyn
+        Exp2Syn = h.Exp2Syn
+        syn_es_append = self.synlistees.append
+        syn_ex_append = self.synlistex.append
+        syn_in_append = self.synlistinh.append
+        for i in range(n):
+            s = ExpSyn(loc)
             s.tau = 0.4
             s.e = 50  # Higher reversal potential for flexors
-            self.synlistees.append(s)
+            syn_es_append(s)
 
-            s = h.ExpSyn(self.soma(0.5))  # Excitatory
+            s = ExpSyn(loc)  # Excitatory
             s.tau = 0.4
             s.e = 50
-            self.synlistex.append(s)
-            s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
+            syn_ex_append(s)
+            s = Exp2Syn(loc)  # Inhibitory
             s.tau1 = 0.6
             s.tau2 = 2.2
             s.e = -70
-            self.synlistinh.append(s)
+            syn_in_append(s)
         # else:
         #     # Extensor parameters (default)
         #     for i in range(50):

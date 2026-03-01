@@ -12,7 +12,6 @@ NEURON {
 	RANGE gnabar, gkbar, vtraub, gl, el
 	RANGE m_inf, h_inf, n_inf, m, h, n
 	RANGE tau_m, tau_h, tau_n
-	RANGE m_exp, h_exp, n_exp
 }
 
 
@@ -50,9 +49,6 @@ ASSIGNED {
 	tau_m
 	tau_h
 	tau_n
-	m_exp
-	h_exp
-	n_exp
 	tadj
 }
 
@@ -79,28 +75,29 @@ INITIAL {
 	n = 0
 }
 
-PROCEDURE evaluate_fct(v(mV)) { LOCAL a,b
+PROCEDURE evaluate_fct(v(mV)) { LOCAL a,b, v13, v40, v17, v15, v10
 
 	V_mem = v - V_adj
+	v13 = 13 - V_mem
+	v40 = V_mem - 40
+	v17 = 17 - V_mem
+	v15 = 15 - V_mem
+	v10 = 10 - V_mem
 
-	a = 0.32 * (13-V_mem) / ( exp((13-V_mem)/4) - 1)
-	b = 0.28 * (V_mem-40) / ( exp((V_mem-40)/5) - 1)
+	a = 0.32 * v13 / ( exp(v13/4) - 1)
+	b = 0.28 * v40 / ( exp(v40/5) - 1)
 	tau_m = 1 / (a + b)
 	m_inf = a / (a + b)
 
-	a = 0.128 * exp((17-V_mem)/18)
-	b = 4 / ( 1 + exp((40-V_mem)/5) )
+	a = 0.128 * exp(v17/18)
+	b = 4 / ( 1 + exp(-v40/5) )
 	tau_h = 1 / (a + b)
 	h_inf = a / (a + b)
 
-	a = 0.032 * (15-V_mem) / ( exp((15-V_mem)/5) - 1)
-	b = 0.5 * exp((10-V_mem)/40)
+	a = 0.032 * v15 / ( exp(v15/5) - 1)
+	b = 0.5 * exp(v10/40)
 	tau_n = 1 / (a + b)
 	n_inf = a / (a + b)
-
-	m_exp = 1 - exp(-dt/tau_m)
-	h_exp = 1 - exp(-dt/tau_h)
-	n_exp = 1 - exp(-dt/tau_n)
 }
 
 UNITSON
