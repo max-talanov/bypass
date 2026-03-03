@@ -3,8 +3,6 @@ import random
 
 h.load_file('stdlib.hoc')  # for h.lambda_f
 
-import random
-
 
 class muscle(object):
     '''
@@ -17,10 +15,13 @@ class muscle(object):
         list of excitatory synapses
     '''
 
-    def __init__(self):
+    def __init__(self, n_synapses=100, nseg=3):
         self.all = None
+        self._secs = None
         self.soma = None
         self.muscle_unit = None
+        self._n_synapses = n_synapses
+        self._nseg = nseg
         self.topol()
         self.subsets()
         self.geom()
@@ -30,9 +31,8 @@ class muscle(object):
         self.synlistinh = []
         self.synapses()
 
-        def __del__(self):
-            # print 'delete ', self
-            pass
+    def __del__(self):
+        pass
 
     def topol(self):
         '''
@@ -44,13 +44,12 @@ class muscle(object):
 
     def subsets(self):
         '''
-        NEURON staff
-        adds sections in NEURON SectionList
+        NEURON staff: add only our sections (no global h.allsec() scan).
         '''
+        self._secs = [self.muscle_unit, self.soma]
         self.all = h.SectionList()
-        for sec in h.allsec():
-            if sec.cell() == self:  # проверяем, принадлежит ли секция текущему объекту
-                self.all.append(sec)
+        for sec in self._secs:
+            self.all.append(sec)
 
     def geom(self):
         '''
@@ -65,8 +64,8 @@ class muscle(object):
         '''
         Calculates numder of segments in section
         '''
-        for sec in self.all:
-            sec.nseg = 3 #int((sec.L/(0.1*h.lambda_f(100)) + .9)/2.)*2 + 1
+        for sec in self._secs:
+            sec.nseg = self._nseg  # int((sec.L/(0.1*h.lambda_f(100)) + .9)/2.)*2 + 1
 
     def biophys(self):
         '''
@@ -148,17 +147,22 @@ class muscle(object):
         '''
         Adds synapses
         '''
-        
-        for i in range(100):
-            s = h.ExpSyn(self.muscle_unit(0.5))  # Exsitatory
+
+        loc = self.muscle_unit(0.5)
+        ExpSyn = h.ExpSyn
+        Exp2Syn = h.Exp2Syn
+        syn_ex_append = self.synlistex.append
+        syn_in_append = self.synlistinh.append
+        for i in range(self._n_synapses):
+            s = ExpSyn(loc)  # Exsitatory
             s.tau = 0.2
             s.e = 55
-            self.synlistex.append(s)
-            s = h.Exp2Syn(self.muscle_unit(0.5))  # Inhibitory
+            syn_ex_append(s)
+            s = Exp2Syn(loc)  # Inhibitory
             s.tau1 = 0.6
             s.tau2 = 2.2
             s.e = -70
-            self.synlistinh.append(s)
+            syn_in_append(s)
             # s = h.ExpSyn(self.soma(0.5))  # Exsitatory
             # s.tau = 0.2
             # s.e = 55
