@@ -82,13 +82,10 @@ class motoneuron(Axon):
         NEURON staff
         adds sections in NEURON SectionList
         '''
-
-        def subsets(self):
-            self.all = h.SectionList()
-            self.all.append(self.soma)
-            self.all.append(self.dend)
-            for sec in self.node:
-                self.all.append(sec)
+        self.all = h.SectionList()
+        for sec in h.allsec():
+            if sec.cell() == self:
+                self.all.append(sec=sec)
 
     def geom(self):
         '''
@@ -102,12 +99,8 @@ class motoneuron(Axon):
         '''
         Calculates numder of segments in section
         '''
-
-        def geom_nseg(self):
-            self.soma.nseg = 2
-            self.dend.nseg = 2
-            for sec in self.node:
-                sec.nseg = 2 #int((sec.L / (0.1 * h.lambda_f(100)) + .9) / 2.) * 2 + 1
+        for sec in self.all:
+            sec.nseg = 2 #int((sec.L / (0.1 * h.lambda_f(100)) + .9) / 2.) * 2 + 1
 
     def biophys(self):
         '''
@@ -175,25 +168,20 @@ class motoneuron(Axon):
         nc.threshold = -20
         return nc
 
-    def synapses(self, n_syn=200):
+    def synapses(self):
         '''
         Adds synapses
         '''
-        seg = self.soma(0.5)
-        ex_append = self.synlistex.append
-        inh_append = self.synlistinh.append
-
-        for _ in range(n_syn):
-            s = h.ExpSyn(seg) # Excitatory
+        for i in range(200):
+            s = h.ExpSyn(self.soma(0.5))  # Excitatory
             s.tau = 0.2
             s.e = 50
-            ex_append(s)
-
-            s = h.Exp2Syn(seg) # Inhibitory
+            self.synlistex.append(s)
+            s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
             s.tau1 = 0.6
             s.tau2 = 2.2
             s.e = -70
-            inh_append(s)
+            self.synlistinh.append(s)
 
     def is_art(self):
         return 0
