@@ -19,25 +19,28 @@ def spike_record(pool, extra=False, location='soma', max_units = None, seed = 0)
         rng = np.random.default_rng(seed)
         pool = rng.choice(pool, size=max_units, replace=False).tolist()
 
-    v_vec = []
+    n = len(pool)
+    n_pts = int(time_sim / 0.025 + 1)
+    v_vec = [None] * n
+    _gid2cell = pc.gid2cell
+    _Vector = h.Vector
 
-    for i in pool:
-        cell = pc.gid2cell(i)
-        vec = h.Vector(np.zeros(int(time_sim / 0.025 + 1), dtype=np.float32))
-        if extra:
-            vec.record(cell.soma(0.5)._ref_vext[0])
-        else:
-            if location == 'axon':
-                # Изменение на запись из первого узла аксона (здесь будут нормальные спайки)
-                vec.record(cell.node[0](1.0)._ref_v)
-            elif location == 'muscle':
-                vec.record(cell.muscle_unit(0.5)._ref_v)
-            elif location == 'am':
-                vec.record(cell.muscle_unit(0.5)._ref_AM_CaSP)
-            else:
-                # Запись из сомы (как было раньше)
-                vec.record(cell.soma(0.5)._ref_v)
-        v_vec.append(vec)
+    if extra:
+        get_ref = lambda c: c.soma(0.5)._ref_vext[0]
+    elif location == 'axon':
+        get_ref = lambda c: c.node[0](1.0)._ref_v
+    elif location == 'muscle':
+        get_ref = lambda c: c.muscle_unit(0.5)._ref_v
+    elif location == 'am':
+        get_ref = lambda c: c.muscle_unit(0.5)._ref_AM_CaSP
+    else:
+        get_ref = lambda c: c.soma(0.5)._ref_v
+
+    for idx in range(n):
+        cell = _gid2cell(pool[idx])
+        vec = _Vector(n_pts)
+        vec.record(get_ref(cell))
+        v_vec[idx] = vec
     return v_vec
 
 
@@ -99,51 +102,39 @@ def spikeout(pool, name, version, v_vec, leg):
     '''
     global rank
     pc.barrier()
+
+    n_pool = len(pool)
+    if n_pool > 0:
+        n_pts = int(time_sim / 0.025 + 1)
+        outavg = np.asarray(v_vec[0], dtype=np.float32).copy()
+        for j in range(1, n_pool):
+            outavg += np.asarray(v_vec[j], dtype=np.float32)
+        outavg /= n_pool
+    else:
+        outavg = np.empty(0, dtype=np.float32)
+
     vec = h.Vector()
-
-    # Создаем директорию для индивидуальных записей, если её нет
-    if rank == 0:
-        individual_dir = f'./{file_name}/{name}_individual'
-        if not os.path.exists(individual_dir):
-            os.makedirs(individual_dir)
-
-    for i in range(nhost):
-        if i == rank:
-            # Подготовка средних значений (как в оригинале)
-            outavg = []
-            for j in range(len(pool)):
-                outavg.append(list(v_vec[j]))
-
-                # Сохранение индивидуальных значений для каждого нейрона
-                #if rank == 0:  # Сохраняем только на узле 0 для простоты
-                #    individual_file = f'{individual_dir}/neuron_{pool[j]}_sp_{speed}_CVs_{CV_number}_bs_{bs_fr}_{leg}.hdf5'
-                #    with hdf5.File(individual_file, 'w') as indiv_file:
-                #        neuron_data = list(v_vec[j])
-                #        for step in range(step_number):
-                #            sl = slice((int(1000 / bs_fr) * 40 + step * one_step_time * 40),
-                #                       (int(1000 / bs_fr) * 40 + (step + 1) * one_step_time * 40))
-                #            indiv_file.create_dataset(f'#0_step_{step}', data=np.array(neuron_data)[sl],
-                #                                      compression="gzip")
-
-            # Продолжение обработки средних значений
-            outavg = np.mean(np.array(outavg), axis=0, dtype=np.float32)
-            vec = vec.from_python(outavg)
-        pc.barrier()
+    vec.from_python(outavg)
 
     pc.barrier()
     result = pc.py_gather(vec, 0)
 
-    # Сохранение средних значений (как в оригинале)
     if rank == 0:
         logging.info("start recording " + name)
-        result = np.mean(np.array(result), axis=0, dtype=np.float32)
-        with hdf5.File(f'./{file_name}/{name}_sp_{speed}_CVs_{CV_number}_bs_{bs_fr}_{leg}.hdf5', 'w') as file:
-            for i in range(step_number*2):
-                sl = slice((int(1000 / bs_fr) * 40 + i * one_step_time * 40),
-                           (int(1000 / bs_fr) * 40 + (i + 1) * one_step_time * 40))
-                file.create_dataset('#0_step_{}'.format(i), data=np.array(result)[sl], compression="gzip")
+        out = np.asarray(result[0], dtype=np.float32).copy()
+        for r in result[1:]:
+            out += np.asarray(r, dtype=np.float32)
+        out /= len(result)
+
+        bs_offset = int(1000 / bs_fr) * 40
+        step_width = one_step_time * 40
+        fname = f'./{file_name}/{name}_sp_{speed}_CVs_{CV_number}_bs_{bs_fr}_{leg}.hdf5'
+        with hdf5.File(fname, 'w') as file:
+            for i in range(step_number * 2):
+                start = bs_offset + i * step_width
+                end = start + step_width
+                file.create_dataset(f'#0_step_{i}', data=out[start:end], compression="gzip")
         logging.info("done recording average")
-        logging.info("done recording individual neurons")
     else:
         logging.info(rank)
 
