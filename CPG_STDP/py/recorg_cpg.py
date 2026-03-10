@@ -50,10 +50,11 @@ def force_record(pool):
       v_vec: list of h.Vector()
           recorded voltage
     '''
+    npts = int(time_sim / 0.025 + 1)
     v_vec = []
-    for i in pool:
-        cell = pc.gid2cell(i)
-        vec = h.Vector(np.zeros(int(time_sim / 0.025 + 1), dtype=np.float32))
+    for gid in pool:
+        cell = pc.gid2cell(gid)
+        vec = h.Vector(npts)
         vec.record(cell.muscle_unit(0.5)._ref_F_fHill)
         v_vec.append(vec)
     return v_vec
@@ -75,12 +76,18 @@ def velocity_record(gids, attr='_ref_vel'):
     vecs : list of h.Vector()
         list of recorded vectors for each gid
     """
+    if attr not in ('_ref_vel', '_ref_v0'):
+        raise ValueError(f"Unsupported attr: {attr}")
+
+    npts = int(time_sim / 0.025 + 1)
     vecs = []
+
     for gid in gids:
         cell = pc.gid2cell(gid)
-        vec = h.Vector(np.zeros(int(time_sim / 0.025 + 1), dtype=np.float32))
+        vec = h.Vector(npts)
         vec.record(getattr(cell, attr))
         vecs.append(vec)
+
     return vecs
 
 
@@ -168,16 +175,25 @@ def generator_spikeout(gen_vecs, name, version, leg):
         left / right
     """
     global rank
-    pc.barrier()
+
+    # In original file there is pc.barrier func. It is not needed because the sync hapgens with py_gather.
 
     if rank == 0:
         gen_dir = f'./{file_name}/{name}_generators'
-        if not os.path.exists(gen_dir):
-            os.makedirs(gen_dir)
+        # removed if
+        os.makedirs(gen_dir, exist_ok=True)
 
-    pc.barrier()
 
-    local_data = [(gid, list(vec)) for gid, vec in gen_vecs]
+    local_data = []
+
+    for gid, vec in gen_vecs:
+
+        # There was copying data twice
+        # now creating numpy array
+        spikes = np.array(vec, dtype=np.float32)
+
+        # adding rank to write the source of data correctly
+        local_data.append((rank, gid, spikes))
 
     gathered = pc.py_gather(local_data, 0)
 
@@ -194,9 +210,10 @@ def generator_spikeout(gen_vecs, name, version, leg):
                     f'sp_{speed}_CVs_{CV_number}_bs_{bs_fr}_{leg}_v{version}.hdf5'
                 )
                 with hdf5.File(fname, 'w') as f:
+                    # data is a numpy array already
                     f.create_dataset(
                         'spike_times',
-                        data=np.array(spikes, dtype=np.float32),
+                        data=spikes,
                         compression="gzip"
                     )
 
