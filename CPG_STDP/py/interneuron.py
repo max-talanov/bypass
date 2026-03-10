@@ -73,9 +73,10 @@ class interneuron(object):
         adds sections in NEURON SectionList
         '''
         self.all = h.SectionList()
-        for sec in h.allsec():
-            if sec.cell() == self:  # проверяем, принадлежит ли секция текущему объекту
-                self.all.append(sec)
+        self.all.append(self.soma)
+        self.all.append(self.axon)
+        for sec in self.dend:
+            self.all.append(sec)
 
     def geom(self):
         '''
@@ -115,7 +116,7 @@ class interneuron(object):
             # Bursting properties of RG-F0 and RG-FE ph A4 interneurons were provided by INaP
             # add slow NaP channels
             # TODO g_NaP = 0.75(±0.0375) mS/cm2
-            self.soma.insert('nap')
+            self.soma.insert('NaP')
             self.soma.gbar_nap = 3.0e-3
         # else:
         #     self.soma.insert('nap')
@@ -123,8 +124,6 @@ class interneuron(object):
 
         for sec in self.dend:
             sec.Ra = 100  # Ra ohm cm - membrane resistance
-
-        for sec in self.dend:
             if self.serotonin:
                 sec.insert('fastchannels')
                 sec.gnabar_fastchannels = 0.25
@@ -135,6 +134,7 @@ class interneuron(object):
                 sec.insert('pas')
                 sec.g_pas = 0.0002
                 sec.e_pas = -70
+
 
         if self.serotonin:
             self.add_5HTreceptors(self.soma, 10, 5)
@@ -198,55 +198,30 @@ class interneuron(object):
         nc.threshold = -20
         return nc
 
-    def synapses(self):
+    def synapses(self, n_per_comp=50):
         '''
         Adds static and stdp synapses
         '''
+        soma = self.soma
+
+        '''Somatic'''
+        for _ in range(n_per_comp):
+            s = h.ExpSyn(soma(0.5)); s.tau = 0.1; s.e = 50; self.synlistex.append(s)
+            s = h.Exp2Syn(soma(0.5)); s.tau1 = 0.6; s.tau2 = 2.2; s.e = -70; self.synlistinh.append(s)
+
+            '''STDP'''
+            s = h.ExpSyn(soma(0.5)); s.tau = 1.3; s.e = 55; self.synlistexstdp.append(s)
+            s = h.Exp2Syn(soma(0.5)); s.tau1 = 0.5; s.tau2 = 2.8; s.e = -70; self.synlistinhstdp.append(s)
+
+        '''Dendritic'''
         for sec in self.dend:
-            for i in range(50):
-                '''Somatic'''
-                s = h.ExpSyn(self.soma(0.5))  # Excitatory
-                s.tau = 0.1
-                s.e = 50
-                self.synlistex.append(s)
-                s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
-                s.tau1 = 0.6
-                s.tau2 = 2.2
-                s.e = -70
-                self.synlistinh.append(s)
-                '''Dendritic'''
-                s = h.ExpSyn(sec(0.1))  # Excitatory
-                s.tau = 0.1
-                s.e = 50
-                self.synlistex.append(s)
-                s = h.Exp2Syn(sec(0.1))  # Inhibitory
-                s.tau1 = 0.6
-                s.tau2 = 2.2
-                s.e = -70
-                self.synlistinh.append(s)
+            for _ in range(n_per_comp):
+                s = h.ExpSyn(sec(0.1)); s.tau = 0.1; s.e = 50; self.synlistex.append(s)
+                s = h.Exp2Syn(sec(0.1)); s.tau1 = 0.6; s.tau2 = 2.2; s.e = -70; self.synlistinh.append(s)
 
                 '''STDP'''
-                '''Somatic'''
-                s = h.ExpSyn(self.soma(0.5))  # Excitatory
-                s.tau = 1.3
-                s.e = 55
-                self.synlistexstdp.append(s)
-                s = h.Exp2Syn(self.soma(0.5))  # Inhibitory
-                s.tau1 = 0.5
-                s.tau2 = 2.8
-                s.e = -70
-                self.synlistinhstdp.append(s)
-                '''Dendritic'''
-                s = h.ExpSyn(sec(0.5))  # Excitatory
-                s.tau = 1.3
-                s.e = 55
-                self.synlistexstdp.append(s)
-                s = h.Exp2Syn(sec(0.8))  # Inhibitory
-                s.tau1 = 0.5
-                s.tau2 = 2.8
-                s.e = -70
-                self.synlistinhstdp.append(s)
-
+                s = h.ExpSyn(sec(0.5)); s.tau = 1.3; s.e = 55; self.synlistexstdp.append(s)
+                s = h.Exp2Syn(sec(0.8)); s.tau1 = 0.5; s.tau2 = 2.8; s.e = -70; self.synlistinhstdp.append(s)
 
 def is_art(self):
     return 0
