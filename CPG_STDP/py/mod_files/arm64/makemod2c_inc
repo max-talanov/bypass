@@ -1,0 +1,160 @@
+5ht.cpp: ../5ht.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "5ht.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./5ht.o: 5ht.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+AXNODE.cpp: ../AXNODE.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "AXNODE.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./AXNODE.o: AXNODE.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+FC.cpp: ../FC.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "FC.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./FC.o: FC.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+MOTONEURON.cpp: ../MOTONEURON.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "MOTONEURON.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./MOTONEURON.o: MOTONEURON.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+MOTONEURON_5HT.cpp: ../MOTONEURON_5HT.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "MOTONEURON_5HT.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./MOTONEURON_5HT.o: MOTONEURON_5HT.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+NaP.cpp: ../NaP.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "NaP.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./NaP.o: NaP.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+cac1.cpp: ../cac1.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "cac1.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./cac1.o: cac1.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+caconc.cpp: ../caconc.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "caconc.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./caconc.o: caconc.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+cal.cpp: ../cal.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "cal.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./cal.o: cal.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+diffusion.cpp: ../diffusion.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "diffusion.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./diffusion.o: diffusion.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+hill_eq.cpp: ../hill_eq.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "hill_eq.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./hill_eq.o: hill_eq.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+kir.cpp: ../kir.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "kir.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./kir.o: kir.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+kno.cpp: ../kno.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "kno.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./kno.o: kno.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+nav14.cpp: ../nav14.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "nav14.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./nav14.o: nav14.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+pregen.cpp: ../pregen.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "pregen.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./pregen.o: pregen.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+slow5HT.cpp: ../slow5HT.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "slow5HT.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./slow5HT.o: slow5HT.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+stdp.cpp: ../stdp.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "stdp.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./stdp.o: stdp.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+stdp_mini.cpp: ../stdp_mini.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "stdp_mini.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./stdp_mini.o: stdp_mini.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+stdwa_soft.cpp: ../stdwa_soft.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "stdwa_soft.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./stdwa_soft.o: stdwa_soft.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
+xm.cpp: ../xm.mod $(NOCMODL)
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "..";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "xm.mod"  -o "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64" )
+
+./xm.o: xm.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<\\n"
+	$(CXXCOMPILE) -I".." $(INCLUDES) -fPIC -c "/Users/ann/memCPG/CPG_STDP/py/mod_files/arm64/$<" -o $@
+
