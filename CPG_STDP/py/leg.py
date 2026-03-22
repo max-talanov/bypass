@@ -257,22 +257,19 @@ class LEG:
                 moto2_gid = random.choice(mn2)
                 print(f"   Selected motor neurons: {moto_gid}, {moto2_gid}")
 
-                # Check if motor neurons exist on any rank
-                moto_rank = None
-                moto2_rank = None
-                for r in range(nhost):
-                    if pc.gid_exists(moto_gid):
-                        moto_rank = r
-                    if pc.gid_exists(moto2_gid):
-                        moto2_rank = r
+                moto_exists = pc.gid_exists(moto_gid)
+                moto2_exists = pc.gid_exists(moto2_gid)
 
-                if moto_rank is None or moto2_rank is None:
+                interval = int(1000 / bs_fr)
+                number = int(one_step_time / interval) - 2
+
+                if not moto_exists or not moto2_exists:
                     print(f"   ⚠️ Motor neurons not found locally, creating simplified IaGenerator")
                     # Create simplified generator without muscle connections
                     stim = h.IaGenerator()
                     stim.start = start
-                    stim.interval = int(1000 / bs_fr)
-                    stim.number = int(one_step_time / stim.interval) - 2
+                    stim.interval = interval
+                    stim.number = number
 
                     self.stims.append(stim)
                     pc.set_gid2node(gid, rank)
@@ -292,8 +289,8 @@ class LEG:
                     logging.info(f"IaGenerator object created successfully")
 
                     stim.start = start
-                    stim.interval = int(1000 / bs_fr)
-                    stim.number = int(one_step_time / stim.interval) - 2
+                    stim.interval = interval
+                    stim.number = number
                     print(f"   Parameters set: start={stim.start}, interval={stim.interval}, number={stim.number}")
 
                     self.stims.append(stim)
