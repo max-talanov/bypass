@@ -140,10 +140,10 @@ class LEG:
         self.E_ia_gids, self.F_ia_gids = self.add_ia_geners(leg_l)
 
         for E_ia_gids in self.E_ia_gids:
-            genconnect(self, E_ia_gids, self.Ia_aff_E, 0.01, 1, False, 20)
+            genconnect(self, E_ia_gids, self.Ia_aff_E, 0.01, 1, inhtype=False, N=20)
 
         for F_ia_gids in self.F_ia_gids:
-            genconnect(self, F_ia_gids, self.Ia_aff_F, 0.01, 1, False, 30)
+            genconnect(self, F_ia_gids, self.Ia_aff_F, 0.01, 1, inhtype=False, N=30)
 
         # # '''muscle afferents generators'''
         # self.Iagener_E = self.addIagener(self.muscle_E, self.muscle_F, 10, weight=3)
@@ -195,7 +195,7 @@ class LEG:
 
         '''Ia2RG, RG2Motor'''
         connectcells(self, self.InE, self.RG_F, 0.5, 1, inhtype=True)
-        #connectcells(self, self.InF, self.RG_E, 0.8, 1, inhtype=True)
+        connectcells(self, self.InF, self.RG_E, 0.8, 1, inhtype=True)
 
         connectcells(self, self.In1, self.RG_F, 0.5, 1, inhtype=True)
 

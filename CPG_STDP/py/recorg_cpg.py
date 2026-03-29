@@ -101,10 +101,23 @@ def gather_population_average(pool, v_vec):
     if not result:
         return np.empty(0, dtype=np.float32)
 
-    out = np.asarray(result[0], dtype=np.float32).copy()
-    for r in result[1:]:
-        out += np.asarray(r, dtype=np.float32)
-    out /= max(len(result), 1)
+    arrays = []
+    for r in result:
+        arr = np.asarray(r, dtype=np.float32)
+        if arr.size > 0:
+            arrays.append(arr)
+
+    if not arrays:
+        return np.empty(0, dtype=np.float32)
+
+    min_len = min(arr.size for arr in arrays)
+    if min_len <= 0:
+        return np.empty(0, dtype=np.float32)
+
+    out = np.zeros(min_len, dtype=np.float32)
+    for arr in arrays:
+        out += arr[:min_len]
+    out /= len(arrays)
     return out
 
 
@@ -181,6 +194,8 @@ def spike_record(pool, extra=False, location='soma', max_units = None, seed = 0)
     '''
 
     pool = list(pool)
+    pool = [gid for gid in pool if pc.gid_exists(gid)]
+
     if max_units is not None and len(pool) > max_units:
         rng = np.random.default_rng(seed)
         pool = rng.choice(pool, size=max_units, replace=False).tolist()
@@ -221,6 +236,8 @@ def force_record(pool):
     '''
     v_vec = []
     for i in pool:
+        if not pc.gid_exists(i):
+            continue
         cell = pc.gid2cell(i)
         vec = h.Vector(np.zeros(int(time_sim / 0.025 + 1), dtype=np.float32))
         vec.record(cell.muscle_unit(0.5)._ref_F_fHill)
@@ -246,6 +263,8 @@ def velocity_record(gids, attr='_ref_vel'):
     """
     vecs = []
     for gid in gids:
+        if not pc.gid_exists(gid):
+            continue
         cell = pc.gid2cell(gid)
         vec = h.Vector(np.zeros(int(time_sim / 0.025 + 1), dtype=np.float32))
         vec.record(getattr(cell, attr))
@@ -272,6 +291,9 @@ def spikeout(pool, name, version, v_vec, leg):
     out = gather_population_average(pool, v_vec)
     if rank == 0:
         logging.info("start recording " + name)
+        if out.size == 0:
+            logging.warning(f"skip recording {name}: empty averaged trace")
+            return
 
         bs_offset = int(1000 / bs_fr) * 40
         step_width = one_step_time * 40

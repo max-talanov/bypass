@@ -79,8 +79,8 @@ def addpool(leg, num, name, neurontype="int") -> list:
     return all_gids
 
 
-def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="UNKNOWN_POST", weight=1.0, delay=1, threshold=10, inhtype=False,
-                 stdptype=False, N=50, sect="int"):
+def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, inhtype=False,
+                 stdptype=False, N=50, sect="int", pre_name="UNKNOWN_PRE", post_name="UNKNOWN_POST"):
     #print(f"🔗 [rank {rank}] connectcells: pre_cells={len(pre_cells)}, post_cells={len(post_cells)}")
     #print(f"   weight={weight}, delay={delay}, threshold={threshold}, inhtype={inhtype}, stdptype={stdptype}")
     logging.info(
@@ -239,7 +239,7 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
     logging.info(f"connectcells end: {connection_count} connections created")
 
 
-def genconnect(leg, gen_gid, afferents_gids, weight, delay, gen_name="GEN", target_name="TARGET", inhtype=False, N=50):
+def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50, gen_name="GEN", target_name="TARGET"):
     nsyn = random.randint(N - 5, N)
     logger_genconnect.info(
         f"genconnect start | leg={leg.name} | "
