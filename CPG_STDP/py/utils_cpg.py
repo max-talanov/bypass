@@ -79,8 +79,8 @@ def addpool(leg, num, name, neurontype="int") -> list:
     return all_gids
 
 
-def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="UNKNOWN_POST", weight=1.0, delay=1, threshold=10, inhtype=False,
-                 stdptype=False, N=50, sect="int"):
+def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, inhtype=False,
+                 stdptype=False, N=50, sect="int", pre_name="UNKNOWN_PRE", post_name="UNKNOWN_POST"):
     #print(f"🔗 [rank {rank}] connectcells: pre_cells={len(pre_cells)}, post_cells={len(post_cells)}")
     #print(f"   weight={weight}, delay={delay}, threshold={threshold}, inhtype={inhtype}, stdptype={stdptype}")
     logging.info(
@@ -239,7 +239,7 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
     logging.info(f"connectcells end: {connection_count} connections created")
 
 
-def genconnect(leg, gen_gid, afferents_gids, weight, delay, gen_name="GEN", target_name="TARGET", inhtype=False, N=50):
+def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50, gen_name="GEN", target_name="TARGET"):
     nsyn = random.randint(N - 5, N)
     logger_genconnect.info(
         f"genconnect start | leg={leg.name} | "
@@ -302,12 +302,50 @@ def add_bs_geners(freq, LEG_L, LEG_R):
     left_F_bs_gids = []
     right_E_bs_gids = []
     right_F_bs_gids = []
+
+    interval = int(1000 / freq)
+    number = int(one_step_time / interval) - 2
+    _is_rank0 = (rank == 0)
+    _NetStim = h.NetStim
+    _NetCon = h.NetCon
+    _Vector = h.Vector
+    _set_gid2node = pc.set_gid2node
+    _cell = pc.cell
+
     for step in range(step_number):
-        right_F_bs_gids.append(addgener(LEG_R, (one_step_time * (2 * step + 1)), freq, False, r=False))
-        right_E_bs_gids.append(addgener(LEG_R, int(one_step_time * 2 * step) + 10, freq, False, r=False))
-        # added generators in anti-phase
-        left_E_bs_gids.append(addgener(LEG_L, (one_step_time * (2 * step + 1)), freq, False, r=False))
-        left_F_bs_gids.append(addgener(LEG_L, int(one_step_time * 2 * step) + 10, freq, False, r=False))
+        f_start = one_step_time * (2 * step + 1)
+        e_start = int(one_step_time * 2 * step) + 10
+
+        for leg_obj, start, gid_list in (
+            (LEG_R, f_start, right_F_bs_gids),
+            (LEG_R, e_start, right_E_bs_gids),
+            (LEG_L, f_start, left_E_bs_gids),
+            (LEG_L, e_start, left_F_bs_gids),
+        ):
+            gid = get_gid()
+            if _is_rank0:
+                stim = _NetStim()
+                stim.start = start
+                stim.interval = interval
+                stim.number = number
+                logger_addgener.info(
+                    "STIM created | gid=%s | start=%.3f | interval=%s | number=%s  | cv=%s | r=%s",
+                    gid, stim.start, interval, number, False, False
+                )
+                leg_obj.stims.append(stim)
+                _set_gid2node(gid, rank)
+                ncstim = _NetCon(stim, None)
+                spike_times = _Vector()
+                ncstim.record(spike_times)
+                leg_obj.gen_spike_vectors.append((gid, spike_times))
+                leg_obj.netcons.append(ncstim)
+                _cell(gid, ncstim)
+                log_gid_by_lookup(leg_obj, gid, "gen")
+            else:
+                _set_gid2node(gid, 0)
+            leg_obj.gener_gids.append(gid)
+            gid_list.append(gid)
+
     return left_E_bs_gids, left_F_bs_gids, right_E_bs_gids, right_F_bs_gids
 
 def log_gid_by_lookup(leg, gid: int, name):
@@ -350,25 +388,21 @@ def addgener(leg, start, freq, cv=False, r=True):
         else:
             stim.start = start
 
-        stim.interval = int(1000 / freq)
+        interval = int(1000 / freq)
+        stim.interval = interval
 
         if cv:
-            stim.number = int(int(int(one_step_time / stim.interval) / CV_number) + \
-                          0.45 * int(int(one_step_time / stim.interval) / CV_number))
+            base_cv = int(one_step_time / interval) // CV_number
+            stim.number = int(1.45 * base_cv)
         else:
-            stim.number = int(one_step_time / stim.interval) - 2
+            stim.number = int(one_step_time / interval) - 2
 
         # -----------------------------------------
         # ЛОГИРУЕМ ВСЕ ПАРАМЕТРЫ STIM
         # -----------------------------------------
         logger_addgener.info(
             "STIM created | gid=%s | start=%.3f | interval=%s | number=%s  | cv=%s | r=%s",
-            gid,
-            stim.start,
-            stim.interval,
-            stim.number,
-            cv,
-            r
+            gid, stim.start, interval, stim.number, cv, r
         )
         # -----------------------------------------
 
