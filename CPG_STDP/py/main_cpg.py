@@ -257,6 +257,29 @@ if __name__ == '__main__':
 
             save_t0 = time.perf_counter()
 
+            left_raw = []
+            right_raw = []
+            for group, recorder in zip(LEG_L.intgroups, recorders_l):
+                trace = gather_population_average(group[k_nrns], recorder)
+                if rank == 0 and trace is not None and trace.size:
+                    left_raw.append((group[k_name], trace))
+            for group, recorder in zip(LEG_R.intgroups, recorders_r):
+                trace = gather_population_average(group[k_nrns], recorder)
+                if rank == 0 and trace is not None and trace.size:
+                    right_raw.append((group[k_name], trace))
+
+            plot_series, left_count = build_overview_series(left_raw, right_raw)
+            if rank == 0 and plot_series:
+                overview_path = f'./{file_name}/overview_v{i}.png'
+                draw_overview_plot(
+                    t_values=np.array(t),
+                    labeled_traces=plot_series,
+                    output_path=overview_path,
+                    title=f'Overview, speed={speed}, bs={bs_fr}, version={i}',
+                    separator_after=left_count
+                )
+                print(f"      ✅ Overview saved: {overview_path}")
+
             if rank == 0:
                 with open(f'./{file_name}/time.txt', 'w') as time_file:
                     for time_val in t:
