@@ -197,6 +197,15 @@ class LEG:
         connectcells(self, self.InE, self.RG_F, 0.5, 1, inhtype=True)
         connectcells(self, self.InF, self.RG_E, 0.8, 1, inhtype=True)
 
+        connectcells(self, self.InE, self.mns_F, 0.8, 1, inhtype=True)
+        connectcells(self, self.InF, self.mns_E, 0.4, 1, inhtype=True)
+
+        connectcells(self, self.InE, self.Ia_aff_F, 1.2, 1, inhtype=True)
+        connectcells(self, self.InF, self.Ia_aff_E, 0.5, 1, inhtype=True)
+
+        connectcells(self, self.InE, self.InF, 0.04, 1, inhtype=True)
+        connectcells(self, self.InF, self.InE, 0.04, 1, inhtype=True)
+
         connectcells(self, self.In1, self.RG_F, 0.5, 1, inhtype=True)
 
         connectcells(self, self.Ia_aff_E, self.Ia_E, 0.08, 1, inhtype=False)
@@ -213,6 +222,11 @@ class LEG:
 
         connectcells(self, self.Ia_E, self.mns_F, 0.08, 1, inhtype=True)
         connectcells(self, self.Ia_F, self.mns_E, 0.08, 1, inhtype=True)
+
+        connectcells(self, self.R_E, self.R_F, 0.04, 1, inhtype=True)
+        connectcells(self, self.R_F, self.R_E, 0.04, 1, inhtype=True)
+        connectcells(self, self.Ia_E, self.Ia_F, 0.08, 1, inhtype=True)
+        connectcells(self, self.Ia_F, self.Ia_E, 0.08, 1, inhtype=True)
 
         ''' Commisural projections '''
         #connectcells(self, self.RG_F, self.V2a, 0.75, 3)
