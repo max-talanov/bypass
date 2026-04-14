@@ -79,14 +79,10 @@ def addpool(leg, num, name, neurontype="int") -> list:
     return all_gids
 
 
-def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="UNKNOWN_POST", weight=1.0, delay=1, threshold=10, inhtype=False,
-                 stdptype=False, N=50, sect="int"):
+def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, inhtype=False,
+                 stdptype=False, N=50, sect="int", pre_name="UNKNOWN_PRE", post_name="UNKNOWN_POST"):
     #print(f"🔗 [rank {rank}] connectcells: pre_cells={len(pre_cells)}, post_cells={len(post_cells)}")
     #print(f"   weight={weight}, delay={delay}, threshold={threshold}, inhtype={inhtype}, stdptype={stdptype}")
-    # Convert to list once: avoids repeated conversions inside loops
-    pre_cells = list(pre_cells)
-    post_cells = list(post_cells)
-
     logging.info(
         f"connectcells start | "
         f"{pre_name}({len(pre_cells)}) -> {post_name}({len(post_cells)}) | "
@@ -98,133 +94,191 @@ def connectcells(leg, pre_cells, post_cells, pre_name="UNKNOWN_PRE", post_name="
 
     connection_count = 0
 
-    # Local references (slightly faster in tight loops)
-    gid_connect = pc.gid_connect
-    append_netcon = leg.netcons.append
-
     for post_idx, post_gid in enumerate(post_cells):
         # print(f"   Processing post_cell {post_idx + 1}/{len(post_cells)}: gid={post_gid}")
-        if not pc.gid_exists(post_gid):
-            continue
 
-        try:
-            # Retrieve NEURON cell object by global identifier (gid)
-            target = pc.gid2cell(post_gid)
+        if pc.gid_exists(post_gid):
+            # print(f"   ✅ GID {post_gid} exists on this rank")
 
-            # Select appropriate synapse list:
-            # - synlistex: excitatory synapses
-            # - synlistinh: inhibitory synapses
-            # - synlistexstdp: synapses with STDP mechanism
-            if stdptype:
-                syn_list = getattr(target, 'synlistexstdp', None)
-            elif inhtype:
-                syn_list = getattr(target, 'synlistinh', None)
-            else:
-                syn_list = getattr(target, 'synlistex', None)
+            try:
+                target = pc.gid2cell(post_gid)
+                target_type = type(target).__name__
+                # print(f"   Target type: {target_type}")
+                logging.info(f"Target {post_gid} type: {target_type}")
 
-            if syn_list is None:
-                continue
+                for i in range(nsyn):
+                    pre_cells = list(pre_cells)
+                    src_gid = random.choice(pre_cells)
+                    logging.info(
+                        f"[{pre_name} -> {post_name}] "
+                        f"syn {i + 1}/{nsyn}: "
+                        f"{src_gid} -> {post_gid}"
+                    )
 
-            # Ensure we do not exceed available synapses on the target neuron
-            limit = min(nsyn, len(syn_list))
+                    if stdptype:
+                        # print(f"     🧠 Creating STDP connection...")
+                        logging.info(
+                            f"STDP [{pre_name}->{post_name}] "
+                            f"{src_gid} -> {post_gid}"
+                        )
 
-            for i in range(limit):
-                src_gid = random.choice(pre_cells)
+                        try:
+                            # Проверяем наличие STDP синапсов
+                            if not hasattr(target, 'synlistexstdp'):
+                                # print(f"     ❌ Target {target_type} has no synlistexstdp")
+                                logging.error(f"No synlistexstdp in {target_type}")
+                                continue
 
-                if stdptype:
-                    # STDP connection (plastic synapse)
-                    syn = syn_list[i]
+                            if len(target.synlistexstdp) <= i:
+                                # print(f"     ❌ synlistexstdp[{i}] out of range (len={len(target.synlistexstdp)})")
+                                logging.error(f"synlistexstdp index {i} out of range")
+                                continue
 
-                    # Main synaptic connection: src neuron → synapse on target
-                    nc = gid_connect(src_gid, syn)
-                    nc.delay = delay
-                    nc.weight[0] = weight
-                    nc.threshold = threshold
-                    append_netcon(nc)
+                            syn = target.synlistexstdp[i]
+                            # print(f"     ✅ Got STDP synapse: {type(syn).__name__}")
 
-                    dummy = h.Section()
-                    stdpmech = h.STDP(0, dummy)
-                    leg.stdpmechs.append(stdpmech)
+                            # Создаем основное соединение
+                            nc = pc.gid_connect(src_gid, syn)
+                            nc.delay = delay
+                            nc.weight[0] = weight
+                            nc.threshold = threshold
+                            pc.threshold(src_gid, threshold)
+                            leg.netcons.append(nc)
+                            # print(f"     ✅ Main NetCon created")
 
-                    presyn = gid_connect(src_gid, stdpmech)
-                    presyn.delay = delay
-                    presyn.weight[0] = 2
-                    presyn.threshold = threshold
-                    leg.presyns.append(presyn)
+                            # Создаем STDP механизм
+                            # print(f"     Creating STDP mechanism...")
+                            dummy = h.Section()  # Create a dummy section to put the point processes in
+                            # print(f"     ✅ Dummy section created")
 
-                    pstsyn = gid_connect(post_gid, stdpmech)
-                    pstsyn.delay = delay
-                    pstsyn.weight[0] = -2
-                    pstsyn.threshold = threshold
-                    leg.postsyns.append(pstsyn)
+                            try:
+                                stdpmech = h.STDP(0, dummy)
+                                # print(f"     ✅ STDP mechanism created: {type(stdpmech).__name__}")
+                                leg.stdpmechs.append(stdpmech)
+                            except Exception as stdp_error:
+                                # print(f"     ❌ STDP creation failed: {stdp_error}")
+                                logging.error(f"STDP creation error: {stdp_error}")
+                                continue
 
-                    # Link NetCon weight to STDP internal variable (synweight)
-                    h.setpointer(nc._ref_weight[0], 'synweight', stdpmech)
+                            # Пресинаптическое соединение
+                            # print(f"     Creating presynaptic connection...")
+                            presyn = pc.gid_connect(src_gid, stdpmech)
+                            presyn.delay = delay
+                            presyn.weight[0] = 2
+                            presyn.threshold = threshold
+                            leg.presyns.append(presyn)
+                            # print(f"     ✅ Presynaptic NetCon created")
 
-                    weight_changes = h.Vector()
-                    weight_changes.record(stdpmech._ref_synweight, 1.0)
-                    leg.weight_changes_vectors.append((src_gid, post_gid, weight_changes))
+                            # Постсинаптическое соединение
+                            # print(f"     Creating postsynaptic connection...")
+                            pstsyn = pc.gid_connect(post_gid, stdpmech)
+                            pstsyn.delay = delay
+                            pstsyn.weight[0] = -2
+                            pstsyn.threshold = threshold
+                            leg.postsyns.append(pstsyn)
+                            pc.threshold(post_gid, threshold)
+                            # print(f"     ✅ Postsynaptic NetCon created")
 
-                else:
-                    # Standard synaptic connection
-                    syn = syn_list[i]
+                            # Установка указателя
+                            # print(f"     Setting pointer...")
+                            try:
+                                h.setpointer(nc._ref_weight[0], 'synweight', stdpmech)
+                                # print(f"     ✅ Pointer set successfully")
+                            except Exception as pointer_error:
+                                # print(f"     ❌ Pointer setting failed: {pointer_error}")
+                                logging.error(f"Pointer error: {pointer_error}")
 
-                    # Create NetCon (NEURON object representing a synapse)
-                    nc = gid_connect(src_gid, syn)
-                    nc.weight[0] = random.gauss(weight, weight / 5)
-                    nc.threshold = threshold
-                    nc.delay = random.gauss(delay, delay / 5)
-                    append_netcon(nc)
+                            # Запись изменений весов
+                            weight_changes = h.Vector()
+                            weight_changes.record(stdpmech._ref_synweight, 1.0)
+                            leg.weight_changes_vectors.append((src_gid, post_gid, weight_changes))
+                            # print(f"     ✅ Weight recording set up")
 
-                connection_count += 1
+                            connection_count += 1
 
-        except Exception as e:
-            logging.error(f"connectcells error for post_gid={post_gid}: {e}")
+                        except Exception as stdp_conn_error:
+                            # print(f"     ❌ STDP connection error: {stdp_conn_error}")
+                            logging.error(f"STDP connection error {src_gid}->{post_gid}: {stdp_conn_error}")
 
-    logging.info(f"connectcells end | {pre_name}->{post_name} | created={connection_count} | nsyn_per_target={nsyn}")
+                    else:
+                        # print(f"     🔗 Creating regular connection...")
+                        try:
+                            if inhtype:
+                                if not hasattr(target, 'synlistinh'):
+                                    # print(f"     ❌ Target {target_type} has no synlistinh")
+                                    continue
+                                syn = target.synlistinh[i]
+                                # print(f"     ✅ Got inhibitory synapse")
+                            else:
+                                if not hasattr(target, 'synlistex'):
+                                    # print(f"     ❌ Target {target_type} has no synlistex")
+                                    continue
+                                syn = target.synlistex[i]
+                                # print(f"     ✅ Got excitatory synapse")
 
-def genconnect(leg, gen_gid, afferents_gids, weight, delay, gen_name="GEN", target_name="TARGET", inhtype=False, N=50):
+                            nc = pc.gid_connect(src_gid, syn)
+                            nc.weight[0] = random.gauss(weight, weight / 5)
+                            nc.threshold = threshold
+                            nc.delay = random.gauss(delay, delay / 5)
+                            leg.netcons.append(nc)
+                            # print(f"     ✅ Regular NetCon created")
+                            connection_count += 1
+
+                        except Exception as reg_conn_error:
+                            # print(f"     ❌ Regular connection error: {reg_conn_error}")
+                            logging.error(f"Regular connection error {src_gid}->{post_gid}: {reg_conn_error}")
+
+            except Exception as target_error:
+                # print(f"   ❌ Error getting target for GID {post_gid}: {target_error}")
+                logging.error(f"Target error {post_gid}: {target_error}")
+
+        else:
+            print(f"   ⏭️ GID {post_gid} not on this rank")
+
+    # print(f"🏁 connectcells finished: {connection_count} connections created")
+    logging.info(f"connectcells end: {connection_count} connections created")
+
+
+def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50, gen_name="GEN", target_name="TARGET"):
     nsyn = random.randint(N - 5, N)
-    created = 0
-
     logger_genconnect.info(
         f"genconnect start | leg={leg.name} | "
         f"{gen_name}({gen_gid}) -> {target_name}({len(afferents_gids)}) | "
         f"nsyn_per_target={nsyn} | "
         f"weight={weight} | delay={delay} | inhtype={inhtype}"
     )
+    for i in afferents_gids:
+        if pc.gid_exists(i):
+            for j in range(nsyn):
+                target = pc.gid2cell(i)
+                if inhtype:
+                    syn = target.synlistinh[j]
+                else:
+                    syn = target.synlistex[j]
+                nc = pc.gid_connect(gen_gid, syn)
+                nc.threshold = leg.threshold
+                nc.delay = random.gauss(delay, delay / 5)
+                nc.weight[0] = random.gauss(weight, weight / 6)
 
-    gid_connect = pc.gid_connect
-    append_nc = leg.stimnclist.append
+                # ---------------------------------------
+                # ЛОГИРУЕМ СОЕДИНЕНИЕ
+                # ---------------------------------------
+                logger_genconnect.info(
+                    "NetCon created | %s(%s) -> %s(%s) | syn_index=%s | "
+                    "threshold=%.4f | delay=%.4f | weight=%.4f | inhtype=%s",
+                    gen_name,
+                    gen_gid,
+                    target_name,
+                    i,
+                    j,
+                    nc.threshold,
+                    nc.delay,
+                    nc.weight[0],
+                    inhtype
+                )
+                # ---------------------------------------
+                leg.stimnclist.append(nc)
 
-    for gid in afferents_gids:
-        # Only connect to neurons that exist on this MPI rank
-        if not pc.gid_exists(gid):
-            continue
-
-        # Retrieve target neuron (NEURON object)
-        target = pc.gid2cell(gid)
-        # Choose synapse type depending on inhibition/excitation
-        syn_list = getattr(target, 'synlistinh', None) if inhtype else getattr(target, 'synlistex', None)
-
-        if syn_list is None:
-            continue
-
-        limit = min(nsyn, len(syn_list))
-
-        for j in range(limit):
-            syn = syn_list[j]
-            # Connect generator (NetStim) to target synapse
-            nc = gid_connect(gen_gid, syn)
-            nc.threshold = leg.threshold
-            nc.delay = random.gauss(delay, delay / 5)
-            nc.weight[0] = random.gauss(weight, weight / 6)
-            append_nc(nc)
-            created += 1
-
-    logger_genconnect.info(
-        f"genconnect end | {gen_name}({gen_gid}) -> {target_name} | created={created}"
-    )
 
 def motodiams(number):
     nrn_number = number
@@ -248,12 +302,50 @@ def add_bs_geners(freq, LEG_L, LEG_R):
     left_F_bs_gids = []
     right_E_bs_gids = []
     right_F_bs_gids = []
+
+    interval = int(1000 / freq)
+    number = int(one_step_time / interval) - 2
+    _is_rank0 = (rank == 0)
+    _NetStim = h.NetStim
+    _NetCon = h.NetCon
+    _Vector = h.Vector
+    _set_gid2node = pc.set_gid2node
+    _cell = pc.cell
+
     for step in range(step_number):
-        right_F_bs_gids.append(addgener(LEG_R, (one_step_time * (2 * step + 1)), freq, False, r=False))
-        right_E_bs_gids.append(addgener(LEG_R, int(one_step_time * 2 * step) + 10, freq, False, r=False))
-        # added generators in anti-phase
-        left_E_bs_gids.append(addgener(LEG_L, (one_step_time * (2 * step + 1)), freq, False, r=False))
-        left_F_bs_gids.append(addgener(LEG_L, int(one_step_time * 2 * step) + 10, freq, False, r=False))
+        f_start = one_step_time * (2 * step + 1)
+        e_start = int(one_step_time * 2 * step) + 10
+
+        for leg_obj, start, gid_list in (
+            (LEG_R, f_start, right_F_bs_gids),
+            (LEG_R, e_start, right_E_bs_gids),
+            (LEG_L, f_start, left_E_bs_gids),
+            (LEG_L, e_start, left_F_bs_gids),
+        ):
+            gid = get_gid()
+            if _is_rank0:
+                stim = _NetStim()
+                stim.start = start
+                stim.interval = interval
+                stim.number = number
+                logger_addgener.info(
+                    "STIM created | gid=%s | start=%.3f | interval=%s | number=%s  | cv=%s | r=%s",
+                    gid, stim.start, interval, number, False, False
+                )
+                leg_obj.stims.append(stim)
+                _set_gid2node(gid, rank)
+                ncstim = _NetCon(stim, None)
+                spike_times = _Vector()
+                ncstim.record(spike_times)
+                leg_obj.gen_spike_vectors.append((gid, spike_times))
+                leg_obj.netcons.append(ncstim)
+                _cell(gid, ncstim)
+                log_gid_by_lookup(leg_obj, gid, "gen")
+            else:
+                _set_gid2node(gid, 0)
+            leg_obj.gener_gids.append(gid)
+            gid_list.append(gid)
+
     return left_E_bs_gids, left_F_bs_gids, right_E_bs_gids, right_F_bs_gids
 
 def log_gid_by_lookup(leg, gid: int, name):
@@ -296,25 +388,21 @@ def addgener(leg, start, freq, cv=False, r=True):
         else:
             stim.start = start
 
-        stim.interval = int(1000 / freq)
+        interval = int(1000 / freq)
+        stim.interval = interval
 
         if cv:
-            stim.number = int(int(int(one_step_time / stim.interval) / CV_number) + \
-                          0.45 * int(int(one_step_time / stim.interval) / CV_number))
+            base_cv = int(one_step_time / interval) // CV_number
+            stim.number = int(1.45 * base_cv)
         else:
-            stim.number = int(one_step_time / stim.interval) - 2
+            stim.number = int(one_step_time / interval) - 2
 
         # -----------------------------------------
         # ЛОГИРУЕМ ВСЕ ПАРАМЕТРЫ STIM
         # -----------------------------------------
         logger_addgener.info(
             "STIM created | gid=%s | start=%.3f | interval=%s | number=%s  | cv=%s | r=%s",
-            gid,
-            stim.start,
-            stim.interval,
-            stim.number,
-            cv,
-            r
+            gid, stim.start, interval, stim.number, cv, r
         )
         # -----------------------------------------
 

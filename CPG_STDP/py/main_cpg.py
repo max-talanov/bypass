@@ -333,11 +333,9 @@ if __name__ == '__main__':
             )
 
         except Exception as version_error:
-            print(f"❌ [rank {rank}] VERSION {i + 1} FAILED: {version_error}")
             logging.exception(f"Version {i + 1} error: {version_error}")
             break
 
-    print(f"🏁 [rank {rank}] MAIN EXECUTION FINISHED")
     logging.info("=== MAIN EXECUTION END ===")
     main_total_time = time.perf_counter() - main_t0
     logging.info(f"Total main execution time: {main_total_time:.3f} s")
