@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import sys
 import os
+import time
 
 # Fix for macOS having PYTHONPATH pointing to system NEURON
 if "darwin" in sys.platform:
     sys.path = [p for p in sys.path if "/Applications/NEURON/lib/python" not in p]
-    # Also unset PYTHONPATH for subprocesses
     if "PYTHONPATH" in os.environ:
         del os.environ["PYTHONPATH"]
 
@@ -13,7 +13,7 @@ from constants import *
 from utils_cpg import *
 from leg import *
 from recorg_cpg import *
-import time
+
 
 def count_group_neurons(groups):
     total = 0
@@ -133,31 +133,29 @@ def prun(speed, step_number):
         logging.exception(f"Simulation error: {sim_error}")
         raise
 
+
 def finish():
-    ''' proper exit '''
+    """proper exit"""
     pc.runworker()
     pc.done()
-    # print("hi after finish")
     h.quit()
 
+
 if __name__ == '__main__':
-    '''
+    """
     cpg_ex: cpg
         topology of central pattern generation + reflex arc
-    '''
-    print(f"🎬 [rank {rank}] MAIN EXECUTION START")
-    print(f"   Rank {rank} of {nhost} processes")
-    print(f"   Parameters: N={N}, speed={speed}, bs_fr={bs_fr}, versions={versions}")
-    print(f"   Step number: {step_number}, one_step_time: {one_step_time}")
-    print(f"   Total simulation time: {time_sim} ms")
+    """
     logging.info("=== MAIN EXECUTION START ===")
-    logging.info(f"Rank {rank}/{nhost}, N={N}, Step number: {step_number}, speed={speed}, versions={versions}")
+    logging.info(f"Rank {rank} of {nhost} processes")
+    logging.info(f"Parameters: N={N}, speed={speed}, bs_fr={bs_fr}, versions={versions}")
+    logging.info(f"Step number: {step_number}, one_step_time: {one_step_time}")
+    logging.info(f"Total simulation time: {time_sim} ms")
 
     if rank == 0:
         os.makedirs(file_name, exist_ok=True)
-        print(f"   ✅ Created directory: {file_name}")
+        logging.info(f"Created directory: {file_name}")
 
-    # Synchronize all ranks before proceeding
     pc.barrier()
 
     main_t0 = time.perf_counter()
@@ -179,14 +177,12 @@ if __name__ == '__main__':
 
             pc.barrier()
 
-            # --- Подсчёт нейронов ---
             stats_l = log_leg_stats(LEG_L, "LEG_L")
             stats_r = log_leg_stats(LEG_R, "LEG_R")
 
             total_neurons = stats_l["grand_total"] + stats_r["grand_total"]
             logging.info(f"[version {i + 1}] total neurons in simulation: {total_neurons}")
 
-            # --- Попытка подсчёта соединений ---
             syn_l_total, syn_l_details = try_count_synapses(LEG_L)
             syn_r_total, syn_r_details = try_count_synapses(LEG_R)
             total_synapses = syn_l_total + syn_r_total
@@ -195,7 +191,6 @@ if __name__ == '__main__':
             logging.info(f"[version {i + 1}] estimated synapses LEG_R: {syn_r_total}, details={syn_r_details}")
             logging.info(f"[version {i + 1}] estimated total synapses: {total_synapses}")
 
-            # Synchronize after network creation
             pc.barrier()
             recorder_t0 = time.perf_counter()
 
@@ -248,7 +243,6 @@ if __name__ == '__main__':
                 f"force_l={len(force_recorders_l)}, force_r={len(force_recorders_r)}"
             )
 
-            # Synchronize before simulation
             pc.barrier()
 
             logging.info(f"[version {i + 1}] simulation start")
