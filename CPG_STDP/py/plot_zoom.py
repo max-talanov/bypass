@@ -1,72 +1,117 @@
 import fnmatch
 import itertools
 import os
-
+import re
 import sys
-
-import bokeh
 
 import h5py
 import numpy as np
 
-# bokeh.sampledata.download()
+from bokeh.plotting import figure, output_file, save
 
-from bokeh.plotting import figure, output_file, show
-from bokeh.io import export_png
 
-paths = 'res/'
+paths = ("res/")
 sys.path.append(paths)
 my_path = os.path.abspath(paths)
 
-themes = 'light_minimal'
+
+MAX_POINTS = 10000
+
+
+def natural_key(text):
+    return [int(c) if c.isdigit() else c.lower() for c in re.split(r"(\d+)", text)]
+
+
+def decimate(x, y, max_points=MAX_POINTS):
+    n = min(len(x), len(y))
+
+    if n == 0:
+        return [], []
+
+    x = x[:n]
+    y = y[:n]
+
+    step = max(1, n // max_points)
+
+    return x[::step], y[::step]
+
+
+def read_time():
+    time_txt_path = os.path.join(my_path, "time.txt")
+
+    if not os.path.exists(time_txt_path):
+        raise FileNotFoundError(f"Не найден файл времени: {time_txt_path}")
+
+    data_time = []
+
+    with open(time_txt_path, "r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if line:
+                data_time.append(float(line))
+
+    return data_time
+
+
+def read_hdf5_file(file_path):
+    with h5py.File(file_path, "r") as f:
+        keys = sorted(list(f.keys()), key=natural_key)
+
+        values = []
+        for key in keys:
+            arr = np.array(f[key], dtype=float).squeeze()
+            if arr.ndim != 1:
+                arr = arr.reshape(-1)
+            values.extend(arr.tolist())
+
+    return values
 
 
 def read():
     volt_data = []
-    data_time = []
+    data_time = read_time()
 
-    for file in fnmatch.filter(os.listdir(my_path), '*.hdf5'):
-        with h5py.File(my_path + f'/{file}') as f:
-            name = f.filename.split('/')[-1]
-            if name == 'time.hdf5':
-                time_group = list(f.keys())[0]
-                data_y = list(f[time_group])
-                data_time.append(data_y)
-            else:
-                vol_group = [list(val) for val in f.values()]
-                flat_list = list(itertools.chain.from_iterable(vol_group))
-                volt_data.append((name, flat_list[1:]))
+    for file in sorted(fnmatch.filter(os.listdir(my_path), "*.hdf5"), key=natural_key):
+        if file == "time.hdf5":
+            continue
 
-    #
-    with open(my_path + '/time.txt', 'r', encoding='utf-8') as fh:
-        for line in fh:
-            line = line.rstrip('\n\r')
-            data_time.append(float(line))
+        file_path = os.path.join(my_path, file)
+        values = read_hdf5_file(file_path)
+
+        volt_data.append((file, values))
+
     return volt_data, data_time
 
 
 def draw(volt_data, data_time):
-    # Создаем папки если их нет
-    results_dir = os.path.join(my_path, 'results')
-    images_dir = os.path.join(my_path, 'images')
-
+    results_dir = os.path.join(my_path, "results_bokeh")
     os.makedirs(results_dir, exist_ok=True)
-    os.makedirs(images_dir, exist_ok=True)
 
-    for v in volt_data:
-        figur = figure(x_axis_label='time (ms)', y_axis_label='V (mV)')
+    for name, values in volt_data:
+        x, y = decimate(data_time, values)
 
-        # Сохраняем HTML
-        output_file(os.path.join(results_dir, v[0] + '.html'))
-        figur.line(data_time[:len(v[1])], v[1], line_width=2)
-        show(figur)
+        if len(x) == 0:
+            print(f"Пропущен пустой файл: {name}")
+            continue
 
-        # Сохраняем PNG
-        filename_without_ext = os.path.splitext(v[0])[0]
-        png_path = os.path.join(images_dir, filename_without_ext + '.png')
-        #export_png(figur, filename=png_path)
+        p = figure(
+            title=name,
+            x_axis_label="time (ms)",
+            y_axis_label="V (mV)",
+            width=1200,
+            height=500,
+            output_backend="webgl",
+        )
+
+        p.line(x, y, line_width=1)
+
+        html_path = os.path.join(results_dir, name + ".html")
+        output_file(html_path)
+        save(p)
+
+        print(f"Сохранено: {html_path}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     volt_data, data_time = read()
     draw(volt_data, data_time)
