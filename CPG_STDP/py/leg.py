@@ -234,7 +234,7 @@ class LEG:
         )
 
         """Ia2RG, RG2Motor"""
-        connectcells(self, self.InE, self.RG_F, 0.5, 1, inhtype=True)
+        connectcells(self, self.InE, self.RG_F, 0.8, 1, inhtype=True)
         connectcells(self, self.InF, self.RG_E, 0.8, 1, inhtype=True)
 
         connectcells(self, self.InE, self.mns_F, 0.8, 1, inhtype=True)
