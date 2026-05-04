@@ -92,7 +92,7 @@ class LEG:
         self.Ia_aff_F = addpool(self, self.nAff, "Ia_aff_F", "aff")
         # self.BS_aff_E = addpool(self, self.nAff, "BS_aff_E", "aff")
         # self.BS_aff_F = addpool(self, self.nAff, "BS_aff_F", "aff")
-        self.V3F = addpool(self, self.nInt, "V3F", "int")
+        self.V3F = sum(self.V3F, [])
 
         """muscles"""
         self.muscle_E = addpool(self, self.nMn, "muscle_E", "muscle")
