@@ -15,5 +15,7 @@ https://easyeda.com
 	6.	From here the signal goes to the learning circuit (POST in the simulator; NEUR_OUT_1 on the schematic). NEUR_OUT_1 of one neuron (from one board) connects to NEUR_OUT_2 of another neuron (on another board) via a wire.
 	7.	Neuron output.
 
+## Synaptic delay
 
+Signal delay circuit. You can change the pulse duration by adjusting the capacitor and resistor values. Alternatively, you can change the pulse-generation mode (trigger on the rising edge vs. on the falling edge) by reversing the diode direction.
   
