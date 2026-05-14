@@ -5,7 +5,7 @@ https://www.falstad.com/circuit/circuitjs.html
 The json files please use online editor:
 https://easyeda.com
 
-##Soma
+## Soma
 
 	1.	Incoming input signals at 200 Hz (with different voltages) from other neurons into the soma of the neuron under consideration.
 	2.	Summation (adder) of the input signals. The 22 nF capacitor (can be changed if needed) is required to emulate changes in the neuron’s membrane potential.
