@@ -19,7 +19,8 @@ https://easyeda.com
 
 One can change the pulse duration by adjusting the capacitor and resistor values. Alternatively, you can change the pulse-generation mode (trigger on the rising edge vs. on the falling edge) by reversing the diode direction.
   
-Schematic 3. Learning
+## Learning
+
 	1.	PRE input — the signal is applied here after the Synaptic_Delay block.
 	2.	POST input — pin NEUR_OUT_2, which receives the signal from NEUR_OUT_1 of another board (another neuron).
 	3.	Operating principle:
