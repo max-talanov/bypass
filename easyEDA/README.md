@@ -15,7 +15,7 @@ https://easyeda.com
 6.	From here the signal goes to the learning circuit (POST in the simulator; NEUR_OUT_1 on the schematic). NEUR_OUT_1 of one neuron (from one board) connects to NEUR_OUT_2 of another neuron (on another board) via a wire.
 7.	Neuron output.
 
-## Learning
+## Learning.txt
 
 1.	PRE input — the signal is applied here after the Synaptic_Delay block.
 2.	POST input — pin NEUR_OUT_2, which receives the signal from NEUR_OUT_1 of another board (another neuron).
@@ -27,18 +27,18 @@ Details:
 •	PRE and POST overlap (learning occurs): the transistor is ON, and the PRE signal passes directly, bypassing the 20 kΩ resistor.
 •	PRE and POST do not overlap (no learning): the transistor is OFF, and the signal is attenuated by the divider (20 kΩ + 10 kΩ). The result is a lower-amplitude pulse (~300 mV), insufficient to change the memristor resistance, but sufficient to increase the membrane potential of the next neuron — the ~300 mV signal is then amplified by the op-amp stage formed by the resistor network and the memristor.
 
-4.	Polarity change:
+4.	**Polarity change**:
 
 	•If PRE arrives before POST, a positive pulse is formed (memristor resistance decreases).
 	•	If POST arrives before PRE, a negative pulse is formed (memristor resistance increases).
 
-5.	Amplitude adjustment:
+5.	**Amplitude adjustment:**
 The 100 kΩ and 33 kΩ resistors set the levels of the positive and negative pulses.
 If you change them, you must also adjust the 20 kΩ resistor (see item 3) so that the “no-learning” signal remains around ~300 mV.
 
-6. Memristor voltage divider:
+6. **Memristor voltage divider:**
 The op-amp non-inverting input receives either a learning pulse (high voltage) or a normal pulse (~300 mV when there is no learning). The learning pulse changes the memristor resistance but does not affect the membrane potential of the next neuron (because that neuron is in its refractory period at that time).
-7.	Neuron output — the final output signal of the circuit.
+7.	**Neuron output** — the final output signal of the circuit.
 
 
 ## Synaptic_delay.txt
