@@ -201,7 +201,7 @@ def spike_record(pool, extra=False, location='soma', max_units = None, seed = 0)
         pool = rng.choice(pool, size=max_units, replace=False).tolist()
 
     n = len(pool)
-    n_pts = int(time_sim / 0.025 + 1)
+    n_pts = int(time_sim / 0.025 + 200)
     v_vec = [None] * n
     _gid2cell = pc.gid2cell
     _Vector = h.Vector
@@ -302,7 +302,13 @@ def spikeout(pool, name, version, v_vec, leg):
             for i in range(step_number * 2):
                 start = bs_offset + i * step_width
                 end = start + step_width
-                file.create_dataset(f'#0_step_{i}', data=out[start:end], compression="gzip")
+                if start >= out.size:
+                    logging.warning(f"{name}: step {i} start={start} exceeds recorded length {out.size}, stopping early")
+                    break
+                actual_end = min(end, out.size)
+                if actual_end < end:
+                    logging.warning(f"{name}: step {i} truncated at {actual_end} (expected {end}), recorded data too short")
+                file.create_dataset(f'#0_step_{i}', data=out[start:actual_end], compression="gzip")
         logging.info("done recording average")
     else:
         logging.info(rank)

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import sys
 import os
+import time
+import gc
 
 # Fix for macOS having PYTHONPATH pointing to system NEURON
 if "darwin" in sys.platform:
@@ -23,19 +25,18 @@ def prun(speed, step_number):
         print(f"   Setting timeout...")
         pc.timeout(0)
 
-        print(f"   Creating time vector...")
-        t = h.Vector().record(h._ref_t)
+        h.tstop = time_sim
+        sim_t0 = time.perf_counter()
 
         print(f"   Setting tstop={time_sim}")
-        h.tstop = time_sim  # Убедитесь что h.tstop установлен
 
-        # Добавьте проверку на macOS
         import platform
-        if platform.system() == "Darwin":  # macOS
-            print(f"   macOS detected - using alternative approach")
-            h.dt = 0.025  # Установите явно шаг времени
-            h.cvode_active(0)  # Отключите переменный шаг
-            pc.set_maxstep(1)  # Уменьшите maxstep для macOS
+        is_macos = platform.system() == "Darwin"
+
+        h.dt = 0.025
+        h.cvode_active(0)
+        if is_macos:
+            pc.set_maxstep(1)
         else:
             pc.set_maxstep(10)
 
@@ -53,8 +54,9 @@ def prun(speed, step_number):
         else:
             pc.psolve(time_sim)
 
-        print(f"🏁 Simulation completed successfully")
-        return t
+        sim_elapsed = time.perf_counter() - sim_t0
+        logging.info(f"Simulation completed successfully in {sim_elapsed:.3f} s")
+        return sim_elapsed
 
     except Exception as sim_error:
         print(f"❌ Simulation error: {sim_error}")
@@ -156,11 +158,9 @@ if __name__ == '__main__':
             # Synchronize before simulation
             pc.barrier()
 
-            print(f"   🚀 Starting simulation...")
-            print("- " * 20)
-            t = prun(speed, step_number)
-            print("- " * 20)
-            print(f"   ✅ Simulation completed")
+            logging.info(f"[version {i + 1}] simulation start")
+            sim_time_sec = prun(speed, step_number)
+            logging.info(f"[version {i + 1}] simulation time: {sim_time_sec:.3f} s")
 
             logging.info("Simulation done")
 
@@ -181,7 +181,7 @@ if __name__ == '__main__':
             if rank == 0 and plot_series:
                 overview_path = f'./{file_name}/overview_v{i}.png'
                 draw_overview_plot(
-                    t_values=np.array(t),
+                    t_values=np.arange(0.0, time_sim + h.dt * 0.5, h.dt, dtype=np.float32),
                     labeled_traces=plot_series,
                     output_path=overview_path,
                     title=f'Overview, speed={speed}, bs={bs_fr}, version={i}',
@@ -190,28 +190,11 @@ if __name__ == '__main__':
                 print(f"      ✅ Overview saved: {overview_path}")
 
             if rank == 0:
-                print(f"      Saving time data...")
+                t_arr = np.arange(0.0, time_sim + h.dt * 0.5, h.dt, dtype=np.float32)
                 with open(f'./{file_name}/time.txt', 'w') as time_file:
-                    for time in t:
-                        time_file.write(str(time) + "\n")
-                print(f"      ✅ Time data saved")
-
-            print(f"      Saving spike data...")
-            # gen_recorders_l = LEG_L.gen_spike_vectors
-            # gen_recorders_r = LEG_R.gen_spike_vectors
-            # generator_spikeout(
-            #     gen_recorders_l,
-            #     name="GEN_L",
-            #     version=i,
-            #     leg="left"
-            # )
-            #
-            # generator_spikeout(
-            #     gen_recorders_r,
-            #     name="GEN_R",
-            #     version=i,
-            #     leg="right"
-            # )
+                    for time_val in t_arr:
+                        time_file.write(str(time_val) + "\n")
+                del t_arr
 
             for group, recorder in zip(LEG_L.musclegroups, musclerecorders_l):
                 spikeout(group[k_nrns], group[k_name], i, recorder, "left")
@@ -246,6 +229,15 @@ if __name__ == '__main__':
             # spikeout(cpg_ex.gener_Iagids, 'vel', i, vel_vecs_recorders)
             # spikeout(cpg_ex.gener_Iagids, 'v0', i, v0_vecs_recorders)
             # print(f"      ✅ Spike data saved")
+
+            del (motorecorders_mem_l, motorecorders_mem_r,
+                 affrecorders_l, affrecorders_r,
+                 recorders_l, recorders_r,
+                 musclerecorders_l, musclerecorders_r,
+                 force_recorders_l, force_recorders_r,
+                 muscle_units_recorders_l, muscle_units_recorders_r,
+                 muscle_am_recorders_l, muscle_am_recorders_r)
+            gc.collect()
 
             if rank == 0:
                 logging.info(f"      Saving STDP weight changes...")

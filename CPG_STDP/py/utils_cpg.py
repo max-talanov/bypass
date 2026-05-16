@@ -89,115 +89,90 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
         f"stdp={stdptype}, inh={inhtype}"
     )
 
-    nsyn = random.randint(N, N + 15)
-    # print(f"   nsyn={nsyn}")
-
+    nsyn_requested = random.randint(N, N + 15)
     connection_count = 0
 
     for post_idx, post_gid in enumerate(post_cells):
-        # print(f"   Processing post_cell {post_idx + 1}/{len(post_cells)}: gid={post_gid}")
-
         if pc.gid_exists(post_gid):
-            # print(f"   ✅ GID {post_gid} exists on this rank")
-
             try:
                 target = pc.gid2cell(post_gid)
                 target_type = type(target).__name__
-                # print(f"   Target type: {target_type}")
                 logging.info(f"Target {post_gid} type: {target_type}")
 
-                for i in range(nsyn):
-                    pre_cells = list(pre_cells)
-                    src_gid = random.choice(pre_cells)
-                    logging.info(
-                        f"[{pre_name} -> {post_name}] "
-                        f"syn {i + 1}/{nsyn}: "
-                        f"{src_gid} -> {post_gid}"
+                pre_cells_list = list(pre_cells)
+
+                if stdptype:
+                    avail = len(getattr(target, 'synlistexstdp', []))
+                elif inhtype:
+                    avail = len(getattr(target, 'synlistinh', []))
+                else:
+                    avail = len(getattr(target, 'synlistex', []))
+                nsyn = min(nsyn_requested, avail)
+                if nsyn < nsyn_requested:
+                    logging.warning(
+                        f"connectcells: nsyn clamped {nsyn_requested}->{nsyn} "
+                        f"for {target_type} gid={post_gid}"
                     )
 
-                    if stdptype:
-                        # print(f"     🧠 Creating STDP connection...")
-                        logging.info(
-                            f"STDP [{pre_name}->{post_name}] "
-                            f"{src_gid} -> {post_gid}"
-                        )
+                stdp_dummy = h.Section() if stdptype else None
 
+                for i in range(nsyn):
+                    src_gid = random.choice(pre_cells_list)
+
+                    if stdptype:
                         try:
-                            # Проверяем наличие STDP синапсов
                             if not hasattr(target, 'synlistexstdp'):
-                                # print(f"     ❌ Target {target_type} has no synlistexstdp")
                                 logging.error(f"No synlistexstdp in {target_type}")
                                 continue
 
                             if len(target.synlistexstdp) <= i:
-                                # print(f"     ❌ synlistexstdp[{i}] out of range (len={len(target.synlistexstdp)})")
                                 logging.error(f"synlistexstdp index {i} out of range")
                                 continue
 
                             syn = target.synlistexstdp[i]
-                            # print(f"     ✅ Got STDP synapse: {type(syn).__name__}")
 
-                            # Создаем основное соединение
                             nc = pc.gid_connect(src_gid, syn)
                             nc.delay = delay
                             nc.weight[0] = weight
                             nc.threshold = threshold
                             pc.threshold(src_gid, threshold)
                             leg.netcons.append(nc)
-                            # print(f"     ✅ Main NetCon created")
-
-                            # Создаем STDP механизм
-                            # print(f"     Creating STDP mechanism...")
-                            dummy = h.Section()  # Create a dummy section to put the point processes in
-                            # print(f"     ✅ Dummy section created")
 
                             try:
-                                stdpmech = h.STDP(0, dummy)
-                                # print(f"     ✅ STDP mechanism created: {type(stdpmech).__name__}")
+                                stdpmech = h.STDP(0, stdp_dummy)
                                 leg.stdpmechs.append(stdpmech)
                             except Exception as stdp_error:
-                                # print(f"     ❌ STDP creation failed: {stdp_error}")
                                 logging.error(f"STDP creation error: {stdp_error}")
                                 continue
 
-                            # Пресинаптическое соединение
-                            # print(f"     Creating presynaptic connection...")
                             presyn = pc.gid_connect(src_gid, stdpmech)
                             presyn.delay = delay
                             presyn.weight[0] = 2
                             presyn.threshold = threshold
                             leg.presyns.append(presyn)
-                            # print(f"     ✅ Presynaptic NetCon created")
 
-                            # Постсинаптическое соединение
-                            # print(f"     Creating postsynaptic connection...")
                             pstsyn = pc.gid_connect(post_gid, stdpmech)
                             pstsyn.delay = delay
                             pstsyn.weight[0] = -2
                             pstsyn.threshold = threshold
                             leg.postsyns.append(pstsyn)
                             pc.threshold(post_gid, threshold)
-                            # print(f"     ✅ Postsynaptic NetCon created")
 
-                            # Установка указателя
-                            # print(f"     Setting pointer...")
+                            pointer_ok = False
                             try:
                                 h.setpointer(nc._ref_weight[0], 'synweight', stdpmech)
-                                # print(f"     ✅ Pointer set successfully")
+                                pointer_ok = True
                             except Exception as pointer_error:
-                                # print(f"     ❌ Pointer setting failed: {pointer_error}")
                                 logging.error(f"Pointer error: {pointer_error}")
 
-                            # Запись изменений весов
-                            weight_changes = h.Vector()
-                            weight_changes.record(stdpmech._ref_synweight, 1.0)
-                            leg.weight_changes_vectors.append((src_gid, post_gid, weight_changes))
-                            # print(f"     ✅ Weight recording set up")
+                            if pointer_ok:
+                                weight_changes = h.Vector()
+                                weight_changes.record(stdpmech._ref_synweight, 10.0)
+                                leg.weight_changes_vectors.append((src_gid, post_gid, weight_changes))
 
                             connection_count += 1
 
                         except Exception as stdp_conn_error:
-                            # print(f"     ❌ STDP connection error: {stdp_conn_error}")
                             logging.error(f"STDP connection error {src_gid}->{post_gid}: {stdp_conn_error}")
 
                     else:
@@ -240,17 +215,24 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
 
 
 def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50, gen_name="GEN", target_name="TARGET"):
-    nsyn = random.randint(N - 5, N)
+    nsyn_requested = random.randint(N - 5, N)
     logger_genconnect.info(
         f"genconnect start | leg={leg.name} | "
         f"{gen_name}({gen_gid}) -> {target_name}({len(afferents_gids)}) | "
-        f"nsyn_per_target={nsyn} | "
+        f"nsyn_per_target={nsyn_requested} | "
         f"weight={weight} | delay={delay} | inhtype={inhtype}"
     )
     for i in afferents_gids:
         if pc.gid_exists(i):
+            target = pc.gid2cell(i)
+            avail = len(target.synlistinh if inhtype else target.synlistex)
+            nsyn = min(nsyn_requested, avail)
+            if nsyn < nsyn_requested:
+                logging.warning(
+                    f"genconnect: nsyn clamped {nsyn_requested}->{nsyn} "
+                    f"for {type(target).__name__} gid={i}"
+                )
             for j in range(nsyn):
-                target = pc.gid2cell(i)
                 if inhtype:
                     syn = target.synlistinh[j]
                 else:

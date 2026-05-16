@@ -21,7 +21,7 @@ class bioaffrat(Axon):
     '''
     # from axon import make_axon, topol_axon, geom_axon, biophys_axon
 
-    def __init__(self, neuron_type="extensor", n_synapses=100, n_axon_nodes=None, use_graphics=True):
+    def __init__(self, neuron_type="extensor", n_synapses=80, n_axon_nodes=None, use_graphics=True):
         self.nc = None
         self.soma = None
         self.all = None

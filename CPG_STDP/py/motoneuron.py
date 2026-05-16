@@ -83,9 +83,15 @@ class motoneuron(Axon):
         adds sections in NEURON SectionList
         '''
         self.all = h.SectionList()
-        for sec in h.allsec():
-            if sec.cell() == self:
-                self.all.append(sec=sec)
+        self.all.append(self.soma)
+        for sec in self.node:
+            self.all.append(sec)
+        for sec in self.MYSA:
+            self.all.append(sec)
+        for sec in self.FLUT:
+            self.all.append(sec)
+        for sec in self.STIN:
+            self.all.append(sec)
 
     def geom(self):
         '''
@@ -172,7 +178,7 @@ class motoneuron(Axon):
         '''
         Adds synapses
         '''
-        for i in range(200):
+        for i in range(80):
             s = h.ExpSyn(self.soma(0.5))  # Excitatory
             s.tau = 0.2
             s.e = 50
