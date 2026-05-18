@@ -116,7 +116,7 @@ class interneuron(object):
             # Bursting properties of RG-F0 and RG-FE ph A4 interneurons were provided by INaP
             # add slow NaP channels
             # TODO g_NaP = 0.75(±0.0375) mS/cm2
-            self.soma.insert('NaP')
+            self.soma.insert('nap')
             self.soma.gbar_nap = 3.0e-3
         # else:
         #     self.soma.insert('nap')
@@ -198,7 +198,7 @@ class interneuron(object):
         nc.threshold = -20
         return nc
 
-    def synapses(self, n_per_comp=50):
+    def synapses(self, n_per_comp=15):
         '''
         Adds static and stdp synapses
         '''
