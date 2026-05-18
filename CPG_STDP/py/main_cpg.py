@@ -116,12 +116,12 @@ def prun(speed, step_number):
         logging.info("finitialize completed")
 
         if is_macos:
-            next_log_t = 500.0
+            # next_log_t = 500.0
             while h.t < time_sim:
                 h.fadvance()
-                if h.t >= next_log_t:
-                    logging.info(f"Progress: {h.t:.1f}/{time_sim} ms")
-                    next_log_t += 500.0
+                # if h.t >= next_log_t:
+                    # logging.info(f"Progress: {h.t:.1f}/{time_sim} ms")
+                    # next_log_t += 500.0
         else:
             pc.psolve(time_sim)
 
@@ -253,8 +253,7 @@ if __name__ == '__main__':
 
             if rank == 0:
                 with open(f'./{file_name}/time.txt', 'w') as time_file:
-                    for time_val in t:
-                        time_file.write(str(time_val) + "\n")
+                    time_file.write("\n".join(map(str, t)) + "\n")
 
             for group, recorder in zip(LEG_L.musclegroups, musclerecorders_l):
                 spikeout(group[k_nrns], group[k_name], i, recorder, "left")

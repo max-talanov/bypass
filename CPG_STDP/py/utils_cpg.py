@@ -83,11 +83,12 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
                  stdptype=False, N=50, sect="int", pre_name="UNKNOWN_PRE", post_name="UNKNOWN_POST"):
     #print(f"🔗 [rank {rank}] connectcells: pre_cells={len(pre_cells)}, post_cells={len(post_cells)}")
     #print(f"   weight={weight}, delay={delay}, threshold={threshold}, inhtype={inhtype}, stdptype={stdptype}")
-    logging.info(
-        f"connectcells start | "
-        f"{pre_name}({len(pre_cells)}) -> {post_name}({len(post_cells)}) | "
-        f"stdp={stdptype}, inh={inhtype}"
-    )
+    # if rank == 0:
+    #     logging.info(
+    #         f"connectcells start | "
+    #         f"{pre_name}({len(pre_cells)}) -> {post_name}({len(post_cells)}) | "
+    #         f"stdp={stdptype}, inh={inhtype}"
+    #     )
 
     nsyn = random.randint(N, N + 15)
     # print(f"   nsyn={nsyn}")
@@ -104,23 +105,16 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
                 target = pc.gid2cell(post_gid)
                 target_type = type(target).__name__
                 # print(f"   Target type: {target_type}")
-                logging.info(f"Target {post_gid} type: {target_type}")
+                # logging.info(f"Target {post_gid} type: {target_type}")
 
                 for i in range(nsyn):
                     pre_cells = list(pre_cells)
                     src_gid = random.choice(pre_cells)
-                    logging.info(
-                        f"[{pre_name} -> {post_name}] "
-                        f"syn {i + 1}/{nsyn}: "
-                        f"{src_gid} -> {post_gid}"
-                    )
+                    # logging.info(f"[{pre_name} -> {post_name}] " f"syn {i + 1}/{nsyn}: "  f"{src_gid} -> {post_gid}")
 
                     if stdptype:
                         # print(f"     🧠 Creating STDP connection...")
-                        logging.info(
-                            f"STDP [{pre_name}->{post_name}] "
-                            f"{src_gid} -> {post_gid}"
-                        )
+                        # logging.info(f"STDP [{pre_name}->{post_name}] " f"{src_gid} -> {post_gid}")
 
                         try:
                             # Проверяем наличие STDP синапсов
@@ -232,21 +226,23 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
                 # print(f"   ❌ Error getting target for GID {post_gid}: {target_error}")
                 logging.error(f"Target error {post_gid}: {target_error}")
 
-        else:
-            print(f"   ⏭️ GID {post_gid} not on this rank")
+        # else:
+        #    print(f"   ⏭️ GID {post_gid} not on this rank")
 
     # print(f"🏁 connectcells finished: {connection_count} connections created")
-    logging.info(f"connectcells end: {connection_count} connections created")
+    # if rank == 0:
+    #  logging.info(f"connectcells end: {connection_count} connections created")
 
 
 def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50, gen_name="GEN", target_name="TARGET"):
     nsyn = random.randint(N - 5, N)
-    logger_genconnect.info(
-        f"genconnect start | leg={leg.name} | "
-        f"{gen_name}({gen_gid}) -> {target_name}({len(afferents_gids)}) | "
-        f"nsyn_per_target={nsyn} | "
-        f"weight={weight} | delay={delay} | inhtype={inhtype}"
-    )
+    # logger_genconnect.info(
+    #     f"genconnect start | leg={leg.name} | "
+    #     f"{gen_name}({gen_gid}) -> {target_name}({len(afferents_gids)}) | "
+    #     f"nsyn_per_target={nsyn} | "
+    #     f"weight={weight} | delay={delay} | inhtype={inhtype}"
+    # )
+    connection_count = 0
     for i in afferents_gids:
         if pc.gid_exists(i):
             for j in range(nsyn):
@@ -259,25 +255,10 @@ def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50,
                 nc.threshold = leg.threshold
                 nc.delay = random.gauss(delay, delay / 5)
                 nc.weight[0] = random.gauss(weight, weight / 6)
-
-                # ---------------------------------------
-                # ЛОГИРУЕМ СОЕДИНЕНИЕ
-                # ---------------------------------------
-                logger_genconnect.info(
-                    "NetCon created | %s(%s) -> %s(%s) | syn_index=%s | "
-                    "threshold=%.4f | delay=%.4f | weight=%.4f | inhtype=%s",
-                    gen_name,
-                    gen_gid,
-                    target_name,
-                    i,
-                    j,
-                    nc.threshold,
-                    nc.delay,
-                    nc.weight[0],
-                    inhtype
-                )
-                # ---------------------------------------
                 leg.stimnclist.append(nc)
+                connection_count += 1
+
+    # logger_genconnect.info(f"genconnect end: {connection_count} connections created")
 
 
 def motodiams(number):
@@ -328,10 +309,10 @@ def add_bs_geners(freq, LEG_L, LEG_R):
                 stim.start = start
                 stim.interval = interval
                 stim.number = number
-                logger_addgener.info(
-                    "STIM created | gid=%s | start=%.3f | interval=%s | number=%s  | cv=%s | r=%s",
-                    gid, stim.start, interval, number, False, False
-                )
+                # logger_addgener.info(
+                #     "STIM created | gid=%s | start=%.3f | interval=%s | number=%s  | cv=%s | r=%s",
+                #     gid, stim.start, interval, number, False, False
+                # )
                 leg_obj.stims.append(stim)
                 _set_gid2node(gid, rank)
                 ncstim = _NetCon(stim, None)
@@ -350,16 +331,7 @@ def add_bs_geners(freq, LEG_L, LEG_R):
 
 def log_gid_by_lookup(leg, gid: int, name):
     if not pc.gid_exists(gid):
-        print(f"[rank {rank}] GID {gid} not assigned to this process.")
-        return
-
-    obj = pc.gid2cell(gid)
-    typename = type(obj).__name__
-    if name:
-        print(f"[rank {rank}] Added GID {gid} (type: {typename}) - name: {name}")
-    else:
-        print(f"[rank {rank}] Added GID {gid} (type: {typename})")
-
+        logging.warning(f"[rank {rank}] GID {gid} not assigned to this process.")
 
 def addgener(leg, start, freq, cv=False, r=True):
     '''
@@ -400,10 +372,10 @@ def addgener(leg, start, freq, cv=False, r=True):
         # -----------------------------------------
         # ЛОГИРУЕМ ВСЕ ПАРАМЕТРЫ STIM
         # -----------------------------------------
-        logger_addgener.info(
-            "STIM created | gid=%s | start=%.3f | interval=%s | number=%s  | cv=%s | r=%s",
-            gid, stim.start, interval, stim.number, cv, r
-        )
+        # logger_addgener.info(
+        #     "STIM created | gid=%s | start=%.3f | interval=%s | number=%s  | cv=%s | r=%s",
+        #     gid, stim.start, interval, stim.number, cv, r
+        # )
         # -----------------------------------------
 
         leg.stims.append(stim)
@@ -436,8 +408,8 @@ def create_connect_bs(LEG_L, LEG_R):
 
     for F_bs_gid in LEG_L.left_F_bs_gids:
         for layer in range(CV_number):
-            genconnect(LEG_L, F_bs_gid, LEG_L.dict_RG_F[layer], 1.75, 1, gen_name="F_bs_gid", target_name=f"LEG_L_RG_F_{layer+1}")
-            #genconnect(LEG_L, F_bs_gid, LEG_L.V3F, 1.75, 1)
+            genconnect(LEG_L, F_bs_gid, LEG_L.dict_RG_F[layer], 1.75, 1, gen_name="F_bs_gid", target_name=f"LEG_L_RG_F_{layer + 1}")
+            genconnect(LEG_L, F_bs_gid, LEG_L.dict_V3F[layer], 1.75, 1, gen_name="F_bs_gid", target_name=f"LEG_L_V3F_{layer + 1}")
 
     '''Right leg'''
     for E_bs_gid in LEG_R.right_E_bs_gids:
@@ -446,13 +418,30 @@ def create_connect_bs(LEG_L, LEG_R):
 
     for F_bs_gid in LEG_R.right_F_bs_gids:
         for layer in range(CV_number):
-            genconnect(LEG_R, F_bs_gid, LEG_R.dict_RG_F[layer], 1.75, 1, gen_name="F_bs_gid", target_name=f"LEG_R_RG_F_{layer+1}")
-            #genconnect(LEG_R, F_bs_gid, LEG_R.V3F, 1.75, 1)
+            genconnect(LEG_R, F_bs_gid, LEG_R.dict_RG_F[layer], 1.75, 1, gen_name="F_bs_gid", target_name=f"LEG_R_RG_F_{layer + 1}")
+            genconnect(LEG_R, F_bs_gid, LEG_R.dict_V3F[layer], 1.75, 1, gen_name="F_bs_gid", target_name=f"LEG_R_V3F_{layer + 1}")
 
 
 def add_external_connections(LEG_L, LEG_R):
-    connectcells(LEG_L, LEG_L.V3F, LEG_R.RG_F, weight=0.5, delay=3)
-    connectcells(LEG_R, LEG_R.V3F, LEG_L.RG_F, weight=0.5, delay=3)
+    for layer in range(CV_number):
+        connectcells(
+            LEG_L,
+            LEG_L.dict_V3F[layer],
+            LEG_R.dict_RG_F[layer],
+            weight=0.5,
+            delay=3,
+            pre_name=f"V3F_L_{layer + 1}",
+            post_name=f"RG_F_R_{layer + 1}"
+        )
+        connectcells(
+            LEG_R,
+            LEG_R.dict_V3F[layer],
+            LEG_L.dict_RG_F[layer],
+            weight=0.5,
+            delay=3,
+            pre_name=f"V3F_R_{layer + 1}",
+            post_name=f"RG_F_L_{layer + 1}"
+        )
     connectcells(LEG_L, LEG_L.V0v, LEG_R.In1, weight=1.3, delay=3)
     connectcells(LEG_R, LEG_R.V0v, LEG_L.In1, weight=1.3, delay=3)
     connectcells(LEG_L, LEG_L.V0d, LEG_R.RG_F, weight=1.3, delay=3, inhtype=True)

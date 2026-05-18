@@ -201,7 +201,7 @@ def spike_record(pool, extra=False, location='soma', max_units = None, seed = 0)
         pool = rng.choice(pool, size=max_units, replace=False).tolist()
 
     n = len(pool)
-    n_pts = int(time_sim / 0.025 + 1)
+    n_pts = int(time_sim / 0.025 + 1000) # берем с запасом
     v_vec = [None] * n
     _gid2cell = pc.gid2cell
     _Vector = h.Vector
@@ -234,7 +234,7 @@ def force_record(pool):
       v_vec: list of h.Vector()
           recorded voltage
     '''
-    npts = int(time_sim / 0.025 + 1)
+    npts = int(time_sim / 0.025 + 1000)
     v_vec = []
     for gid in pool:
         cell = pc.gid2cell(gid)
@@ -263,7 +263,7 @@ def velocity_record(gids, attr='_ref_vel'):
     if attr not in ('_ref_vel', '_ref_v0'):
         raise ValueError(f"Unsupported attr: {attr}")
 
-    npts = int(time_sim / 0.025 + 1)
+    npts = int(time_sim / 0.025 + 1000)
     vecs = []
 
     for gid in gids:
@@ -307,12 +307,12 @@ def spikeout(pool, name, version, v_vec, leg):
                 end = start + step_width
                 file.create_dataset(f'#0_step_{i}', data=out[start:end], compression="gzip")
         logging.info("done recording average")
-    else:
-        logging.info(rank)
+    # else:
+    #    logging.info(rank)
 
 def setup_recorders(leg, recorder_list, group_attr, group_name):
     """Настраивает рекордеры для указанной группы нейронов"""
-    print(f"      Setting up {group_name} recorders...")
+    # print(f"      Setting up {group_name} recorders...")
     recorder_list.extend([spike_record(group[k_nrns], max_units=2, seed=123) for group in getattr(leg, group_attr)])
 
 
