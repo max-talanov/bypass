@@ -141,6 +141,37 @@ def finish():
     h.quit()
 
 
+def save_stdp_weights(leg, side, version_idx, base_dir):
+    """Save STDP weights for a leg"""
+    stdp_dir = f'./{base_dir}/stdp_{side}'
+    if not os.path.exists(stdp_dir):
+        os.makedirs(stdp_dir)
+
+    if not hasattr(leg, 'weight_changes_vectors'):
+        logging.warning(f"{side.upper()} has no weight_changes_vectors attribute")
+        return 0
+
+    stdp_count = 0
+    for src_gid, post_gid, weight_vec in leg.weight_changes_vectors:
+        try:
+            src_obj = pc.gid2cell(src_gid) if pc.gid_exists(src_gid) else None
+            post_obj = pc.gid2cell(post_gid) if pc.gid_exists(post_gid) else None
+
+            src_type = type(src_obj).__name__ if src_obj is not None else "None"
+            post_type = type(post_obj).__name__ if post_obj is not None else "None"
+
+            safe_name = safe_filename(f'{side}_{src_type}_{src_gid}_to_{post_type}_{post_gid}.hdf5')
+            fname = f'{stdp_dir}/{safe_name}'
+
+            with hdf5.File(fname, 'w') as file:
+                file.create_dataset(f'#0_step_{version_idx}', data=np.array(weight_vec), compression="gzip")
+            stdp_count += 1
+
+        except Exception as e:
+            logging.warning(f"Error saving STDP weight {src_gid} -> {post_gid} ({side}): {e}")
+
+    return stdp_count
+
 if __name__ == '__main__':
     """
     cpg_ex: cpg
@@ -286,30 +317,9 @@ if __name__ == '__main__':
                 spikeout(group[k_nrns], f'am_{group[k_name]}', i, recorder, "right")
 
             if rank == 0:
-                stdp_dir = f'./{file_name}/stdp_1'
-                if not os.path.exists(stdp_dir):
-                    os.makedirs(stdp_dir)
-
-                stdp_count = 0
-                for src_gid, post_gid, weight_vec in LEG_L.weight_changes_vectors:
-                    try:
-                        src_obj = pc.gid2cell(src_gid) if pc.gid_exists(src_gid) else None
-                        post_obj = pc.gid2cell(post_gid) if pc.gid_exists(post_gid) else None
-
-                        src_type = type(src_obj).__name__ if src_obj is not None else "None"
-                        post_type = type(post_obj).__name__ if post_obj is not None else "None"
-
-                        safe_name = safe_filename(f'{src_type}_{src_gid}_to_{post_type}_{post_gid}.hdf5')
-                        fname = f'{stdp_dir}/{safe_name}'
-
-                        with hdf5.File(fname, 'w') as file:
-                            file.create_dataset(f'#0_step_{i}', data=np.array(weight_vec), compression="gzip")
-                        stdp_count += 1
-
-                    except Exception as e:
-                        logging.warning(f"Error saving STDP weight {src_gid} -> {post_gid}: {e}")
-
-                logging.info(f"[version {i + 1}] saved STDP weight files: {stdp_count}")
+                stdp_count_l = save_stdp_weights(LEG_L, 'left', i, file_name)
+                stdp_count_r = save_stdp_weights(LEG_R, 'right', i, file_name)
+                logging.info(f"[version {i + 1}] saved STDP files: left={stdp_count_l}, right={stdp_count_r}")
 
             save_time = time.perf_counter() - save_t0
             logging.info(f"[version {i + 1}] save time: {save_time:.3f} s")

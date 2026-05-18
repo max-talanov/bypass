@@ -201,7 +201,7 @@ def spike_record(pool, extra=False, location='soma', max_units = None, seed = 0)
         pool = rng.choice(pool, size=max_units, replace=False).tolist()
 
     n = len(pool)
-    n_pts = int(time_sim / 0.025 + 1000) # берем с запасом
+    n_pts = int(time_sim / 0.025 + 200)
     v_vec = [None] * n
     _gid2cell = pc.gid2cell
     _Vector = h.Vector
@@ -234,7 +234,7 @@ def force_record(pool):
       v_vec: list of h.Vector()
           recorded voltage
     '''
-    npts = int(time_sim / 0.025 + 1000)
+    npts = int(time_sim / 0.025 + 200)
     v_vec = []
     for gid in pool:
         cell = pc.gid2cell(gid)
@@ -263,7 +263,7 @@ def velocity_record(gids, attr='_ref_vel'):
     if attr not in ('_ref_vel', '_ref_v0'):
         raise ValueError(f"Unsupported attr: {attr}")
 
-    npts = int(time_sim / 0.025 + 1000)
+    npts = int(time_sim / 0.025 + 200)
     vecs = []
 
     for gid in gids:
