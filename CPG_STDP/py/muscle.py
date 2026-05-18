@@ -15,7 +15,7 @@ class muscle(object):
         list of excitatory synapses
     '''
 
-    def __init__(self, n_synapses=100, nseg=3):
+    def __init__(self, n_synapses=80, nseg=3):
         self.all = None
         self._secs = None
         self.soma = None
