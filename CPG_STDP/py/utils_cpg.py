@@ -245,19 +245,19 @@ def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50,
                 # ---------------------------------------
                 # ЛОГИРУЕМ СОЕДИНЕНИЕ
                 # ---------------------------------------
-                logger_genconnect.info(
-                    "NetCon created | %s(%s) -> %s(%s) | syn_index=%s | "
-                    "threshold=%.4f | delay=%.4f | weight=%.4f | inhtype=%s",
-                    gen_name,
-                    gen_gid,
-                    target_name,
-                    i,
-                    j,
-                    nc.threshold,
-                    nc.delay,
-                    nc.weight[0],
-                    inhtype
-                )
+                # logger_genconnect.info(
+                #     "NetCon created | %s(%s) -> %s(%s) | syn_index=%s | "
+                #     "threshold=%.4f | delay=%.4f | weight=%.4f | inhtype=%s",
+                #     gen_name,
+                #     gen_gid,
+                #     target_name,
+                #     i,
+                #     j,
+                #     nc.threshold,
+                #     nc.delay,
+                #     nc.weight[0],
+                #     inhtype
+                # )
                 # ---------------------------------------
                 leg.stimnclist.append(nc)
 
@@ -310,10 +310,10 @@ def add_bs_geners(freq, LEG_L, LEG_R):
                 stim.start = start
                 stim.interval = interval
                 stim.number = number
-                logger_addgener.info(
-                    "STIM created | gid=%s | start=%.3f | interval=%s | number=%s  | cv=%s | r=%s",
-                    gid, stim.start, interval, number, False, False
-                )
+                # logger_addgener.info(
+                #     "STIM created | gid=%s | start=%.3f | interval=%s | number=%s  | cv=%s | r=%s",
+                #     gid, stim.start, interval, number, False, False
+                # )
                 leg_obj.stims.append(stim)
                 _set_gid2node(gid, rank)
                 ncstim = _NetCon(stim, None)
