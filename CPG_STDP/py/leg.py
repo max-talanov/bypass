@@ -224,8 +224,6 @@ class LEG:
             connectcells(self, self.dict_RG_F[layer], self.V0d, 0.75, 3)
             connectcells(self, self.dict_RG_E[layer], self.InE, 2.75, 3)
             connectcells(self, self.dict_RG_F[layer], self.InF, 2.75, 3)
-            connectcells(self, self.dict_RG_F[layer], self.dict_V3F[layer], 1.5, 3)
-            connectcells(self, self.dict_V3F[layer], self.dict_RG_E[layer], 0.8, 3)
 
         """motor2muscles"""
         connectcells(
