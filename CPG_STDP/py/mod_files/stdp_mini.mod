@@ -94,7 +94,7 @@ FUNCTION softthreshold(rawwc) {
 
 PROCEDURE adjustweight(wc) {
    synweight = synweight + wc : apply the synaptic modification, and then clip the weight if necessary to make sure it's between 0 and wmax.
-   printf("ajustweight synweight = %f", synweight)
+        : printf("ajustweight synweight = %f", synweight) : no print
 
    if (synweight > wmax) { synweight = wmax }
    if (synweight < 0) { synweight = 0 }
@@ -154,6 +154,7 @@ NET_RECEIVE (w) {
             tlastpost = t : Remember the current spike time for next NET_RECEIVE.
         }
     }
-    if (verbose > 1)  {
-        printf("t=%f (AFTER) tlaspre=%f, tlastpost=%f, flag=%f, w=%f, deltaw=%f \n",t,tlastpre, tlastpost,flag,w,deltaw) }
+:if (verbose > 1)  {
+:    printf("t=%f (AFTER) tlaspre=%f, tlastpost=%f, flag=%f, w=%f, deltaw=%f \n",t,tlastpre, tlastpost,flag,w,deltaw)
+:}
 }
