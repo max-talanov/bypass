@@ -48,14 +48,14 @@ def check_mpi_status():
         rank = int(pc.id())
         nhost = int(pc.nhost())
 
-        print(f"MPI Status:")
-        print(f"  Rank: {rank}")
-        print(f"  Number of hosts: {nhost}")
-        print(f"  MPI initialized: {h.nrnmpi_is_initialized()}")
+        # print(f"MPI Status:")
+        # print(f"  Rank: {rank}")
+        # print(f"  Number of hosts: {nhost}")
+        # print(f"  MPI initialized: {h.nrnmpi_is_initialized()}")
 
         return pc, rank, nhost
     except Exception as e:
-        print(f"MPI Error: {e}")
+        # print(f"MPI Error: {e}")
         # Fallback to single process
         pc = h.ParallelContext()
         return pc, 0, 1
@@ -73,7 +73,7 @@ k = 0.017  # CV weights multiplier to take into account air and toe stepping
 CV_0_len = 12  # 125 # Duration of the CV generator with no sensory inputs
 extra_layers = 0  # 1 + layers
 
-step_number = 100 #quick test #50 # 70 max that works  # 100 weights are not recorded # 50 #15 #10
+step_number = 30 #quick test #50 # 70 max that works  # 100 weights are not recorded # 50 #15 #10
 
 one_step_time = int((6 * speed + CV_0_len) / (int(1000 / bs_fr))) * (int(1000 / bs_fr))
 time_sim = (one_step_time * step_number + 30)*2
