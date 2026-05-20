@@ -113,14 +113,14 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
         logging.error(f"connectcells: empty post_gids for {pre_name} -> {post_name}")
         return
 
-    logging.info(
-        f"connectcells start | "
-        f"{pre_name}({len(pre_gids)}) -> {post_name}({len(post_gids)}) | "
-        f"stdp={stdptype}, inh={inhtype}"
-    )
+    # Removed verbose start logging to reduce log volume.
 
     nsyn_requested = random.randint(N, N + 15)
     connection_count = 0
+    regular_errors = 0
+    stdp_errors = 0
+    target_errors = 0
+    clamped_synapses = 0
 
     for post_idx, post_gid in enumerate(post_gids):
         post_gid = int(post_gid)
@@ -128,7 +128,6 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
             try:
                 target = pc.gid2cell(post_gid)
                 target_type = type(target).__name__
-                logging.info(f"Target {post_gid} type: {target_type}")
 
                 if stdptype:
                     avail = len(getattr(target, 'synlistexstdp', []))
@@ -140,10 +139,7 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
                     avail = len(getattr(target, 'synlistex', []))
                 nsyn = min(nsyn_requested, avail)
                 if nsyn < nsyn_requested:
-                    logging.warning(
-                        f"connectcells: nsyn clamped {nsyn_requested}->{nsyn} "
-                        f"for {target_type} gid={post_gid}"
-                    )
+                    clamped_synapses += 1
 
                 for i in range(nsyn):
                     src_gid = int(random.choice(pre_gids))
@@ -206,7 +202,7 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
                             connection_count += 1
 
                         except Exception as stdp_conn_error:
-                            logging.error(f"STDP connection error {src_gid}->{post_gid}: {stdp_conn_error}")
+                            stdp_errors += 1
 
                     else:
                         # print(f"     🔗 Creating regular connection...")
@@ -238,30 +234,35 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
                             connection_count += 1
 
                         except Exception as reg_conn_error:
-                            # print(f"     ❌ Regular connection error: {reg_conn_error}")
-                            logging.error(f"Regular connection error {src_gid}->{post_gid}: {reg_conn_error}")
+                            regular_errors += 1
 
             except Exception as target_error:
-                # print(f"   ❌ Error getting target for GID {post_gid}: {target_error}")
-                logging.error(f"Target error {post_gid}: {target_error}")
+                target_errors += 1
 
         else:
-            print(f"   ⏭️ GID {post_gid} not on this rank")
+            continue
 
-    # print(f"🏁 connectcells finished: {connection_count} connections created")
-    logging.info(f"connectcells end: {connection_count} connections created")
+    if regular_errors or stdp_errors or target_errors or clamped_synapses:
+        logging.warning(
+            "connectcells summary | %s(%s) -> %s(%s) | created=%s | "
+            "regular_errors=%s | stdp_errors=%s | target_errors=%s | clamped_synapses=%s",
+            pre_name,
+            len(pre_gids),
+            post_name,
+            len(post_gids),
+            connection_count,
+            regular_errors,
+            stdp_errors,
+            target_errors,
+            clamped_synapses,
+        )
 
 
 def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50, gen_name="GEN", target_name="TARGET"):
     nsyn_requested = random.randint(N - 5, N)
     gen_gid = int(gen_gid)
     aff_gids = _flatten_gid_pool(afferents_gids)
-    logger_genconnect.info(
-        f"genconnect start | leg={leg.name} | "
-        f"{gen_name}({gen_gid}) -> {target_name}({len(aff_gids)}) | "
-        f"nsyn_per_target={nsyn_requested} | "
-        f"weight={weight} | delay={delay} | inhtype={inhtype}"
-    )
+    clamped_synapses = 0
     for i in aff_gids:
         if pc.gid_exists(i):
             target = pc.gid2cell(i)
@@ -273,10 +274,7 @@ def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50,
                 avail = len(target.synlistex)
             nsyn = min(nsyn_requested, avail)
             if nsyn < nsyn_requested:
-                logging.warning(
-                    f"genconnect: nsyn clamped {nsyn_requested}->{nsyn} "
-                    f"for {type(target).__name__} gid={i}"
-                )
+                clamped_synapses += 1
             for j in range(nsyn):
                 if inhtype:
                     syn = target.synlistinh[j]
@@ -307,6 +305,15 @@ def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50,
                 # )
                 # ---------------------------------------
                 leg.stimnclist.append(nc)
+    if clamped_synapses:
+        logging.warning(
+            "genconnect summary | %s(%s) -> %s(%s) | clamped_synapses=%s",
+            gen_name,
+            gen_gid,
+            target_name,
+            len(aff_gids),
+            clamped_synapses,
+        )
 
 
 def motodiams(number):
@@ -378,16 +385,7 @@ def add_bs_geners(freq, LEG_L, LEG_R):
     return left_E_bs_gids, left_F_bs_gids, right_E_bs_gids, right_F_bs_gids
 
 def log_gid_by_lookup(leg, gid: int, name):
-    if not pc.gid_exists(gid):
-        print(f"[rank {rank}] GID {gid} not assigned to this process.")
-        return
-
-    obj = pc.gid2cell(gid)
-    typename = type(obj).__name__
-    if name:
-        print(f"[rank {rank}] Added GID {gid} (type: {typename}) - name: {name}")
-    else:
-        print(f"[rank {rank}] Added GID {gid} (type: {typename})")
+    return
 
 
 def addgener(leg, start, freq, cv=False, r=True):
@@ -429,10 +427,11 @@ def addgener(leg, start, freq, cv=False, r=True):
         # -----------------------------------------
         # ЛОГИРУЕМ ВСЕ ПАРАМЕТРЫ STIM
         # -----------------------------------------
-        logger_addgener.info(
-            "STIM created | gid=%s | start=%.3f | interval=%s | number=%s  | cv=%s | r=%s",
-            gid, stim.start, interval, stim.number, cv, r
-        )
+        # Detailed STIM logging is disabled to keep logs compact.
+        # logger_addgener.info(
+        #     "STIM created | gid=%s | start=%.3f | interval=%s | number=%s  | cv=%s | r=%s",
+        #     gid, stim.start, interval, stim.number, cv, r
+        # )
         # -----------------------------------------
 
         leg.stims.append(stim)

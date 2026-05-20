@@ -293,7 +293,7 @@ def spikeout(pool, name, version, v_vec, leg):
 
     out = gather_population_average(pool, v_vec)
     if rank == 0:
-        logging.info("start recording " + name)
+        # logging.info("start recording " + name)
         if out.size == 0:
             logging.warning(f"skip recording {name}: empty averaged trace")
             return
@@ -306,13 +306,23 @@ def spikeout(pool, name, version, v_vec, leg):
                 start = bs_offset + i * step_width
                 end = start + step_width
                 if start >= out.size:
-                    logging.warning(f"{name}: step {i} start={start} exceeds recorded length {out.size}, stopping early")
+                    logging.warning(
+                        "%s: recorded trace shorter than expected, stopped at step %s/%s",
+                        name,
+                        i,
+                        step_number * 2,
+                    )
                     break
                 actual_end = min(end, out.size)
                 if actual_end < end:
-                    logging.warning(f"{name}: step {i} truncated at {actual_end} (expected {end}), recorded data too short")
+                    logging.warning(
+                        "%s: final recorded step truncated at %s/%s points",
+                        name,
+                        actual_end,
+                        end,
+                    )
                 file.create_dataset(f'#0_step_{i}', data=out[start:actual_end], compression="gzip")
-        logging.info("done recording average")
+        # Average recording completed. Detailed per-group logging is disabled.
     # else:
     #    logging.info(rank)
 
@@ -351,7 +361,7 @@ def generator_spikeout(gen_vecs, name, version, leg):
     gathered = pc.py_gather(local_data, 0)
 
     if rank == 0:
-        logging.info(f"start recording generators {name}")
+        # logging.info(f"start recording generators {name}")
 
         # gathered = [rank0_data, rank1_data, ...]
         for rank_data in gathered:
@@ -369,4 +379,4 @@ def generator_spikeout(gen_vecs, name, version, leg):
                         compression="gzip"
                     )
 
-        logging.info("done recording generators")
+        # Generator recording completed. Detailed per-group logging is disabled.

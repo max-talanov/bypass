@@ -104,21 +104,19 @@ NET_RECEIVE (w) {
     skip = 0
     
     if (verbose > 1)  {
-        printf("I in net_receive")
-        : printf("t=%f (BEFORE) tlaspre=%f, tlastpost=%f, flag=%f, w=%f, deltaw=%f \n",t,tlastpre, tlastpost,flag,w,deltaw)
-        }
+        : verbose debug logging disabled
+    }
 
     : Hebbian weight update happens 1ms later to check for simultaneous spikes (otherwise bug when using mpi)
-    if ((flag == -1) && (tlastpre != t-1)) {   
+    if ((flag == -1) && (tlastpre != t-1)) {
         skip = 1 : skip the 2nd set of conditions since this was artificial net event to update weights
-        deltaw = (hebbwt + gv*synweight) * exp(-interval / tauhebb) : Use the Hebbian decay to set the Hebbian weight adjustment. 
+        deltaw = (hebbwt + gv*synweight) * exp(-interval / tauhebb) : Use the Hebbian decay to set the Hebbian weight adjustment.
         if (softthresh == 1) { deltaw = softthreshold(deltaw) } : If we have soft-thresholding on, apply it.
         adjustweight(deltaw) : Adjust the weight.
         if (verbose > 1) {
-            printf("I in net_receive, flagg == -1 and tlastpre != t-1")
-            :printf("Hebbian STDP event: t = %f ms; tlastpre = %f; w = %f; deltaw = %f\n", t, tlastpre, w, deltaw)
-            } : Show weight update information if debugging on.
+            : verbose Hebbian debug logging disabled
         }
+    }
 
     : Ant-hebbian weight update happens 1ms later to check for simultaneous spikes (otherwise bug when using mpi)
     else if ((flag == 1) && (tlastpost != t-1)) { :update weight 1ms later to check for simultaneous spikes (otherwise bug when using mpi)
@@ -127,53 +125,53 @@ NET_RECEIVE (w) {
         if (softthresh == 1) { deltaw = softthreshold(deltaw) } : If we have soft-thresholding on, apply it.
         adjustweight(deltaw) : Adjust the weight.
         if (verbose > 1) {
-            printf("I in net_receive, flagg == 1 and tlastpre != t-1")}
-        :printf("anti-Hebbian STDP event: t = %f ms; deltaw = %f\n",t,deltaw) } : Show weight update information if debugging on.
+            : verbose anti-Hebbian debug logging disabled
         }
+    }
 
 
     : If we receive a non-negative weight value, we are receiving a pre-synaptic spike (and thus need to check for an anti-Hebbian event, since the post-synaptic weight must be earlier).
     if (skip == 0) {
-        if (w >= 0) {           
+        if (w >= 0) {
             interval = tlastpost - t  : Get the interval; interval is negative
             if  ((tlastpost > -1) && (-interval > 1.0)) { : If we had a post-synaptic spike and a non-zero interval...
                 if (STDPon == 1) { : If STDP learning is turned on...
-                    if (verbose > 1) {printf("net_send(1,1)\n")}
+                    : verbose net_send logging disabled
                     net_send(1,1) : instead of updating weight directly, use net_send to check if simultaneous spike occurred (otherwise bug when using mpi)
                 }
                 if ((RLon == 1) && (-interval <= RLwindanti)) { tlastantielig = t } : If RL and anti-Hebbian eligibility traces are turned on, and the interval falls within the maximum window for eligibility, remember the eligibilty trace start at the current time.
             }
-            tlastpre = t : Remember the current spike time for next NET_RECEIVE.  
-        
-        : Else, if we receive a negative weight value, we are receiving a post-synaptic spike (and thus need to check for a Hebbian event, since the pre-synaptic weight must be earlier).    
-        } else {            
+            tlastpre = t : Remember the current spike time for next NET_RECEIVE.
+
+        : Else, if we receive a negative weight value, we are receiving a post-synaptic spike (and thus need to check for a Hebbian event, since the pre-synaptic weight must be earlier).
+        } else {
             interval = t - tlastpre : Get the interval; interval is positive
             if  ((tlastpre > -1) && (interval > 1.0)) { : If we had a pre-synaptic spike and a non-zero interval...
                 if (STDPon == 1) { : If STDP learning is turned on...
-                    if (verbose > 1) {printf("net_send(1,-1)\n")}
+                    : verbose net_send logging disabled
                     net_send(1,-1) : instead of updating weight directly, use net_send to check if simultaneous spike occurred (otherwise bug when using mpi)
                 }
-                if ((RLon == 1) && (interval <= RLwindhebb)) { 
+                if ((RLon == 1) && (interval <= RLwindhebb)) {
                     tlasthebbelig = t} : If RL and Hebbian eligibility traces are turned on, and the interval falls within the maximum window for eligibility, remember the eligibilty trace start at the current time.
             }
             tlastpost = t : Remember the current spike time for next NET_RECEIVE.
         }
     }
     if (verbose > 1)  {
-        printf("I in net_receive end")
-        printf("t=%f (AFTER) tlaspre=%f, tlastpost=%f, flag=%f, w=%f, deltaw=%f \n",t,tlastpre, tlastpost,flag,w,deltaw)
-        }
+        : verbose end-of-event logging disabled
+    }
     }
 
 PROCEDURE reward_punish(reinf) {
     if (RLon == 1) { : If RL is turned on...
         deltaw = 0.0 : Start the weight change as being 0.
-        deltaw = deltaw + reinf * hebbRL() : If we have the Hebbian eligibility traces on, add their effect in.   
+        deltaw = deltaw + reinf * hebbRL() : If we have the Hebbian eligibility traces on, add their effect in.
         deltaw = deltaw + reinf * antiRL() : If we have the anti-Hebbian eligibility traces on, add their effect in.
-        if (softthresh == 1) { deltaw = softthreshold(deltaw) }  : If we have soft-thresholding on, apply it.  
+        if (softthresh == 1) { deltaw = softthreshold(deltaw) }  : If we have soft-thresholding on, apply it.
         adjustweight(deltaw) : Adjust the weight.
-        if (verbose > 0) { printf("I in reward_punish")}
-        : printf("RL event: t = %f ms; reinf = %f; RLhebbwt = %f; RLlenhebb = %f; tlasthebbelig = %f; deltaw = %f\n",t,reinf,RLhebbwt,RLlenhebb,tlasthebbelig, deltaw) } : Show weight update information if debugging on.
+        if (verbose > 0) {
+            : verbose reward logging disabled
+        }
     }
 }
 

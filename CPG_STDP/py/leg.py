@@ -4,9 +4,6 @@ from utils_cpg import *
 
 class LEG:
     def __init__(self, speed, bs_fr, inh_p, step_number, n, leg_l=False):
-        if rank == 0:
-            logging.info(f"Hello from rank {rank} of {nhost}")
-            logging.info("NEURON version: " + h.nrnversion())
         self.name = "LEG left?=" + str(leg_l)
         self.threshold = 10
         self.delay = 1

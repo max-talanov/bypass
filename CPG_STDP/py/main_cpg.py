@@ -51,8 +51,6 @@ def log_leg_stats(leg, leg_name="LEG"):
     logging.info(f"[{leg_name}] total neurons: {stats['grand_total']}")
     for attr in ["motogroups", "affgroups", "intgroups", "musclegroups"]:
         logging.info(f"[{leg_name}] {attr}: {stats[attr]['total']}")
-        for group_name, n in stats[attr]["details"]:
-            logging.info(f"[{leg_name}]   {group_name}: {n}")
 
     return stats
 
@@ -112,8 +110,6 @@ def prun(speed, step_number):
             pc.set_maxstep(10)
 
         h.finitialize(-65)
-        logging.info(f"Integrator settings: dt={h.dt}, tstop={h.tstop}, is_macos={is_macos}")
-        logging.info("finitialize completed")
 
         if is_macos:
             # next_log_t = 500.0
@@ -178,14 +174,14 @@ if __name__ == '__main__':
         topology of central pattern generation + reflex arc
     """
     logging.info("=== MAIN EXECUTION START ===")
-    logging.info(f"Rank {rank} of {nhost} processes")
-    logging.info(f"Parameters: N={N}, speed={speed}, bs_fr={bs_fr}, versions={versions}")
-    logging.info(f"Step number: {step_number}, one_step_time: {one_step_time}")
-    logging.info(f"Total simulation time: {time_sim} ms")
+    logging.info(
+        f"Simulation parameters | N={N} | speed={speed} | "
+        f"bs_fr={bs_fr} | versions={versions} | "
+        f"steps={step_number} | sim_time={time_sim} ms"
+    )
 
     if rank == 0:
         os.makedirs(file_name, exist_ok=True)
-        logging.info(f"Created directory: {file_name}")
 
     pc.barrier()
 
@@ -193,7 +189,6 @@ if __name__ == '__main__':
 
     for i in range(versions):
         version_t0 = time.perf_counter()
-        logging.info(f"=== VERSION {i + 1} START ===")
 
         try:
             build_t0 = time.perf_counter()
@@ -218,8 +213,7 @@ if __name__ == '__main__':
             syn_r_total, syn_r_details = try_count_synapses(LEG_R)
             total_synapses = syn_l_total + syn_r_total
 
-            logging.info(f"[version {i + 1}] estimated synapses LEG_L: {syn_l_total}, details={syn_l_details}")
-            logging.info(f"[version {i + 1}] estimated synapses LEG_R: {syn_r_total}, details={syn_r_details}")
+            logging.info(f"[version {i + 1}] synapses | LEG_L={syn_l_total} | LEG_R={syn_r_total}")
             logging.info(f"[version {i + 1}] estimated total synapses: {total_synapses}")
 
             pc.barrier()
@@ -264,19 +258,6 @@ if __name__ == '__main__':
 
             recorder_time = time.perf_counter() - recorder_t0
 
-            logging.info(f"[version {i + 1}] recorder setup time: {recorder_time:.3f} s")
-            logging.info(
-                f"[version {i + 1}] recorders count: "
-                f"motor_mem_l={len(motorecorders_mem_l)}, motor_mem_r={len(motorecorders_mem_r)}, "
-                f"aff_l={len(affrecorders_l)}, aff_r={len(affrecorders_r)}, "
-                f"int_l={len(recorders_l)}, int_r={len(recorders_r)}, "
-                f"muscle_l={len(musclerecorders_l)}, muscle_r={len(musclerecorders_r)}, "
-                f"force_l={len(force_recorders_l)}, force_r={len(force_recorders_r)}"
-            )
-
-            pc.barrier()
-
-            logging.info(f"[version {i + 1}] simulation start")
             t, sim_time_sec = prun(speed, step_number)
             logging.info(f"[version {i + 1}] simulation time: {sim_time_sec:.3f} s")
 
@@ -325,14 +306,14 @@ if __name__ == '__main__':
             logging.info(f"[version {i + 1}] save time: {save_time:.3f} s")
             total_version_time = time.perf_counter() - version_t0
             logging.info(
-                f"[version {i + 1}] summary: "
-                f"neurons={total_neurons}, "
-                f"estimated_synapses={total_synapses}, "
-                f"build_time={build_time:.3f} s, "
-                f"recorder_time={recorder_time:.3f} s, "
-                f"simulation_time={sim_time_sec:.3f} s, "
-                f"save_time={save_time:.3f} s, "
-                f"total_version_time={total_version_time:.3f} s"
+                f"[version {i + 1}] summary | "
+                f"neurons={total_neurons} | "
+                f"estimated_synapses={total_synapses} | "
+                f"build={build_time:.3f}s | "
+                f"recorders={recorder_time:.3f}s | "
+                f"simulation={sim_time_sec:.3f}s | "
+                f"save={save_time:.3f}s | "
+                f"total={total_version_time:.3f}s"
             )
 
         except Exception as version_error:
