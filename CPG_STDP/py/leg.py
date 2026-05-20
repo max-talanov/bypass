@@ -199,6 +199,7 @@ class LEG:
                 self.dict_CV_pool[layer],
                 0.15 * k * speed,
                 2,
+                use_synlistees=True,
             )
             connectcells(
                 self,

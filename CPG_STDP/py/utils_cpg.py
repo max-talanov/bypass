@@ -5,6 +5,28 @@ from muscle import muscle
 from constants import *
 
 
+def _flatten_gid_pool(pool):
+    """
+    Normalize pool arguments for connectcells/genconnect.
+
+    Accepts:
+      - flat list of gids: [16, 17, 18, ...]
+      - group tuple from intgroups/musclegroups: (gids, name)
+      - nested list of pools (e.g. RG_E before sum()): [[...], [...]]
+    """
+    if pool is None:
+        return []
+    if isinstance(pool, tuple) and len(pool) >= 1 and isinstance(pool[0], (list, tuple)):
+        pool = pool[0]
+    gids = []
+    for item in pool:
+        if isinstance(item, (list, tuple)):
+            gids.extend(int(g) for g in item)
+        else:
+            gids.append(int(item))
+    return gids
+
+
 def addpool(leg, num, name, neurontype="int") -> list:
     '''
     Creates pool of cells determined by the neurontype and returns gids of the pool
@@ -80,31 +102,40 @@ def addpool(leg, num, name, neurontype="int") -> list:
 
 
 def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, inhtype=False,
-                 stdptype=False, N=50, sect="int", pre_name="UNKNOWN_PRE", post_name="UNKNOWN_POST"):
-    #print(f"🔗 [rank {rank}] connectcells: pre_cells={len(pre_cells)}, post_cells={len(post_cells)}")
-    #print(f"   weight={weight}, delay={delay}, threshold={threshold}, inhtype={inhtype}, stdptype={stdptype}")
+                 stdptype=False, N=50, sect="int", pre_name="UNKNOWN_PRE", post_name="UNKNOWN_POST",
+                 use_synlistees=False):
+    pre_gids = _flatten_gid_pool(pre_cells)
+    post_gids = _flatten_gid_pool(post_cells)
+    if not pre_gids:
+        logging.error(f"connectcells: empty pre_gids for {pre_name} -> {post_name}")
+        return
+    if not post_gids:
+        logging.error(f"connectcells: empty post_gids for {pre_name} -> {post_name}")
+        return
+
     logging.info(
         f"connectcells start | "
-        f"{pre_name}({len(pre_cells)}) -> {post_name}({len(post_cells)}) | "
+        f"{pre_name}({len(pre_gids)}) -> {post_name}({len(post_gids)}) | "
         f"stdp={stdptype}, inh={inhtype}"
     )
 
     nsyn_requested = random.randint(N, N + 15)
     connection_count = 0
 
-    for post_idx, post_gid in enumerate(post_cells):
+    for post_idx, post_gid in enumerate(post_gids):
+        post_gid = int(post_gid)
         if pc.gid_exists(post_gid):
             try:
                 target = pc.gid2cell(post_gid)
                 target_type = type(target).__name__
                 logging.info(f"Target {post_gid} type: {target_type}")
 
-                pre_cells_list = list(pre_cells)
-
                 if stdptype:
                     avail = len(getattr(target, 'synlistexstdp', []))
                 elif inhtype:
                     avail = len(getattr(target, 'synlistinh', []))
+                elif use_synlistees and getattr(target, 'synlistees', None):
+                    avail = len(target.synlistees)
                 else:
                     avail = len(getattr(target, 'synlistex', []))
                 nsyn = min(nsyn_requested, avail)
@@ -114,10 +145,8 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
                         f"for {target_type} gid={post_gid}"
                     )
 
-                stdp_dummy = h.Section() if stdptype else None
-
                 for i in range(nsyn):
-                    src_gid = random.choice(pre_cells_list)
+                    src_gid = int(random.choice(pre_gids))
 
                     if stdptype:
                         try:
@@ -131,19 +160,24 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
 
                             syn = target.synlistexstdp[i]
 
-                            nc = pc.gid_connect(src_gid, syn)
+                            nc = pc.gid_connect(int(src_gid), syn)
                             nc.delay = delay
                             nc.weight[0] = weight
                             nc.threshold = threshold
-                            pc.threshold(src_gid, threshold)
+                            pc.threshold(int(src_gid), threshold)
                             leg.netcons.append(nc)
 
                             try:
-                                stdpmech = h.STDP(0, stdp_dummy)
+                                stdpmech = h.STDP(0.5, sec=target.soma)
                                 leg.stdpmechs.append(stdpmech)
                             except Exception as stdp_error:
-                                logging.error(f"STDP creation error: {stdp_error}")
+                                logging.error(
+                                    f"STDP creation error {src_gid}->{post_gid}: {stdp_error}"
+                                )
                                 continue
+
+                            pc.threshold(src_gid, threshold)
+                            pc.threshold(post_gid, threshold)
 
                             presyn = pc.gid_connect(src_gid, stdpmech)
                             presyn.delay = delay
@@ -156,7 +190,6 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
                             pstsyn.weight[0] = -2
                             pstsyn.threshold = threshold
                             leg.postsyns.append(pstsyn)
-                            pc.threshold(post_gid, threshold)
 
                             pointer_ok = False
                             try:
@@ -185,13 +218,18 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
                                 syn = target.synlistinh[i]
                                 # print(f"     ✅ Got inhibitory synapse")
                             else:
-                                if not hasattr(target, 'synlistex'):
+                                if use_synlistees and getattr(target, 'synlistees', None):
+                                    if len(target.synlistees) <= i:
+                                        continue
+                                    syn = target.synlistees[i]
+                                elif not hasattr(target, 'synlistex'):
                                     # print(f"     ❌ Target {target_type} has no synlistex")
                                     continue
-                                syn = target.synlistex[i]
+                                else:
+                                    syn = target.synlistex[i]
                                 # print(f"     ✅ Got excitatory synapse")
 
-                            nc = pc.gid_connect(src_gid, syn)
+                            nc = pc.gid_connect(int(src_gid), syn)
                             nc.weight[0] = random.gauss(weight, weight / 5)
                             nc.threshold = threshold
                             nc.delay = random.gauss(delay, delay / 5)
@@ -216,16 +254,23 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
 
 def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50, gen_name="GEN", target_name="TARGET"):
     nsyn_requested = random.randint(N - 5, N)
+    gen_gid = int(gen_gid)
+    aff_gids = _flatten_gid_pool(afferents_gids)
     logger_genconnect.info(
         f"genconnect start | leg={leg.name} | "
-        f"{gen_name}({gen_gid}) -> {target_name}({len(afferents_gids)}) | "
+        f"{gen_name}({gen_gid}) -> {target_name}({len(aff_gids)}) | "
         f"nsyn_per_target={nsyn_requested} | "
         f"weight={weight} | delay={delay} | inhtype={inhtype}"
     )
-    for i in afferents_gids:
+    for i in aff_gids:
         if pc.gid_exists(i):
             target = pc.gid2cell(i)
-            avail = len(target.synlistinh if inhtype else target.synlistex)
+            if inhtype:
+                avail = len(target.synlistinh)
+            elif getattr(target, 'synlistees', None):
+                avail = len(target.synlistees)
+            else:
+                avail = len(target.synlistex)
             nsyn = min(nsyn_requested, avail)
             if nsyn < nsyn_requested:
                 logging.warning(
@@ -235,6 +280,8 @@ def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50,
             for j in range(nsyn):
                 if inhtype:
                     syn = target.synlistinh[j]
+                elif getattr(target, 'synlistees', None) and len(target.synlistees) > j:
+                    syn = target.synlistees[j]
                 else:
                     syn = target.synlistex[j]
                 nc = pc.gid_connect(gen_gid, syn)

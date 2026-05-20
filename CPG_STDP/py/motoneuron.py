@@ -51,6 +51,8 @@ class motoneuron(Axon):
         '''
         self.soma = h.Section(name='soma', cell=self)
         self.dend = h.Section(name='dend', cell=self)
+        self.node[0].disconnect()
+        self.node[-1].disconnect()
         self.node[0].connect(self.soma(1))
         self.node[-1].connect(self.soma(1))
         self.dend.connect(self.soma(0))
