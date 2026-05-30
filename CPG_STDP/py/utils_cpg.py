@@ -419,7 +419,6 @@ def create_connect_bs(LEG_L, LEG_R):
     for F_bs_gid in LEG_L.left_F_bs_gids:
         for layer in range(CV_number):
             genconnect(LEG_L, F_bs_gid, LEG_L.dict_RG_F[layer], 1.75, 1, gen_name="F_bs_gid", target_name=f"LEG_L_RG_F_{layer+1}")
-            #genconnect(LEG_L, F_bs_gid, LEG_L.V3F, 1.75, 1)
 
     '''Right leg'''
     for E_bs_gid in LEG_R.right_E_bs_gids:
@@ -429,7 +428,17 @@ def create_connect_bs(LEG_L, LEG_R):
     for F_bs_gid in LEG_R.right_F_bs_gids:
         for layer in range(CV_number):
             genconnect(LEG_R, F_bs_gid, LEG_R.dict_RG_F[layer], 1.75, 1, gen_name="F_bs_gid", target_name=f"LEG_R_RG_F_{layer+1}")
-            #genconnect(LEG_R, F_bs_gid, LEG_R.V3F, 1.75, 1)
+
+
+def create_connect_bs_command(LEG_L, LEG_R, mode=None):
+    from bs_command import BSCommand, apply_bs_mode_to_cpg, WALK
+    if mode is None:
+        mode = WALK
+    cmd = BSCommand(mode=mode)
+    cmd.connect(LEG_L, LEG_R)
+    apply_bs_mode_to_cpg(LEG_L, LEG_R, mode=mode)
+    logging.info("create_connect_bs_command: mode=%s done", mode.name)
+    return cmd
 
 
 def add_external_connections(LEG_L, LEG_R):

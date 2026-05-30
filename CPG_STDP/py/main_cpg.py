@@ -15,6 +15,7 @@ from constants import *
 from utils_cpg import *
 from leg import *
 from recorg_cpg import *
+from bs_command import WALK
 
 
 def prun(speed, step_number):
@@ -98,7 +99,11 @@ if __name__ == '__main__':
             print(f"   Creating CPG network...")
             LEG_L = LEG(speed, bs_fr, 100, step_number, N, leg_l=True)
             LEG_R = LEG(speed, bs_fr, 100, step_number, N, leg_l=False)
-            create_connect_bs(LEG_L, LEG_R)
+
+            LEG_L.setup_autonomous_rhythm()
+            LEG_R.setup_autonomous_rhythm()
+
+            bs_cmd = create_connect_bs_command(LEG_L, LEG_R, mode=WALK)
             add_external_connections(LEG_L, LEG_R)
             #create_connect_bs(LEG_R, LEG_L)
             #add_external_connections(LEG_R, LEG_L)
