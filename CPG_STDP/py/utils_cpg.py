@@ -333,6 +333,33 @@ def motodiams(number):
     return x2
 
 
+# New BS command-mode configuration.
+# BS should provide a tonic command (walk/run), while rhythm generation should
+# be handled by the internal CPG circuit.
+LOCOMOTION_MODES = {
+    "walk": {
+        "bs_frequency": 15,
+        "bs_weight": 0.6,
+        "bs_delay": 1,
+    },
+    "run": {
+        "bs_frequency": 35,
+        "bs_weight": 1.0,
+        "bs_delay": 1,
+    },
+}
+
+
+def get_locomotion_mode_params(mode="walk"):
+    """Return parameters for the selected locomotion command mode."""
+    if mode not in LOCOMOTION_MODES:
+        raise ValueError(
+            f"Unknown locomotion mode: {mode}. "
+            f"Available modes: {list(LOCOMOTION_MODES.keys())}"
+        )
+    return LOCOMOTION_MODES[mode]
+
+
 def add_bs_geners(freq, LEG_L, LEG_R):
     left_E_bs_gids = []
     left_F_bs_gids = []
@@ -453,7 +480,101 @@ def addgener(leg, start, freq, cv=False, r=True):
     return gid
 
 
-def create_connect_bs(LEG_L, LEG_R):
+def add_bs_command_generators(LEG_L, LEG_R, mode="walk"):
+    """
+    Create BS command generators for left and right legs.
+
+    Unlike add_bs_geners(), these generators do not encode extensor/flexor
+    phases and do not create the locomotor rhythm directly. They only provide
+    a tonic command input for the selected locomotion mode.
+    """
+    params = get_locomotion_mode_params(mode)
+
+    left_bs_command_gid = addgener(
+        LEG_L,
+        start=0,
+        freq=params["bs_frequency"],
+        cv=False,
+        r=False,
+    )
+    right_bs_command_gid = addgener(
+        LEG_R,
+        start=0,
+        freq=params["bs_frequency"],
+        cv=False,
+        r=False,
+    )
+
+    LEG_L.left_bs_command_gid = left_bs_command_gid
+    LEG_R.right_bs_command_gid = right_bs_command_gid
+
+    return left_bs_command_gid, right_bs_command_gid
+
+
+def connect_bs_command_to_cpg(LEG, bs_command_gid, mode="walk", side_name="LEG"):
+    """
+    Connect a BS command generator to RG_E and RG_F pools.
+
+    BS does not select the current locomotor phase here. Both RG_E and RG_F
+    receive the same command input, so alternation must be produced by the
+    internal CPG circuitry.
+    """
+    params = get_locomotion_mode_params(mode)
+    weight = params["bs_weight"]
+    delay = params["bs_delay"]
+
+    for layer in range(CV_number):
+        genconnect(
+            LEG,
+            bs_command_gid,
+            LEG.dict_RG_E[layer],
+            weight,
+            delay,
+            gen_name=f"BS_COMMAND_{mode}",
+            target_name=f"{side_name}_RG_E_{layer + 1}",
+        )
+        genconnect(
+            LEG,
+            bs_command_gid,
+            LEG.dict_RG_F[layer],
+            weight,
+            delay,
+            gen_name=f"BS_COMMAND_{mode}",
+            target_name=f"{side_name}_RG_F_{layer + 1}",
+        )
+
+
+def create_connect_bs_command(LEG_L, LEG_R, mode="walk"):
+    """
+    New BS connection scheme.
+
+    BS acts as a command source: "walk" or "run". It should not create
+    alternating E/F or left/right rhythm. Rhythm generation should be handled
+    by the internal RG/In CPG network.
+    """
+    params = get_locomotion_mode_params(mode)
+    left_bs_command_gid, right_bs_command_gid = add_bs_command_generators(LEG_L, LEG_R, mode)
+
+    connect_bs_command_to_cpg(LEG_L, left_bs_command_gid, mode=mode, side_name="LEG_L")
+    connect_bs_command_to_cpg(LEG_R, right_bs_command_gid, mode=mode, side_name="LEG_R")
+
+    logging.info(
+        "BS command mode connected | mode=%s | frequency=%s | weight=%s | delay=%s | "
+        "left_gid=%s | right_gid=%s",
+        mode,
+        params["bs_frequency"],
+        params["bs_weight"],
+        params["bs_delay"],
+        left_bs_command_gid,
+        right_bs_command_gid,
+    )
+
+
+
+# Old BS implementation: BS creates phased E/F and left/right rhythmic inputs.
+# Keep it for comparison/rollback, but use create_connect_bs_command() for the
+# new architecture where BS only sends walk/run commands.
+def create_connect_bs_rhythmic_old(LEG_L, LEG_R):
     LEG_L.left_E_bs_gids, LEG_L.left_F_bs_gids, LEG_R.right_E_bs_gids, LEG_R.right_F_bs_gids = add_bs_geners(bs_fr, LEG_L, LEG_R)
 
     ''' BS '''
@@ -476,6 +597,18 @@ def create_connect_bs(LEG_L, LEG_R):
         for layer in range(CV_number):
             genconnect(LEG_R, F_bs_gid, LEG_R.dict_RG_F[layer], 1.75, 1, gen_name="F_bs_gid", target_name=f"LEG_R_RG_F_{layer+1}")
             #genconnect(LEG_R, F_bs_gid, LEG_R.V3F, 1.75, 1)
+
+
+def create_connect_bs(LEG_L, LEG_R, mode="walk", command_mode=True):
+    """
+    Public BS connection entry point.
+
+    By default, use the new command-mode BS behavior. Set command_mode=False
+    to use the old rhythmic BS implementation for comparison.
+    """
+    if command_mode:
+        return create_connect_bs_command(LEG_L, LEG_R, mode=mode)
+    return create_connect_bs_rhythmic_old(LEG_L, LEG_R)
 
 
 def add_external_connections(LEG_L, LEG_R):
