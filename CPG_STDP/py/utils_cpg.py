@@ -5,6 +5,28 @@ from muscle import muscle
 from constants import *
 
 
+def _flatten_gid_pool(pool):
+    """
+    Normalize pool arguments for connectcells/genconnect.
+
+    Accepts:
+      - flat list of gids: [16, 17, 18, ...]
+      - group tuple from intgroups/musclegroups: (gids, name)
+      - nested list of pools (e.g. RG_E before sum()): [[...], [...]]
+    """
+    if pool is None:
+        return []
+    if isinstance(pool, tuple) and len(pool) >= 1 and isinstance(pool[0], (list, tuple)):
+        pool = pool[0]
+    gids = []
+    for item in pool:
+        if isinstance(item, (list, tuple)):
+            gids.extend(int(g) for g in item)
+        else:
+            gids.append(int(item))
+    return gids
+
+
 def addpool(leg, num, name, neurontype="int") -> list:
     '''
     Creates pool of cells determined by the neurontype and returns gids of the pool
@@ -80,125 +102,107 @@ def addpool(leg, num, name, neurontype="int") -> list:
 
 
 def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, inhtype=False,
-                 stdptype=False, N=50, sect="int", pre_name="UNKNOWN_PRE", post_name="UNKNOWN_POST"):
-    #print(f"🔗 [rank {rank}] connectcells: pre_cells={len(pre_cells)}, post_cells={len(post_cells)}")
-    #print(f"   weight={weight}, delay={delay}, threshold={threshold}, inhtype={inhtype}, stdptype={stdptype}")
-    logging.info(
-        f"connectcells start | "
-        f"{pre_name}({len(pre_cells)}) -> {post_name}({len(post_cells)}) | "
-        f"stdp={stdptype}, inh={inhtype}"
-    )
+                 stdptype=False, N=50, sect="int", pre_name="UNKNOWN_PRE", post_name="UNKNOWN_POST",
+                 use_synlistees=False):
+    pre_gids = _flatten_gid_pool(pre_cells)
+    post_gids = _flatten_gid_pool(post_cells)
+    if not pre_gids:
+        logging.error(f"connectcells: empty pre_gids for {pre_name} -> {post_name}")
+        return
+    if not post_gids:
+        logging.error(f"connectcells: empty post_gids for {pre_name} -> {post_name}")
+        return
 
-    nsyn = random.randint(N, N + 15)
-    # print(f"   nsyn={nsyn}")
+    # Removed verbose start logging to reduce log volume.
 
+    nsyn_requested = random.randint(N, N + 15)
     connection_count = 0
+    regular_errors = 0
+    stdp_errors = 0
+    target_errors = 0
+    clamped_synapses = 0
 
-    for post_idx, post_gid in enumerate(post_cells):
-        # print(f"   Processing post_cell {post_idx + 1}/{len(post_cells)}: gid={post_gid}")
-
+    for post_idx, post_gid in enumerate(post_gids):
+        post_gid = int(post_gid)
         if pc.gid_exists(post_gid):
-            # print(f"   ✅ GID {post_gid} exists on this rank")
-
             try:
                 target = pc.gid2cell(post_gid)
                 target_type = type(target).__name__
-                # print(f"   Target type: {target_type}")
-                logging.info(f"Target {post_gid} type: {target_type}")
+
+                if stdptype:
+                    avail = len(getattr(target, 'synlistexstdp', []))
+                elif inhtype:
+                    avail = len(getattr(target, 'synlistinh', []))
+                elif use_synlistees and getattr(target, 'synlistees', None):
+                    avail = len(target.synlistees)
+                else:
+                    avail = len(getattr(target, 'synlistex', []))
+                nsyn = min(nsyn_requested, avail)
+                if nsyn < nsyn_requested:
+                    clamped_synapses += 1
 
                 for i in range(nsyn):
-                    pre_cells = list(pre_cells)
-                    src_gid = random.choice(pre_cells)
-                    logging.info(
-                        f"[{pre_name} -> {post_name}] "
-                        f"syn {i + 1}/{nsyn}: "
-                        f"{src_gid} -> {post_gid}"
-                    )
+                    src_gid = int(random.choice(pre_gids))
 
                     if stdptype:
-                        # print(f"     🧠 Creating STDP connection...")
-                        logging.info(
-                            f"STDP [{pre_name}->{post_name}] "
-                            f"{src_gid} -> {post_gid}"
-                        )
-
                         try:
-                            # Проверяем наличие STDP синапсов
                             if not hasattr(target, 'synlistexstdp'):
-                                # print(f"     ❌ Target {target_type} has no synlistexstdp")
                                 logging.error(f"No synlistexstdp in {target_type}")
                                 continue
 
                             if len(target.synlistexstdp) <= i:
-                                # print(f"     ❌ synlistexstdp[{i}] out of range (len={len(target.synlistexstdp)})")
                                 logging.error(f"synlistexstdp index {i} out of range")
                                 continue
 
                             syn = target.synlistexstdp[i]
-                            # print(f"     ✅ Got STDP synapse: {type(syn).__name__}")
 
-                            # Создаем основное соединение
-                            nc = pc.gid_connect(src_gid, syn)
+                            nc = pc.gid_connect(int(src_gid), syn)
                             nc.delay = delay
                             nc.weight[0] = weight
                             nc.threshold = threshold
-                            pc.threshold(src_gid, threshold)
+                            pc.threshold(int(src_gid), threshold)
                             leg.netcons.append(nc)
-                            # print(f"     ✅ Main NetCon created")
-
-                            # Создаем STDP механизм
-                            # print(f"     Creating STDP mechanism...")
-                            dummy = h.Section()  # Create a dummy section to put the point processes in
-                            # print(f"     ✅ Dummy section created")
 
                             try:
-                                stdpmech = h.STDP(0, dummy)
-                                # print(f"     ✅ STDP mechanism created: {type(stdpmech).__name__}")
+                                stdpmech = h.STDP(0.5, sec=target.soma)
                                 leg.stdpmechs.append(stdpmech)
                             except Exception as stdp_error:
-                                # print(f"     ❌ STDP creation failed: {stdp_error}")
-                                logging.error(f"STDP creation error: {stdp_error}")
+                                logging.error(
+                                    f"STDP creation error {src_gid}->{post_gid}: {stdp_error}"
+                                )
                                 continue
 
-                            # Пресинаптическое соединение
-                            # print(f"     Creating presynaptic connection...")
+                            pc.threshold(src_gid, threshold)
+                            pc.threshold(post_gid, threshold)
+
                             presyn = pc.gid_connect(src_gid, stdpmech)
                             presyn.delay = delay
                             presyn.weight[0] = 2
                             presyn.threshold = threshold
                             leg.presyns.append(presyn)
-                            # print(f"     ✅ Presynaptic NetCon created")
 
-                            # Постсинаптическое соединение
-                            # print(f"     Creating postsynaptic connection...")
                             pstsyn = pc.gid_connect(post_gid, stdpmech)
                             pstsyn.delay = delay
                             pstsyn.weight[0] = -2
                             pstsyn.threshold = threshold
                             leg.postsyns.append(pstsyn)
-                            pc.threshold(post_gid, threshold)
-                            # print(f"     ✅ Postsynaptic NetCon created")
 
-                            # Установка указателя
-                            # print(f"     Setting pointer...")
+                            pointer_ok = False
                             try:
                                 h.setpointer(nc._ref_weight[0], 'synweight', stdpmech)
-                                # print(f"     ✅ Pointer set successfully")
+                                pointer_ok = True
                             except Exception as pointer_error:
-                                # print(f"     ❌ Pointer setting failed: {pointer_error}")
                                 logging.error(f"Pointer error: {pointer_error}")
 
-                            # Запись изменений весов
-                            weight_changes = h.Vector()
-                            weight_changes.record(stdpmech._ref_synweight, 1.0)
-                            leg.weight_changes_vectors.append((src_gid, post_gid, weight_changes))
-                            # print(f"     ✅ Weight recording set up")
+                            if pointer_ok:
+                                weight_changes = h.Vector()
+                                weight_changes.record(stdpmech._ref_synweight, 10.0)
+                                leg.weight_changes_vectors.append((src_gid, post_gid, weight_changes))
 
                             connection_count += 1
 
                         except Exception as stdp_conn_error:
-                            # print(f"     ❌ STDP connection error: {stdp_conn_error}")
-                            logging.error(f"STDP connection error {src_gid}->{post_gid}: {stdp_conn_error}")
+                            stdp_errors += 1
 
                     else:
                         # print(f"     🔗 Creating regular connection...")
@@ -210,13 +214,18 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
                                 syn = target.synlistinh[i]
                                 # print(f"     ✅ Got inhibitory synapse")
                             else:
-                                if not hasattr(target, 'synlistex'):
+                                if use_synlistees and getattr(target, 'synlistees', None):
+                                    if len(target.synlistees) <= i:
+                                        continue
+                                    syn = target.synlistees[i]
+                                elif not hasattr(target, 'synlistex'):
                                     # print(f"     ❌ Target {target_type} has no synlistex")
                                     continue
-                                syn = target.synlistex[i]
+                                else:
+                                    syn = target.synlistex[i]
                                 # print(f"     ✅ Got excitatory synapse")
 
-                            nc = pc.gid_connect(src_gid, syn)
+                            nc = pc.gid_connect(int(src_gid), syn)
                             nc.weight[0] = random.gauss(weight, weight / 5)
                             nc.threshold = threshold
                             nc.delay = random.gauss(delay, delay / 5)
@@ -225,34 +234,52 @@ def connectcells(leg, pre_cells, post_cells, weight=1.0, delay=1, threshold=10, 
                             connection_count += 1
 
                         except Exception as reg_conn_error:
-                            # print(f"     ❌ Regular connection error: {reg_conn_error}")
-                            logging.error(f"Regular connection error {src_gid}->{post_gid}: {reg_conn_error}")
+                            regular_errors += 1
 
             except Exception as target_error:
-                # print(f"   ❌ Error getting target for GID {post_gid}: {target_error}")
-                logging.error(f"Target error {post_gid}: {target_error}")
+                target_errors += 1
 
         else:
-            print(f"   ⏭️ GID {post_gid} not on this rank")
+            continue
 
-    # print(f"🏁 connectcells finished: {connection_count} connections created")
-    logging.info(f"connectcells end: {connection_count} connections created")
+    if regular_errors or stdp_errors or target_errors or clamped_synapses:
+        logging.warning(
+            "connectcells summary | %s(%s) -> %s(%s) | created=%s | "
+            "regular_errors=%s | stdp_errors=%s | target_errors=%s | clamped_synapses=%s",
+            pre_name,
+            len(pre_gids),
+            post_name,
+            len(post_gids),
+            connection_count,
+            regular_errors,
+            stdp_errors,
+            target_errors,
+            clamped_synapses,
+        )
 
 
 def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50, gen_name="GEN", target_name="TARGET"):
-    nsyn = random.randint(N - 5, N)
-    logger_genconnect.info(
-        f"genconnect start | leg={leg.name} | "
-        f"{gen_name}({gen_gid}) -> {target_name}({len(afferents_gids)}) | "
-        f"nsyn_per_target={nsyn} | "
-        f"weight={weight} | delay={delay} | inhtype={inhtype}"
-    )
-    for i in afferents_gids:
+    nsyn_requested = random.randint(N - 5, N)
+    gen_gid = int(gen_gid)
+    aff_gids = _flatten_gid_pool(afferents_gids)
+    clamped_synapses = 0
+    for i in aff_gids:
         if pc.gid_exists(i):
+            target = pc.gid2cell(i)
+            if inhtype:
+                avail = len(target.synlistinh)
+            elif getattr(target, 'synlistees', None):
+                avail = len(target.synlistees)
+            else:
+                avail = len(target.synlistex)
+            nsyn = min(nsyn_requested, avail)
+            if nsyn < nsyn_requested:
+                clamped_synapses += 1
             for j in range(nsyn):
-                target = pc.gid2cell(i)
                 if inhtype:
                     syn = target.synlistinh[j]
+                elif getattr(target, 'synlistees', None) and len(target.synlistees) > j:
+                    syn = target.synlistees[j]
                 else:
                     syn = target.synlistex[j]
                 nc = pc.gid_connect(gen_gid, syn)
@@ -263,21 +290,30 @@ def genconnect(leg, gen_gid, afferents_gids, weight, delay, inhtype=False, N=50,
                 # ---------------------------------------
                 # ЛОГИРУЕМ СОЕДИНЕНИЕ
                 # ---------------------------------------
-                logger_genconnect.info(
-                    "NetCon created | %s(%s) -> %s(%s) | syn_index=%s | "
-                    "threshold=%.4f | delay=%.4f | weight=%.4f | inhtype=%s",
-                    gen_name,
-                    gen_gid,
-                    target_name,
-                    i,
-                    j,
-                    nc.threshold,
-                    nc.delay,
-                    nc.weight[0],
-                    inhtype
-                )
+                # logger_genconnect.info(
+                #     "NetCon created | %s(%s) -> %s(%s) | syn_index=%s | "
+                #     "threshold=%.4f | delay=%.4f | weight=%.4f | inhtype=%s",
+                #     gen_name,
+                #     gen_gid,
+                #     target_name,
+                #     i,
+                #     j,
+                #     nc.threshold,
+                #     nc.delay,
+                #     nc.weight[0],
+                #     inhtype
+                # )
                 # ---------------------------------------
                 leg.stimnclist.append(nc)
+    if clamped_synapses:
+        logging.warning(
+            "genconnect summary | %s(%s) -> %s(%s) | clamped_synapses=%s",
+            gen_name,
+            gen_gid,
+            target_name,
+            len(aff_gids),
+            clamped_synapses,
+        )
 
 
 def motodiams(number):
@@ -295,6 +331,33 @@ def motodiams(number):
                          np.random.normal(loc=loc_stanby, scale=scale_stanby, size=standby_size)])
 
     return x2
+
+
+# New BS command-mode configuration.
+# BS should provide a tonic command (walk/run), while rhythm generation should
+# be handled by the internal CPG circuit.
+LOCOMOTION_MODES = {
+    "walk": {
+        "bs_frequency": 15,
+        "bs_weight": 0.6,
+        "bs_delay": 1,
+    },
+    "run": {
+        "bs_frequency": 35,
+        "bs_weight": 1.0,
+        "bs_delay": 1,
+    },
+}
+
+
+def get_locomotion_mode_params(mode="walk"):
+    """Return parameters for the selected locomotion command mode."""
+    if mode not in LOCOMOTION_MODES:
+        raise ValueError(
+            f"Unknown locomotion mode: {mode}. "
+            f"Available modes: {list(LOCOMOTION_MODES.keys())}"
+        )
+    return LOCOMOTION_MODES[mode]
 
 
 def add_bs_geners(freq, LEG_L, LEG_R):
@@ -328,10 +391,10 @@ def add_bs_geners(freq, LEG_L, LEG_R):
                 stim.start = start
                 stim.interval = interval
                 stim.number = number
-                logger_addgener.info(
-                    "STIM created | gid=%s | start=%.3f | interval=%s | number=%s  | cv=%s | r=%s",
-                    gid, stim.start, interval, number, False, False
-                )
+                # logger_addgener.info(
+                #     "STIM created | gid=%s | start=%.3f | interval=%s | number=%s  | cv=%s | r=%s",
+                #     gid, stim.start, interval, number, False, False
+                # )
                 leg_obj.stims.append(stim)
                 _set_gid2node(gid, rank)
                 ncstim = _NetCon(stim, None)
@@ -349,16 +412,7 @@ def add_bs_geners(freq, LEG_L, LEG_R):
     return left_E_bs_gids, left_F_bs_gids, right_E_bs_gids, right_F_bs_gids
 
 def log_gid_by_lookup(leg, gid: int, name):
-    if not pc.gid_exists(gid):
-        print(f"[rank {rank}] GID {gid} not assigned to this process.")
-        return
-
-    obj = pc.gid2cell(gid)
-    typename = type(obj).__name__
-    if name:
-        print(f"[rank {rank}] Added GID {gid} (type: {typename}) - name: {name}")
-    else:
-        print(f"[rank {rank}] Added GID {gid} (type: {typename})")
+    return
 
 
 def addgener(leg, start, freq, cv=False, r=True):
@@ -400,10 +454,11 @@ def addgener(leg, start, freq, cv=False, r=True):
         # -----------------------------------------
         # ЛОГИРУЕМ ВСЕ ПАРАМЕТРЫ STIM
         # -----------------------------------------
-        logger_addgener.info(
-            "STIM created | gid=%s | start=%.3f | interval=%s | number=%s  | cv=%s | r=%s",
-            gid, stim.start, interval, stim.number, cv, r
-        )
+        # Detailed STIM logging is disabled to keep logs compact.
+        # logger_addgener.info(
+        #     "STIM created | gid=%s | start=%.3f | interval=%s | number=%s  | cv=%s | r=%s",
+        #     gid, stim.start, interval, stim.number, cv, r
+        # )
         # -----------------------------------------
 
         leg.stims.append(stim)
@@ -425,7 +480,101 @@ def addgener(leg, start, freq, cv=False, r=True):
     return gid
 
 
-def create_connect_bs(LEG_L, LEG_R):
+def add_bs_command_generators(LEG_L, LEG_R, mode="walk"):
+    """
+    Create BS command generators for left and right legs.
+
+    Unlike add_bs_geners(), these generators do not encode extensor/flexor
+    phases and do not create the locomotor rhythm directly. They only provide
+    a tonic command input for the selected locomotion mode.
+    """
+    params = get_locomotion_mode_params(mode)
+
+    left_bs_command_gid = addgener(
+        LEG_L,
+        start=0,
+        freq=params["bs_frequency"],
+        cv=False,
+        r=False,
+    )
+    right_bs_command_gid = addgener(
+        LEG_R,
+        start=0,
+        freq=params["bs_frequency"],
+        cv=False,
+        r=False,
+    )
+
+    LEG_L.left_bs_command_gid = left_bs_command_gid
+    LEG_R.right_bs_command_gid = right_bs_command_gid
+
+    return left_bs_command_gid, right_bs_command_gid
+
+
+def connect_bs_command_to_cpg(LEG, bs_command_gid, mode="walk", side_name="LEG"):
+    """
+    Connect a BS command generator to RG_E and RG_F pools.
+
+    BS does not select the current locomotor phase here. Both RG_E and RG_F
+    receive the same command input, so alternation must be produced by the
+    internal CPG circuitry.
+    """
+    params = get_locomotion_mode_params(mode)
+    weight = params["bs_weight"]
+    delay = params["bs_delay"]
+
+    for layer in range(CV_number):
+        genconnect(
+            LEG,
+            bs_command_gid,
+            LEG.dict_RG_E[layer],
+            weight,
+            delay,
+            gen_name=f"BS_COMMAND_{mode}",
+            target_name=f"{side_name}_RG_E_{layer + 1}",
+        )
+        genconnect(
+            LEG,
+            bs_command_gid,
+            LEG.dict_RG_F[layer],
+            weight,
+            delay,
+            gen_name=f"BS_COMMAND_{mode}",
+            target_name=f"{side_name}_RG_F_{layer + 1}",
+        )
+
+
+def create_connect_bs_command(LEG_L, LEG_R, mode="walk"):
+    """
+    New BS connection scheme.
+
+    BS acts as a command source: "walk" or "run". It should not create
+    alternating E/F or left/right rhythm. Rhythm generation should be handled
+    by the internal RG/In CPG network.
+    """
+    params = get_locomotion_mode_params(mode)
+    left_bs_command_gid, right_bs_command_gid = add_bs_command_generators(LEG_L, LEG_R, mode)
+
+    connect_bs_command_to_cpg(LEG_L, left_bs_command_gid, mode=mode, side_name="LEG_L")
+    connect_bs_command_to_cpg(LEG_R, right_bs_command_gid, mode=mode, side_name="LEG_R")
+
+    logging.info(
+        "BS command mode connected | mode=%s | frequency=%s | weight=%s | delay=%s | "
+        "left_gid=%s | right_gid=%s",
+        mode,
+        params["bs_frequency"],
+        params["bs_weight"],
+        params["bs_delay"],
+        left_bs_command_gid,
+        right_bs_command_gid,
+    )
+
+
+
+# Old BS implementation: BS creates phased E/F and left/right rhythmic inputs.
+# Keep it for comparison/rollback, but use create_connect_bs_command() for the
+# new architecture where BS only sends walk/run commands.
+def create_connect_bs_rhythmic_old(LEG_L, LEG_R):
     LEG_L.left_E_bs_gids, LEG_L.left_F_bs_gids, LEG_R.right_E_bs_gids, LEG_R.right_F_bs_gids = add_bs_geners(bs_fr, LEG_L, LEG_R)
 
     ''' BS '''
@@ -450,9 +599,21 @@ def create_connect_bs(LEG_L, LEG_R):
             #genconnect(LEG_R, F_bs_gid, LEG_R.V3F, 1.75, 1)
 
 
+def create_connect_bs(LEG_L, LEG_R, mode="walk", command_mode=True):
+    """
+    Public BS connection entry point.
+
+    By default, use the new command-mode BS behavior. Set command_mode=False
+    to use the old rhythmic BS implementation for comparison.
+    """
+    if command_mode:
+        return create_connect_bs_command(LEG_L, LEG_R, mode=mode)
+    return create_connect_bs_rhythmic_old(LEG_L, LEG_R)
+
+
 def add_external_connections(LEG_L, LEG_R):
-    connectcells(LEG_L, LEG_L.V3F, LEG_R.RG_F, weight=1.3, delay=3)
-    connectcells(LEG_R, LEG_R.V3F, LEG_L.RG_F, weight=1.3, delay=3)
+    connectcells(LEG_L, LEG_L.V3F, LEG_R.RG_F, weight=0.5, delay=3)
+    connectcells(LEG_R, LEG_R.V3F, LEG_L.RG_F, weight=0.5, delay=3)
     connectcells(LEG_L, LEG_L.V0v, LEG_R.In1, weight=1.3, delay=3)
     connectcells(LEG_R, LEG_R.V0v, LEG_L.In1, weight=1.3, delay=3)
     connectcells(LEG_L, LEG_L.V0d, LEG_R.RG_F, weight=1.3, delay=3, inhtype=True)

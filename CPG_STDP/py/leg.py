@@ -4,8 +4,6 @@ from utils_cpg import *
 
 class LEG:
     def __init__(self, speed, bs_fr, inh_p, step_number, n, leg_l=False):
-        logging.info(f"Hello from rank {rank} of {nhost}")
-        logging.info("NEURON version: " + h.nrnversion())
         self.name = "LEG left?=" + str(leg_l)
         self.threshold = 10
         self.delay = 1
@@ -24,8 +22,15 @@ class LEG:
         self.gener_gids = []
         self.gener_Iagids = []
         self.gen_spike_vectors = []
+        # BS command generators are created in utils_cpg.create_connect_bs_command().
+        # They should not encode E/F phases or left/right rhythm; they only send
+        # a locomotion command such as "walk" or "run" to the internal CPG.
+        self.left_bs_command_gid = None
+        self.right_bs_command_gid = None
         # self.n_gid = get_gid()
 
+        # Internal rhythm generator pools. BS should only modulate these pools
+        # through a command signal; it should not create the locomotor rhythm directly.
         self.RG_E = []  # Rhythm generators of extensors
         self.RG_F = []  # Rhythm generators of flexor
         self.CV = []
@@ -61,6 +66,9 @@ class LEG:
                 self, self.ncell, "CV" + str(layer + 1) + "_1", "aff"
             )
             """Rhythm generator pools"""
+            # Keep RG pools inside the leg/CPG model. External BS input should
+            # only provide command strength/mode; alternation between E and F
+            # must be produced by RG/In interactions below.
             self.dict_RG_E[layer] = addpool(
                 self, self.ncell, "RG" + str(layer + 1) + "_E", "int"
             )
@@ -92,7 +100,7 @@ class LEG:
         self.Ia_aff_F = addpool(self, self.nAff, "Ia_aff_F", "aff")
         # self.BS_aff_E = addpool(self, self.nAff, "BS_aff_E", "aff")
         # self.BS_aff_F = addpool(self, self.nAff, "BS_aff_F", "aff")
-        self.V3F = addpool(self, self.nInt, "V3F", "int")
+        # self.V3F = sum(self.V3F, [])
 
         """muscles"""
         self.muscle_E = addpool(self, self.nMn, "muscle_E", "muscle")
@@ -198,6 +206,7 @@ class LEG:
                 self.dict_CV_pool[layer],
                 0.15 * k * speed,
                 2,
+                use_synlistees=True,
             )
             connectcells(
                 self,
@@ -223,8 +232,6 @@ class LEG:
             connectcells(self, self.dict_RG_F[layer], self.V0d, 0.75, 3)
             connectcells(self, self.dict_RG_E[layer], self.InE, 2.75, 3)
             connectcells(self, self.dict_RG_F[layer], self.InF, 2.75, 3)
-            # TEMP: V3F disabled for inhibition test
-            # connectcells(self, self.dict_RG_F[layer], self.V3F, 1.5, 3)
 
         """motor2muscles"""
         connectcells(
@@ -235,7 +242,10 @@ class LEG:
         )
 
         """Ia2RG, RG2Motor"""
-        connectcells(self, self.InE, self.RG_F, 0.5, 1, inhtype=True)
+        # Internal E/F alternation loop. After BS is changed to command mode,
+        # this part of the CPG becomes responsible for producing alternating
+        # extensor/flexor rhythm from the tonic walk/run command.
+        connectcells(self, self.InE, self.RG_F, 0.8, 1, inhtype=True)
         connectcells(self, self.InF, self.RG_E, 0.8, 1, inhtype=True)
 
         connectcells(self, self.InE, self.mns_F, 0.8, 1, inhtype=True)
@@ -292,68 +302,55 @@ class LEG:
         gid: int
             generators gid
         """
-        print(f"🎯 [rank {rank}] Creating IaGenerator: start={start}, weight={weight}")
-        logging.info(f"IaGenerator creation start: start={start}, weight={weight}")
+        # print(f"🎯 [rank {rank}] Creating IaGenerator: start={start}, weight={weight}")
+        # logging.info(f"IaGenerator creation start: start={start}, weight={weight}")
 
         gid = get_gid()
-        print(f"   Assigned GID: {gid}")
+        # print(f"   Assigned GID: {gid}")
 
         # Only create on rank 0 to avoid conflicts
         if rank == 0:
-            try:
                 # Check if we have motor neurons available
-                if not mn or not mn2:
-                    print("   ❌ Empty motor neuron lists")
-                    logging.error("Empty motor neuron lists for IaGenerator")
-                    return gid
+            if not mn or not mn2:
+                # print("   ❌ Empty motor neuron lists")
+                logging.error("Empty motor neuron lists for IaGenerator")
+                return gid
 
-                # Get random motor neurons from the lists
-                moto_gid = random.choice(mn)
-                moto2_gid = random.choice(mn2)
-                print(f"   Selected motor neurons: {moto_gid}, {moto2_gid}")
+            # Get random motor neurons from the lists
+            moto_gid = random.choice(mn)
+            moto2_gid = random.choice(mn2)
+            # print(f"   Selected motor neurons: {moto_gid}, {moto2_gid}")
+            moto_exists = pc.gid_exists(moto_gid)
+            moto2_exists = pc.gid_exists(moto2_gid)
 
-                moto_exists = pc.gid_exists(moto_gid)
-                moto2_exists = pc.gid_exists(moto2_gid)
-
-                interval = int(1000 / bs_fr)
-                number = int(one_step_time / interval) - 2
-
+            interval = int(1000 / bs_fr)
+            number = int(one_step_time / interval) - 2
+            try :
                 if not moto_exists or not moto2_exists:
-                    print(
-                        "   ⚠️ Motor neurons not found locally, creating simplified IaGenerator"
-                    )
+                    # print("   ⚠️ Motor neurons not found locally, creating simplified IaGenerator")
                     # Create simplified generator without muscle connections
                     stim = h.IaGenerator()
                     stim.start = start
                     stim.interval = interval
                     stim.number = number
-
                     self.stims.append(stim)
                     pc.set_gid2node(gid, rank)
                     ncstim = h.NetCon(stim, None)
                     ncstim.weight[0] = weight
                     self.netcons.append(ncstim)
                     pc.cell(gid, ncstim)
-
                 else:
                     # Create full IaGenerator with muscle connections
                     moto = pc.gid2cell(moto_gid)
                     moto2 = pc.gid2cell(moto2_gid)
-                    print(
-                        f"   Got motor neuron objects: {type(moto).__name__}, {type(moto2).__name__}"
-                    )
-
+                    # print(f"   Got motor neuron objects: {type(moto).__name__}, {type(moto2).__name__}")
                     stim = h.IaGenerator()
-                    print(f"   ✅ IaGenerator created: {type(stim).__name__}")
-                    logging.info("IaGenerator object created successfully")
-
+                    # print(f"   ✅ IaGenerator created: {type(stim).__name__}")
+                    # logging.info("IaGenerator object created successfully")
                     stim.start = start
                     stim.interval = interval
                     stim.number = number
-                    print(
-                        f"   Parameters set: start={stim.start}, interval={stim.interval}, number={stim.number}"
-                    )
-
+                    # print(f"   Parameters set: start={stim.start}, interval={stim.interval}, number={stim.number}")
                     self.stims.append(stim)
 
                     # Set pointers if motor neurons have muscle_unit
@@ -362,18 +359,18 @@ class LEG:
                             h.setpointer(
                                 moto.muscle_unit(0.5)._ref_F_fHill, "fhill", stim
                             )
-                            print("   ✅ First pointer set (fhill)")
+                        # print("   ✅ First pointer set (fhill)")
                     except Exception as ptr1_error:
-                        print(f"   ⚠️ First pointer warning: {ptr1_error}")
+                            logging.warning(f"   ⚠️ First pointer warning: {ptr1_error}")
 
                     try:
                         if hasattr(moto2, "muscle_unit"):
                             h.setpointer(
                                 moto2.muscle_unit(0.5)._ref_F_fHill, "fhill2", stim
                             )
-                            print("   ✅ Second pointer set (fhill2)")
+                            # print("   ✅ Second pointer set (fhill2)")
                     except Exception as ptr2_error:
-                        print(f"   ⚠️ Second pointer warning: {ptr2_error}")
+                        logging.warning(f"   ⚠️ Second pointer warning: {ptr2_error}")
 
                     pc.set_gid2node(gid, rank)
                     ncstim = h.NetCon(stim, None)
@@ -381,16 +378,15 @@ class LEG:
                     self.netcons.append(ncstim)
                     pc.cell(gid, ncstim)
 
-                log_gid_by_lookup(self, gid, "Ia")
-                print(f"🎯 IaGenerator creation completed successfully: GID={gid}")
-                logging.info(f"IaGenerator creation completed: GID={gid}")
+                # log_gid_by_lookup(self, gid, "Ia")
+                #print(f"🎯 IaGenerator creation completed successfully: GID={gid}")
+                # logging.info(f"IaGenerator creation completed: GID={gid}")
 
             except Exception as ia_error:
-                print(f"❌ IaGenerator creation failed: {ia_error}")
+                # print(f"❌ IaGenerator creation failed: {ia_error}")
                 logging.error(f"IaGenerator creation failed: {ia_error}")
                 # Still increment GID to maintain consistency
-                pass
-
+                # pass
         else:
             # Other ranks just register the GID assignment
             pc.set_gid2node(gid, 0)
@@ -421,3 +417,25 @@ class LEG:
                 self.addIagener(self.muscle_F, self.muscle_E, start_time_f, weight=0.1)
             )
         return E_ia_gids, F_ia_gids
+
+    def get_intrinsic_cpg_groups(self):
+        """
+        Return the main internal CPG groups that should be checked when BS works
+        in command mode.
+
+        Expected architecture:
+        - BS provides only the locomotion command: walk/run.
+        - RG_E/RG_F and inhibitory interneurons generate the rhythm internally.
+        - Motoneurons and muscles should follow the generated RG activity.
+        """
+        return {
+            "RG_E": self.RG_E,
+            "RG_F": self.RG_F,
+            "InE": self.InE,
+            "InF": self.InF,
+            "mns_E": self.mns_E,
+            "mns_F": self.mns_F,
+            "muscle_E": self.muscle_E,
+            "muscle_F": self.muscle_F,
+            "V3F_by_layer": self.dict_V3F,
+        }

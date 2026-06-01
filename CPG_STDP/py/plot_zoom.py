@@ -1,143 +1,270 @@
+import fnmatch
 import os
 import re
 
 import h5py
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-RES_DIR = os.path.join(BASE_DIR, "res")
-OUT_DIR = os.path.join(RES_DIR, "images_manual")
+DATA_DIR = "res"
 
-os.makedirs(OUT_DIR, exist_ok=True)
+MAX_POINTS = 10000
+
+X_TICKS_FROM = 0
+X_TICKS_TO = 7000
+X_TICK_STEP = 1000
+X_LIMIT_LEFT = -50
+X_LIMIT_RIGHT = 7300
 
 
 def natural_key(text):
-    return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', text)]
+    return [int(c) if c.isdigit() else c.lower() for c in re.split(r"(\d+)", text)]
 
 
-def read_time():
-    time_path = os.path.join(RES_DIR, "time.txt")
+def short_name(filename):
+    name = filename.replace(".hdf5", "")
+    name = name.replace("_sp_100_CVs_6_bs_100_right", "")
+    name = name.replace("_sp_100_CVs_6_bs_100_left", "")
+    return name
+
+
+def get_side(filename):
+    if filename.endswith("_right.hdf5"):
+        return "right"
+    if filename.endswith("_left.hdf5"):
+        return "left"
+    return None
+
+
+def read_time(data_dir):
+    time_path = os.path.join(data_dir, "time.txt")
+
     if not os.path.exists(time_path):
         raise FileNotFoundError(f"Не найден файл времени: {time_path}")
 
-    with open(time_path, "r", encoding="utf-8") as f:
-        return np.array([float(line.strip()) for line in f if line.strip()], dtype=float)
+    time = np.loadtxt(time_path, dtype=float).reshape(-1)
+
+    if len(time) > 0 and time[-1] < 100:
+        time = time * 1000
+
+    return time
 
 
-def read_concat_hdf5(file_path):
-    """
-    Читает все датасеты из hdf5 и склеивает их подряд:
-    step_0 + step_1 + step_2 + ...
-    """
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Не найден файл: {file_path}")
+def read_hdf5_file(file_path):
+
+    arrays = []
 
     with h5py.File(file_path, "r") as f:
         keys = sorted(list(f.keys()), key=natural_key)
 
-        if not keys:
-            raise ValueError(f"В файле нет датасетов: {file_path}")
-
-        arrays = []
         for key in keys:
-            arr = np.array(f[key], dtype=float).squeeze()
-            if arr.ndim != 1:
-                arr = arr.reshape(-1)
+            arr = np.array(f[key], dtype=float).squeeze().reshape(-1)
             arrays.append(arr)
 
-    full_signal = np.concatenate(arrays)
-    return full_signal
+    if len(arrays) == 0:
+        return np.array([])
+
+    return np.concatenate(arrays)
 
 
-def make_concat_time(base_time, n_steps):
-    """
-    Если один step имеет свою временную сетку base_time,
-    то строим общую ось времени для склеенного сигнала
-    """
-    if len(base_time) < 2:
-        return np.arange(len(base_time) * n_steps)
+def get_first_time_block(values, time_len):
+    if len(values) == 0:
+        return np.array([])
 
-    dt = base_time[1] - base_time[0]
-    step_duration = len(base_time) * dt
-
-    parts = []
-    for i in range(n_steps):
-        parts.append(base_time + i * step_duration)
-
-    return np.concatenate(parts)
+    return values[:time_len]
 
 
-def read_num_steps(file_path):
-    with h5py.File(file_path, "r") as f:
-        return len(f.keys())
+def decimate(x, y, max_points=MAX_POINTS):
+    n = min(len(x), len(y))
+
+    if n == 0:
+        return np.array([]), np.array([])
+
+    x = x[:n]
+    y = y[:n]
+
+    step = max(1, n // max_points)
+
+    return x[::step], y[::step]
 
 
-def plot_pair(time, e_file, f_file, title, ylabel="V (mV)", out_name="result.png", use_real_time=False):
-    e_path = os.path.join(RES_DIR, e_file)
-    f_path = os.path.join(RES_DIR, f_file)
+def read_all_signals(data_dir):
+    time = read_time(data_dir)
 
-    y_e = read_concat_hdf5(e_path)
-    y_f = read_concat_hdf5(f_path)
+    signals = {
+        "right": [],
+        "left": [],
+    }
 
-    if use_real_time:
-        n_steps_e = read_num_steps(e_path)
-        n_steps_f = read_num_steps(f_path)
+    files = sorted(
+        fnmatch.filter(os.listdir(data_dir), "*.hdf5"),
+        key=natural_key
+    )
 
-        x_e = make_concat_time(time, n_steps_e)
-        x_f = make_concat_time(time, n_steps_f)
-    else:
-        x_e = np.arange(len(y_e))
-        x_f = np.arange(len(y_f))
+    for filename in files:
+        if filename == "time.hdf5":
+            continue
 
-    print("E file:", e_file, "len =", len(y_e))
-    print("F file:", f_file, "len =", len(y_f))
-    print("Base time len:", len(time))
+        side = get_side(filename)
 
-    fig, axes = plt.subplots(2, 1, figsize=(14, 8), sharex=False)
+        if side is None:
+            continue
 
-    axes[0].plot(x_e, y_e, linewidth=1.0)
-    axes[0].set_title(e_file, fontsize=11)
-    axes[0].set_ylabel(ylabel)
-    axes[0].grid(True, alpha=0.3)
+        file_path = os.path.join(data_dir, filename)
+        values = read_hdf5_file(file_path)
 
-    axes[1].plot(x_f, y_f, linewidth=1.0)
-    axes[1].set_title(f_file, fontsize=11)
-    axes[1].set_ylabel(ylabel)
-    axes[1].grid(True, alpha=0.3)
+        y = get_first_time_block(values, len(time))
+        n = min(len(time), len(y))
 
-    if use_real_time:
-        axes[1].set_xlabel("time (ms)")
-    else:
-        axes[1].set_xlabel("sample index")
+        if n == 0:
+            print(f"Пропущен пустой файл: {filename}")
+            continue
 
-    fig.suptitle(title, fontsize=14)
-    fig.tight_layout(rect=[0, 0, 1, 0.97])
+        x = time[:n]
+        y = y[:n]
 
-    out_path = os.path.join(OUT_DIR, out_name)
-    fig.savefig(out_path, dpi=200)
-    plt.show()
-    plt.close(fig)
+        signals[side].append({
+            "filename": filename,
+            "name": short_name(filename),
+            "x": x,
+            "y": y,
+        })
 
-    print(f"График сохранён: {out_path}")
+        print(
+            f"{filename}: side={side}, "
+            f"time={len(time)}, values={len(values)}, used={n}"
+        )
+
+    return signals, time
+
+
+def setup_x_axis(ax):
+    ax.set_xticks(np.arange(X_TICKS_FROM, X_TICKS_TO + 1, X_TICK_STEP))
+    ax.set_xlim(X_LIMIT_LEFT, X_LIMIT_RIGHT)
+    ax.grid(True, alpha=0.25)
+
+
+def draw_single_plots(signals, results_dir):
+    for side, side_signals in signals.items():
+        side_dir = os.path.join(results_dir, side)
+        os.makedirs(side_dir, exist_ok=True)
+
+        for item in side_signals:
+            filename = item["filename"]
+            x = item["x"]
+            y = item["y"]
+
+            x_plot, y_plot = decimate(x, y)
+
+            plt.figure(figsize=(15, 4))
+            plt.plot(x_plot, y_plot, linewidth=1)
+
+            plt.title(filename)
+            plt.xlabel("time (ms)")
+            plt.ylabel("value")
+
+            ax = plt.gca()
+            setup_x_axis(ax)
+
+            png_name = filename.replace(".hdf5", ".png")
+            png_path = os.path.join(side_dir, png_name)
+
+            plt.savefig(png_path, dpi=150, bbox_inches="tight")
+            plt.close()
+
+            print(f"Сохранено отдельное фото: {png_path}")
+
+
+def draw_overview_for_side(side, side_signals, results_dir):
+    if len(side_signals) == 0:
+        print(f"Нет данных для {side}")
+        return
+
+    n = len(side_signals)
+
+    fig_height = max(10, n * 0.32)
+
+    fig, ax = plt.subplots(figsize=(16, fig_height))
+
+    color_cycle = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+
+    yticks = []
+    ylabels = []
+
+    for i, item in enumerate(side_signals):
+        x = item["x"]
+        y = item["y"]
+
+        x_plot, y_plot = decimate(x, y)
+
+        y_min = np.nanmin(y_plot)
+        y_max = np.nanmax(y_plot)
+
+        if y_max > y_min:
+            y_norm = (y_plot - y_min) / (y_max - y_min)
+        else:
+            y_norm = np.zeros_like(y_plot)
+
+        offset = n - 1 - i
+        amplitude = 0.75
+
+        y_overview = offset + y_norm * amplitude
+
+        color = color_cycle[i % len(color_cycle)]
+
+        ax.plot(
+            x_plot,
+            y_overview,
+            linewidth=0.8,
+            color=color
+        )
+
+        yticks.append(offset + amplitude / 2)
+        ylabels.append(item["name"])
+
+    ax.set_yticks(yticks)
+    ax.set_yticklabels(ylabels, fontsize=7)
+
+    ax.set_xlabel("t (ms)")
+    ax.set_title(f"Full overview — {side} leg, n={n}")
+
+    setup_x_axis(ax)
+
+    ax.set_ylim(-0.5, n + 0.5)
+
+    overview_path = os.path.join(results_dir, f"overview_{side}.png")
+
+    plt.savefig(overview_path, dpi=200, bbox_inches="tight")
+    plt.close()
+
+    print(f"Сохранено overview: {overview_path}")
+
+
+def draw_overviews(signals, results_dir):
+    draw_overview_for_side("right", signals["right"], results_dir)
+    draw_overview_for_side("left", signals["left"], results_dir)
 
 
 def main():
-    print("RES_DIR:", RES_DIR)
-    print("FILES IN RES:", os.listdir(RES_DIR))
+    data_dir = os.path.abspath(DATA_DIR)
+    results_dir = os.path.join(data_dir, "results_matplotlib")
+    os.makedirs(results_dir, exist_ok=True)
 
-    time = read_time()
+    print(f"Папка с данными: {data_dir}")
+    print(f"Папка результатов: {results_dir}")
 
-    plot_pair(
-        time,
-        "muscle_E_sp_100_CVs_6_bs_100_left.hdf5",
-        "muscle_F_sp_100_CVs_6_bs_100_left.hdf5",
-        "HDF5 signals",
-        ylabel="Value",
-        out_name="figure_muscle_left_concat.png",
-        use_real_time=False
-    )
+    signals, time = read_all_signals(data_dir)
+
+    print(f"time.txt: {len(time)} точек")
+    if len(time) > 0:
+        print(f"Диапазон времени: {time[0]} .. {time[-1]} ms")
+
+    print(f"right signals: {len(signals['right'])}")
+    print(f"left signals: {len(signals['left'])}")
+
+    draw_single_plots(signals, results_dir)
+    draw_overviews(signals, results_dir)
 
 
 if __name__ == "__main__":

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import sys
 import os
+import time
 
 # Fix for macOS having PYTHONPATH pointing to system NEURON
 if "darwin" in sys.platform:
     sys.path = [p for p in sys.path if "/Applications/NEURON/lib/python" not in p]
-    # Also unset PYTHONPATH for subprocesses
     if "PYTHONPATH" in os.environ:
         del os.environ["PYTHONPATH"]
 
@@ -13,7 +13,7 @@ from constants import *
 from utils_cpg import *
 from leg import *
 from recorg_cpg import *
-import time
+
 
 def count_group_neurons(groups):
     total = 0
@@ -51,8 +51,6 @@ def log_leg_stats(leg, leg_name="LEG"):
     logging.info(f"[{leg_name}] total neurons: {stats['grand_total']}")
     for attr in ["motogroups", "affgroups", "intgroups", "musclegroups"]:
         logging.info(f"[{leg_name}] {attr}: {stats[attr]['total']}")
-        for group_name, n in stats[attr]["details"]:
-            logging.info(f"[{leg_name}]   {group_name}: {n}")
 
     return stats
 
@@ -112,16 +110,14 @@ def prun(speed, step_number):
             pc.set_maxstep(10)
 
         h.finitialize(-65)
-        logging.info(f"Integrator settings: dt={h.dt}, tstop={h.tstop}, is_macos={is_macos}")
-        logging.info("finitialize completed")
 
         if is_macos:
-            next_log_t = 500.0
+            # next_log_t = 500.0
             while h.t < time_sim:
                 h.fadvance()
-                if h.t >= next_log_t:
-                    logging.info(f"Progress: {h.t:.1f}/{time_sim} ms")
-                    next_log_t += 500.0
+                # if h.t >= next_log_t:
+                    # logging.info(f"Progress: {h.t:.1f}/{time_sim} ms")
+                    # next_log_t += 500.0
         else:
             pc.psolve(time_sim)
 
@@ -133,45 +129,80 @@ def prun(speed, step_number):
         logging.exception(f"Simulation error: {sim_error}")
         raise
 
+
 def finish():
-    ''' proper exit '''
+    """proper exit"""
     pc.runworker()
     pc.done()
-    # print("hi after finish")
     h.quit()
 
+
+def save_stdp_weights(leg, side, version_idx, base_dir):
+    """Save STDP weights for a leg"""
+    stdp_dir = f'./{base_dir}/stdp_{side}'
+    if not os.path.exists(stdp_dir):
+        os.makedirs(stdp_dir)
+
+    if not hasattr(leg, 'weight_changes_vectors'):
+        logging.warning(f"{side.upper()} has no weight_changes_vectors attribute")
+        return 0
+
+    stdp_count = 0
+    for src_gid, post_gid, weight_vec in leg.weight_changes_vectors:
+        try:
+            src_obj = pc.gid2cell(src_gid) if pc.gid_exists(src_gid) else None
+            post_obj = pc.gid2cell(post_gid) if pc.gid_exists(post_gid) else None
+
+            src_type = type(src_obj).__name__ if src_obj is not None else "None"
+            post_type = type(post_obj).__name__ if post_obj is not None else "None"
+
+            safe_name = safe_filename(f'{side}_{src_type}_{src_gid}_to_{post_type}_{post_gid}.hdf5')
+            fname = f'{stdp_dir}/{safe_name}'
+
+            with hdf5.File(fname, 'w') as file:
+                file.create_dataset(f'#0_step_{version_idx}', data=np.array(weight_vec), compression="gzip")
+            stdp_count += 1
+
+        except Exception as e:
+            logging.warning(f"Error saving STDP weight {src_gid} -> {post_gid} ({side}): {e}")
+
+    return stdp_count
+
 if __name__ == '__main__':
-    '''
+    """
     cpg_ex: cpg
         topology of central pattern generation + reflex arc
-    '''
-    print(f"🎬 [rank {rank}] MAIN EXECUTION START")
-    print(f"   Rank {rank} of {nhost} processes")
-    print(f"   Parameters: N={N}, speed={speed}, bs_fr={bs_fr}, versions={versions}")
-    print(f"   Step number: {step_number}, one_step_time: {one_step_time}")
-    print(f"   Total simulation time: {time_sim} ms")
+    """
     logging.info("=== MAIN EXECUTION START ===")
-    logging.info(f"Rank {rank}/{nhost}, N={N}, Step number: {step_number}, speed={speed}, versions={versions}")
+    # BS now works as a command source, not as a rhythm generator.
+    # Change this value to "run" to test another locomotion command mode.
+    locomotion_mode = "walk"
+    logging.info(
+        f"Simulation parameters | N={N} | speed={speed} | "
+        f"bs_fr={bs_fr} | bs_command_mode={locomotion_mode} | versions={versions} | "
+        f"steps={step_number} | sim_time={time_sim} ms"
+    )
 
     if rank == 0:
         os.makedirs(file_name, exist_ok=True)
-        print(f"   ✅ Created directory: {file_name}")
 
-    # Synchronize all ranks before proceeding
     pc.barrier()
 
     main_t0 = time.perf_counter()
 
     for i in range(versions):
         version_t0 = time.perf_counter()
-        logging.info(f"=== VERSION {i + 1} START ===")
 
         try:
             build_t0 = time.perf_counter()
 
             LEG_L = LEG(speed, bs_fr, 100, step_number, N, leg_l=True)
             LEG_R = LEG(speed, bs_fr, 100, step_number, N, leg_l=False)
-            create_connect_bs(LEG_L, LEG_R)
+            create_connect_bs(LEG_L, LEG_R, mode=locomotion_mode, command_mode=True)
+            logging.info(
+                f"[version {i + 1}] BS command mode connected: {locomotion_mode}. "
+                "BS provides only walk/run command; rhythm should be generated by internal RG/In CPG circuit."
+            )
             add_external_connections(LEG_L, LEG_R)
 
             build_time = time.perf_counter() - build_t0
@@ -179,23 +210,19 @@ if __name__ == '__main__':
 
             pc.barrier()
 
-            # --- Подсчёт нейронов ---
             stats_l = log_leg_stats(LEG_L, "LEG_L")
             stats_r = log_leg_stats(LEG_R, "LEG_R")
 
             total_neurons = stats_l["grand_total"] + stats_r["grand_total"]
             logging.info(f"[version {i + 1}] total neurons in simulation: {total_neurons}")
 
-            # --- Попытка подсчёта соединений ---
             syn_l_total, syn_l_details = try_count_synapses(LEG_L)
             syn_r_total, syn_r_details = try_count_synapses(LEG_R)
             total_synapses = syn_l_total + syn_r_total
 
-            logging.info(f"[version {i + 1}] estimated synapses LEG_L: {syn_l_total}, details={syn_l_details}")
-            logging.info(f"[version {i + 1}] estimated synapses LEG_R: {syn_r_total}, details={syn_r_details}")
+            logging.info(f"[version {i + 1}] synapses | LEG_L={syn_l_total} | LEG_R={syn_r_total}")
             logging.info(f"[version {i + 1}] estimated total synapses: {total_synapses}")
 
-            # Synchronize after network creation
             pc.barrier()
             recorder_t0 = time.perf_counter()
 
@@ -238,20 +265,6 @@ if __name__ == '__main__':
 
             recorder_time = time.perf_counter() - recorder_t0
 
-            logging.info(f"[version {i + 1}] recorder setup time: {recorder_time:.3f} s")
-            logging.info(
-                f"[version {i + 1}] recorders count: "
-                f"motor_mem_l={len(motorecorders_mem_l)}, motor_mem_r={len(motorecorders_mem_r)}, "
-                f"aff_l={len(affrecorders_l)}, aff_r={len(affrecorders_r)}, "
-                f"int_l={len(recorders_l)}, int_r={len(recorders_r)}, "
-                f"muscle_l={len(musclerecorders_l)}, muscle_r={len(musclerecorders_r)}, "
-                f"force_l={len(force_recorders_l)}, force_r={len(force_recorders_r)}"
-            )
-
-            # Synchronize before simulation
-            pc.barrier()
-
-            logging.info(f"[version {i + 1}] simulation start")
             t, sim_time_sec = prun(speed, step_number)
             logging.info(f"[version {i + 1}] simulation time: {sim_time_sec:.3f} s")
 
@@ -259,8 +272,7 @@ if __name__ == '__main__':
 
             if rank == 0:
                 with open(f'./{file_name}/time.txt', 'w') as time_file:
-                    for time_val in t:
-                        time_file.write(str(time_val) + "\n")
+                    time_file.write("\n".join(map(str, t)) + "\n")
 
             for group, recorder in zip(LEG_L.musclegroups, musclerecorders_l):
                 spikeout(group[k_nrns], group[k_name], i, recorder, "left")
@@ -293,43 +305,22 @@ if __name__ == '__main__':
                 spikeout(group[k_nrns], f'am_{group[k_name]}', i, recorder, "right")
 
             if rank == 0:
-                stdp_dir = f'./{file_name}/stdp_1'
-                if not os.path.exists(stdp_dir):
-                    os.makedirs(stdp_dir)
-
-                stdp_count = 0
-                for src_gid, post_gid, weight_vec in LEG_L.weight_changes_vectors:
-                    try:
-                        src_obj = pc.gid2cell(src_gid) if pc.gid_exists(src_gid) else None
-                        post_obj = pc.gid2cell(post_gid) if pc.gid_exists(post_gid) else None
-
-                        src_type = type(src_obj).__name__ if src_obj is not None else "None"
-                        post_type = type(post_obj).__name__ if post_obj is not None else "None"
-
-                        safe_name = safe_filename(f'{src_type}_{src_gid}_to_{post_type}_{post_gid}.hdf5')
-                        fname = f'{stdp_dir}/{safe_name}'
-
-                        with hdf5.File(fname, 'w') as file:
-                            file.create_dataset(f'#0_step_{i}', data=np.array(weight_vec), compression="gzip")
-                        stdp_count += 1
-
-                    except Exception as e:
-                        logging.warning(f"Error saving STDP weight {src_gid} -> {post_gid}: {e}")
-
-                logging.info(f"[version {i + 1}] saved STDP weight files: {stdp_count}")
+                stdp_count_l = save_stdp_weights(LEG_L, 'left', i, file_name)
+                stdp_count_r = save_stdp_weights(LEG_R, 'right', i, file_name)
+                logging.info(f"[version {i + 1}] saved STDP files: left={stdp_count_l}, right={stdp_count_r}")
 
             save_time = time.perf_counter() - save_t0
             logging.info(f"[version {i + 1}] save time: {save_time:.3f} s")
             total_version_time = time.perf_counter() - version_t0
             logging.info(
-                f"[version {i + 1}] summary: "
-                f"neurons={total_neurons}, "
-                f"estimated_synapses={total_synapses}, "
-                f"build_time={build_time:.3f} s, "
-                f"recorder_time={recorder_time:.3f} s, "
-                f"simulation_time={sim_time_sec:.3f} s, "
-                f"save_time={save_time:.3f} s, "
-                f"total_version_time={total_version_time:.3f} s"
+                f"[version {i + 1}] summary | "
+                f"neurons={total_neurons} | "
+                f"estimated_synapses={total_synapses} | "
+                f"build={build_time:.3f}s | "
+                f"recorders={recorder_time:.3f}s | "
+                f"simulation={sim_time_sec:.3f}s | "
+                f"save={save_time:.3f}s | "
+                f"total={total_version_time:.3f}s"
             )
 
         except Exception as version_error:
