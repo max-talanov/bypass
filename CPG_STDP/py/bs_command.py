@@ -30,7 +30,7 @@ WALK = BSMode(
     drive_weight_RG=1.2,
     drive_weight_In=0.4,
     rg_self_weight=0.35,
-    InEF_inh_weight=0.8,
+    InEF_inh_weight=0.5,
     rg2mns_weight=2.75,
 )
 
@@ -42,7 +42,7 @@ RUN = BSMode(
     drive_weight_RG=1.8,
     drive_weight_In=0.9,
     rg_self_weight=0.55,
-    InEF_inh_weight=1.1,
+    InEF_inh_weight=0.7,
     rg2mns_weight=3.5,
 )
 
@@ -91,8 +91,8 @@ class BSCommand:
 
         # (leg, gid_store, label, E_delay, F_delay, E_weight_scale, F_weight_scale)
         leg_configs = [
-            (LEG_L, self.left_cmd_gids,  "LEFT",  1.0, 3.0, 1.0, 0.5),
-            (LEG_R, self.right_cmd_gids, "RIGHT", 3.0, 1.0, 0.5, 1.0),
+            (LEG_L, self.left_cmd_gids,  "LEFT",   1.0, 15.0, 1.0, 0.15),
+            (LEG_R, self.right_cmd_gids, "RIGHT", 15.0,  1.0, 0.15, 1.0),
         ]
 
         for leg_obj, gid_store, label, e_delay, f_delay, e_scale, f_scale in leg_configs:

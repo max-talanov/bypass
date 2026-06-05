@@ -100,8 +100,8 @@ if __name__ == '__main__':
             LEG_L = LEG(speed, bs_fr, 100, step_number, N, leg_l=True)
             LEG_R = LEG(speed, bs_fr, 100, step_number, N, leg_l=False)
 
-            LEG_L.setup_autonomous_rhythm()
-            LEG_R.setup_autonomous_rhythm()
+            LEG_L.setup_autonomous_rhythm(start_in_extension=True)   # left starts in stance (E)
+            LEG_R.setup_autonomous_rhythm(start_in_extension=False)  # right starts in swing (F), anti-phase
 
             bs_cmd = create_connect_bs_command(LEG_L, LEG_R, mode=WALK)
             add_external_connections(LEG_L, LEG_R)

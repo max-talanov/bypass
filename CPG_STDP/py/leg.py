@@ -351,57 +351,63 @@ class LEG:
         w = weight if weight is not None else 0.25
         connectcells(self, nucleus, nucleus, pre_name="", post_name="", weight=w, delay=0.5)
 
-    def setup_autonomous_rhythm(self):
-        logging.info("setup_autonomous_rhythm: %s", self.name)
-
-        for layer in range(CV_number):
-            connectcells(self, self.dict_RG_E[layer], self.dict_RG_E[layer],
-                         pre_name="RG_E_self", post_name="RG_E_self",
-                         weight=0.35, delay=0.5)
-            connectcells(self, self.dict_RG_F[layer], self.dict_RG_F[layer],
-                         pre_name="RG_F_self", post_name="RG_F_self",
-                         weight=0.35, delay=0.5)
-
-        connectcells(self, self.InE, self.InF, 0.12, 1, inhtype=True,
-                     pre_name="InE_inh_InF", post_name="InF")
-        connectcells(self, self.InF, self.InE, 0.12, 1, inhtype=True,
-                     pre_name="InF_inh_InE", post_name="InE")
+    def setup_autonomous_rhythm(self, start_in_extension: bool = True):
+        
+        logging.info("setup_autonomous_rhythm: %s start_in_extension=%s",
+                     self.name, start_in_extension)
+       
+        connectcells(self, self.InE, self.InF, 0.08, 1, inhtype=True,
+                     pre_name="InE_inh_InF_extra", post_name="InF")
+        connectcells(self, self.InF, self.InE, 0.08, 1, inhtype=True,
+                     pre_name="InF_inh_InE_extra", post_name="InE")
 
         if rank == 0:
-            kick_E = h.NetStim()
-            kick_E.start = 8.0
-            kick_E.interval = 5.0
-            kick_E.number = 8
-            kick_E.noise = 0.0
-            self.stims.append(kick_E)
+            if start_in_extension:
+                lead_start, lead_interval, lead_number, lead_weight = 8.0,  5.0, 8, 0.6
+                follow_start, follow_interval, follow_number, follow_weight = 16.0, 5.0, 5, 0.3
+                lead_pool, follow_pool = "E", "F"
+            else:
+                lead_start, lead_interval, lead_number, lead_weight = 8.0,  5.0, 8, 0.6
+                follow_start, follow_interval, follow_number, follow_weight = 16.0, 5.0, 5, 0.3
+                lead_pool, follow_pool = "F", "E"
 
-            kick_F = h.NetStim()
-            kick_F.start = 12.0
-            kick_F.interval = 5.0
-            kick_F.number = 6
-            kick_F.noise = 0.0
-            self.stims.append(kick_F)
+            kick_lead = h.NetStim()
+            kick_lead.start    = lead_start
+            kick_lead.interval = lead_interval
+            kick_lead.number   = lead_number
+            kick_lead.noise    = 0.0
+            self.stims.append(kick_lead)
+
+            kick_follow = h.NetStim()
+            kick_follow.start    = follow_start
+            kick_follow.interval = follow_interval
+            kick_follow.number   = follow_number
+            kick_follow.noise    = 0.0
+            self.stims.append(kick_follow)
 
             n_kick_syn = 10
 
             for layer in range(CV_number):
-                for target_gid in self.dict_RG_E[layer]:
+                lead_gids   = self.dict_RG_E[layer] if lead_pool   == "E" else self.dict_RG_F[layer]
+                follow_gids = self.dict_RG_F[layer] if follow_pool == "F" else self.dict_RG_E[layer]
+
+                for target_gid in lead_gids:
                     if pc.gid_exists(target_gid):
                         cell = pc.gid2cell(target_gid)
                         if hasattr(cell, 'synlistex') and cell.synlistex:
                             for si in range(min(n_kick_syn, len(cell.synlistex))):
-                                nc = h.NetCon(kick_E, cell.synlistex[si])
-                                nc.weight[0] = 0.6
+                                nc = h.NetCon(kick_lead, cell.synlistex[si])
+                                nc.weight[0] = lead_weight
                                 nc.delay = 0.5
                                 self.stimnclist.append(nc)
 
-                for target_gid in self.dict_RG_F[layer]:
+                for target_gid in follow_gids:
                     if pc.gid_exists(target_gid):
                         cell = pc.gid2cell(target_gid)
                         if hasattr(cell, 'synlistex') and cell.synlistex:
                             for si in range(min(n_kick_syn, len(cell.synlistex))):
-                                nc = h.NetCon(kick_F, cell.synlistex[si])
-                                nc.weight[0] = 0.4
+                                nc = h.NetCon(kick_follow, cell.synlistex[si])
+                                nc.weight[0] = follow_weight
                                 nc.delay = 0.5
                                 self.stimnclist.append(nc)
 
