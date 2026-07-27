@@ -72,7 +72,7 @@ class CPG:
         self.affgroups = []
         self.RG_E = []  # Rhythm generators of extensors
         self.RG_F = []  # Rhythm generators of flexor
-        self.V3F = []
+        self. = []
 
         for layer in range(CV_number):
             '''cut and muscle feedback'''
